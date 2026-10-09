@@ -116,6 +116,11 @@ function adminOnly(req, res, next) {
  if (!req.session.admin) return res.status(401).json({ error: "Admin login required" });
  next();
 }
+app.post("/api/admin/uploads", adminOnly, (req,res,next) => imageUpload.array("images",10)(req,res,err => {
+ if (err) return res.status(400).json({error:err.message || "Could not upload images."});
+ if (!req.files || !req.files.length) return res.status(400).json({error:"Choose at least one image file."});
+ res.status(201).json({ imageUrls: req.files.map(file => "/uploads/" + file.filename) });
+}));
 function cleanText(v, max=500) { return String(v ?? "").trim().slice(0, max); }
 function publicProduct(p) {
  let imageUrls = [];
