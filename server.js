@@ -129,7 +129,7 @@ function publicProduct(p) {
 }
 function cleanImageUrls(value) {
  const input = Array.isArray(value) ? value : String(value || "").split(/\r?\n/);
- return [...new Set(input.map(v => cleanText(v, 1000)).filter(v => /^https?:\/\//i.test(v)))].slice(0,10);
+ return [...new Set(input.map(v => cleanText(v, 1000)).filter(v => /^https?:\/\//i.test(v) || /^\/uploads\/[a-f0-9]+\.(jpg|png|webp|gif|avif)$/i.test(v)))].slice(0,10);
 }
 
 app.get("/api/config", (req,res) => res.json({
