@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS products (
  description_my TEXT NOT NULL DEFAULT '', description_en TEXT NOT NULL DEFAULT '',
  price INTEGER NOT NULL CHECK(price >= 0), stock INTEGER NOT NULL DEFAULT 0 CHECK(stock >= 0),
  unit TEXT NOT NULL DEFAULT 'ခု / unit', image_emoji TEXT NOT NULL DEFAULT '⚙️',
+ image_urls TEXT NOT NULL DEFAULT '[]',
  active INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS orders (
@@ -54,6 +55,9 @@ CREATE TABLE IF NOT EXISTS orders (
 );
 CREATE INDEX IF NOT EXISTS idx_orders_created ON orders(created_at DESC);
 `);
+// Safe schema migration for existing deployments.
+const productColumns = db.prepare("PRAGMA table_info(products)").all().map(c => c.name);
+if (!productColumns.includes("image_urls")) db.exec("ALTER TABLE products ADD COLUMN image_urls TEXT NOT NULL DEFAULT '[]'");
 const count = db.prepare("SELECT COUNT(*) AS n FROM products").get().n;
 if (!count) {
  const seed = [
@@ -100,7 +104,15 @@ function adminOnly(req, res, next) {
  next();
 }
 function cleanText(v, max=500) { return String(v ?? "").trim().slice(0, max); }
-function publicProduct(p) { return { ...p, active: Boolean(p.active) }; }
+function publicProduct(p) {
+ let imageUrls = [];
+ try { imageUrls = JSON.parse(p.image_urls || "[]"); } catch {}
+ return { ...p, imageUrls: Array.isArray(imageUrls) ? imageUrls.slice(0,10) : [], active: Boolean(p.active) };
+}
+function cleanImageUrls(value) {
+ const input = Array.isArray(value) ? value : String(value || "").split(/\r?\n/);
+ return [...new Set(input.map(v => cleanText(v, 1000)).filter(v => /^https?:\/\//i.test(v)))].slice(0,10);
+}
 
 app.get("/api/config", (req,res) => res.json({
  bankName: process.env.BANK_NAME || "Configure BANK_NAME in .env",
@@ -201,7 +213,7 @@ app.post("/api/admin/products", adminOnly, (req,res) => {
  const sku=cleanText(b.sku,60), nameEn=cleanText(b.nameEn,160), nameMy=cleanText(b.nameMy,160);
  const categoryEn=cleanText(b.categoryEn,100), categoryMy=cleanText(b.categoryMy,100);
  const descriptionEn=cleanText(b.descriptionEn,1000), descriptionMy=cleanText(b.descriptionMy,1000);
- const price=Number(b.price), stock=Number(b.stock), emoji=cleanText(b.emoji,8)||"⚙️";
+ const price=Number(b.price), stock=Number(b.stock), emoji=cleanText(b.emoji,8)||"⚙️";\n const imageUrls=cleanImageUrls(b.imageUrls);
  if(!sku||!nameEn||!nameMy||!categoryEn||!categoryMy||!Number.isSafeInteger(price)||price<0||!Number.isInteger(stock)||stock<0)
   return res.status(400).json({error:"Fill required fields; price and stock must be valid non-negative integers."});
  try {
