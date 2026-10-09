@@ -17,6 +17,18 @@ const dataDir = path.join(__dirname, "data");
 const uploadDir = path.join(__dirname, "uploads");
 fs.mkdirSync(dataDir, { recursive: true });
 fs.mkdirSync(uploadDir, { recursive: true });
+const imageStorage = multer.diskStorage({
+ destination: (_req, _file, cb) => cb(null, uploadDir),
+ filename: (_req, file, cb) => {
+  const ext = ({ "image/jpeg":".jpg", "image/png":".png", "image/webp":".webp", "image/gif":".gif", "image/avif":".avif" })[file.mimetype];
+  cb(null, crypto.randomBytes(16).toString("hex") + ext);
+ }
+});
+const imageUpload = multer({
+ storage: imageStorage,
+ limits: { fileSize: 5 * 1024 * 1024, files: 10 },
+ fileFilter: (_req, file, cb) => cb(null, ["image/jpeg","image/png","image/webp","image/gif","image/avif"].includes(file.mimetype))
+});
 
 if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) {
   console.warn("WARNING: Set SESSION_SECRET to a random secret of at least 32 characters in .env");
@@ -97,6 +109,7 @@ app.use(session({
  cookie: { httpOnly: true, sameSite: "lax", secure: production, maxAge: 1000 * 60 * 60 * 8 }
 }));
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/uploads", express.static(uploadDir, { fallthrough: false, maxAge: "1d" }));
 app.use("/api/admin/login", rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: true, legacyHeaders: false }));
 
 function adminOnly(req, res, next) {
