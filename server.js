@@ -236,8 +236,8 @@ app.post("/api/admin/products", adminOnly, (req,res) => {
  if(!sku||!nameEn||!nameMy||!categoryEn||!categoryMy||!Number.isSafeInteger(price)||price<0||!Number.isInteger(stock)||stock<0)
   return res.status(400).json({error:"Fill required fields; price and stock must be valid non-negative integers."});
  try {
-  const r=db.prepare(`INSERT INTO products(sku,name_en,name_my,category_en,category_my,description_en,description_my,price,stock,image_emoji)
-   VALUES(?,?,?,?,?,?,?,?,?,?)`).run(sku,nameEn,nameMy,categoryEn,categoryMy,descriptionEn,descriptionMy,price,stock,emoji);
+  const r=db.prepare(`INSERT INTO products(sku,name_en,name_my,category_en,category_my,description_en,description_my,price,stock,image_emoji,image_urls)
+   VALUES(?,?,?,?,?,?,?,?,?,?,?)`).run(sku,nameEn,nameMy,categoryEn,categoryMy,descriptionEn,descriptionMy,price,stock,emoji,JSON.stringify(imageUrls));
   res.status(201).json({id:r.lastInsertRowid});
  } catch(e) { res.status(400).json({error:"Could not add product. SKU may already exist."}); }
 });
