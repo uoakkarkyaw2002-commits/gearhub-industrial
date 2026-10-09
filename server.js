@@ -231,7 +231,8 @@ app.post("/api/admin/products", adminOnly, (req,res) => {
  const sku=cleanText(b.sku,60), nameEn=cleanText(b.nameEn,160), nameMy=cleanText(b.nameMy,160);
  const categoryEn=cleanText(b.categoryEn,100), categoryMy=cleanText(b.categoryMy,100);
  const descriptionEn=cleanText(b.descriptionEn,1000), descriptionMy=cleanText(b.descriptionMy,1000);
- const price=Number(b.price), stock=Number(b.stock), emoji=cleanText(b.emoji,8)||"⚙️";\n const imageUrls=cleanImageUrls(b.imageUrls);
+ const price=Number(b.price), stock=Number(b.stock), emoji=cleanText(b.emoji,8)||"⚙️";
+ const imageUrls=cleanImageUrls(b.imageUrls);
  if(!sku||!nameEn||!nameMy||!categoryEn||!categoryMy||!Number.isSafeInteger(price)||price<0||!Number.isInteger(stock)||stock<0)
   return res.status(400).json({error:"Fill required fields; price and stock must be valid non-negative integers."});
  try {
