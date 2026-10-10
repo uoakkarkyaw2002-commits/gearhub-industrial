@@ -17,3 +17,5 @@
 .site-text-card .site-language-field{margin-top:8px}
 .site-settings-panel #site-settings-message{margin:8px 0 0;font-weight:700}
 @media(max-width:700px){.site-settings-grid,.site-text-group-grid{grid-template-columns:1fr}.site-settings-grid .wide{grid-column:auto}}
+
+.password-input-wrap{position:relative;margin-top:5px}.login-card .password-input-wrap input{margin:0;padding-right:58px}.password-visibility-toggle{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;border-radius:8px;background:#eef2eb;color:var(--ink);padding:7px 9px;font:inherit;font-size:12px;font-weight:750;cursor:pointer}.password-visibility-toggle:focus-visible{outline:3px solid #b7f36b;outline-offset:2px}

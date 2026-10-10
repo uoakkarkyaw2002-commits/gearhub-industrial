@@ -417,7 +417,7 @@ app.post("/api/admin/password-reset/request", resetRequestLimit, async (req,res)
 app.post("/api/admin/password-reset/verify", resetVerifyLimit, async (req,res) => {
  const code=cleanText(req.body?.code,6), password=String(req.body?.newPassword||"");
  if (!/^\d{6}$/.test(code)) return res.status(400).json({error:"Enter the 6-digit verification code."});
- if (password.length<12 || password.length>200) return res.status(400).json({error:"New password must be 12–200 characters long."});
+ if (password.length!==6) return res.status(400).json({error:"New password must be exactly 6 characters."});
  const row=db.prepare("SELECT * FROM password_reset_codes WHERE id=1").get();
  if (!row || row.expires_at<Date.now() || row.attempts>=8) { db.prepare("DELETE FROM password_reset_codes WHERE id=1").run(); return res.status(400).json({error:"Code expired. Request a new code."}); }
  const supplied=crypto.createHash("sha256").update(code).digest("hex");
@@ -439,10 +439,10 @@ app.post("/api/admin/password-reset/verify", resetVerifyLimit, async (req,res) =
  } catch(err) { console.error("Password reset failed:",err.message); res.status(500).json({error:"Could not update password."}); }
 });
 app.post("/api/admin/login", async (req,res) => {
- const username = cleanText(req.body?.username,100);
+ const username = (process.env.ADMIN_USERNAME||"admin").trim();
  const password = String(req.body?.password || "");
  const user = db.prepare("SELECT * FROM admins WHERE username=?").get(username);
- if (!user || !(await bcrypt.compare(password,user.password_hash))) return res.status(401).json({error:"Invalid username or password."});
+ if (!user || !(await bcrypt.compare(password,user.password_hash))) return res.status(401).json({error:"Invalid password."});
  req.session.regenerate(err => {
   if (err) return res.status(500).json({error:"Could not create session."});
   req.session.admin = {id:user.id,username:user.username};
