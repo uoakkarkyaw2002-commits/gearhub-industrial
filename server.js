@@ -404,14 +404,11 @@ app.patch("/api/admin/orders/:id", adminOnly, (req,res) => {
   return res.status(400).json({error:"Invalid order update."});
  const order = db.prepare("SELECT * FROM orders WHERE id=?").get(id);
  if (!order) return res.status(404).json({error:"Order not found."});
- if (order.status === "cancelled" && status !== "cancelled") {
-  return res.status(400).json({error:"Cancelled orders cannot be reactivated; create a new order instead."});
- }
  try {
   db.transaction(() => {
    if (status === "cancelled" && order.status !== "cancelled") {
     for (const item of JSON.parse(order.items_json)) db.prepare("UPDATE products SET stock=stock+? WHERE id=?").run(item.quantity,item.productId);
-   }
+   } else if (order.status === "cancelled" && status !== "cancelled") { for (const item of JSON.parse(order.items_json)) db.prepare("UPDATE products SET stock=MAX(0,stock-?) WHERE id=?").run(item.quantity,item.productId); }
    let invoiceNo = order.invoice_no || "";
    if (status === "confirmed" && !invoiceNo) invoiceNo = "INV-" + nextInvoiceNumber();
    db.prepare("UPDATE orders SET status=?,payment_status=?,admin_note=?,confirmation_date=?,invoice_no=? WHERE id=?").run(status,paymentStatus,note,confirmationDate,invoiceNo,id);
