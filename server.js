@@ -321,7 +321,7 @@ app.post("/api/admin/password-reset/request", resetRequestLimit, async (req,res)
 });
 app.post("/api/admin/password-reset/verify", resetVerifyLimit, async (req,res) => {
  const code=cleanText(req.body?.code,6), password=String(req.body?.newPassword||"");
- if (!/^\\d{6}$/.test(code)) return res.status(400).json({error:"Enter the 6-digit verification code."});
+ if (!/^\d{6}$/.test(code)) return res.status(400).json({error:"Enter the 6-digit verification code."});
  if (password.length<12 || password.length>200) return res.status(400).json({error:"New password must be 12–200 characters long."});
  const row=db.prepare("SELECT * FROM password_reset_codes WHERE id=1").get();
  if (!row || row.expires_at<Date.now() || row.attempts>=8) { db.prepare("DELETE FROM password_reset_codes WHERE id=1").run(); return res.status(400).json({error:"Code expired. Request a new code."}); }
