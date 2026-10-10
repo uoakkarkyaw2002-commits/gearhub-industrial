@@ -93,11 +93,15 @@ async function ensureAdmin() {
  const username = (process.env.ADMIN_USERNAME || "admin").trim();
  const password = process.env.ADMIN_PASSWORD || "";
  if (!password) return;
- const exists = db.prepare("SELECT id FROM admins WHERE username=?").get(username);
+ const exists = db.prepare("SELECT id,password_hash FROM admins WHERE username=?").get(username);
  if (!exists) {
    const hash = await bcrypt.hash(password, 12);
    db.prepare("INSERT INTO admins(username,password_hash) VALUES(?,?)").run(username, hash);
-   console.log(`Created admin account "${username}". Change credentials through environment variables before production.`);
+   console.log(`Created admin account "${username}".`);
+ } else if (!(await bcrypt.compare(password, exists.password_hash))) {
+   const hash = await bcrypt.hash(password, 12);
+   db.prepare("UPDATE admins SET password_hash=? WHERE id=?").run(hash, exists.id);
+   console.log(`Synchronized password for configured admin "${username}".`);
  }
 }
 app.disable("x-powered-by");
@@ -112,6 +116,19 @@ app.use(session({
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/uploads", express.static(uploadDir, { fallthrough: false, maxAge: "1d" }));
 app.use("/api/admin/login", rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: true, legacyHeaders: false }));
+app.use("/api/orders", rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: true, legacyHeaders: false }));
+// Reject cross-origin browser requests to admin mutation endpoints.
+app.use("/api/admin", (req, res, next) => {
+ if (["POST", "PATCH", "PUT", "DELETE"].includes(req.method)) {
+  const origin = req.get("origin");
+  if (origin) {
+   try {
+    if (new URL(origin).host !== req.get("host")) return res.status(403).json({ error: "Cross-origin request blocked." });
+   } catch { return res.status(403).json({ error: "Invalid request origin." }); }
+  }
+ }
+ next();
+});
 
 function adminOnly(req, res, next) {
  if (!req.session.admin) return res.status(401).json({ error: "Admin login required" });
@@ -216,6 +233,9 @@ app.patch("/api/admin/orders/:id", adminOnly, (req,res) => {
   return res.status(400).json({error:"Invalid order update."});
  const order = db.prepare("SELECT * FROM orders WHERE id=?").get(id);
  if (!order) return res.status(404).json({error:"Order not found."});
+ if (order.status === "cancelled" && status !== "cancelled") {
+  return res.status(400).json({error:"Cancelled orders cannot be reactivated; create a new order instead."});
+ }
  try {
   db.transaction(() => {
    if (status === "cancelled" && order.status !== "cancelled") {
