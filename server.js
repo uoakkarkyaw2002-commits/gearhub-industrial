@@ -85,6 +85,7 @@ CREATE TABLE IF NOT EXISTS orders (
  payment_reference TEXT NOT NULL DEFAULT '', payment_status TEXT NOT NULL DEFAULT 'pending',
  receipt_path TEXT NOT NULL DEFAULT '',
  confirmation_date TEXT NOT NULL DEFAULT '',
+ invoice_no TEXT NOT NULL DEFAULT '',
  status TEXT NOT NULL DEFAULT 'pending', admin_note TEXT NOT NULL DEFAULT '',
  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -94,6 +95,13 @@ CREATE INDEX IF NOT EXISTS idx_orders_created ON orders(created_at DESC);
 const orderColumns = db.prepare("PRAGMA table_info(orders)").all().map(c => c.name);
 if (!orderColumns.includes("receipt_path")) db.exec("ALTER TABLE orders ADD COLUMN receipt_path TEXT NOT NULL DEFAULT ''");
 if (!orderColumns.includes("confirmation_date")) db.exec("ALTER TABLE orders ADD COLUMN confirmation_date TEXT NOT NULL DEFAULT ''");
+if (!orderColumns.includes("invoice_no")) db.exec("ALTER TABLE orders ADD COLUMN invoice_no TEXT NOT NULL DEFAULT ''");
+const confirmedWithoutInvoice = db.prepare("SELECT id FROM orders WHERE status='confirmed' AND invoice_no='' ORDER BY CASE WHEN confirmation_date='' THEN created_at ELSE confirmation_date END ASC, id ASC").all();
+const nextInvoiceNumber = () => {
+ const rows = db.prepare("SELECT invoice_no FROM orders WHERE invoice_no LIKE 'INV-%'").all();
+ return rows.reduce((max,row)=>Math.max(max,Number(String(row.invoice_no).slice(4))||0),0)+1;
+};
+for (const row of confirmedWithoutInvoice) db.prepare("UPDATE orders SET invoice_no=? WHERE id=?").run("INV-"+nextInvoiceNumber(),row.id);
 const productColumns = db.prepare("PRAGMA table_info(products)").all().map(c => c.name);
 if (!productColumns.includes("image_urls")) db.exec("ALTER TABLE products ADD COLUMN image_urls TEXT NOT NULL DEFAULT '[]'");
 const count = db.prepare("SELECT COUNT(*) AS n FROM products").get().n;
@@ -397,7 +405,9 @@ app.patch("/api/admin/orders/:id", adminOnly, (req,res) => {
    if (status === "cancelled" && order.status !== "cancelled") {
     for (const item of JSON.parse(order.items_json)) db.prepare("UPDATE products SET stock=stock+? WHERE id=?").run(item.quantity,item.productId);
    }
-   db.prepare("UPDATE orders SET status=?,payment_status=?,admin_note=?,confirmation_date=? WHERE id=?").run(status,paymentStatus,note,confirmationDate,id);
+   let invoiceNo = order.invoice_no || "";
+   if (status === "confirmed" && !invoiceNo) invoiceNo = "INV-" + nextInvoiceNumber();
+   db.prepare("UPDATE orders SET status=?,payment_status=?,admin_note=?,confirmation_date=?,invoice_no=? WHERE id=?").run(status,paymentStatus,note,confirmationDate,invoiceNo,id);
   })();
   res.json({ok:true});
  } catch(e) { res.status(500).json({error:"Could not update order."}); }
