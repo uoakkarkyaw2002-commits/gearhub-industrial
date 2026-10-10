@@ -343,7 +343,7 @@ app.post("/api/admin/password-reset/verify", resetVerifyLimit, async (req,res) =
   res.json({ok:true,message:"Password updated. Please sign in with your new password."});
  } catch(err) { console.error("Password reset failed:",err.message); res.status(500).json({error:"Could not update password."}); }
 });
-app.post("/api/admin/login", async (req,res) =>
+app.post("/api/admin/login", async (req,res) => {
  const username = cleanText(req.body?.username,100);
  const password = String(req.body?.password || "");
  const user = db.prepare("SELECT * FROM admins WHERE username=?").get(username);
