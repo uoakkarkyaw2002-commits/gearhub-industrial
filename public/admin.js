@@ -1,5 +1,6 @@
 const $=id=>document.getElementById(id),money=n=>new Intl.NumberFormat("en-US").format(n)+" Ks";
 let products=[];let inventoryQuery="";let editingProductId=null;
+document.addEventListener("click",e=>{const toggle=e.target.closest("#product-form-toggle");if(!toggle)return;e.preventDefault();const content=$("product-form-content");const open=content.classList.contains("hidden");content.classList.toggle("hidden",!open);toggle.setAttribute("aria-expanded",String(open));$("product-form-toggle-icon").textContent=open?"−":"＋";});
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 async function api(url,opts={}){const r=await fetch(url,{credentials:"same-origin",headers:{"Content-Type":"application/json",...(opts.headers||{})},...opts});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Request failed");return d}
 
