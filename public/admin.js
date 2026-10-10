@@ -17,7 +17,7 @@ async function optimizeImage(file){
  ctx.drawImage(bitmap,0,0,canvas.width,canvas.height); bitmap.close?.();
  const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",0.82));
  if(!blob) return file;
- const base=file.name.replace(/\\.[^.]+$/," ").trim()||"product-photo";
+ const base=file.name.replace(/\.[^.]+$/," ").trim()||"product-photo";
  return new File([blob],base+".jpg",{type:"image/jpeg",lastModified:Date.now()});
 }
 function msg(id,text,cls=""){const el=$(id);el.className=cls;el.textContent=text}
