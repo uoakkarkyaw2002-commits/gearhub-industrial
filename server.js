@@ -307,7 +307,7 @@ function cleanSiteImageUrl(value) {
  if (/^\/uploads\/[a-f0-9]+\.(jpg|png|webp|gif|avif)$/i.test(input)) return input;
  try {
   const url = new URL(input);
-  if (url.protocol === "https:" || url.protocol === "http:") return url.href;
+  if (url.protocol === "https:") return url.href;
  } catch {}
  return null;
 }
