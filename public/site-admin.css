@@ -18,4 +18,18 @@
 .site-settings-panel #site-settings-message{margin:8px 0 0;font-weight:700}
 @media(max-width:700px){.site-settings-grid,.site-text-group-grid{grid-template-columns:1fr}.site-settings-grid .wide{grid-column:auto}}
 
+.site-layout-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0 22px}
+.site-layout-card{min-width:0;margin:0;padding:13px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.site-layout-card legend{padding:0 5px;font-size:13px;font-weight:800}
+.site-layout-enable{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:12px;font-weight:750}
+.site-layout-enable input,.site-layout-color input[type=checkbox]{width:auto;margin:0;accent-color:#5d9d29}
+.site-layout-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;transition:opacity .15s}
+.site-layout-fields label{display:flex;flex-direction:column;justify-content:space-between;gap:5px;min-width:0;margin:0;font-size:11px;font-weight:700}
+.site-layout-fields input[type=number],.site-layout-fields select{width:100%;min-width:0;margin:0;padding:8px;border:1px solid var(--line);border-radius:8px;background:white;color:var(--ink);font:inherit;font-size:12px}
+.site-layout-number>span{display:flex;align-items:center;gap:6px}.site-layout-number small{color:var(--muted);font-size:10px}
+.site-layout-fields .site-layout-color{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:6px;min-height:40px}
+.site-layout-color>span{display:flex;align-items:center;gap:5px}.site-layout-color input[type=color]{width:42px;height:34px;padding:3px}
+.site-layout-fields [disabled]{opacity:.48;cursor:not-allowed}
+@media(max-width:700px){.site-layout-grid{grid-template-columns:1fr}}
+
 .password-input-wrap{position:relative;margin-top:5px}.login-card .password-input-wrap input{margin:0;padding-right:58px}.password-visibility-toggle{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;border-radius:8px;background:#eef2eb;color:var(--ink);padding:7px 9px;font:inherit;font-size:12px;font-weight:750;cursor:pointer}.password-visibility-toggle:focus-visible{outline:3px solid #b7f36b;outline-offset:2px}

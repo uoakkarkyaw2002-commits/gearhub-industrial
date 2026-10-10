@@ -318,8 +318,45 @@ const defaultSiteSettings = () => ({
   bankAccountNumber: process.env.BANK_ACCOUNT_NUMBER || "",
   paymentInstructions: process.env.PAYMENT_INSTRUCTIONS || "KPay သို့ ငွေလွှဲပြီး ငွေလွှဲပြေစာကို upload လုပ်ပေးပါ။"
  },
- translations: { my: {}, en: {} }
+ translations: { my: {}, en: {} },
+ layout: defaultSiteLayout()
 });
+const siteLayoutDefaults = {
+ announcement: {padding:9,radius:0}, navigation:{padding:17,radius:0}, hero:{padding:0,radius:26},
+ catalog:{padding:0,radius:0}, productCards:{padding:13,radius:17}, highlights:{padding:23,radius:16},
+ footer:{padding:34,radius:0}, cart:{padding:23,radius:0}, checkout:{padding:24,radius:19}, gallery:{padding:20,radius:20}
+};
+function defaultSiteLayout() {
+ return Object.fromEntries(Object.entries(siteLayoutDefaults).map(([key,values]) => [key, {
+  enabled:false, padding:values.padding, margin:0, borderWidth:0, borderColor:"#e0e7dd", borderStyle:"solid",
+  borderRadius:values.radius, backgroundColor:"", textColor:"", shadow:"keep"
+ }]));
+}
+function normalizeSiteLayout(input, fallback=defaultSiteLayout()) {
+ const source = input && typeof input === "object" && !Array.isArray(input) ? input : {};
+ const result = {};
+ for (const [key, defaults] of Object.entries(defaultSiteLayout())) {
+  const value = source[key] && typeof source[key] === "object" && !Array.isArray(source[key]) ? source[key] : {};
+  const previous = fallback[key] || defaults;
+  const number = (name,min,max) => {
+   const parsed = Number(value[name]);
+   return Number.isFinite(parsed) ? Math.min(max,Math.max(min,Math.round(parsed))) : previous[name];
+  };
+  const safeColor = (name,allowEmpty=false) => {
+   const color = String(value[name] ?? previous[name] ?? "");
+   return allowEmpty && color === "" ? "" : (/^#[0-9a-f]{6}$/i.test(color) ? color.toLowerCase() : previous[name]);
+  };
+  const borderStyle = ["none","solid","dashed","dotted"].includes(value.borderStyle) ? value.borderStyle : previous.borderStyle;
+  const shadow = ["keep","none","soft","strong"].includes(value.shadow) ? value.shadow : previous.shadow;
+  result[key] = {
+   enabled:value.enabled === true,
+   padding:number("padding",0,120), margin:number("margin",0,160), borderWidth:number("borderWidth",0,12),
+   borderColor:safeColor("borderColor"), borderStyle, borderRadius:number("borderRadius",0,100),
+   backgroundColor:safeColor("backgroundColor",true), textColor:safeColor("textColor",true), shadow
+  };
+ }
+ return result;
+}
 function getSiteSettings() {
  let saved = {};
  try { saved = JSON.parse(db.prepare("SELECT settings_json FROM site_settings WHERE id=1").get()?.settings_json || "{}"); } catch {}
@@ -328,7 +365,8 @@ function getSiteSettings() {
   ...defaults, ...saved,
   colors: { ...defaults.colors, ...(saved.colors || {}) },
   payment: { ...defaults.payment, ...(saved.payment || {}) },
-  translations: { my: { ...(saved.translations?.my || {}) }, en: { ...(saved.translations?.en || {}) } }
+  translations: { my: { ...(saved.translations?.my || {}) }, en: { ...(saved.translations?.en || {}) } },
+  layout: normalizeSiteLayout(saved.layout, defaults.layout)
  };
 }
 function cleanSiteImageUrl(value) {
@@ -355,10 +393,10 @@ app.put("/api/admin/site-settings", adminOnly, (req,res) => {
  const translations = { my: {}, en: {} };
  for (const language of ["my","en"]) {
   const entries = Object.entries(body.translations?.[language] || {});
-  if (entries.length > 100) return res.status(400).json({error:"Too many storefront text fields."});
+  if (entries.length > 100) return res.status(400).json({error:"Too many frontend text fields."});
   for (const [key,value] of entries) {
    if (!/^[a-zA-Z][a-zA-Z0-9_-]{0,60}$/.test(key) || typeof value !== "string" || value.length > 1000)
-    return res.status(400).json({error:"Storefront text fields must be plain text under 1,000 characters."});
+    return res.status(400).json({error:"Frontend text fields must be plain text under 1,000 characters."});
    translations[language][key] = value.trim();
   }
  }
@@ -372,7 +410,8 @@ app.put("/api/admin/site-settings", adminOnly, (req,res) => {
   brandName: cleanText(body.brandName ?? previous.brandName, 80),
   brandTagline: cleanText(body.brandTagline ?? previous.brandTagline, 120),
   heroIcon: cleanText(body.heroIcon ?? previous.heroIcon, 12) || "⚙️",
-  logoUrl, wallpaperUrl, heroImageUrl, colors, payment, translations
+  logoUrl, wallpaperUrl, heroImageUrl, colors, payment, translations,
+  layout:normalizeSiteLayout(body.layout ?? previous.layout, previous.layout)
  };
  db.prepare(`INSERT INTO site_settings(id,settings_json,updated_at) VALUES(1,?,CURRENT_TIMESTAMP)
   ON CONFLICT(id) DO UPDATE SET settings_json=excluded.settings_json,updated_at=CURRENT_TIMESTAMP`).run(JSON.stringify(settings));
