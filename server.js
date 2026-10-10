@@ -359,7 +359,14 @@ app.post("/api/admin/login", async (req,res) => {
  req.session.regenerate(err => {
   if (err) return res.status(500).json({error:"Could not create session."});
   req.session.admin = {id:user.id,username:user.username};
-  res.json({ok:true,username:user.username});
+  req.session.save(saveErr => {
+   if (saveErr) {
+    console.error("Admin session save failed:",saveErr.message);
+    return res.status(500).json({error:"Could not save admin session. Please try again."});
+   }
+   res.setHeader("Cache-Control","no-store");
+   res.json({ok:true,username:user.username});
+  });
  });
 });
 app.get("/api/admin/me", (req,res) => req.session.admin ? res.json({authenticated:true,username:req.session.admin.username}) : res.status(401).json({authenticated:false}));
