@@ -2,6 +2,24 @@ const $=id=>document.getElementById(id),money=n=>new Intl.NumberFormat("en-US").
 let products=[];
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 async function api(url,opts={}){const r=await fetch(url,{headers:{"Content-Type":"application/json",...(opts.headers||{})},...opts});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Request failed");return d}
+
+// Resize and compress uploaded product photos in-browser before sending them to Render.
+async function optimizeImage(file){
+ if(!file.type.startsWith("image/")) throw new Error("Please choose an image file.");
+ let bitmap;
+ try { bitmap = await createImageBitmap(file); } catch { return file; }
+ const maxSide=1800, scale=Math.min(1,maxSide/Math.max(bitmap.width,bitmap.height));
+ const canvas=document.createElement("canvas");
+ canvas.width=Math.max(1,Math.round(bitmap.width*scale));
+ canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+ const ctx=canvas.getContext("2d");
+ if(!ctx){bitmap.close?.();return file;}
+ ctx.drawImage(bitmap,0,0,canvas.width,canvas.height); bitmap.close?.();
+ const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",0.82));
+ if(!blob) return file;
+ const base=file.name.replace(/\\.[^.]+$/," ").trim()||"product-photo";
+ return new File([blob],base+".jpg",{type:"image/jpeg",lastModified:Date.now()});
+}
 function msg(id,text,cls=""){const el=$(id);el.className=cls;el.textContent=text}
 function toast(t){$("toast").textContent=t;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),2400)}
 async function checkSession(){try{await api("/api/admin/me");showDashboard()}catch(e){$("login-view").classList.remove("hidden");$("dashboard").classList.add("hidden");$("logout").classList.add("hidden")}}
