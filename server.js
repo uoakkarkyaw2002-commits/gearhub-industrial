@@ -264,14 +264,19 @@ app.post("/api/admin/products", adminOnly, (req,res) => {
 });
 app.patch("/api/admin/products/:id", adminOnly, (req,res) => {
  const id=Number(req.params.id), b=req.body||{};
- const active = b.active === false ? 0 : 1;
- const stock = b.stock === undefined ? null : Number(b.stock);
- if(!Number.isInteger(id) || (stock !== null && (!Number.isInteger(stock)||stock<0))) return res.status(400).json({error:"Invalid product update."});
- const exists=db.prepare("SELECT id FROM products WHERE id=?").get(id);
- if(!exists) return res.status(404).json({error:"Product not found."});
- if(stock===null) db.prepare("UPDATE products SET active=? WHERE id=?").run(active,id);
- else db.prepare("UPDATE products SET active=?,stock=? WHERE id=?").run(active,stock,id);
- res.json({ok:true});
+ const existing=db.prepare("SELECT * FROM products WHERE id=?").get(id);
+ if(!Number.isInteger(id)||!existing) return res.status(404).json({error:"Product not found."});
+ const sku=cleanText(b.sku ?? existing.sku,60), nameEn=cleanText(b.nameEn ?? existing.name_en,160), nameMy=cleanText(b.nameMy ?? existing.name_my,160);
+ const categoryEn=cleanText(b.categoryEn ?? existing.category_en,100), categoryMy=cleanText(b.categoryMy ?? existing.category_my,100);
+ const descriptionEn=cleanText(b.descriptionEn ?? existing.description_en,1000), descriptionMy=cleanText(b.descriptionMy ?? existing.description_my,1000);
+ const price=b.price===undefined?existing.price:Number(b.price), stock=b.stock===undefined?existing.stock:Number(b.stock);
+ const emoji=cleanText(b.emoji ?? existing.image_emoji,8)||"⚙️";
+ let oldImages=[];try{oldImages=JSON.parse(existing.image_urls||"[]")}catch{}
+ const imageUrls=b.imageUrls===undefined?cleanImageUrls(oldImages):cleanImageUrls(b.imageUrls);
+ const active=b.active===undefined?existing.active:(b.active===false||b.active===0||b.active==="0"?0:1);
+ if(!sku||!nameEn||!nameMy||!categoryEn||!categoryMy||!Number.isSafeInteger(price)||price<0||!Number.isInteger(stock)||stock<0) return res.status(400).json({error:"Fill required fields; price and stock must be valid non-negative integers."});
+ try { db.prepare("UPDATE products SET sku=?,name_en=?,name_my=?,category_en=?,category_my=?,description_en=?,description_my=?,price=?,stock=?,image_emoji=?,image_urls=?,active=? WHERE id=?").run(sku,nameEn,nameMy,categoryEn,categoryMy,descriptionEn,descriptionMy,price,stock,emoji,JSON.stringify(imageUrls),active,id); res.json({ok:true}); }
+ catch(e){res.status(400).json({error:"Could not update product. SKU may already exist."});}
 });
 app.get("/api/health", (req,res)=>res.json({ok:true}));
 app.use((err,req,res,next)=>{ console.error(err); res.status(500).json({error:"Unexpected server error."}); });
