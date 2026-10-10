@@ -11,6 +11,7 @@ const fs = require("fs");
 const crypto = require("crypto");
 
 const app = express();
+app.set("trust proxy", 1); // Render runs behind a trusted reverse proxy.
 const PORT = Number(process.env.PORT || 3000);
 const production = process.env.NODE_ENV === "production";
 const dataDir = path.join(__dirname, "data");
