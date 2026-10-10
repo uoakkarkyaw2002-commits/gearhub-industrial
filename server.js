@@ -258,6 +258,7 @@ app.get("/api/products", (req,res) => {
 app.post("/api/orders", (req,res) => receiptUpload.single("receipt")(req,res,err => {
  if (err) return res.status(400).json({error:err.message || "Could not upload payment receipt."});
  const b = req.body || {};
+ if (typeof b.items === "string") { try { b.items = JSON.parse(b.items); } catch { return res.status(400).json({error:"Invalid cart data."}); } }
  const name = cleanText(b.customerName,120), phone = cleanText(b.phone,40);
  const email = cleanText(b.email,160), address = cleanText(b.address,500);
  const language = b.language === "en" ? "en" : "my";
