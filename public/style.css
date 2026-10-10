@@ -32,3 +32,4 @@
 .brand .site-brand-word{color:var(--ink)}
 .site-brand-image{display:none;max-width:170px;max-height:52px;object-fit:contain}
 .hero{background:var(--hero-bg,var(--green))}
+.cart-fly-item{position:fixed;z-index:30;width:52px;height:52px;display:grid;place-items:center;overflow:hidden;border:3px solid #fff;border-radius:50%;background:var(--lime);font-size:29px;box-shadow:0 8px 22px #10201845;pointer-events:none;will-change:transform,opacity;transition:transform .68s cubic-bezier(.2,.8,.25,1),opacity .68s ease}.cart-fly-item img{width:100%;height:100%;object-fit:cover}.cart-bump{animation:cart-bump .42s cubic-bezier(.2,.8,.25,1)}@keyframes cart-bump{0%,100%{transform:scale(1)}40%{transform:scale(1.15)}}@media(prefers-reduced-motion:reduce){.cart-fly-item{transition:none}.cart-bump{animation:none}}
