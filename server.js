@@ -13,6 +13,7 @@ const { execFile } = require("child_process");
 const { promisify } = require("util");
 const execFileAsync = promisify(execFile);
 const crypto = require("crypto");
+const nodemailer = require("nodemailer");
 
 const app = express();
 app.set("trust proxy", 1); // Render runs behind a trusted reverse proxy.
@@ -122,10 +123,6 @@ async function ensureAdmin() {
    const hash = await bcrypt.hash(password, 12);
    db.prepare("INSERT INTO admins(username,password_hash) VALUES(?,?)").run(username, hash);
    console.log(`Created admin account "${username}".`);
- } else if (!(await bcrypt.compare(password, exists.password_hash))) {
-   const hash = await bcrypt.hash(password, 12);
-   db.prepare("UPDATE admins SET password_hash=? WHERE id=?").run(hash, exists.id);
-   console.log(`Synchronized password for configured admin "${username}".`);
  }
 }
 app.disable("x-powered-by");
@@ -141,6 +138,13 @@ CREATE TABLE IF NOT EXISTS sessions (
  expired_at INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_sessions_expired ON sessions(expired_at);
+CREATE TABLE IF NOT EXISTS password_reset_codes (
+ id INTEGER PRIMARY KEY CHECK(id=1),
+ code_hash TEXT NOT NULL,
+ expires_at INTEGER NOT NULL,
+ attempts INTEGER NOT NULL DEFAULT 0,
+ created_at INTEGER NOT NULL
+);
 `);
 class SQLiteSessionStore extends session.Store {
  get(sid, callback) {
@@ -297,7 +301,49 @@ app.post("/api/orders", (req,res) => receiptUpload.single("receipt")(req,res,err
   res.status(201).json({ message:"Order created. Transfer payment and wait for admin confirmation.", order:result });
  } catch (e) { if (req.file) fs.promises.unlink(req.file.path).catch(() => {}); res.status(400).json({error:e.message || "Could not create order."}); }
 }));
-app.post("/api/admin/login", async (req,res) => {
+const resetRequestLimit = rateLimit({windowMs: 15 * 60 * 1000, limit: 3, standardHeaders: true, legacyHeaders: false});
+const resetVerifyLimit = rateLimit({windowMs: 15 * 60 * 1000, limit: 8, standardHeaders: true, legacyHeaders: false});
+function mailTransport() {
+ if (!process.env.SMTP_USER || !process.env.SMTP_APP_PASSWORD) throw new Error("Gmail mail settings are not configured.");
+ return nodemailer.createTransport({host:"smtp.gmail.com",port:465,secure:true,auth:{user:process.env.SMTP_USER,pass:String(process.env.SMTP_APP_PASSWORD).replace(/\\s+/g,"")}});
+}
+app.post("/api/admin/password-reset/request", resetRequestLimit, async (req,res) => {
+ try {
+  const email = cleanText(process.env.PASSWORD_RESET_EMAIL,160).toLowerCase();
+  if (!email || !process.env.SMTP_USER || !process.env.SMTP_APP_PASSWORD) return res.status(503).json({error:"Password reset email is not configured yet."});
+  const code = String(crypto.randomInt(0,1000000)).padStart(6,"0");
+  const codeHash = crypto.createHash("sha256").update(code).digest("hex");
+  db.prepare("INSERT INTO password_reset_codes(id,code_hash,expires_at,attempts,created_at) VALUES(1,?,?,0,?) ON CONFLICT(id) DO UPDATE SET code_hash=excluded.code_hash,expires_at=excluded.expires_at,attempts=0,created_at=excluded.created_at").run(codeHash,Date.now()+10*60*1000,Date.now());
+  const transport = mailTransport();
+  await transport.sendMail({from:process.env.SMTP_USER,to:email,subject:"GearHub Admin password reset code",text:`Your GearHub Admin password reset code is ${code}. It expires in 10 minutes. If you did not request this, ignore this email.`,html:`<p>Your GearHub Admin password reset code is:</p><p style="font-size:28px;font-weight:bold;letter-spacing:6px">${code}</p><p>This code expires in 10 minutes. If you did not request this, ignore this email.</p>`});
+  res.json({ok:true,message:"If password reset is configured, a verification code has been sent to the recovery email."});
+ } catch(err) { console.error("Password reset email failed:",err.message); res.status(503).json({error:"Could not send the verification email. Check SMTP settings and service logs."}); }
+});
+app.post("/api/admin/password-reset/verify", resetVerifyLimit, async (req,res) => {
+ const code=cleanText(req.body?.code,6), password=String(req.body?.newPassword||"");
+ if (!/^\\d{6}$/.test(code)) return res.status(400).json({error:"Enter the 6-digit verification code."});
+ if (password.length<12 || password.length>200) return res.status(400).json({error:"New password must be 12–200 characters long."});
+ const row=db.prepare("SELECT * FROM password_reset_codes WHERE id=1").get();
+ if (!row || row.expires_at<Date.now() || row.attempts>=8) { db.prepare("DELETE FROM password_reset_codes WHERE id=1").run(); return res.status(400).json({error:"Code expired. Request a new code."}); }
+ const supplied=crypto.createHash("sha256").update(code).digest("hex");
+ if (!crypto.timingSafeEqual(Buffer.from(supplied,"hex"),Buffer.from(row.code_hash,"hex"))) {
+  const attempts=row.attempts+1;
+  if(attempts>=8) db.prepare("DELETE FROM password_reset_codes WHERE id=1").run();
+  else db.prepare("UPDATE password_reset_codes SET attempts=? WHERE id=1").run(attempts);
+  return res.status(400).json({error:"Invalid verification code."});
+ }
+ try {
+  const username=(process.env.ADMIN_USERNAME||"admin").trim();
+  const user=db.prepare("SELECT id FROM admins WHERE username=?").get(username);
+  if(!user) return res.status(400).json({error:"Admin account not found."});
+  const hash=await bcrypt.hash(password,12);
+  db.prepare("UPDATE admins SET password_hash=? WHERE id=?").run(hash,user.id);
+  db.prepare("DELETE FROM password_reset_codes WHERE id=1").run();
+  req.session.destroy(()=>{});
+  res.json({ok:true,message:"Password updated. Please sign in with your new password."});
+ } catch(err) { console.error("Password reset failed:",err.message); res.status(500).json({error:"Could not update password."}); }
+});
+app.post("/api/admin/login", async (req,res) =>
  const username = cleanText(req.body?.username,100);
  const password = String(req.body?.password || "");
  const user = db.prepare("SELECT * FROM admins WHERE username=?").get(username);
