@@ -416,6 +416,16 @@ app.patch("/api/admin/orders/:id", adminOnly, (req,res) => {
   res.json({ok:true});
  } catch(e) { res.status(500).json({error:"Could not update order."}); }
 });
+app.delete("/api/admin/orders/:id", adminOnly, (req,res) => {
+ const id=Number(req.params.id); if(!Number.isInteger(id)) return res.status(400).json({error:"Invalid order."});
+ const order=db.prepare("SELECT id,status FROM orders WHERE id=?").get(id);
+ if(!order) return res.status(404).json({error:"Order not found."});
+ if(order.status!=="cancelled") return res.status(400).json({error:"Only cancelled orders can be permanently deleted."});
+ db.prepare("DELETE FROM orders WHERE id=?").run(id); res.json({ok:true});
+});
+app.delete("/api/admin/trash", adminOnly, (req,res) => {
+ const result=db.prepare("DELETE FROM orders WHERE status='cancelled'").run(); res.json({ok:true,deleted:result.changes});
+});
 app.get("/api/admin/products", adminOnly, (req,res) => res.json(db.prepare("SELECT * FROM products ORDER BY id DESC").all().map(publicProduct)));
 app.post("/api/admin/products", adminOnly, (req,res) => {
  const b=req.body||{};
