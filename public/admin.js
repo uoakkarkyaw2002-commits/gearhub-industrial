@@ -39,11 +39,15 @@ window.editProduct=editProduct;
 window.addEventListener("error",e=>{const m=$("product-message");if(m)m.textContent="Page error: "+(e.message||"Unknown error");});
 window.addEventListener("unhandledrejection",e=>{const m=$("product-message");if(m)m.textContent="Request error: "+(e.reason?.message||String(e.reason||"Unknown error"));});
 document.addEventListener("click",e=>{const btn=e.target.closest(".edit-product-btn");if(!btn)return;e.preventDefault();e.stopPropagation();const id=Number(btn.getAttribute("data-edit-id"));try{editProduct(id)}catch(err){const m=$("product-message");if(m)m.textContent="Edit failed: "+(err?.message||String(err));toast("Edit failed: "+(err?.message||String(err)))}});
-function updateInventoryQuery(value){inventoryQuery=normalizeInventoryText(value);$("inventory-search-clear").hidden=!inventoryQuery;renderInventory()}
+function updateInventoryQuery(value){const query=normalizeInventoryText(value);$("inventory-search-clear").hidden=!query;if(query===inventoryQuery)return;inventoryQuery=query;renderInventory()}
 window.filterInventory=updateInventoryQuery;
 // Guard against a stale cached copy of the old search form submitting the page.
 document.addEventListener("submit",e=>{if(e.target?.id==="inventory-search-form"){e.preventDefault();updateInventoryQuery($("inventory-search").value)}},true);
-$("inventory-search").addEventListener("input",e=>updateInventoryQuery(e.currentTarget.value));
+function handleInventorySearchEvent(e){if(e.target?.id!=="inventory-search")return;if(e.type==="keydown"&&e.key==="Enter")e.preventDefault();if(e.type!=="keydown")updateInventoryQuery(e.target.value)}
+document.addEventListener("input",handleInventorySearchEvent,true);
+document.addEventListener("keyup",handleInventorySearchEvent,true);
+document.addEventListener("search",handleInventorySearchEvent,true);
+document.addEventListener("change",handleInventorySearchEvent,true);
 $("inventory-search").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();updateInventoryQuery(e.currentTarget.value)}});
 $("inventory-search-clear").addEventListener("click",()=>{$("inventory-search").value="";updateInventoryQuery("");$("inventory-search").focus()});
 async function refreshAll(){try{const [s,orders,loadedProducts]=await Promise.all([api("/api/admin/summary"),api("/api/admin/orders"),api("/api/admin/products")]);products=loadedProducts;$("sales").textContent=money(s.sales);$("orders").textContent=s.orders;$("pending").textContent=s.pending;$("products-count").textContent=s.products;
