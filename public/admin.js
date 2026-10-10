@@ -42,7 +42,6 @@ document.addEventListener("click",e=>{const btn=e.target.closest(".edit-product-
 function updateInventoryQuery(value){inventoryQuery=normalizeInventoryText(value);$("inventory-search-clear").hidden=!inventoryQuery;renderInventory()}
 window.filterInventory=updateInventoryQuery;
 $("inventory-search").addEventListener("input",e=>updateInventoryQuery(e.currentTarget.value));
-$("inventory-search-form").addEventListener("submit",e=>{e.preventDefault();updateInventoryQuery($("inventory-search").value)});
 $("inventory-search-clear").addEventListener("click",()=>{$("inventory-search").value="";updateInventoryQuery("");$("inventory-search").focus()});
 async function refreshAll(){try{const [s,orders,loadedProducts]=await Promise.all([api("/api/admin/summary"),api("/api/admin/orders"),api("/api/admin/products")]);products=loadedProducts;$("sales").textContent=money(s.sales);$("orders").textContent=s.orders;$("pending").textContent=s.pending;$("products-count").textContent=s.products;
 $("low-stock").innerHTML=s.lowStock.length?s.lowStock.map(p=>`<p>⚠️ <b>${esc(p.name_en)}</b> / ${esc(p.name_my)} <span style="float:right">${p.stock} left</span></p>`).join(""):"No low-stock alerts.";
