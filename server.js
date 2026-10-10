@@ -110,11 +110,60 @@ app.disable("x-powered-by");
 app.use(helmet({ contentSecurityPolicy: false })); // Front-end uses inline JS/CSS; enable a tailored CSP before public deployment.
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: false, limit: "100kb" }));
+// Persist sessions in the same SQLite database as the shop data. This avoids
+// express-session's in-memory store, which loses sessions on every restart.
+db.exec(`
+CREATE TABLE IF NOT EXISTS sessions (
+ sid TEXT PRIMARY KEY,
+ sess TEXT NOT NULL,
+ expired_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_sessions_expired ON sessions(expired_at);
+`);
+class SQLiteSessionStore extends session.Store {
+ get(sid, callback) {
+  try {
+   const row = db.prepare("SELECT sess, expired_at FROM sessions WHERE sid=?").get(sid);
+   if (!row) return callback(null, null);
+   if (row.expired_at <= Date.now()) {
+    db.prepare("DELETE FROM sessions WHERE sid=?").run(sid);
+    return callback(null, null);
+   }
+   callback(null, JSON.parse(row.sess));
+  } catch (err) { callback(err); }
+ }
+ set(sid, sess, callback = () => {}) {
+  try {
+   const expires = sess.cookie && sess.cookie.expires ? new Date(sess.cookie.expires).getTime() : Date.now() + 8 * 60 * 60 * 1000;
+   db.prepare("INSERT INTO sessions(sid,sess,expired_at) VALUES(?,?,?) ON CONFLICT(sid) DO UPDATE SET sess=excluded.sess, expired_at=excluded.expired_at")
+    .run(sid, JSON.stringify(sess), expires);
+   callback(null);
+  } catch (err) { callback(err); }
+ }
+ destroy(sid, callback = () => {}) {
+  try { db.prepare("DELETE FROM sessions WHERE sid=?").run(sid); callback(null); }
+  catch (err) { callback(err); }
+ }
+ touch(sid, sess, callback = () => {}) {
+  try {
+   const expires = sess.cookie && sess.cookie.expires ? new Date(sess.cookie.expires).getTime() : Date.now() + 8 * 60 * 60 * 1000;
+   db.prepare("UPDATE sessions SET expired_at=? WHERE sid=?").run(expires, sid);
+   callback(null);
+  } catch (err) { callback(err); }
+ }
+}
+const sessionStore = new SQLiteSessionStore();
 app.use(session({
+ store: sessionStore,
  secret: process.env.SESSION_SECRET || crypto.randomBytes(48).toString("hex"),
  resave: false, saveUninitialized: false,
  cookie: { httpOnly: true, sameSite: "lax", secure: production, maxAge: 1000 * 60 * 60 * 8 }
 }));
+// Periodically prune expired sessions without requiring an external service.
+setInterval(() => {
+ try { db.prepare("DELETE FROM sessions WHERE expired_at <= ?").run(Date.now()); }
+ catch (err) { console.error("Session cleanup failed:", err.message); }
+}, 60 * 60 * 1000).unref();
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/uploads", express.static(uploadDir, { fallthrough: false, maxAge: "1d" }));
 app.use("/api/admin/login", rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: true, legacyHeaders: false }));
