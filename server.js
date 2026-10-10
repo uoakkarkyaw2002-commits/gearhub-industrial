@@ -153,6 +153,11 @@ CREATE TABLE IF NOT EXISTS password_reset_codes (
  attempts INTEGER NOT NULL DEFAULT 0,
  created_at INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS site_settings (
+ id INTEGER PRIMARY KEY CHECK(id=1),
+ settings_json TEXT NOT NULL,
+ updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 `);
 class SQLiteSessionStore extends session.Store {
  get(sid, callback) {
@@ -273,12 +278,80 @@ function cleanImageUrls(value) {
  return [...new Set(input.map(v => cleanText(v, 1000)).filter(v => /^https?:\/\//i.test(v) || /^\/uploads\/[a-f0-9]+\.(jpg|png|webp|gif|avif)$/i.test(v)))].slice(0,10);
 }
 
-app.get("/api/config", (req,res) => res.json({
- bankName: process.env.BANK_NAME || "KPay",
- bankAccountName: process.env.BANK_ACCOUNT_NAME || "U Oakkar Kyaw",
- bankAccountNumber: process.env.BANK_ACCOUNT_NUMBER || "09-766 472 432",
- paymentInstructions: process.env.PAYMENT_INSTRUCTIONS || "KPay သို့ ငွေလွှဲပြီး ငွေလွှဲပြေစာကို upload လုပ်ပေးပါ။"
-}));
+const defaultSiteSettings = () => ({
+ siteTitle: "GearHub Industrial | စက်မှုသုံးပစ္စည်းများ",
+ brandName: "gearhub.", brandTagline: "INDUSTRIAL", heroIcon: "⚙️", logoUrl: "", wallpaperUrl: "", heroImageUrl: "",
+ colors: { brand: "#183426", accent: "#b7f36b", page: "#f5f7f1", hero: "#183426" },
+ payment: {
+  bankName: process.env.BANK_NAME || "KPay",
+  bankAccountName: process.env.BANK_ACCOUNT_NAME || "U Oakkar Kyaw",
+  bankAccountNumber: process.env.BANK_ACCOUNT_NUMBER || "09-766 472 432",
+  paymentInstructions: process.env.PAYMENT_INSTRUCTIONS || "KPay သို့ ငွေလွှဲပြီး ငွေလွှဲပြေစာကို upload လုပ်ပေးပါ။"
+ },
+ translations: { my: {}, en: {} }
+});
+function getSiteSettings() {
+ let saved = {};
+ try { saved = JSON.parse(db.prepare("SELECT settings_json FROM site_settings WHERE id=1").get()?.settings_json || "{}"); } catch {}
+ const defaults = defaultSiteSettings();
+ return {
+  ...defaults, ...saved,
+  colors: { ...defaults.colors, ...(saved.colors || {}) },
+  payment: { ...defaults.payment, ...(saved.payment || {}) },
+  translations: { my: { ...(saved.translations?.my || {}) }, en: { ...(saved.translations?.en || {}) } }
+ };
+}
+function cleanSiteImageUrl(value) {
+ const input = cleanText(value, 1000);
+ if (!input) return "";
+ if (/^\/uploads\/[a-f0-9]+\.(jpg|png|webp|gif|avif)$/i.test(input)) return input;
+ try {
+  const url = new URL(input);
+  if (url.protocol === "https:" || url.protocol === "http:") return url.href;
+ } catch {}
+ return null;
+}
+app.get("/api/admin/site-settings", adminOnly, (_req,res) => res.json(getSiteSettings()));
+app.put("/api/admin/site-settings", adminOnly, (req,res) => {
+ const body = req.body || {}, previous = getSiteSettings();
+ const logoUrl = cleanSiteImageUrl(body.logoUrl), wallpaperUrl = cleanSiteImageUrl(body.wallpaperUrl), heroImageUrl = cleanSiteImageUrl(body.heroImageUrl);
+ if (logoUrl === null || wallpaperUrl === null || heroImageUrl === null) return res.status(400).json({error:"Logo and background image URLs must be HTTPS or an uploaded image."});
+ const color = value => /^#[0-9a-f]{6}$/i.test(String(value || "")) ? String(value).toLowerCase() : null;
+ const colors = {};
+ for (const key of ["brand","accent","page","hero"]) {
+  colors[key] = color(body.colors?.[key]);
+  if (!colors[key]) return res.status(400).json({error:"Choose valid colors for every color setting."});
+ }
+ const translations = { my: {}, en: {} };
+ for (const language of ["my","en"]) {
+  const entries = Object.entries(body.translations?.[language] || {});
+  if (entries.length > 100) return res.status(400).json({error:"Too many storefront text fields."});
+  for (const [key,value] of entries) {
+   if (!/^[a-zA-Z][a-zA-Z0-9_-]{0,60}$/.test(key) || typeof value !== "string" || value.length > 1000)
+    return res.status(400).json({error:"Storefront text fields must be plain text under 1,000 characters."});
+   translations[language][key] = value.trim();
+  }
+ }
+ const payment = {};
+ for (const [key,max] of [["bankName",120],["bankAccountName",160],["bankAccountNumber",100],["paymentInstructions",1000]]) {
+  if (body.payment?.[key] !== undefined && typeof body.payment[key] !== "string") return res.status(400).json({error:"Payment settings must be text."});
+  payment[key] = cleanText(body.payment?.[key] ?? previous.payment[key], max);
+ }
+ const settings = {
+  siteTitle: cleanText(body.siteTitle ?? previous.siteTitle, 160),
+  brandName: cleanText(body.brandName ?? previous.brandName, 80),
+  brandTagline: cleanText(body.brandTagline ?? previous.brandTagline, 120),
+  heroIcon: cleanText(body.heroIcon ?? previous.heroIcon, 12) || "⚙️",
+  logoUrl, wallpaperUrl, heroImageUrl, colors, payment, translations
+ };
+ db.prepare(`INSERT INTO site_settings(id,settings_json,updated_at) VALUES(1,?,CURRENT_TIMESTAMP)
+  ON CONFLICT(id) DO UPDATE SET settings_json=excluded.settings_json,updated_at=CURRENT_TIMESTAMP`).run(JSON.stringify(settings));
+ res.json({ok:true,settings:getSiteSettings()});
+});
+app.get("/api/config", (req,res) => {
+ const site = getSiteSettings();
+ res.json({ ...site.payment, site });
+});
 app.get("/api/products", (req,res) => {
  const rows = db.prepare("SELECT * FROM products WHERE active=1 ORDER BY id DESC").all();
  res.json(rows.map(publicProduct));
