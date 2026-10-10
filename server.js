@@ -19,6 +19,7 @@ const app = express();
 app.set("trust proxy", 1); // Render runs behind a trusted reverse proxy.
 const PORT = Number(process.env.PORT || 3000);
 const production = process.env.NODE_ENV === "production";
+const sessionCookieName = production ? "__Host-gearhub.sid" : "gearhub.sid";
 // Set DATA_DIR to a persistent disk mount (for example /var/data on Render).
 // Keep the current paths as defaults until the persistent disk is attached and configured.
 const dataDir = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(__dirname, "data");
@@ -36,7 +37,7 @@ const imageStorage = multer.diskStorage({
 });
 const imageUpload = multer({
  storage: imageStorage,
- limits: { fileSize: 5 * 1024 * 1024, files: 10 },
+ limits: { fileSize: 5 * 1024 * 1024, files: 10, fields: 20, parts: 30, fieldSize: 16 * 1024 },
  fileFilter: (_req, file, cb) => cb(null, ["image/jpeg","image/png","image/webp","image/gif","image/avif"].includes(file.mimetype))
 });
 const receiptUpload = multer({
@@ -47,15 +48,12 @@ const receiptUpload = multer({
    cb(null, crypto.randomBytes(20).toString("hex") + ext);
   }
  }),
- limits: { fileSize: 5 * 1024 * 1024, files: 1 },
+ limits: { fileSize: 5 * 1024 * 1024, files: 1, fields: 10, parts: 12, fieldSize: 64 * 1024 },
  fileFilter: (_req, file, cb) => cb(null, ["image/jpeg","image/png","image/webp"].includes(file.mimetype))
 });
 
-if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) {
-  console.warn("WARNING: Set SESSION_SECRET to a random secret of at least 32 characters in .env");
-}
-if (!process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD.includes("ChangeThis")) {
-  console.warn("WARNING: Set a strong ADMIN_PASSWORD in .env before deployment.");
+if (production && (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32)) {
+  throw new Error("SESSION_SECRET must be set to a random value of at least 32 characters in production.");
 }
 
 const db = new Database(path.join(dataDir, "gearhub.sqlite"));
@@ -125,16 +123,21 @@ if (!count) {
 async function ensureAdmin() {
  const username = (process.env.ADMIN_USERNAME || "admin").trim();
  const password = process.env.ADMIN_PASSWORD || "";
- if (!password) return;
  const exists = db.prepare("SELECT id,password_hash FROM admins WHERE username=?").get(username);
+ if (exists) return;
+ if (!password) {
+  if (production) throw new Error("Set ADMIN_PASSWORD before creating the initial admin account.");
+  return;
+ }
  if (!exists) {
+   if (production && (password.length < 16 || password.includes("ChangeThis"))) throw new Error("Set a unique ADMIN_PASSWORD of at least 16 characters before creating the initial admin account.");
    const hash = await bcrypt.hash(password, 12);
    db.prepare("INSERT INTO admins(username,password_hash) VALUES(?,?)").run(username, hash);
-   console.log(`Created admin account "${username}".`);
+   console.log("Created the initial admin account.");
  }
 }
 app.disable("x-powered-by");
-app.use(helmet({ contentSecurityPolicy: false })); // Front-end uses inline JS/CSS; enable a tailored CSP before public deployment.
+app.use(helmet({contentSecurityPolicy:{directives:{defaultSrc:["'self'"],scriptSrc:["'self'"],styleSrc:["'self'","'unsafe-inline'"],imgSrc:["'self'","data:","https:"],fontSrc:["'self'","data:","https:"],connectSrc:["'self'"],formAction:["'self'"],baseUri:["'self'"],objectSrc:["'none'"],frameAncestors:["'none'"]}}}));
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: false, limit: "100kb" }));
 // Persist sessions in the same SQLite database as the shop data. This avoids
@@ -194,9 +197,10 @@ class SQLiteSessionStore extends session.Store {
 const sessionStore = new SQLiteSessionStore();
 app.use(session({
  store: sessionStore,
+ name: sessionCookieName,
  secret: process.env.SESSION_SECRET || crypto.randomBytes(48).toString("hex"),
  resave: false, saveUninitialized: false,
- cookie: { httpOnly: true, sameSite: "lax", secure: production, maxAge: 1000 * 60 * 60 * 8 }
+ cookie: { httpOnly: true, sameSite: "lax", secure: production, path: "/", maxAge: 1000 * 60 * 60 * 8 }
 }));
 // Periodically prune expired sessions without requiring an external service.
 setInterval(() => {
@@ -209,6 +213,7 @@ app.get("/admin.html", (req, res) => {
  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
  res.setHeader("Pragma", "no-cache");
  res.setHeader("Expires", "0");
+ res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
  res.sendFile(path.join(__dirname, "public", "admin.html"));
 });
 app.use(express.static(path.join(__dirname, "public"), { setHeaders(res, filePath) {
@@ -219,17 +224,20 @@ app.use(express.static(path.join(__dirname, "public"), { setHeaders(res, filePat
  }
 } }));
 app.use("/uploads", express.static(uploadDir, { fallthrough: false, maxAge: "1d" }));
-app.use("/api/admin/login", rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: true, legacyHeaders: false }));
+app.use("/api/admin/login", rateLimit({ windowMs: 15 * 60 * 1000, limit: 5, skipSuccessfulRequests: true, standardHeaders: true, legacyHeaders: false }));
 app.use("/api/orders", rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: true, legacyHeaders: false }));
-// Reject cross-origin browser requests to admin mutation endpoints.
+// Keep private admin responses out of browser and intermediary caches, and
+// reject mutations unless they came from this exact site origin.
 app.use("/api/admin", (req, res, next) => {
+ res.setHeader("Cache-Control", "no-store, private");
+ res.setHeader("Pragma", "no-cache");
  if (["POST", "PATCH", "PUT", "DELETE"].includes(req.method)) {
-  const origin = req.get("origin");
-  if (origin) {
-   try {
-    if (new URL(origin).host !== req.get("host")) return res.status(403).json({ error: "Cross-origin request blocked." });
-   } catch { return res.status(403).json({ error: "Invalid request origin." }); }
-  }
+  const source = req.get("origin") || req.get("referer");
+  if (!source) return res.status(403).json({ error: "Request origin is required." });
+  try {
+   const expectedOrigin = `${req.protocol}://${req.get("host")}`;
+   if (new URL(source).origin !== expectedOrigin) return res.status(403).json({ error: "Cross-origin request blocked." });
+  } catch { return res.status(403).json({ error: "Invalid request origin." }); }
  }
  next();
 });
@@ -239,7 +247,7 @@ function adminOnly(req, res, next) {
  next();
 }
 
-app.get("/api/admin/backup", adminOnly, async (req, res) => {
+app.get("/api/admin/backup", rateLimit({ windowMs: 60 * 1000, limit: 2, standardHeaders: true, legacyHeaders: false }), adminOnly, async (req, res) => {
  const tempRoot = await fs.promises.mkdtemp(path.join(os.tmpdir(), "gearhub-backup-"));
  const stageDir = path.join(tempRoot, "gearhub-backup");
  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
@@ -265,8 +273,30 @@ app.get("/api/admin/backup", adminOnly, async (req, res) => {
 app.post("/api/admin/uploads", adminOnly, (req,res,next) => imageUpload.array("images",10)(req,res,err => {
  if (err) return res.status(400).json({error:err.message || "Could not upload images."});
  if (!req.files || !req.files.length) return res.status(400).json({error:"Choose at least one image file."});
- res.status(201).json({ imageUrls: req.files.map(file => "/uploads/" + file.filename) });
+ Promise.all(req.files.map(hasValidImageSignature)).then(valid => {
+  if (valid.some(value => !value)) {
+   return Promise.all(req.files.map(file => fs.promises.unlink(file.path).catch(() => {})))
+    .then(() => res.status(400).json({error:"The uploaded file content is not a supported image."}));
+  }
+  res.status(201).json({ imageUrls: req.files.map(file => "/uploads/" + file.filename) });
+ }).catch(async err => {
+  await Promise.all(req.files.map(file => fs.promises.unlink(file.path).catch(() => {})));
+  next(err);
+ });
 }));
+async function hasValidImageSignature(file) {
+ const handle = await fs.promises.open(file.path, "r");
+ try {
+  const buffer = Buffer.alloc(16);
+  const { bytesRead } = await handle.read(buffer, 0, buffer.length, 0);
+  if (file.mimetype === "image/jpeg") return bytesRead >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff;
+  if (file.mimetype === "image/png") return bytesRead >= 8 && buffer.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10]));
+  if (file.mimetype === "image/webp") return bytesRead >= 12 && buffer.toString("ascii", 0, 4) === "RIFF" && buffer.toString("ascii", 8, 12) === "WEBP";
+  if (file.mimetype === "image/gif") return bytesRead >= 6 && ["GIF87a", "GIF89a"].includes(buffer.toString("ascii", 0, 6));
+  if (file.mimetype === "image/avif") return bytesRead >= 12 && buffer.toString("ascii", 4, 8) === "ftyp" && ["avif", "avis", "mif1"].includes(buffer.toString("ascii", 8, 12));
+  return false;
+ } finally { await handle.close(); }
+}
 function cleanText(v, max=500) { return String(v ?? "").trim().slice(0, max); }
 function publicProduct(p) {
  let imageUrls = [];
@@ -275,7 +305,7 @@ function publicProduct(p) {
 }
 function cleanImageUrls(value) {
  const input = Array.isArray(value) ? value : String(value || "").split(/\r?\n/);
- return [...new Set(input.map(v => cleanText(v, 1000)).filter(v => /^https?:\/\//i.test(v) || /^\/uploads\/[a-f0-9]+\.(jpg|png|webp|gif|avif)$/i.test(v)))].slice(0,10);
+ return [...new Set(input.map(v => cleanText(v, 1000)).filter(v => /^https:\/\//i.test(v) || /^\/uploads\/[a-f0-9]+\.(jpg|png|webp|gif|avif)$/i.test(v)))].slice(0,10);
 }
 
 const defaultSiteSettings = () => ({
@@ -284,8 +314,8 @@ const defaultSiteSettings = () => ({
  colors: { brand: "#183426", accent: "#b7f36b", page: "#f5f7f1", hero: "#183426" },
  payment: {
   bankName: process.env.BANK_NAME || "KPay",
-  bankAccountName: process.env.BANK_ACCOUNT_NAME || "U Oakkar Kyaw",
-  bankAccountNumber: process.env.BANK_ACCOUNT_NUMBER || "09-766 472 432",
+  bankAccountName: process.env.BANK_ACCOUNT_NAME || "",
+  bankAccountNumber: process.env.BANK_ACCOUNT_NUMBER || "",
   paymentInstructions: process.env.PAYMENT_INSTRUCTIONS || "KPay သို့ ငွေလွှဲပြီး ငွေလွှဲပြေစာကို upload လုပ်ပေးပါ။"
  },
  translations: { my: {}, en: {} }
@@ -356,23 +386,33 @@ app.get("/api/products", (req,res) => {
  const rows = db.prepare("SELECT * FROM products WHERE active=1 ORDER BY id DESC").all();
  res.json(rows.map(publicProduct));
 });
-app.post("/api/orders", (req,res) => receiptUpload.single("receipt")(req,res,err => {
- if (err) return res.status(400).json({error:err.message || "Could not upload payment receipt."});
+app.post("/api/orders", (req,res) => receiptUpload.single("receipt")(req,res,async err => {
+ if (err) {
+  if (req.file) fs.promises.unlink(req.file.path).catch(() => {});
+  return res.status(400).json({error:err.message || "Could not upload payment receipt."});
+ }
+ const reject = message => {
+  if (req.file) fs.promises.unlink(req.file.path).catch(() => {});
+  return res.status(400).json({error:message});
+ };
  const b = req.body || {};
- if (typeof b.items === "string") { try { b.items = JSON.parse(b.items); } catch { return res.status(400).json({error:"Invalid cart data."}); } }
+ if (typeof b.items === "string") { try { b.items = JSON.parse(b.items); } catch { return reject("Invalid cart data."); } }
  const name = cleanText(b.customerName,120), phone = cleanText(b.phone,40);
  const email = cleanText(b.email,160), address = cleanText(b.address,500);
  const language = b.language === "en" ? "en" : "my";
  const reference = cleanText(b.paymentReference,100);
- if (!name || !phone || !address) return res.status(400).json({error:"Name, phone and delivery address are required."});
- if (!req.file) return res.status(400).json({error:"Please upload your payment receipt image (JPG, PNG or WebP, max 5 MB)."});
- if (!Array.isArray(b.items) || !b.items.length || b.items.length > 50) return res.status(400).json({error:"Your cart is empty or invalid."});
+ if (!name || !phone || !address) return reject("Name, phone and delivery address are required.");
+ if (!req.file) return reject("Please upload your payment receipt image (JPG, PNG or WebP, max 5 MB).");
+ if (!Array.isArray(b.items) || !b.items.length || b.items.length > 50 || b.items.some(item => !item || typeof item !== "object")) return reject("Your cart is empty or invalid.");
+ let validReceipt = false;
+ try { validReceipt = await hasValidImageSignature(req.file); } catch {}
+ if (!validReceipt) return reject("The uploaded receipt is not a valid JPG, PNG or WebP image.");
  const ids = b.items.map(x => Number(x.id));
- if (ids.some(id => !Number.isInteger(id) || id < 1)) return res.status(400).json({error:"Invalid product."});
+ if (ids.some(id => !Number.isInteger(id) || id < 1)) return reject("Invalid product.");
  const qtyMap = new Map();
  for (const item of b.items) {
    const qty = Number(item.quantity);
-   if (!Number.isInteger(qty) || qty < 1 || qty > 1000) return res.status(400).json({error:"Invalid quantity."});
+   if (!Number.isInteger(qty) || qty < 1 || qty > 1000) return reject("Invalid quantity.");
    qtyMap.set(Number(item.id), (qtyMap.get(Number(item.id)) || 0) + qty);
  }
  try {
@@ -380,11 +420,14 @@ app.post("/api/orders", (req,res) => receiptUpload.single("receipt")(req,res,err
    const lineItems = [];
    let subtotal = 0;
    for (const [id, quantity] of qtyMap.entries()) {
+    if (quantity > 1000) throw new Error("Invalid quantity.");
     const p = db.prepare("SELECT * FROM products WHERE id=? AND active=1").get(id);
     if (!p) throw new Error("A product is unavailable. Please refresh your cart.");
     if (p.stock < quantity) throw new Error(`Not enough stock for ${p.name_en}. Available: ${p.stock}`);
-    subtotal += p.price * quantity;
-    lineItems.push({ productId:p.id, sku:p.sku, nameEn:p.name_en, nameMy:p.name_my, unitPrice:p.price, quantity, lineTotal:p.price*quantity });
+    const lineTotal = p.price * quantity;
+    if (!Number.isSafeInteger(lineTotal) || !Number.isSafeInteger(subtotal + lineTotal)) throw new Error("Order total is too large.");
+    subtotal += lineTotal;
+    lineItems.push({ productId:p.id, sku:p.sku, nameEn:p.name_en, nameMy:p.name_my, unitPrice:p.price, quantity, lineTotal });
    }
    const code = "GH-" + Date.now().toString(36).toUpperCase() + "-" + crypto.randomBytes(2).toString("hex").toUpperCase();
    const info = db.prepare(`INSERT INTO orders
@@ -434,13 +477,18 @@ app.post("/api/admin/password-reset/verify", resetVerifyLimit, async (req,res) =
   const hash=await bcrypt.hash(password,12);
   db.prepare("UPDATE admins SET password_hash=? WHERE id=?").run(hash,user.id);
   db.prepare("DELETE FROM password_reset_codes WHERE id=1").run();
-  req.session.destroy(()=>{});
-  res.json({ok:true,message:"Password updated. Please sign in with your new password."});
+  db.prepare("DELETE FROM sessions").run();
+  req.session.destroy(err => {
+   if (err) console.error("Could not destroy the password reset session:",err.message);
+   res.clearCookie(sessionCookieName,{path:"/",secure:production,httpOnly:true,sameSite:"lax"});
+   res.json({ok:true,message:"Password updated. Please sign in with your new password."});
+  });
  } catch(err) { console.error("Password reset failed:",err.message); res.status(500).json({error:"Could not update password."}); }
 });
 app.post("/api/admin/login", async (req,res) => {
  const username = (process.env.ADMIN_USERNAME||"admin").trim();
  const password = String(req.body?.password || "");
+ if (!password || password.length > 72) return res.status(401).json({error:"Invalid password."});
  const user = db.prepare("SELECT * FROM admins WHERE username=?").get(username);
  if (!user || !(await bcrypt.compare(password,user.password_hash))) return res.status(401).json({error:"Invalid password."});
  req.session.regenerate(err => {
@@ -457,7 +505,7 @@ app.post("/api/admin/login", async (req,res) => {
  });
 });
 app.get("/api/admin/me", (req,res) => req.session.admin ? res.json({authenticated:true,username:req.session.admin.username}) : res.status(401).json({authenticated:false}));
-app.post("/api/admin/logout", (req,res) => req.session.destroy(() => { res.clearCookie("connect.sid"); res.json({ok:true}); }));
+app.post("/api/admin/logout", (req,res) => req.session.destroy(() => { res.clearCookie(sessionCookieName,{path:"/",secure:production,httpOnly:true,sameSite:"lax"}); res.json({ok:true}); }));
 app.get("/api/admin/summary", adminOnly, (req,res) => {
  const sales = db.prepare("SELECT COALESCE(SUM(total),0) AS value FROM orders WHERE payment_status='paid'").get().value;
  const orders = db.prepare("SELECT COUNT(*) AS value FROM orders").get().value;
