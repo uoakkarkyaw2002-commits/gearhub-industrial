@@ -8,6 +8,10 @@ const Database = require("better-sqlite3");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const os = require("os");
+const { execFile } = require("child_process");
+const { promisify } = require("util");
+const execFileAsync = promisify(execFile);
 const crypto = require("crypto");
 
 const app = express();
@@ -185,6 +189,29 @@ function adminOnly(req, res, next) {
  if (!req.session.admin) return res.status(401).json({ error: "Admin login required" });
  next();
 }
+
+app.get("/api/admin/backup", adminOnly, async (req, res) => {
+ const tempRoot = await fs.promises.mkdtemp(path.join(os.tmpdir(), "gearhub-backup-"));
+ const stageDir = path.join(tempRoot, "gearhub-backup");
+ const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+ const archivePath = path.join(tempRoot, `gearhub-backup-${timestamp}.tar.gz`);
+ try {
+  await fs.promises.mkdir(stageDir, { recursive: true });
+  // Use SQLite's online backup API so committed WAL data is included consistently.
+  await db.backup(path.join(stageDir, "gearhub.sqlite"));
+  await fs.promises.cp(uploadDir, path.join(stageDir, "uploads"), { recursive: true, force: true });
+  await execFileAsync("tar", ["-czf", archivePath, "-C", tempRoot, "gearhub-backup"], { timeout: 120000 });
+  res.setHeader("Cache-Control", "no-store, private");
+  res.download(archivePath, path.basename(archivePath), async err => {
+   await fs.promises.rm(tempRoot, { recursive: true, force: true }).catch(() => {});
+   if (err && !res.headersSent) res.status(500).json({ error: "Could not download the backup archive." });
+  });
+ } catch (err) {
+  console.error("Backup export failed:", err.message);
+  await fs.promises.rm(tempRoot, { recursive: true, force: true }).catch(() => {});
+  if (!res.headersSent) res.status(500).json({ error: "Could not create backup archive. Check service logs." });
+ }
+});
 app.post("/api/admin/uploads", adminOnly, (req,res,next) => imageUpload.array("images",10)(req,res,err => {
  if (err) return res.status(400).json({error:err.message || "Could not upload images."});
  if (!req.files || !req.files.length) return res.status(400).json({error:"Choose at least one image file."});
