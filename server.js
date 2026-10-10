@@ -14,8 +14,10 @@ const app = express();
 app.set("trust proxy", 1); // Render runs behind a trusted reverse proxy.
 const PORT = Number(process.env.PORT || 3000);
 const production = process.env.NODE_ENV === "production";
-const dataDir = path.join(__dirname, "data");
-const uploadDir = path.join(__dirname, "uploads");
+// Set DATA_DIR to a persistent disk mount (for example /var/data on Render).
+// Keep the current paths as defaults until the persistent disk is attached and configured.
+const dataDir = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(__dirname, "data");
+const uploadDir = process.env.UPLOAD_DIR ? path.resolve(process.env.UPLOAD_DIR) : path.join(dataDir, "uploads");
 fs.mkdirSync(dataDir, { recursive: true });
 fs.mkdirSync(uploadDir, { recursive: true });
 const imageStorage = multer.diskStorage({
