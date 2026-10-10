@@ -294,8 +294,7 @@ app.post("/api/orders", (req,res) => receiptUpload.single("receipt")(req,res,err
   })();
   res.status(201).json({ message:"Order created. Transfer payment and wait for admin confirmation.", order:result });
  } catch (e) { if (req.file) fs.promises.unlink(req.file.path).catch(() => {}); res.status(400).json({error:e.message || "Could not create order."}); }
-});
-});
+}));
 app.post("/api/admin/login", async (req,res) => {
  const username = cleanText(req.body?.username,100);
  const password = String(req.body?.password || "");
