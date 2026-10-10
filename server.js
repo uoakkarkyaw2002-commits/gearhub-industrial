@@ -83,6 +83,7 @@ CREATE TABLE IF NOT EXISTS orders (
  total INTEGER NOT NULL, payment_method TEXT NOT NULL DEFAULT 'bank_transfer',
  payment_reference TEXT NOT NULL DEFAULT '', payment_status TEXT NOT NULL DEFAULT 'pending',
  receipt_path TEXT NOT NULL DEFAULT '',
+ confirmation_date TEXT NOT NULL DEFAULT '',
  status TEXT NOT NULL DEFAULT 'pending', admin_note TEXT NOT NULL DEFAULT '',
  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -91,6 +92,7 @@ CREATE INDEX IF NOT EXISTS idx_orders_created ON orders(created_at DESC);
 // Safe schema migration for existing deployments.
 const orderColumns = db.prepare("PRAGMA table_info(orders)").all().map(c => c.name);
 if (!orderColumns.includes("receipt_path")) db.exec("ALTER TABLE orders ADD COLUMN receipt_path TEXT NOT NULL DEFAULT ''");
+if (!orderColumns.includes("confirmation_date")) db.exec("ALTER TABLE orders ADD COLUMN confirmation_date TEXT NOT NULL DEFAULT ''");
 const productColumns = db.prepare("PRAGMA table_info(products)").all().map(c => c.name);
 if (!productColumns.includes("image_urls")) db.exec("ALTER TABLE products ADD COLUMN image_urls TEXT NOT NULL DEFAULT '[]'");
 const count = db.prepare("SELECT COUNT(*) AS n FROM products").get().n;
@@ -333,7 +335,9 @@ app.patch("/api/admin/orders/:id", adminOnly, (req,res) => {
  const status = cleanText(req.body?.status,30);
  const paymentStatus = cleanText(req.body?.paymentStatus,30);
  const note = cleanText(req.body?.adminNote,500);
- const allowedStatus = ["pending","processing","shipped","completed","cancelled"];
+ const confirmationDate = cleanText(req.body?.confirmationDate,10);
+ if (confirmationDate && !/^\d{4}-\d{2}-\d{2}$/.test(confirmationDate)) return res.status(400).json({error:"Invalid confirmation date."});
+ const allowedStatus = ["pending","confirmed","processing","shipped","completed","cancelled"];
  const allowedPayment = ["pending","paid","rejected"];
  if (!Number.isInteger(id) || !allowedStatus.includes(status) || !allowedPayment.includes(paymentStatus))
   return res.status(400).json({error:"Invalid order update."});
@@ -347,7 +351,7 @@ app.patch("/api/admin/orders/:id", adminOnly, (req,res) => {
    if (status === "cancelled" && order.status !== "cancelled") {
     for (const item of JSON.parse(order.items_json)) db.prepare("UPDATE products SET stock=stock+? WHERE id=?").run(item.quantity,item.productId);
    }
-   db.prepare("UPDATE orders SET status=?,payment_status=?,admin_note=? WHERE id=?").run(status,paymentStatus,note,id);
+   db.prepare("UPDATE orders SET status=?,payment_status=?,admin_note=?,confirmation_date=? WHERE id=?").run(status,paymentStatus,note,confirmationDate,id);
   })();
   res.json({ok:true});
  } catch(e) { res.status(500).json({error:"Could not update order."}); }
