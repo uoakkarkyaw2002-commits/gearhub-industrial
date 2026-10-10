@@ -22,8 +22,10 @@ const production = process.env.NODE_ENV === "production";
 // Keep the current paths as defaults until the persistent disk is attached and configured.
 const dataDir = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(__dirname, "data");
 const uploadDir = process.env.UPLOAD_DIR ? path.resolve(process.env.UPLOAD_DIR) : path.join(dataDir, "uploads");
+const receiptDir = path.join(dataDir, "receipts");
 fs.mkdirSync(dataDir, { recursive: true });
 fs.mkdirSync(uploadDir, { recursive: true });
+fs.mkdirSync(receiptDir, { recursive: true });
 const imageStorage = multer.diskStorage({
  destination: (_req, _file, cb) => cb(null, uploadDir),
  filename: (_req, file, cb) => {
@@ -35,6 +37,17 @@ const imageUpload = multer({
  storage: imageStorage,
  limits: { fileSize: 5 * 1024 * 1024, files: 10 },
  fileFilter: (_req, file, cb) => cb(null, ["image/jpeg","image/png","image/webp","image/gif","image/avif"].includes(file.mimetype))
+});
+const receiptUpload = multer({
+ storage: multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, receiptDir),
+  filename: (_req, file, cb) => {
+   const ext = ({"image/jpeg":".jpg","image/png":".png","image/webp":".webp"})[file.mimetype];
+   cb(null, crypto.randomBytes(20).toString("hex") + ext);
+  }
+ }),
+ limits: { fileSize: 5 * 1024 * 1024, files: 1 },
+ fileFilter: (_req, file, cb) => cb(null, ["image/jpeg","image/png","image/webp"].includes(file.mimetype))
 });
 
 if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) {
@@ -69,12 +82,15 @@ CREATE TABLE IF NOT EXISTS orders (
  items_json TEXT NOT NULL, subtotal INTEGER NOT NULL, delivery_fee INTEGER NOT NULL DEFAULT 0,
  total INTEGER NOT NULL, payment_method TEXT NOT NULL DEFAULT 'bank_transfer',
  payment_reference TEXT NOT NULL DEFAULT '', payment_status TEXT NOT NULL DEFAULT 'pending',
+ receipt_path TEXT NOT NULL DEFAULT '',
  status TEXT NOT NULL DEFAULT 'pending', admin_note TEXT NOT NULL DEFAULT '',
  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_orders_created ON orders(created_at DESC);
 `);
 // Safe schema migration for existing deployments.
+const orderColumns = db.prepare("PRAGMA table_info(orders)").all().map(c => c.name);
+if (!orderColumns.includes("receipt_path")) db.exec("ALTER TABLE orders ADD COLUMN receipt_path TEXT NOT NULL DEFAULT ''");
 const productColumns = db.prepare("PRAGMA table_info(products)").all().map(c => c.name);
 if (!productColumns.includes("image_urls")) db.exec("ALTER TABLE products ADD COLUMN image_urls TEXT NOT NULL DEFAULT '[]'");
 const count = db.prepare("SELECT COUNT(*) AS n FROM products").get().n;
@@ -200,6 +216,7 @@ app.get("/api/admin/backup", adminOnly, async (req, res) => {
   // Use SQLite's online backup API so committed WAL data is included consistently.
   await db.backup(path.join(stageDir, "gearhub.sqlite"));
   await fs.promises.cp(uploadDir, path.join(stageDir, "uploads"), { recursive: true, force: true });
+  await fs.promises.cp(receiptDir, path.join(stageDir, "receipts"), { recursive: true, force: true });
   await execFileAsync("tar", ["-czf", archivePath, "-C", tempRoot, "gearhub-backup"], { timeout: 120000 });
   res.setHeader("Cache-Control", "no-store, private");
   res.download(archivePath, path.basename(archivePath), async err => {
@@ -229,22 +246,24 @@ function cleanImageUrls(value) {
 }
 
 app.get("/api/config", (req,res) => res.json({
- bankName: process.env.BANK_NAME || "Configure BANK_NAME in .env",
- bankAccountName: process.env.BANK_ACCOUNT_NAME || "Configure BANK_ACCOUNT_NAME in .env",
- bankAccountNumber: process.env.BANK_ACCOUNT_NUMBER || "Configure BANK_ACCOUNT_NUMBER in .env",
- paymentInstructions: process.env.PAYMENT_INSTRUCTIONS || "Transfer the order total and enter your transaction reference."
+ bankName: process.env.BANK_NAME || "KPay",
+ bankAccountName: process.env.BANK_ACCOUNT_NAME || "U Oakkar Kyaw",
+ bankAccountNumber: process.env.BANK_ACCOUNT_NUMBER || "09-766 472 432",
+ paymentInstructions: process.env.PAYMENT_INSTRUCTIONS || "KPay သို့ ငွေလွှဲပြီး ငွေလွှဲပြေစာကို upload လုပ်ပေးပါ။"
 }));
 app.get("/api/products", (req,res) => {
  const rows = db.prepare("SELECT * FROM products WHERE active=1 ORDER BY id DESC").all();
  res.json(rows.map(publicProduct));
 });
-app.post("/api/orders", (req,res) => {
+app.post("/api/orders", (req,res) => receiptUpload.single("receipt")(req,res,err => {
+ if (err) return res.status(400).json({error:err.message || "Could not upload payment receipt."});
  const b = req.body || {};
  const name = cleanText(b.customerName,120), phone = cleanText(b.phone,40);
  const email = cleanText(b.email,160), address = cleanText(b.address,500);
  const language = b.language === "en" ? "en" : "my";
  const reference = cleanText(b.paymentReference,100);
  if (!name || !phone || !address) return res.status(400).json({error:"Name, phone and delivery address are required."});
+ if (!req.file) return res.status(400).json({error:"Please upload your payment receipt image (JPG, PNG or WebP, max 5 MB)."});
  if (!Array.isArray(b.items) || !b.items.length || b.items.length > 50) return res.status(400).json({error:"Your cart is empty or invalid."});
  const ids = b.items.map(x => Number(x.id));
  if (ids.some(id => !Number.isInteger(id) || id < 1)) return res.status(400).json({error:"Invalid product."});
@@ -267,13 +286,14 @@ app.post("/api/orders", (req,res) => {
    }
    const code = "GH-" + Date.now().toString(36).toUpperCase() + "-" + crypto.randomBytes(2).toString("hex").toUpperCase();
    const info = db.prepare(`INSERT INTO orders
-    (order_code,customer_name,phone,email,address,language,items_json,subtotal,delivery_fee,total,payment_reference)
-    VALUES(?,?,?,?,?,?,?,?,?,?,?)`).run(code,name,phone,email,address,language,JSON.stringify(lineItems),subtotal,0,subtotal,reference);
+    (order_code,customer_name,phone,email,address,language,items_json,subtotal,delivery_fee,total,payment_reference,receipt_path)
+    VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`).run(code,name,phone,email,address,language,JSON.stringify(lineItems),subtotal,0,subtotal,reference,req.file.filename);
    for (const item of lineItems) db.prepare("UPDATE products SET stock=stock-? WHERE id=?").run(item.quantity,item.productId);
    return { id:info.lastInsertRowid, orderCode:code, subtotal, total:subtotal, paymentStatus:"pending", status:"pending" };
   })();
   res.status(201).json({ message:"Order created. Transfer payment and wait for admin confirmation.", order:result });
- } catch (e) { res.status(400).json({error:e.message || "Could not create order."}); }
+ } catch (e) { if (req.file) fs.promises.unlink(req.file.path).catch(() => {}); res.status(400).json({error:e.message || "Could not create order."}); }
+});
 });
 app.post("/api/admin/login", async (req,res) => {
  const username = cleanText(req.body?.username,100);
@@ -298,7 +318,15 @@ app.get("/api/admin/summary", adminOnly, (req,res) => {
 });
 app.get("/api/admin/orders", adminOnly, (req,res) => {
  const rows = db.prepare("SELECT * FROM orders ORDER BY id DESC LIMIT 200").all();
- res.json(rows.map(o=>({...o,items:JSON.parse(o.items_json)})));
+ res.json(rows.map(o=>{const {receipt_path,...safe}=o;return {...safe,hasReceipt:Boolean(receipt_path),items:JSON.parse(o.items_json)}}));
+});
+app.get("/api/admin/orders/:id/receipt", adminOnly, (req,res) => {
+ const order = db.prepare("SELECT receipt_path FROM orders WHERE id=?").get(Number(req.params.id));
+ if (!order || !order.receipt_path) return res.status(404).json({error:"No payment receipt uploaded for this order."});
+ const file = path.join(receiptDir, path.basename(order.receipt_path));
+ if (!fs.existsSync(file)) return res.status(404).json({error:"Receipt file not found."});
+ res.setHeader("Cache-Control","no-store, private");
+ res.sendFile(file);
 });
 app.patch("/api/admin/orders/:id", adminOnly, (req,res) => {
  const id = Number(req.params.id);
