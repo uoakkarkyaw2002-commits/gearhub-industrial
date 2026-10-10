@@ -198,7 +198,21 @@ setInterval(() => {
  try { db.prepare("DELETE FROM sessions WHERE expired_at <= ?").run(Date.now()); }
  catch (err) { console.error("Session cleanup failed:", err.message); }
 }, 60 * 60 * 1000).unref();
-app.use(express.static(path.join(__dirname, "public")));
+// Admin HTML and scripts must always revalidate so a cached search form cannot
+// keep submitting the page and send an administrator back through login.
+app.get("/admin.html", (req, res) => {
+ res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+ res.setHeader("Pragma", "no-cache");
+ res.setHeader("Expires", "0");
+ res.sendFile(path.join(__dirname, "public", "admin.html"));
+});
+app.use(express.static(path.join(__dirname, "public"), { setHeaders(res, filePath) {
+ if (path.basename(filePath) === "admin.js") {
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+ }
+} }));
 app.use("/uploads", express.static(uploadDir, { fallthrough: false, maxAge: "1d" }));
 app.use("/api/admin/login", rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: true, legacyHeaders: false }));
 app.use("/api/orders", rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: true, legacyHeaders: false }));

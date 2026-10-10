@@ -41,7 +41,10 @@ window.addEventListener("unhandledrejection",e=>{const m=$("product-message");if
 document.addEventListener("click",e=>{const btn=e.target.closest(".edit-product-btn");if(!btn)return;e.preventDefault();e.stopPropagation();const id=Number(btn.getAttribute("data-edit-id"));try{editProduct(id)}catch(err){const m=$("product-message");if(m)m.textContent="Edit failed: "+(err?.message||String(err));toast("Edit failed: "+(err?.message||String(err)))}});
 function updateInventoryQuery(value){inventoryQuery=normalizeInventoryText(value);$("inventory-search-clear").hidden=!inventoryQuery;renderInventory()}
 window.filterInventory=updateInventoryQuery;
+// Guard against a stale cached copy of the old search form submitting the page.
+document.addEventListener("submit",e=>{if(e.target?.id==="inventory-search-form"){e.preventDefault();updateInventoryQuery($("inventory-search").value)}},true);
 $("inventory-search").addEventListener("input",e=>updateInventoryQuery(e.currentTarget.value));
+$("inventory-search").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();updateInventoryQuery(e.currentTarget.value)}});
 $("inventory-search-clear").addEventListener("click",()=>{$("inventory-search").value="";updateInventoryQuery("");$("inventory-search").focus()});
 async function refreshAll(){try{const [s,orders,loadedProducts]=await Promise.all([api("/api/admin/summary"),api("/api/admin/orders"),api("/api/admin/products")]);products=loadedProducts;$("sales").textContent=money(s.sales);$("orders").textContent=s.orders;$("pending").textContent=s.pending;$("products-count").textContent=s.products;
 $("low-stock").innerHTML=s.lowStock.length?s.lowStock.map(p=>`<p>⚠️ <b>${esc(p.name_en)}</b> / ${esc(p.name_my)} <span style="float:right">${p.stock} left</span></p>`).join(""):"No low-stock alerts.";
