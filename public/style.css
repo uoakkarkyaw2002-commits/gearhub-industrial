@@ -57,3 +57,52 @@
 }
 @media(max-width:380px){.popular-category-list{gap:5px}.popular-category{padding:7px 3px}.popular-category-art{height:48px}.category-browser{grid-template-columns:minmax(92px,30%) minmax(0,1fr);gap:4px;padding:4px}.category-choice{padding:7px 5px;font-size:11px}}
 @media(prefers-reduced-motion:reduce){.bottom-nav-item,.category-choice,.popular-category{scroll-behavior:auto;transition:none}}
+
+/* Phone-first storefront and installed-app safe areas */
+@media(max-width:600px){
+ html,body{max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}
+ .announcement{display:none}
+ .nav{position:sticky;top:0;z-index:5;min-height:72px;gap:8px;padding:9px 12px}
+ .brand{display:grid;grid-template-columns:auto auto;align-items:center;column-gap:6px;font-size:20px;letter-spacing:-.6px;line-height:1.05}
+ .brand small{grid-column:2;font-size:7px;letter-spacing:1.2px}
+ .site-brand-image{grid-row:1/span 2;width:38px;height:38px;max-width:38px;max-height:38px}
+ .nav-actions{gap:6px}
+ .nav-actions #lang{padding:8px 10px;font-size:12px}
+ .nav-actions #cart-open{display:inline-flex;align-items:center;gap:5px;padding:9px 11px;border-radius:13px;font-size:13px;white-space:nowrap}
+ .nav-actions #cart-open [data-i18n="cart"]{display:none}
+ .nav-actions #cart-open #cart-count{min-width:19px;height:19px;display:inline-grid;place-items:center;border-radius:50%;background:#ffffff80;font-size:11px}
+ .section-head{align-items:flex-start}
+ #category-view{padding-top:15px}
+ #category-view>.section-head{margin:0 0 14px}
+ #category-heading{font-size:clamp(24px,7vw,31px);line-height:1.15;letter-spacing:-.6px}
+ #category-view .section-head p{font-size:14px;line-height:1.45}
+ .category-view,.promotion-view,.profile-view{min-height:0;margin:8px auto 20px}
+ .category-browser{display:flex;flex-direction:column;gap:12px;min-height:0;padding:10px;border-radius:17px}
+ .category-sidebar{position:static;display:flex;flex-direction:row;align-self:stretch;gap:7px;max-height:none;margin:0 -2px;padding:2px 2px 7px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+ .category-sidebar::-webkit-scrollbar{display:none}
+ .category-choice{flex:0 0 auto;width:auto;min-width:105px;max-width:155px;min-height:42px;justify-content:flex-start;gap:7px;padding:9px 11px;border:1px solid var(--line);border-radius:999px;font-size:12px;scroll-snap-align:start}
+ .category-choice-name{display:block;max-width:115px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25}
+ .category-choice-count{font-size:11px}
+ .category-results{width:100%}
+ .category-results-heading{align-items:center;flex-direction:row;gap:8px;padding:3px 2px 10px}
+ .category-results-heading h3{font-size:18px;line-height:1.3}
+ .category-results-heading .muted{font-size:12px;white-space:nowrap}
+ .category-subcategory{grid-template-columns:minmax(0,1fr) auto 18px;min-height:48px;padding:10px 12px;font-size:14px;border-radius:11px}
+ .category-product-row{grid-template-columns:58px minmax(0,1fr);gap:5px 10px;padding:12px 2px}
+ .category-product-art{grid-row:1/span 2;width:58px;height:58px;border-radius:13px}
+ .category-product-art .product-photo{height:58px;padding:2px}
+ .category-product-art .product-fallback{font-size:28px}
+ .category-product-info{grid-column:2;grid-row:1;gap:3px}
+ .category-product-info>strong{font-size:11px;letter-spacing:.2px}
+ .category-product-info>span{font-size:14px;white-space:normal;line-height:1.3}
+ .category-product-info>small{display:none}
+ .category-product-info .price{font-size:15px;margin-top:2px}
+ .category-row-stock{grid-column:2;grid-row:2;font-size:11px}
+ .category-row-add{grid-column:1/-1;grid-row:3;min-height:45px;border-radius:12px;font-size:14px}
+ .profile-card{margin:0 auto 15px}
+ .app-install-card{margin:18px 0;padding:15px;border:1px solid var(--line);border-radius:14px;background:#f5f8f1;text-align:left}
+ .app-install-card strong{font-size:15px}
+ .app-install-card p{margin:5px 0 12px;font-size:13px;line-height:1.5}
+ .app-install-card button{width:100%;min-height:44px}
+}
+@media(display-mode:standalone){.announcement{display:none}.nav{padding-top:max(9px,env(safe-area-inset-top))}.mobile-bottom-nav{padding-bottom:max(7px,env(safe-area-inset-bottom))}}

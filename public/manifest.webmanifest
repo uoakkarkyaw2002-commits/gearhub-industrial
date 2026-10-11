@@ -1,0 +1,17 @@
+{
+  "id": "/",
+  "name": "GearHub Industrial",
+  "short_name": "GearHub",
+  "description": "Industrial equipment and parts",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#f5f7f1",
+  "theme_color": "#183426",
+  "icons": [
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "/icons/apple-touch-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
