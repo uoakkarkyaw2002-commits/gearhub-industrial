@@ -79,6 +79,7 @@ CREATE TABLE IF NOT EXISTS categories (
  category_en TEXT NOT NULL COLLATE NOCASE UNIQUE,
  category_my TEXT NOT NULL,
  icon TEXT NOT NULL DEFAULT '',
+ parent_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
  sort_order INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE IF NOT EXISTS orders (
@@ -96,6 +97,9 @@ CREATE TABLE IF NOT EXISTS orders (
 );
 CREATE INDEX IF NOT EXISTS idx_orders_created ON orders(created_at DESC);
 `);
+if (!db.prepare("PRAGMA table_info(categories)").all().some(column => column.name === "parent_id")) {
+ db.exec("ALTER TABLE categories ADD COLUMN parent_id INTEGER REFERENCES categories(id) ON DELETE SET NULL");
+}
 // Safe schema migration for existing deployments.
 const orderColumns = db.prepare("PRAGMA table_info(orders)").all().map(c => c.name);
 if (!orderColumns.includes("receipt_path")) db.exec("ALTER TABLE orders ADD COLUMN receipt_path TEXT NOT NULL DEFAULT ''");
@@ -322,8 +326,10 @@ function ensureProductCategory(nameEn,nameMy) {
 }
 function getCategories(activeOnly=false) {
  const filter=activeOnly?"AND p.active=1":"";
- return db.prepare(`SELECT c.id,c.category_en,c.category_my,c.icon,c.sort_order,COUNT(p.id) AS product_count
-  FROM categories c LEFT JOIN products p ON p.category_en=c.category_en ${filter}
+ return db.prepare(`SELECT c.id,c.category_en,c.category_my,c.icon,c.parent_id,c.sort_order,
+  parent.category_en AS parent_en,parent.category_my AS parent_my,COUNT(p.id) AS product_count
+  FROM categories c LEFT JOIN categories parent ON parent.id=c.parent_id
+  LEFT JOIN products p ON p.category_en=c.category_en ${filter}
   GROUP BY c.id ORDER BY c.sort_order ASC,c.id ASC`).all();
 }
 function publicProduct(p) {
@@ -338,7 +344,7 @@ function cleanImageUrls(value) {
 
 const defaultSiteSettings = () => ({
  siteTitle: "GearHub Industrial | စက်မှုသုံးပစ္စည်းများ",
- brandName: "gearhub.", brandTagline: "INDUSTRIAL", heroIcon: "⚙️", logoUrl: "", wallpaperUrl: "", heroImageUrl: "",
+ brandName: "gearhub.", brandTagline: "INDUSTRIAL", heroIcon: "⚙️", logoUrl: "", wallpaperUrl: "", heroImageUrl: "/images/hero-excavator.jpg",
  colors: { brand: "#183426", accent: "#b7f36b", page: "#f5f7f1", hero: "#183426" },
  payment: {
   bankName: process.env.BANK_NAME || "KPay",
@@ -400,6 +406,7 @@ function getSiteSettings() {
 function cleanSiteImageUrl(value) {
  const input = cleanText(value, 1000);
  if (!input) return "";
+ if (input === "/images/hero-excavator.jpg") return input;
  if (/^\/uploads\/[a-f0-9]+\.(jpg|png|webp|gif|avif)$/i.test(input)) return input;
  try {
   const url = new URL(input);
@@ -633,39 +640,35 @@ app.get("/api/admin/products", adminOnly, (req,res) => res.json(db.prepare("SELE
 app.get("/api/admin/categories", adminOnly, (_req,res) => res.json(getCategories(false)));
 app.put("/api/admin/categories", adminOnly, (req,res) => {
  const input=req.body?.categories;
- if(!Array.isArray(input)||input.length>100)return res.status(400).json({error:"Send a list of up to 100 categories."});
+ if(!Array.isArray(input)||input.length>200)return res.status(400).json({error:"Send a list of up to 200 categories."});
  const cleaned=[];const names=new Set();
  for(const row of input){
   if(!row||typeof row!=="object")return res.status(400).json({error:"A category entry is invalid."});
-  const category_en=cleanText(row.category_en,100),category_my=cleanText(row.category_my,100),icon=cleanText(row.icon,12);
+  const category_en=cleanText(row.category_en,100),category_my=cleanText(row.category_my,100),icon=cleanText(row.icon,12),parent_en=cleanText(row.parent_en,100);
   const key=category_en.toLocaleLowerCase();
   if(!category_en||!category_my)return res.status(400).json({error:"Each category needs an English and Myanmar name."});
   if(names.has(key))return res.status(400).json({error:"English category names must be unique."});
-  names.add(key);cleaned.push({id:Number.isInteger(Number(row.id))&&Number(row.id)>0?Number(row.id):null,category_en,category_my,icon});
+  names.add(key);cleaned.push({id:Number.isInteger(Number(row.id))&&Number(row.id)>0?Number(row.id):null,category_en,category_my,icon,parent_en});
  }
- const existing=getCategories(false),retainedIds=new Set();
- for(const row of cleaned){
-  const match=(row.id&&existing.find(c=>c.id===row.id))||existing.find(c=>c.category_en.toLocaleLowerCase()===row.category_en.toLocaleLowerCase());
-  if(match)retainedIds.add(match.id);
- }
- for(const category of existing){
-  if(retainedIds.has(category.id))continue;
-  const used=db.prepare("SELECT COUNT(*) AS n FROM products WHERE category_en=?").get(category.category_en).n;
-  if(used)return res.status(400).json({error:`Move or rename the ${category.category_en} products before removing this category.`});
- }
+ const namesByKey=new Map(cleaned.map(row=>[row.category_en.toLocaleLowerCase(),row]));
+ for(const row of cleaned)if(row.parent_en){const parent=namesByKey.get(row.parent_en.toLocaleLowerCase());if(!parent||parent.parent_en||parent.category_en.toLocaleLowerCase()===row.category_en.toLocaleLowerCase())return res.status(400).json({error:"Choose an existing main category as the parent. Categories can only be two levels deep."});}
  const save=db.transaction(rows=>{
-  rows.forEach((row,index)=>{
+  const existing=getCategories(false),idsByKey=new Map();
+  rows.forEach(row=>{
    let current=(row.id&&db.prepare("SELECT * FROM categories WHERE id=?").get(row.id))||db.prepare("SELECT * FROM categories WHERE category_en=? COLLATE NOCASE").get(row.category_en);
    if(current){
     if(current.category_en!==row.category_en)db.prepare("UPDATE products SET category_en=?,category_my=? WHERE category_en=?").run(row.category_en,row.category_my,current.category_en);
-    db.prepare("UPDATE categories SET category_en=?,category_my=?,icon=?,sort_order=? WHERE id=?").run(row.category_en,row.category_my,row.icon,index,current.id);
-   }else db.prepare("INSERT INTO categories(category_en,category_my,icon,sort_order) VALUES(?,?,?,?)").run(row.category_en,row.category_my,row.icon,index);
+    db.prepare("UPDATE categories SET category_en=?,category_my=?,icon=? WHERE id=?").run(row.category_en,row.category_my,row.icon,current.id);
+    idsByKey.set(row.category_en.toLocaleLowerCase(),current.id);
+   }else{const result=db.prepare("INSERT INTO categories(category_en,category_my,icon,parent_id,sort_order) VALUES(?,?,?,NULL,0)").run(row.category_en,row.category_my,row.icon);idsByKey.set(row.category_en.toLocaleLowerCase(),Number(result.lastInsertRowid));}
   });
-  const keep=new Set(rows.map(row=>row.id).filter(Boolean));
-  for(const row of rows){const match=db.prepare("SELECT id FROM categories WHERE category_en=? COLLATE NOCASE").get(row.category_en);if(match)keep.add(match.id)}
-  for(const category of db.prepare("SELECT id FROM categories").all())if(!keep.has(category.id))db.prepare("DELETE FROM categories WHERE id=?").run(category.id);
+  const orderByParent=new Map();
+  rows.forEach(row=>{const id=idsByKey.get(row.category_en.toLocaleLowerCase()),parentId=row.parent_en?idsByKey.get(row.parent_en.toLocaleLowerCase()):null;const orderKey=parentId||0,index=orderByParent.get(orderKey)||0;db.prepare("UPDATE categories SET parent_id=?,sort_order=? WHERE id=?").run(parentId,index,id);orderByParent.set(orderKey,index+1)});
+  const keep=new Set(idsByKey.values());
+  for(const category of existing){if(keep.has(category.id))continue;const used=db.prepare("SELECT COUNT(*) AS n FROM products WHERE category_en=?").get(category.category_en).n;if(used)throw new Error(`Move or rename the ${category.category_en} products before removing this category.`);}
+  for(const category of existing)if(!keep.has(category.id))db.prepare("DELETE FROM categories WHERE id=?").run(category.id);
  });
- try{save(cleaned);res.json({ok:true,categories:getCategories(false)});}catch(err){res.status(400).json({error:"Could not save categories. Check for duplicate names."});}
+ try{save(cleaned);res.json({ok:true,categories:getCategories(false)});}catch(err){res.status(400).json({error:err.message||"Could not save categories. Check for duplicate names."});}
 });
 app.post("/api/admin/products", adminOnly, (req,res) => {
  const b=req.body||{};
