@@ -136,3 +136,20 @@
 @media(max-width:850px){body.non-home-view>.nav{display:none}}
 
 .settings-profile-edit-hint{color:#ffffffc7!important;font-size:10px!important;font-weight:650}
+
+/* Polished card depth and stable, arrow-free product photo viewer. */
+.product{border-color:#e3ecdf;background:linear-gradient(145deg,#fff 0%,#fdfffc 100%);box-shadow:0 7px 20px #abc69b30,0 2px 5px #c7d8be24;transform:perspective(1000px) translateZ(0);transition:transform .26s cubic-bezier(.2,.75,.25,1),box-shadow .26s,border-color .26s}
+.product-art{box-shadow:inset 0 -3px 0 #dce9d4}
+.stock-line{margin-top:10px;color:#718071;font-size:12px}
+.stock-line strong{color:#43823d;font-variant-numeric:tabular-nums}
+@media(hover:hover){.product:hover{transform:perspective(1000px) translateY(-6px) rotateX(1deg);border-color:#cfe0c7;box-shadow:0 19px 38px #9fbd9342,0 7px 15px #d9c9ed2c}}
+.view-transition main>section:not(.store-view-hidden),.view-transition footer:not(.store-view-hidden){animation:store-view-arrive .34s cubic-bezier(.2,.75,.25,1) both}
+@keyframes store-view-arrive{from{opacity:.45;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+.gallery-modal.open{overflow:hidden;overscroll-behavior:contain;padding:12px}
+.gallery-modal .gallery-card{display:flex;flex-direction:column;width:min(900px,96vw);height:min(88vh,820px);height:min(88dvh,820px);max-height:88vh;max-height:88dvh;overflow:hidden;overscroll-behavior:contain;transform:none}
+.gallery-modal .gallery-stage{display:block;flex:1 1 auto;width:100%;height:0;min-height:0;overflow:hidden;touch-action:pan-y}
+.gallery-modal .gallery-stage>img{display:block;width:100%;height:100%;object-fit:contain;touch-action:pan-y;user-select:none;-webkit-user-drag:none}
+.gallery-modal .gallery-arrow{display:none!important}
+.gallery-modal .gallery-meta{flex:0 0 auto;min-height:56px;margin-top:10px}
+@media(max-width:520px){.gallery-modal.open{padding:10px}.gallery-modal .gallery-card{width:100%;height:86vh;height:86dvh;max-height:86vh;max-height:86dvh;padding:12px}.gallery-modal .gallery-stage{min-height:0}.gallery-modal .gallery-meta{align-items:flex-start;flex-direction:column;gap:5px}.gallery-modal .gallery-thumbs{max-width:100%;width:100%;flex:0 0 62px}}
+@media(prefers-reduced-motion:reduce){.product,.view-transition main>section,.view-transition footer{transition:none;animation:none}}
