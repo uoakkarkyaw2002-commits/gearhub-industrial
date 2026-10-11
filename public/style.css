@@ -173,3 +173,8 @@ body.gallery-open{overflow:hidden}
 .gallery-modal.open,.gallery-modal .gallery-card,.gallery-modal .gallery-stage{touch-action:none;overscroll-behavior:none}
 .gallery-modal .gallery-thumbs{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;touch-action:pan-x;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
 .settings-profile-camera{display:none!important}
+
+/* Home header shares the Settings profile banner artwork and overlay. */
+body:not(.non-home-view)>.home-navigation{background-image:var(--profile-banner-background);background-color:var(--profile-banner-color,var(--green));background-size:cover;background-position:center;color:#fff;border-bottom-color:rgba(255,255,255,.15)}
+body:not(.non-home-view)>.home-navigation .brand,body:not(.non-home-view)>.home-navigation nav a{color:#fff}
+body:not(.non-home-view)>.home-navigation .brand small{color:rgba(255,255,255,.8)}
