@@ -20,7 +20,7 @@
 
 .site-layout-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0 22px}
 .site-layout-card{min-width:0;margin:0;padding:13px;border:1px solid var(--line);border-radius:12px;background:#fff}
-.site-layout-card legend{padding:0 5px;font-size:13px;font-weight:800}
+.site-layout-card summary{padding:2px 3px;font-size:13px;font-weight:800;cursor:pointer}.site-layout-card[open] summary{margin-bottom:12px}.site-layout-card .site-layout-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .site-layout-enable{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:12px;font-weight:750}
 .site-layout-enable input,.site-layout-color input[type=checkbox]{width:auto;margin:0;accent-color:#5d9d29}
 .site-layout-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;transition:opacity .15s}

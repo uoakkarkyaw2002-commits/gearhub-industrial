@@ -456,7 +456,7 @@ app.put("/api/admin/site-settings", adminOnly, (req,res) => {
  const translations = { my: {}, en: {} };
  for (const language of ["my","en"]) {
   const entries = Object.entries(body.translations?.[language] || {});
-  if (entries.length > 100) return res.status(400).json({error:"Too many frontend text fields."});
+  if (entries.length > 300) return res.status(400).json({error:"Too many frontend text fields."});
   for (const [key,value] of entries) {
    if (!/^[a-zA-Z][a-zA-Z0-9_-]{0,60}$/.test(key) || typeof value !== "string" || value.length > 1000)
     return res.status(400).json({error:"Frontend text fields must be plain text under 1,000 characters."});
