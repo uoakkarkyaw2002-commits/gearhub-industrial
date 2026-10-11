@@ -53,18 +53,17 @@
   async function updateStorageUsage() {
     const label = byId("storage-usage"), meter = byId("storage-meter-fill");
     if (!label || !meter) return;
-    if (!navigator.storage?.estimate) {
-      label.textContent = words("storageUnavailable");
-      meter.style.width = "0%";
-      return;
-    }
     try {
-      const { usage = 0, quota = 0 } = await navigator.storage.estimate();
-      label.textContent = quota ? `${formatBytes(usage)} / ${formatBytes(quota)}` : formatBytes(usage);
-      meter.style.width = `${quota ? Math.min(100, Math.max(2, usage / quota * 100)) : 0}%`;
+      const response = await fetch("/api/storage", { cache: "no-store" });
+      if (!response.ok) throw new Error("Storage endpoint unavailable");
+      const { usedBytes = 0, capacityBytes = 0, availableBytes = 0 } = await response.json();
+      const used = formatBytes(usedBytes), capacity = formatBytes(capacityBytes), available = formatBytes(availableBytes);
+      label.textContent = words("storageUsageLabel").replace("{used}", used).replace("{available}", available).replace("{capacity}", capacity);
+      meter.style.width = `${capacityBytes ? Math.min(100, Math.max(2, usedBytes / capacityBytes * 100)) : 0}%`;
       meter.parentElement.setAttribute("aria-label", label.textContent);
     } catch {
       label.textContent = words("storageUnavailable");
+      meter.style.width = "0%";
     }
   }
 

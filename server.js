@@ -244,6 +244,34 @@ app.use(express.static(path.join(__dirname, "public"), { setHeaders(res, filePat
  }
 } }));
 app.use("/uploads", express.static(uploadDir, { fallthrough: false, maxAge: "1d" }));
+// Report storage for the filesystem that actually holds the database and uploads.
+// The API returns byte counts only; it never exposes server paths or file names.
+app.get("/api/storage", async (_req, res) => {
+ res.setHeader("Cache-Control", "no-store");
+ try {
+  let appDataBytes = 0;
+  const pending = [dataDir];
+  while (pending.length) {
+   const current = pending.pop();
+   let entries;
+   try { entries = await fs.promises.readdir(current, { withFileTypes: true }); }
+   catch (err) { if (err.code === "ENOENT") continue; throw err; }
+   for (const entry of entries) {
+    const fullPath = path.join(current, entry.name);
+    if (entry.isSymbolicLink()) continue;
+    if (entry.isDirectory()) pending.push(fullPath);
+    else if (entry.isFile()) appDataBytes += (await fs.promises.stat(fullPath)).size;
+   }
+  }
+  const disk = await fs.promises.statfs(dataDir);
+  const diskCapacityBytes = Number(disk.blocks) * Number(disk.bsize);
+  const diskAvailableBytes = Number(disk.bavail) * Number(disk.bsize);
+  res.json({ usedBytes: appDataBytes, capacityBytes: diskCapacityBytes, availableBytes: diskAvailableBytes });
+ } catch (err) {
+  console.error("Storage usage lookup failed:", err.message);
+  res.status(503).json({ error: "Storage information is temporarily unavailable." });
+ }
+});
 app.use("/api/admin/login", rateLimit({ windowMs: 15 * 60 * 1000, limit: 5, skipSuccessfulRequests: true, standardHeaders: true, legacyHeaders: false }));
 app.use("/api/orders", rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: true, legacyHeaders: false }));
 // Keep private admin responses out of browser and intermediary caches, and
