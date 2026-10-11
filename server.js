@@ -74,6 +74,13 @@ CREATE TABLE IF NOT EXISTS products (
  image_urls TEXT NOT NULL DEFAULT '[]',
  active INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+CREATE TABLE IF NOT EXISTS categories (
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ category_en TEXT NOT NULL COLLATE NOCASE UNIQUE,
+ category_my TEXT NOT NULL,
+ icon TEXT NOT NULL DEFAULT '',
+ sort_order INTEGER NOT NULL DEFAULT 0
+);
 CREATE TABLE IF NOT EXISTS orders (
  id INTEGER PRIMARY KEY AUTOINCREMENT,
  order_code TEXT UNIQUE NOT NULL, customer_name TEXT NOT NULL, phone TEXT NOT NULL,
@@ -119,6 +126,15 @@ if (!count) {
  VALUES (?,?,?,?,?,?,?,?,?,?)`);
  const tx = db.transaction(rows => rows.forEach(r => ins.run(r[0],r[1],r[2],r[3],r[4],r[5],r[6],r[7],r[8],r[9])));
  tx(seed);
+}
+// Keep a customizable category list while migrating categories already stored on products.
+const seedCategory = db.prepare("INSERT OR IGNORE INTO categories(category_en,category_my,icon,sort_order) VALUES(?,?,?,?)");
+const knownCategoryNames = new Set();
+for (const product of db.prepare("SELECT category_en,category_my FROM products ORDER BY id ASC").all()) {
+ const key = String(product.category_en || "").trim().toLocaleLowerCase();
+ if (!key || knownCategoryNames.has(key)) continue;
+ knownCategoryNames.add(key);
+ seedCategory.run(cleanText(product.category_en,100),cleanText(product.category_my,100)||cleanText(product.category_en,100),"",knownCategoryNames.size-1);
 }
 async function ensureAdmin() {
  const username = (process.env.ADMIN_USERNAME || "admin").trim();
@@ -298,6 +314,18 @@ async function hasValidImageSignature(file) {
  } finally { await handle.close(); }
 }
 function cleanText(v, max=500) { return String(v ?? "").trim().slice(0, max); }
+function ensureProductCategory(nameEn,nameMy) {
+ const english=cleanText(nameEn,100),myanmar=cleanText(nameMy,100);
+ if(!english||!myanmar)return;
+ db.prepare("INSERT OR IGNORE INTO categories(category_en,category_my,icon,sort_order) VALUES(?,?,?,?)")
+  .run(english,myanmar,"",db.prepare("SELECT COALESCE(MAX(sort_order),-1)+1 AS next FROM categories").get().next);
+}
+function getCategories(activeOnly=false) {
+ const filter=activeOnly?"AND p.active=1":"";
+ return db.prepare(`SELECT c.id,c.category_en,c.category_my,c.icon,c.sort_order,COUNT(p.id) AS product_count
+  FROM categories c LEFT JOIN products p ON p.category_en=c.category_en ${filter}
+  GROUP BY c.id ORDER BY c.sort_order ASC,c.id ASC`).all();
+}
 function publicProduct(p) {
  let imageUrls = [];
  try { imageUrls = JSON.parse(p.image_urls || "[]"); } catch {}
@@ -425,6 +453,7 @@ app.get("/api/products", (req,res) => {
  const rows = db.prepare("SELECT * FROM products WHERE active=1 ORDER BY id DESC").all();
  res.json(rows.map(publicProduct));
 });
+app.get("/api/categories", (_req,res) => res.json(getCategories(true)));
 app.post("/api/orders", (req,res) => receiptUpload.single("receipt")(req,res,async err => {
  if (err) {
   if (req.file) fs.promises.unlink(req.file.path).catch(() => {});
@@ -601,6 +630,43 @@ app.delete("/api/admin/trash", adminOnly, (req,res) => {
  const result=db.prepare("DELETE FROM orders WHERE status='cancelled'").run(); res.json({ok:true,deleted:result.changes});
 });
 app.get("/api/admin/products", adminOnly, (req,res) => res.json(db.prepare("SELECT * FROM products ORDER BY id DESC").all().map(publicProduct)));
+app.get("/api/admin/categories", adminOnly, (_req,res) => res.json(getCategories(false)));
+app.put("/api/admin/categories", adminOnly, (req,res) => {
+ const input=req.body?.categories;
+ if(!Array.isArray(input)||input.length>100)return res.status(400).json({error:"Send a list of up to 100 categories."});
+ const cleaned=[];const names=new Set();
+ for(const row of input){
+  if(!row||typeof row!=="object")return res.status(400).json({error:"A category entry is invalid."});
+  const category_en=cleanText(row.category_en,100),category_my=cleanText(row.category_my,100),icon=cleanText(row.icon,12);
+  const key=category_en.toLocaleLowerCase();
+  if(!category_en||!category_my)return res.status(400).json({error:"Each category needs an English and Myanmar name."});
+  if(names.has(key))return res.status(400).json({error:"English category names must be unique."});
+  names.add(key);cleaned.push({id:Number.isInteger(Number(row.id))&&Number(row.id)>0?Number(row.id):null,category_en,category_my,icon});
+ }
+ const existing=getCategories(false),retainedIds=new Set();
+ for(const row of cleaned){
+  const match=(row.id&&existing.find(c=>c.id===row.id))||existing.find(c=>c.category_en.toLocaleLowerCase()===row.category_en.toLocaleLowerCase());
+  if(match)retainedIds.add(match.id);
+ }
+ for(const category of existing){
+  if(retainedIds.has(category.id))continue;
+  const used=db.prepare("SELECT COUNT(*) AS n FROM products WHERE category_en=?").get(category.category_en).n;
+  if(used)return res.status(400).json({error:`Move or rename the ${category.category_en} products before removing this category.`});
+ }
+ const save=db.transaction(rows=>{
+  rows.forEach((row,index)=>{
+   let current=(row.id&&db.prepare("SELECT * FROM categories WHERE id=?").get(row.id))||db.prepare("SELECT * FROM categories WHERE category_en=? COLLATE NOCASE").get(row.category_en);
+   if(current){
+    if(current.category_en!==row.category_en)db.prepare("UPDATE products SET category_en=?,category_my=? WHERE category_en=?").run(row.category_en,row.category_my,current.category_en);
+    db.prepare("UPDATE categories SET category_en=?,category_my=?,icon=?,sort_order=? WHERE id=?").run(row.category_en,row.category_my,row.icon,index,current.id);
+   }else db.prepare("INSERT INTO categories(category_en,category_my,icon,sort_order) VALUES(?,?,?,?)").run(row.category_en,row.category_my,row.icon,index);
+  });
+  const keep=new Set(rows.map(row=>row.id).filter(Boolean));
+  for(const row of rows){const match=db.prepare("SELECT id FROM categories WHERE category_en=? COLLATE NOCASE").get(row.category_en);if(match)keep.add(match.id)}
+  for(const category of db.prepare("SELECT id FROM categories").all())if(!keep.has(category.id))db.prepare("DELETE FROM categories WHERE id=?").run(category.id);
+ });
+ try{save(cleaned);res.json({ok:true,categories:getCategories(false)});}catch(err){res.status(400).json({error:"Could not save categories. Check for duplicate names."});}
+});
 app.post("/api/admin/products", adminOnly, (req,res) => {
  const b=req.body||{};
  const sku=cleanText(b.sku,60), nameEn=cleanText(b.nameEn,160), nameMy=cleanText(b.nameMy,160);
@@ -613,6 +679,7 @@ app.post("/api/admin/products", adminOnly, (req,res) => {
  try {
   const r=db.prepare(`INSERT INTO products(sku,name_en,name_my,category_en,category_my,description_en,description_my,price,stock,image_emoji,image_urls)
    VALUES(?,?,?,?,?,?,?,?,?,?,?)`).run(sku,nameEn,nameMy,categoryEn,categoryMy,descriptionEn,descriptionMy,price,stock,emoji,JSON.stringify(imageUrls));
+  ensureProductCategory(categoryEn,categoryMy);
   res.status(201).json({id:r.lastInsertRowid});
  } catch(e) { res.status(400).json({error:"Could not add product. SKU may already exist."}); }
 });
@@ -629,7 +696,7 @@ app.patch("/api/admin/products/:id", adminOnly, (req,res) => {
  const imageUrls=b.imageUrls===undefined?cleanImageUrls(oldImages):cleanImageUrls(b.imageUrls);
  const active=b.active===undefined?existing.active:(b.active===false||b.active===0||b.active==="0"?0:1);
  if(!sku||!nameEn||!nameMy||!categoryEn||!categoryMy||!Number.isSafeInteger(price)||price<0||!Number.isInteger(stock)||stock<0) return res.status(400).json({error:"Fill required fields; price and stock must be valid non-negative integers."});
- try { db.prepare("UPDATE products SET sku=?,name_en=?,name_my=?,category_en=?,category_my=?,description_en=?,description_my=?,price=?,stock=?,image_emoji=?,image_urls=?,active=? WHERE id=?").run(sku,nameEn,nameMy,categoryEn,categoryMy,descriptionEn,descriptionMy,price,stock,emoji,JSON.stringify(imageUrls),active,id); res.json({ok:true}); }
+ try { db.prepare("UPDATE products SET sku=?,name_en=?,name_my=?,category_en=?,category_my=?,description_en=?,description_my=?,price=?,stock=?,image_emoji=?,image_urls=?,active=? WHERE id=?").run(sku,nameEn,nameMy,categoryEn,categoryMy,descriptionEn,descriptionMy,price,stock,emoji,JSON.stringify(imageUrls),active,id); ensureProductCategory(categoryEn,categoryMy); res.json({ok:true}); }
  catch(e){res.status(400).json({error:"Could not update product. SKU may already exist."});}
 });
 app.get("/api/health", (req,res)=>res.json({ok:true}));
