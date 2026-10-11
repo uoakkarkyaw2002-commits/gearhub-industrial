@@ -132,3 +132,5 @@
 :root[data-theme="dark"] .category-choice.selected,:root[data-theme="dark"] .settings-segment button.selected{background:#b7f36b;color:#142118}
 :root[data-theme="dark"] .settings-row{border-color:#2b3b30;color:var(--ink)}:root[data-theme="dark"] .settings-icon{background:#253b2b;color:#b7f36b}:root[data-theme="dark"] .settings-status{background:#253b2b;color:#b7f36b}:root[data-theme="dark"] .settings-outline-button{background:#17251c;color:#b7f36b;border-color:#57905d}:root[data-theme="dark"] .settings-outline-button:disabled{background:#202f25;color:#88968b;border-color:var(--line)}:root[data-theme="dark"] .mobile-bottom-nav{background:#142119f5;border-color:#33453a}:root[data-theme="dark"] .bottom-nav-item{color:#aab8ad}:root[data-theme="dark"] .bottom-nav-item.active{color:#b7f36b}
 @media(prefers-reduced-motion:reduce){.settings-switch,.settings-toast,.storage-meter i{transition:none}}
+
+@media(max-width:850px){body.settings-open>.nav{display:none}}
