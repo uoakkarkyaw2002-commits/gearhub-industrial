@@ -72,8 +72,10 @@
     localStorage.removeItem("gh-offline-catalog");
     try {
       const names = await caches.keys();
-      await Promise.all(names.filter(name => name.startsWith("gearhub-shell-")).map(name => caches.delete(name)));
+      await Promise.all(names.filter(name => name.startsWith("gearhub-offline-")).map(name => caches.delete(name)));
     } catch {}
+    localStorage.setItem("gh-offline-mode", "off");
+    byId("offline-mode-toggle").checked = false;
     await updateStorageUsage();
     message("cacheCleared");
   }
@@ -117,15 +119,24 @@
   document.querySelectorAll("[data-theme-choice]").forEach(button => button.addEventListener("click", () => applyTheme(button.dataset.themeChoice)));
   document.querySelectorAll("[data-language-choice]").forEach(button => button.addEventListener("click", () => setLanguage(button.dataset.languageChoice)));
   byId("lang").addEventListener("click", updateLanguageButtons);
-  byId("offline-mode-toggle").addEventListener("change", event => {
-    const enabled = event.currentTarget.checked;
-    if (enabled) {
+  byId("offline-mode-toggle").addEventListener("change", async event => {
+    const input = event.currentTarget;
+    if (input.checked) {
+      input.disabled = true;
+      message("", "Offline အတွက် ပစ္စည်းနဲ့ပုံတွေ သိမ်းနေပါတယ်…");
       localStorage.setItem("gh-offline-mode", "on");
-      if (typeof saveOfflineCatalog === "function") saveOfflineCatalog();
-      message("offlineEnabled");
+      try {
+        await saveOfflineCatalog();
+        message("offlineEnabled");
+      } catch (error) {
+        localStorage.setItem("gh-offline-mode", "off");
+        input.checked = false;
+        message("", error.message);
+      } finally { input.disabled = false; }
     } else {
       localStorage.setItem("gh-offline-mode", "off");
       localStorage.removeItem("gh-offline-catalog");
+      await caches.delete("gearhub-offline-v1");
       message("offlineDisabled");
     }
     updateStorageUsage();
