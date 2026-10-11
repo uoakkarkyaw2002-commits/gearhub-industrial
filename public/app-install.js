@@ -1,32 +1,71 @@
 (() => {
-  if ("serviceWorker" in navigator && location.protocol === "https:") {
-    window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" }).catch(() => {}), { once: true });
-  }
-
-  const card = document.getElementById("app-install-card");
-  const button = document.getElementById("app-install-button");
-  if (!card || !button) return;
-  const installed = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
-  if (installed) return;
-
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const card = document.getElementById('app-install-card');
+  const button = document.getElementById('app-install-button');
+  const instructions = document.getElementById('app-install-instructions');
+  const action = document.getElementById('home-screen-action');
+  const title = document.getElementById('home-screen-title');
+  const help = document.getElementById('home-screen-help');
   let installPrompt = null;
-  if (isIOS) {
-    card.hidden = false;
-  } else {
-    window.addEventListener("beforeinstallprompt", event => {
-      event.preventDefault();
-      installPrompt = event;
-      card.hidden = false;
-      button.hidden = false;
-      document.getElementById("app-install-instructions").textContent = "Add GearHub to your device for a full-screen app experience.";
-    });
-    window.addEventListener("appinstalled", () => { card.hidden = true; installPrompt = null; });
-    button.addEventListener("click", async () => {
-      if (!installPrompt) return;
-      installPrompt.prompt();
-      await installPrompt.userChoice;
-      installPrompt = null;
-    });
+  let registrationPromise;
+  const standalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  function refresh() {
+    if (title) title.textContent = standalone() ? 'Update app' : 'Add to Home Screen';
+    if (help) help.textContent = standalone() ? 'နောက်ဆုံး app update ကို စစ်ရန်' : 'GearHub ကို ဖုန်း app အဖြစ် တင်ရန်';
   }
+  function message(text) {
+    if (!card || !instructions) return;
+    card.hidden = false;
+    instructions.removeAttribute('data-i18n');
+    instructions.textContent = text;
+    card.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+  }
+  async function register() {
+    if (!('serviceWorker' in navigator) || !window.isSecureContext) return null;
+    return navigator.serviceWorker.register('/sw.js', {updateViaCache: 'none'});
+  }
+  window.addEventListener('load', () => { registrationPromise = register(); registrationPromise.catch(() => {}); }, {once:true});
+  window.addEventListener('beforeinstallprompt', event => {
+    event.preventDefault(); installPrompt = event;
+    if (button) button.hidden = false;
+  });
+  window.addEventListener('appinstalled', () => { installPrompt = null; if(button) button.hidden = true; message('GearHub app တင်ပြီးပါပြီ။ Home Screen မှာ ဖွင့်နိုင်ပါပြီ။'); refresh(); });
+  async function activate() {
+    if (standalone()) {
+      if (!navigator.onLine) { message('Update စစ်ဖို့ internet ချိတ်ပေးပါ။'); return; }
+      if(action) action.disabled = true;
+      message('App update ကို စစ်နေပါတယ်…');
+      try {
+        const registration = await (registrationPromise || (registrationPromise = register()));
+        if (!registration) throw new Error('unavailable');
+        await registration.update();
+        const worker = registration.installing || registration.waiting;
+        if (worker && worker.state !== 'activated') {
+          await new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => reject(new Error('timeout')), 30000);
+            worker.addEventListener('statechange', () => {
+              if(worker.state === 'activated') {clearTimeout(timeout); resolve();}
+              if(worker.state === 'redundant') {clearTimeout(timeout); reject(new Error('failed'));}
+            });
+          });
+        }
+        // Refresh HTML and settings even when no new service worker is needed.
+        window.location.reload();
+      } catch (_) { message('Update မလုပ်နိုင်သေးပါ။ Internet ချိတ်ထားပြီး ပြန်နိပ်ပေးပါ။'); }
+      finally { if(action) action.disabled = false; }
+      return;
+    }
+    if (installPrompt) {
+      const prompt = installPrompt;
+      installPrompt = null;
+      try { await prompt.prompt(); const choice = await prompt.userChoice; message(choice.outcome === 'accepted' ? 'App တင်နေပါတယ်။ Home Screen မှာ ဖွင့်နိုင်ပါမယ်။' : 'App မတင်ရသေးပါ။ နောက်တစ်ကြိမ် ပြန်တင်နိုင်ပါတယ်။'); }
+      catch (_) { message('Browser menu မှ Add to Home Screen / Install app ကို ရွေးပေးပါ။'); }
+      if(button) button.hidden = true;
+    } else {
+      message(isIOS ? 'Safari မှာ ဒီ website ကို ဖွင့်ပါ။ Share ခလုတ် → Add to Home Screen → Open as Web App ကို ဖွင့်ပြီး Add နိပ်ပေးပါ။ တင်ပြီးသားဆို Home Screen က GearHub ကို ဖွင့်ပြီး ဒီခလုတ်နဲ့ update စစ်နိုင်ပါတယ်။' : 'Browser menu မှ Install app / Add to Home Screen ကို ရွေးပေးပါ။ တင်ပြီးသားဆို Home Screen က GearHub ကို ဖွင့်ပြီး update စစ်နိုင်ပါတယ်။');
+    }
+  }
+  action?.addEventListener('click', activate);
+  button?.addEventListener('click', activate);
+  refresh();
 })();
