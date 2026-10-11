@@ -155,3 +155,21 @@
 @media(prefers-reduced-motion:reduce){.product,.view-transition main>section,.view-transition footer{transition:none;animation:none}}
 
 body.gallery-open{overflow:hidden}
+
+/* Mobile storefront refinements from the latest phone screenshots. */
+@media(max-width:850px){
+ .nav-actions{display:none}
+ .hero{min-height:260px;padding:19px 18px;margin-bottom:17px;background-position:62% center!important}
+ .hero>div:first-child{max-width:80%;padding:0}
+ .hero h1{font-size:clamp(28px,7.2vw,33px);line-height:1.08;letter-spacing:-.7px;margin:10px 0}
+ .hero p{font-size:13px;line-height:1.4;margin:8px 0;max-width:300px}
+ .hero .primary{margin-top:9px;padding:10px 14px;font-size:13px}
+}
+.product h3{display:-webkit-box;min-height:2.65em;max-height:2.65em;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.32}
+.product .desc{display:-webkit-box;min-height:4.65em;max-height:4.65em;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-height:1.55}
+.stock-line{display:flex;align-items:center;gap:5px;min-height:1.6em;margin-top:10px;font-variant-numeric:tabular-nums}
+.stock-mark,.price-mark{display:inline-block;flex:0 0 auto;font-size:.95em;line-height:1}
+.product .price{display:flex;align-items:center;gap:5px}
+.gallery-modal.open,.gallery-modal .gallery-card,.gallery-modal .gallery-stage{touch-action:none;overscroll-behavior:none}
+.gallery-modal .gallery-thumbs{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;touch-action:pan-x;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.settings-profile-camera{display:none!important}
