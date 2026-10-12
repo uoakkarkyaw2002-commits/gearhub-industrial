@@ -791,41 +791,23 @@ app.patch("/api/admin/products/:id", adminOnly, (req,res) => {
  catch(e){res.status(400).json({error:"Could not update product. SKU may already exist."});}
 });
 
-const demoMachineryGroups=[["Engine Parts","engine","⚙️",124,["Engine","Engine Overhaul Kit","Cylinder Head","Piston & Ring","Gasket","Fuel System","Cooling System","Air Intake","Exhaust System","Other Engine Parts"]],["Hydraulic Parts","hydraulic","🛠️",96,["Hydraulic Pump","Hydraulic Cylinder","Control Valve","Hydraulic Hose"]],["Undercarriage Parts","tracks","🔗",88,["Track Chain","Track Roller","Sprocket","Idler"]],["Attachments","bucket","🏗️",56,["Excavator Bucket","Hydraulic Breaker","Quick Coupler","Grapple"]],["Filters","filters","🛢️",72,["Oil Filter","Fuel Filter","Air Filter","Hydraulic Filter"]],["Electrical Parts","electrical","⚡",41,["Alternator","Starter Motor","Sensor","Wiring Harness"]],["Cabin Parts","cabin","🚜",38,["Cabin Glass","Operator Seat","Control Joystick","Cabin Door"]],["Cooling Parts","cooling","🌀",27,["Radiator","Cooling Fan","Water Pump","Coolant Hose"]],["Lubricants","oil","🛢️",19,["Engine Oil","Hydraulic Oil","Gear Oil","Grease"]],["Tools & Maintenance","tools","🔧",31,["Socket Set","Spanner Set","Maintenance Kit","Torque Wrench"]],["General Parts","general","⚙️",44,["Bolt & Nut Set","Seal Kit","Bearing","Bushing"]]];
-const demoPartShapes={"engine":"<g fill=\"url(#metal)\" stroke=\"#758081\" stroke-width=\"2\"><rect x=\"52\" y=\"40\" width=\"30\" height=\"68\" rx=\"5\"/><rect x=\"92\" y=\"30\" width=\"30\" height=\"68\" rx=\"5\"/><rect x=\"131\" y=\"43\" width=\"30\" height=\"68\" rx=\"5\"/><ellipse cx=\"67\" cy=\"40\" rx=\"15\" ry=\"7\"/><ellipse cx=\"107\" cy=\"30\" rx=\"15\" ry=\"7\"/><ellipse cx=\"146\" cy=\"43\" rx=\"15\" ry=\"7\"/><ellipse cx=\"57\" cy=\"125\" rx=\"24\" ry=\"8\" fill=\"none\" stroke-width=\"5\"/><ellipse cx=\"110\" cy=\"128\" rx=\"25\" ry=\"8\" fill=\"none\" stroke-width=\"5\"/><ellipse cx=\"159\" cy=\"129\" rx=\"22\" ry=\"8\" fill=\"none\" stroke-width=\"5\"/></g>","hydraulic":"<g fill=\"url(#gold)\" stroke=\"#986611\" stroke-width=\"2\"><rect x=\"55\" y=\"65\" width=\"88\" height=\"58\" rx=\"13\"/><circle cx=\"62\" cy=\"88\" r=\"25\"/><circle cx=\"62\" cy=\"88\" r=\"12\" fill=\"url(#metal)\"/><path d=\"M110 67V43h24v29M145 75h26v31h-29\"/><rect x=\"85\" y=\"116\" width=\"45\" height=\"15\" rx=\"4\"/></g>","tracks":"<g stroke=\"#253137\" stroke-width=\"14\" fill=\"#5c686c\"><path d=\"M42 102a24 24 0 0 1 7-42l89-21a23 23 0 0 1 11 42z\"/><path d=\"M66 123a24 24 0 0 1 7-42l89-21a23 23 0 0 1 11 42z\"/></g><g fill=\"#273238\"><circle cx=\"67\" cy=\"92\" r=\"10\"/><circle cx=\"100\" cy=\"85\" r=\"10\"/><circle cx=\"137\" cy=\"77\" r=\"10\"/></g>","bucket":"<path d=\"M65 57h71l22 52-63 28-52-14z\" fill=\"url(#gold)\" stroke=\"#996521\" stroke-width=\"3\"/><path d=\"M44 123 72 83h56l30 26-63 28z\" fill=\"#e7a726\"/><path d=\"m47 120-9 12m26-8-5 15m30-9-2 13\" stroke=\"#ba7714\" stroke-width=\"7\"/>","filters":"<g stroke=\"#c39329\" stroke-width=\"2\"><rect x=\"38\" y=\"45\" width=\"35\" height=\"79\" rx=\"7\" fill=\"url(#gold)\"/><rect x=\"85\" y=\"34\" width=\"35\" height=\"82\" rx=\"6\" fill=\"url(#gold)\"/><rect x=\"131\" y=\"59\" width=\"32\" height=\"64\" rx=\"5\" fill=\"url(#metal)\"/></g><g fill=\"#303f40\"><ellipse cx=\"55\" cy=\"45\" rx=\"16\" ry=\"6\"/><ellipse cx=\"102\" cy=\"34\" rx=\"16\" ry=\"6\"/><ellipse cx=\"147\" cy=\"59\" rx=\"15\" ry=\"5\"/></g>","electrical":"<g fill=\"url(#metal)\" stroke=\"#637172\" stroke-width=\"3\"><ellipse cx=\"110\" cy=\"90\" rx=\"48\" ry=\"31\"/><circle cx=\"70\" cy=\"90\" r=\"29\"/><circle cx=\"70\" cy=\"90\" r=\"12\" fill=\"#334b50\"/><rect x=\"130\" y=\"61\" width=\"36\" height=\"15\" rx=\"4\"/><path d=\"M81 61V44h44v19\"/></g><g stroke=\"#5b686b\" stroke-width=\"4\"><path d=\"m100 65 0 51m12-52v54m12-50v47\"/></g>","cabin":"<path d=\"M60 42h80l20 79-97 12z\" fill=\"#344d50\" stroke=\"#1d3435\" stroke-width=\"5\"/><path d=\"M68 49h32v63H65zM110 49h25l13 61-38 4z\" fill=\"url(#glass)\"/><path d=\"m60 121 93-8 6 14-96 12z\" fill=\"url(#gold)\"/>","cooling":"<rect x=\"30\" y=\"48\" width=\"70\" height=\"80\" rx=\"5\" fill=\"url(#metal)\" stroke=\"#44595c\" stroke-width=\"4\"/><g stroke=\"#606f71\"><path d=\"M39 53v70m8-70v70m8-70v70m8-70v70m8-70v70m8-70v70m8-70v70\"/></g><circle cx=\"145\" cy=\"90\" r=\"36\" fill=\"#263c41\"/><g fill=\"#859796\"><path d=\"m144 87-5-31q24 2 24 15zM149 91l31 4q-7 20-22 17zM142 96l-9 29q-20-8-19-22zM139 91l-26-15q14-16 25-10z\"/></g><circle cx=\"145\" cy=\"90\" r=\"8\" fill=\"url(#metal)\"/>","oil":"<path d=\"M43 50h38l10 15v70H40V61zM116 43h32l12 22v66h-49V56z\" fill=\"url(#gold)\" stroke=\"#a07019\" stroke-width=\"2\"/><rect x=\"53\" y=\"46\" width=\"25\" height=\"10\" rx=\"3\" fill=\"#263d39\"/><rect x=\"124\" y=\"39\" width=\"23\" height=\"10\" rx=\"3\" fill=\"#263d39\"/><path d=\"M48 84h36v30H48zM120 78h34v31h-34z\" fill=\"#284d45\"/><path d=\"M66 92q-15 22 0 22t0-22\" fill=\"#ffc938\"/>","tools":"<rect x=\"41\" y=\"42\" width=\"118\" height=\"64\" rx=\"5\" fill=\"#253f47\"/><rect x=\"45\" y=\"48\" width=\"109\" height=\"50\" rx=\"3\" fill=\"#102a35\"/><g stroke=\"url(#metal)\" stroke-width=\"7\" stroke-linecap=\"round\"><path d=\"M61 60v30m18-30v30m18-30v30m18-30v30m18-30v30\"/></g><path d=\"m63 124 71-3m-11-11-11 36\" stroke=\"url(#metal)\" stroke-width=\"7\"/><path d=\"m82 116 22 24\" stroke=\"#bc452d\" stroke-width=\"8\"/>","general":"<g fill=\"url(#metal)\" stroke=\"#617071\" stroke-width=\"2\"><circle cx=\"55\" cy=\"63\" r=\"16\"/><circle cx=\"55\" cy=\"63\" r=\"7\" fill=\"#fff\"/><circle cx=\"125\" cy=\"108\" r=\"20\"/><circle cx=\"125\" cy=\"108\" r=\"9\" fill=\"#fff\"/><path d=\"m130 46 20-5 16 17-5 20-23 5-16-16z\"/><circle cx=\"144\" cy=\"62\" r=\"7\" fill=\"#fff\"/><rect x=\"75\" y=\"97\" width=\"15\" height=\"43\" rx=\"3\" transform=\"rotate(-35 82 118)\"/><circle cx=\"51\" cy=\"125\" r=\"13\"/><circle cx=\"51\" cy=\"125\" r=\"5\" fill=\"#fff\"/></g>"};
-app.get("/demo-images/:kind.svg",(req,res)=>{
- const shape=demoPartShapes[req.params.kind];if(!shape)return res.status(404).end();
- res.type("image/svg+xml").set("Cache-Control","public,max-age=86400").send('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160"><defs><linearGradient id="metal" x2=".8" y2="1"><stop stop-color="#f5f8f8"/><stop offset=".45" stop-color="#a2b0b0"/><stop offset="1" stop-color="#53696a"/></linearGradient><linearGradient id="gold" x2=".8" y2="1"><stop stop-color="#ffda49"/><stop offset="1" stop-color="#d58910"/></linearGradient><linearGradient id="glass" x2="1" y2="1"><stop stop-color="#a9d4e0"/><stop offset="1" stop-color="#557e89"/></linearGradient></defs><ellipse cx="100" cy="140" rx="75" ry="8" fill="#1e392c" opacity=".10"/>'+shape+'</svg>');
-});
-async function installMachineryDemoCatalog(){
+
+async function removeMachineryDemoProducts(){
  db.exec("CREATE TABLE IF NOT EXISTS catalog_migrations (id TEXT PRIMARY KEY, applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)");
- const key="machinery-reference-demo-v1";if(db.prepare("SELECT id FROM catalog_migrations WHERE id=?").get(key))return;
- const before={createdAt:new Date().toISOString(),products:db.prepare("SELECT * FROM products").all(),categories:db.prepare("SELECT * FROM categories").all()};
- const backupPath=path.join(dataDir,"catalog-before-machinery-demo-"+Date.now()+".json");
- await fs.promises.writeFile(backupPath,JSON.stringify(before,null,2),{mode:0o600});
- const insertCategory=db.prepare("INSERT INTO categories(category_en,category_my,icon,parent_id,sort_order) VALUES(?,?,?,?,?)");
- const insertProduct=db.prepare("INSERT INTO products(sku,name_en,name_my,category_en,category_my,description_en,description_my,price,stock,image_emoji,image_urls,active) VALUES(?,?,?,?,?,?,?,?,?,?,?,1)");
+ const key="remove-machinery-demo-v1";
+ if(db.prepare("SELECT id FROM catalog_migrations WHERE id=?").get(key))return;
+ const demoRows=db.prepare("SELECT * FROM products WHERE sku LIKE 'GH-DEMO-%' AND description_en LIKE 'Demo product for app testing.%'").all();
+ if(demoRows.length){
+  await fs.promises.writeFile(path.join(dataDir,"removed-demo-products-"+Date.now()+".json"),JSON.stringify({createdAt:new Date().toISOString(),products:demoRows},null,2),{mode:0o600});
+ }
  db.transaction(()=>{
-  db.prepare("UPDATE products SET active=0").run();
-  db.prepare("DELETE FROM categories").run();
-  const heavy=Number(insertCategory.run("Heavy Machinery","Heavy Machinery","🏗️",null,0).lastInsertRowid);
-  ["Excavator","Wheel Loader","Bulldozer","Dump Truck","Road Roller","Motor Grader","Crane","Forklift","Other Machinery"].forEach((name,index)=>insertCategory.run(name,name,"🚜",heavy,index));
-  demoMachineryGroups.forEach(([name,kind,icon,total,names],groupIndex)=>{
-   const parent=Number(insertCategory.run(name,name,icon,null,groupIndex+1).lastInsertRowid);
-   if(name==="Engine Parts")names.forEach((child,index)=>insertCategory.run(child,child,icon,parent,index));
-   for(let index=0;index<total;index++){
-    const family=names[index%names.length],category=name==="Engine Parts"?family:name;
-    const title=family+" "+String(Math.floor(index/names.length)+1).padStart(2,"0");
-    const description="Demo product for app testing. Sample price and stock; verify specifications before real use.";
-    insertProduct.run("GH-DEMO-"+kind.toUpperCase()+"-"+String(index+1).padStart(3,"0"),title,title,category,category,description,description,15000+(groupIndex+1)*10000+(index%12)*2500,5+index%25,icon,JSON.stringify(["/demo-images/"+kind+".svg"]));
-   }
-  });
+  db.prepare("DELETE FROM products WHERE sku LIKE 'GH-DEMO-%' AND description_en LIKE 'Demo product for app testing.%'").run();
   db.prepare("INSERT INTO catalog_migrations(id) VALUES(?)").run(key);
  })();
- console.log("Machinery demo catalog installed. Previous catalog backup:",backupPath);
+ console.log("Removed demo products:",demoRows.length);
 }
 
 app.get("/api/health", (req,res)=>res.json({ok:true}));
 app.use((err,req,res,next)=>{ console.error(err); res.status(500).json({error:"Unexpected server error."}); });
 
-ensureAdmin().then(installMachineryDemoCatalog).then(()=>app.listen(PORT,()=>console.log(`GearHub running at http://localhost:${PORT}`))).catch(err=>{console.error(err);process.exit(1);});
+ensureAdmin().then(removeMachineryDemoProducts).then(()=>app.listen(PORT,()=>console.log(`GearHub running at http://localhost:${PORT}`))).catch(err=>{console.error(err);process.exit(1);});
