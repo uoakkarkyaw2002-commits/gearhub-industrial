@@ -237,3 +237,17 @@ body:not(.non-home-view)>.home-navigation{background:transparent;border:0;box-sh
 .settings-icon{font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;font-weight:400;line-height:1}
 .settings-segment [data-theme-choice]{display:inline-flex;align-items:center;justify-content:center;gap:5px}
 .settings-segment [data-theme-choice]>span[aria-hidden]{font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;font-size:16px;line-height:1}
+
+/* Equal segmented controls with a sliding selection before the setting applies. */
+.settings-segment{position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:160px;height:44px;flex:0 0 160px;isolation:isolate}
+.settings-segment::before{content:"";position:absolute;inset:0 auto 0 0;width:50%;border-radius:10px;background:var(--green);z-index:-1;transform:translateX(0);transition:transform .26s cubic-bezier(.22,.75,.25,1),background-color .26s}
+.settings-segment[data-selected="right"]::before{transform:translateX(100%)}
+.settings-segment button,.settings-segment button.selected{min-width:0;min-height:42px;padding:6px!important;font-size:12px!important;background:transparent!important;color:var(--ink);transition:color .26s}
+.settings-segment[data-selected="left"] button:first-child,.settings-segment[data-selected="right"] button:last-child{color:#fff}
+.settings-segment [data-theme-choice]>span[aria-hidden]{font-size:14px}
+.settings-switch{transition:background-color .26s cubic-bezier(.22,.75,.25,1)}
+.settings-switch::after{transition:transform .26s cubic-bezier(.22,.75,.25,1),box-shadow .26s}
+:root[data-theme="dark"] .settings-segment::before{background:#b7f36b}
+:root[data-theme="dark"] .settings-segment[data-selected="left"] button:first-child,:root[data-theme="dark"] .settings-segment[data-selected="right"] button:last-child{color:#142118}
+@media(max-width:850px){.settings-row:has(.settings-segment){min-height:84px}.settings-segment{width:160px;flex-basis:160px;height:44px}}
+@media(prefers-reduced-motion:reduce){.settings-segment::before,.settings-segment button,.settings-switch,.settings-switch::after{transition:none}}
