@@ -127,3 +127,29 @@ References: [Render disks](https://render.com/docs/disks),
 [Render free services](https://render.com/docs/free),
 [OWASP CSRF](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html),
 [OWASP password storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html).
+
+## Recovery Gmail backups and alerts
+
+With the owner's explicit consent, set `BACKUP_EMAIL_ENABLED=true` and
+`ALERT_EMAIL_ENABLED=true`. Delivery uses the existing `SMTP_USER`,
+`SMTP_APP_PASSWORD` and `PASSWORD_RESET_EMAIL`; no additional storage account
+is needed for the current email-size-compatible shop. SMTP uses TLS on port 465.
+The first activation sends a monitoring-enabled message and a complete archive
+when no off-site copy exists. Successful daily backups continue every 24 hours;
+failed backups retry hourly. Alert events are throttled for one hour and the
+throttle survives service restarts.
+
+The Gmail copy contains the database, media and private receipts. It is accepted
+as an off-site copy only when SMTP confirms the intended recipient accepted the
+message. Acceptance does not guarantee inbox placement: check Spam and perform a
+restore drill from a received attachment. Archives above 18 MB are not emailed;
+the local copy remains and a failure alert is attempted. Use S3/R2 when archives
+outgrow email. The mailbox's retention and storage quota need management.
+
+Alerts cover backup failure, internal server errors, database/disk checks and
+low free disk space. The app checks storage/database every five minutes.
+`/api/health/notifications` reports configured/enabled flags and health without
+exposing credentials or the recipient. When the process is entirely stopped it
+cannot send SMTP alerts; Render's service-health/deploy notifications remain the
+platform-level failure mechanism. An independent uptime monitor can be added for
+full external outage coverage.
