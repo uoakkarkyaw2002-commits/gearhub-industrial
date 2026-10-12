@@ -271,3 +271,9 @@ body:not(.non-home-view)>.home-navigation{background:transparent;border:0;box-sh
  :root[data-theme="dark"] .mobile-bottom-nav .bottom-nav-item.active::after{background:#b7f36b}
 }
 @media(prefers-reduced-motion:reduce){.mobile-bottom-nav .bottom-nav-item>span,.mobile-bottom-nav .bottom-nav-item::after{transition:none}}
+
+/* Settings profile banner reaches both edges of the phone screen. */
+@media(max-width:850px){
+ #profile-view{overflow-x:visible}
+ #profile-view>.settings-profile-hero{width:calc(100% + 30px);max-width:none;margin-inline:-15px;border-radius:0;border-inline:0;padding-inline:max(20px,env(safe-area-inset-left))}
+}
