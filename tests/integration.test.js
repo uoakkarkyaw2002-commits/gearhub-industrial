@@ -70,4 +70,16 @@ test('stock transactions, CSRF, idempotency, reset races, backups and restart pe
  db.close();db=null;await stop();await start();db=new Database(path.join(temp,'gearhub.sqlite'));
  });
  await t.test('password resets reject short passwords and consume one-time code atomically',async()=>{assert.equal((await admin.json('/api/admin/password-reset/verify','POST',{code:'123456',newPassword:'123456'})).status,400);assert.equal((await admin.json('/api/admin/password-reset/verify','POST',{code:'123456',newPassword:'မ'.repeat(25)})).status,400);const hash=crypto.createHmac('sha256',secret).update('123456').digest('hex');db.prepare('INSERT OR REPLACE INTO password_reset_codes(id,code_hash,expires_at,attempts,created_at) VALUES(1,?,?,0,?)').run(hash,Date.now()+60000,Date.now());const results=await Promise.all([admin.json('/api/admin/password-reset/verify','POST',{code:'123456',newPassword:'A new strong passphrase 2026'}),admin.json('/api/admin/password-reset/verify','POST',{code:'123456',newPassword:'Another strong passphrase 2026'})]);assert.deepEqual(results.map(r=>r.status).sort(),[200,400]);assert.equal(db.prepare('SELECT COUNT(*) n FROM password_reset_codes').get().n,0);assert.equal((await admin.json('/api/admin/me')).status,401);assert.equal(db.prepare('SELECT auth_version FROM admins').get().auth_version,2);const fresh=new Client(origin);await fresh.login(results[0].status===200?'A new strong passphrase 2026':'Another strong passphrase 2026');assert.equal((await fresh.json('/api/admin/me')).status,200);});
+ await t.test('reset attempt exhaustion and login/reset-request rate limits remain enforced',async()=>{
+ db.close();db=null;await stop();await start({SMTP_USER:'',SMTP_APP_PASSWORD:'',PASSWORD_RESET_EMAIL:''});db=new Database(path.join(temp,'gearhub.sqlite'));
+ const anonymous=new Client(origin);await anonymous.csrf();const hash=crypto.createHmac('sha256',secret).update('123456').digest('hex');db.prepare('INSERT OR REPLACE INTO password_reset_codes(id,code_hash,expires_at,attempts,created_at) VALUES(1,?,?,0,?)').run(hash,Date.now()+60000,Date.now());
+ for(let i=0;i<8;i++)assert.equal((await anonymous.request('/api/admin/password-reset/verify','POST',{code:'000000',newPassword:'Valid long review passphrase'})).status,400);
+ assert.equal(db.prepare('SELECT COUNT(*) n FROM password_reset_codes').get().n,0);
+ assert.equal((await anonymous.request('/api/admin/password-reset/verify','POST',{code:'000000',newPassword:'Valid long review passphrase'})).status,429);
+ for(let i=0;i<5;i++)assert.equal((await anonymous.request('/api/admin/login','POST',{password:'invalid-password'})).status,401);
+ assert.equal((await anonymous.request('/api/admin/login','POST',{password:'invalid-password'})).status,429);
+ for(let i=0;i<3;i++)assert.equal((await anonymous.request('/api/admin/password-reset/request','POST',{})).status,503);
+ assert.equal((await anonymous.request('/api/admin/password-reset/request','POST',{})).status,429);
+ });
+
 });
