@@ -164,3 +164,8 @@
 .appearance-landscape .appearance-media-row{grid-template-columns:95px minmax(0,1fr);gap:12px}.appearance-landscape .appearance-preview,.appearance-landscape .site-image-preview{min-height:85px;max-height:105px}.appearance-color output{font-size:11px}.appearance-color{gap:6px;padding:5px}.appearance-color input[type=color]{width:27px;flex-basis:27px}
 }
 @media(max-width:350px){.appearance-card .site-settings-grid{grid-template-columns:1fr}.appearance-toolbar-icon{display:none}.appearance-toolbar h2{font-size:14px}}
+
+/* Plain entry fields without leading icons. */
+.product-input-wrap,.appearance-input{padding:0;display:block}
+.product-form .product-input-wrap input,.appearance-card .appearance-input input{display:block;width:100%;min-width:0;margin:0;padding:13px 12px;border:0!important;background:transparent!important;box-shadow:none!important;outline-offset:2px;border-radius:9px}
+@media(max-width:600px){.product-form .product-input-wrap input,.appearance-card .appearance-input input{padding:12px 10px;font-size:16px}}
