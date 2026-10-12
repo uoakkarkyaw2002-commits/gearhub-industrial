@@ -52,3 +52,16 @@ publishing. Use one persistent Node instance for the SQLite shop.
 - Admin API endpoints require a logged-in session.
 - Public order creation currently uses a zero delivery fee. Configure delivery pricing before real sales.
 - Admin dashboard metrics are derived from persisted orders; only orders marked paid count toward paid sales.
+
+## Repository source of truth
+
+`server.js` is the Node entry point and serves only `public/` plus the configured
+public product-upload directory. Storefront/admin HTML, CSS and JavaScript live
+in `public/`. The old root-level copies were unused by this server, package
+scripts and documentation, and have been removed. Private receipts and backup
+archives live under `DATA_DIR` and are never served by the static middleware.
+
+GitHub Actions runs Node 22 `npm ci`, `npm run check` and `npm test` for pushes
+and pull requests to main. These checks use temporary fixture databases and
+mock delivery providers; they do not need production secrets or send real email.
+See `LAUNCH_CHECKLIST.md` for owner-supplied content and deployment gates.
