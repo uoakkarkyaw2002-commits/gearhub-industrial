@@ -325,3 +325,13 @@ body:not(.non-home-view)>.home-navigation{background:transparent;border:0;box-sh
  #drawer:not(:has(.cart-empty-design)){padding:20px 18px}
 }
 :root[data-theme="dark"] #drawer .cart-empty-content h2{color:var(--ink)}
+
+/* Join Cart and checkout to the bottom bar without an overlay gap. */
+@media(max-width:850px){
+ #drawer,#drawer:has(.cart-empty-design){bottom:var(--bottom-nav-height,86px)}
+ #checkout-modal{inset:env(safe-area-inset-top,0px) 0 var(--bottom-nav-height,86px);padding:0;background-color:var(--app-page-color,var(--paper));background-image:var(--app-page-background,none);background-size:cover;background-position:center;background-repeat:no-repeat;overflow:auto;overscroll-behavior:contain}
+ #checkout-modal.open{display:block}
+ #checkout-modal .modal-card{width:100%;max-width:none;min-height:100%;max-height:none;overflow:visible;margin:0;padding:20px 16px;border:0!important;border-radius:0!important;box-shadow:none;background:transparent!important}
+ #checkout-modal .drawer-head{background:transparent}
+ #checkout-modal .bank-box{background:#eef6e5d9}
+}
