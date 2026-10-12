@@ -106,27 +106,27 @@
   document.querySelectorAll("[data-theme-choice]").forEach(button => button.addEventListener("click", () => applyTheme(button.dataset.themeChoice)));
   document.querySelectorAll("[data-language-choice]").forEach(button => button.addEventListener("click", () => setLanguage(button.dataset.languageChoice)));
   byId("lang").addEventListener("click", updateLanguageButtons);
+  function showDownloadStatus(state) {
+    const help = byId("auto-download-help");
+    if (!help) return;
+    const enabled = localStorage.getItem("gh-offline-mode") === "on";
+    const status = !enabled ? "autoDownloadHelp" : ({downloading:"autoDownloadSaving",ready:"autoDownloadReady",waiting:"autoDownloadWaiting",retry:"autoDownloadRetry"}[state] || "autoDownloadHelp");
+    help.dataset.i18n = status;
+    help.textContent = words(status);
+  }
+  showDownloadStatus(localStorage.getItem("gh-offline-downloaded-at") ? "ready" : "waiting");
+  window.addEventListener("gearhub:auto-download", event => showDownloadStatus(event.detail.state));
   byId("offline-mode-toggle").addEventListener("change", async event => {
-    const input = event.currentTarget;
-    if (input.checked) {
-      input.disabled = true;
-      message("", "Offline အတွက် ပစ္စည်းနဲ့ပုံတွေ သိမ်းနေပါတယ်…");
-      localStorage.setItem("gh-offline-mode", "on");
-      try {
-        await saveOfflineCatalog();
-        message("offlineEnabled");
-      } catch (error) {
-        localStorage.setItem("gh-offline-mode", "off");
-        input.checked = false;
-        message("", error.message);
-      } finally { input.disabled = false; }
+    const enabled = event.currentTarget.checked;
+    localStorage.setItem("gh-offline-mode", enabled ? "on" : "off");
+    if (enabled) {
+      showDownloadStatus(navigator.onLine ? "downloading" : "waiting");
+      try { await saveOfflineCatalog(); }
+      catch { message("", words("autoDownloadRetry")); }
     } else {
-      localStorage.setItem("gh-offline-mode", "off");
-      localStorage.removeItem("gh-offline-catalog");
-      await caches.delete("gearhub-offline-v1");
-      message("offlineDisabled");
+      showDownloadStatus("off");
+      message("", words("autoDownloadOff"));
     }
-    updateStorageUsage();
   });
   byId("notifications-toggle").addEventListener("change", event => enableNotifications(event.currentTarget.checked));
   byId("about-app-toggle").addEventListener("click", () => {
