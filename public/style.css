@@ -393,3 +393,10 @@ body:not(.non-home-view)>.home-navigation{background:transparent;border:0;box-sh
 .category-sidebar .category-choice,.category-sidebar .category-sidebar-child{font-size:13px;font-weight:600;line-height:1.4}
 .category-sidebar .category-choice-name,.category-sidebar .category-sidebar-child>span:not(.category-child-dot){font-size:inherit}
 @media(max-width:850px){.category-sidebar .category-choice,.category-sidebar .category-sidebar-child{font-size:12px}}
+
+/* Larger, uniform category labels with independently collapsible groups. */
+.category-sidebar .category-choice-icon{display:none!important}
+.category-sidebar .category-choice,.category-sidebar .category-sidebar-child{font-size:15px;line-height:1.4}
+.category-sidebar .category-choice{min-height:46px;padding:10px 8px;gap:6px}
+.category-sidebar .category-sidebar-child{padding:8px 5px 8px 13px;overflow-wrap:anywhere}
+@media(max-width:850px){.category-sidebar .category-choice,.category-sidebar .category-sidebar-child{font-size:14px}.category-sidebar .category-choice-name{font-weight:700}}
