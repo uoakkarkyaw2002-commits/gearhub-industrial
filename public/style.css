@@ -202,3 +202,10 @@ button,a,input,select,textarea,summary{touch-action:manipulation}
  .settings-row>.settings-segment{grid-column:2;justify-self:start}
  .settings-outline-button{font-size:11px;padding:8px}
 }
+
+/* The Home banner is decorative, not a reload target. */
+.home-navigation>.brand{cursor:default;-webkit-user-select:none;user-select:none}
+@media(max-width:850px){
+ .home-navigation{pointer-events:none;touch-action:manipulation}
+ body{background-attachment:scroll!important}
+}
