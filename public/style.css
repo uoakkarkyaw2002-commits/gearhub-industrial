@@ -383,3 +383,6 @@ body:not(.non-home-view)>.home-navigation{background:transparent;border:0;box-sh
 }
 :root[data-theme="dark"] .category-results,:root[data-theme="dark"] .category-sidebar{background:#1a2b20e6}
 :root[data-theme="dark"] .category-product-row,:root[data-theme="dark"] .category-subcategory,:root[data-theme="dark"] .category-search{background:#25372a;color:var(--ink)}
+
+/* Preserve the reference two-column layout on phones as well. */
+.category-browser{display:grid}.category-sidebar{display:flex;flex-direction:column}.category-choice{width:100%;white-space:normal}.category-results{width:100%;min-width:0}
