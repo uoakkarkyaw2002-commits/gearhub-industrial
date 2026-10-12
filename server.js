@@ -17,27 +17,20 @@ const nodemailer = require("nodemailer");
 const {passwordError, csrfToken, validToken, originGuard} = require("./lib/security");
 const {createBackupService} = require("./lib/backups");
 const {createNotifications} = require("./lib/notifications");
+const {runtimeConfig,validateStorage}=require("./lib/config");
+const {logError}=require("./lib/logging");
 
 const app = express();
 app.set("trust proxy", process.env.TRUST_PROXY === "false" ? false : 1); // Render runs behind a trusted reverse proxy.
 const PORT = Number(process.env.PORT || 3000);
-const production = process.env.NODE_ENV === "production";
-const publicOrigin = process.env.PUBLIC_ORIGIN ? new URL(process.env.PUBLIC_ORIGIN).origin : "";
-if (production && (!publicOrigin || !publicOrigin.startsWith("https://"))) throw new Error("Set PUBLIC_ORIGIN to the HTTPS storefront origin in production.");
-if (production && (!process.env.DATA_DIR || process.env.VERCEL)) throw new Error("Production requires DATA_DIR on durable storage and a persistent Node service, not Vercel functions.");
+const settings=runtimeConfig();
+const {production,publicOrigin,dataDir,uploadDir,receiptDir}=settings;
 const sessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(48).toString("hex");
 const sessionCookieName = production ? "__Host-gearhub.sid" : "gearhub.sid";
-// Set DATA_DIR to a persistent disk mount (for example /var/data on Render).
-// Keep the current paths as defaults until the persistent disk is attached and configured.
-const dataDir = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(__dirname, "data");
-const uploadDir = process.env.UPLOAD_DIR ? path.resolve(process.env.UPLOAD_DIR) : path.join(dataDir, "uploads");
-const receiptDir = path.join(dataDir, "receipts");
-const uploadRelative=path.relative(dataDir,uploadDir);
-if(!uploadRelative || uploadDir===receiptDir || uploadRelative==="backups" || uploadRelative.startsWith("backups"+path.sep)) throw new Error("UPLOAD_DIR must not overlap the database, receipts or backup directory.");
-if(production && (path.isAbsolute(uploadRelative) || uploadRelative.startsWith(".."+path.sep) || uploadRelative==="..")) throw new Error("Production uploads must be inside the configured persistent DATA_DIR.");
 fs.mkdirSync(dataDir, { recursive: true });
 fs.mkdirSync(uploadDir, { recursive: true });
 fs.mkdirSync(receiptDir, { recursive: true });
+validateStorage(settings);
 const imageStorage = multer.diskStorage({
  destination: (_req, _file, cb) => cb(null, uploadDir),
  filename: (_req, file, cb) => {
@@ -61,10 +54,6 @@ const receiptUpload = multer({
  limits: { fileSize: 5 * 1024 * 1024, files: 1, fields: 10, parts: 12, fieldSize: 64 * 1024 },
  fileFilter: (_req, file, cb) => cb(null, ["image/jpeg","image/png","image/webp"].includes(file.mimetype))
 });
-
-if (production && (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32)) {
-  throw new Error("SESSION_SECRET must be set to a random value of at least 32 characters in production.");
-}
 
 const db = new Database(path.join(dataDir, "gearhub.sqlite"));
 db.pragma("journal_mode = WAL");
@@ -246,7 +235,7 @@ app.use(session({
 // Periodically prune expired sessions without requiring an external service.
 setInterval(() => {
  try { db.prepare("DELETE FROM sessions WHERE expired_at <= ?").run(Date.now()); }
- catch (err) { console.error("Session cleanup failed:", err.message); }
+ catch (err) { logError("session_cleanup_failure",err); }
 }, 60 * 60 * 1000).unref();
 // Admin HTML and scripts must always revalidate so a cached search form cannot
 // keep submitting the page and send an administrator back through login.
@@ -289,7 +278,7 @@ app.get("/api/storage", async (_req, res) => {
   const diskAvailableBytes = Number(disk.bavail) * Number(disk.bsize);
   res.json({ usedBytes: appDataBytes, capacityBytes: diskCapacityBytes, availableBytes: diskAvailableBytes });
  } catch (err) {
-  console.error("Storage usage lookup failed:", err.message);
+  logError("storage_lookup_failure",err);
   res.status(503).json({ error: "Storage information is temporarily unavailable." });
  }
 });
@@ -315,11 +304,14 @@ function adminOnly(req, res, next) {
 }
 
 app.get("/api/admin/backup", rateLimit({ windowMs: 60 * 1000, limit: 2, standardHeaders: true, legacyHeaders: false }), adminOnly, async (req, res) => {
- const tempRoot = await fs.promises.mkdtemp(path.join(os.tmpdir(), "gearhub-backup-"));
- const stageDir = path.join(tempRoot, "gearhub-backup");
+ let tempRoot;
+
  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
- const archivePath = path.join(tempRoot, `gearhub-backup-${timestamp}.tar.gz`);
+
  try {
+  tempRoot=await fs.promises.mkdtemp(path.join(os.tmpdir(), "gearhub-backup-"));
+  const stageDir=path.join(tempRoot,"gearhub-backup");
+  const archivePath=path.join(tempRoot,`gearhub-backup-${timestamp}.tar.gz`);
   await fs.promises.mkdir(stageDir, { recursive: true });
   // Use SQLite's online backup API so committed WAL data is included consistently.
   await db.backup(path.join(stageDir, "gearhub.sqlite"));
@@ -328,12 +320,12 @@ app.get("/api/admin/backup", rateLimit({ windowMs: 60 * 1000, limit: 2, standard
   await execFileAsync("tar", ["-czf", archivePath, "-C", tempRoot, "gearhub-backup"], { timeout: 120000 });
   res.setHeader("Cache-Control", "no-store, private");
   res.download(archivePath, path.basename(archivePath), async err => {
-   await fs.promises.rm(tempRoot, { recursive: true, force: true }).catch(() => {});
+   if(tempRoot)await fs.promises.rm(tempRoot, { recursive: true, force: true }).catch(() => {});
    if (err && !res.headersSent) res.status(500).json({ error: "Could not download the backup archive." });
   });
  } catch (err) {
-  console.error("Backup export failed:", err.message);
-  await fs.promises.rm(tempRoot, { recursive: true, force: true }).catch(() => {});
+  logError("backup_export_failure",err);
+  if(tempRoot)await fs.promises.rm(tempRoot, { recursive: true, force: true }).catch(() => {});
   if (!res.headersSent) res.status(500).json({ error: "Could not create backup archive. Check service logs." });
  }
 });
@@ -650,7 +642,7 @@ app.post("/api/admin/password-reset/request", resetRequestLimit, async (req,res)
   const transport = mailTransport();
   await transport.sendMail({from:process.env.SMTP_USER,to:email,subject:"GearHub Admin password reset code",text:`Your GearHub Admin password reset code is ${code}. It expires in 10 minutes. If you did not request this, ignore this email.`,html:`<p>Your GearHub Admin password reset code is:</p><p style="font-size:28px;font-weight:bold;letter-spacing:6px">${code}</p><p>This code expires in 10 minutes. If you did not request this, ignore this email.</p>`});
   res.json({ok:true,message:"If password reset is configured, a verification code has been sent to the recovery email."});
- } catch(err) { console.error("Password reset email failed:",err.message); res.status(503).json({error:"Could not send the verification email. Check SMTP settings and service logs."}); }
+ } catch(err) { logError("password_reset_mail_failure",err); res.status(503).json({error:"Could not send the verification email. Check SMTP settings and service logs."}); }
 });
 app.post("/api/admin/password-reset/verify", resetVerifyLimit, async (req,res) => {
  const code=String(req.body?.code||"").trim(), password=String(req.body?.newPassword||"");
@@ -679,11 +671,11 @@ app.post("/api/admin/password-reset/verify", resetVerifyLimit, async (req,res) =
    db.prepare("DELETE FROM sessions").run();
   }).immediate();
   req.session.destroy(err => {
-   if (err) console.error("Could not destroy the password reset session:",err.message);
+   if (err) logError("reset_session_destroy_failure",err);
    res.clearCookie(sessionCookieName,{path:"/",secure:production,httpOnly:true,sameSite:"lax"});
    res.json({ok:true,message:"Password updated. Please sign in with your new password."});
   });
- } catch(err) { console.error("Password reset failed:",err.message); res.status(err.status||500).json({error:err.status?err.message:"Could not update password."}); }
+ } catch(err) { logError("password_reset_failure",err); res.status(err.status||500).json({error:err.status?err.message:"Could not update password."}); }
 });
 app.post("/api/admin/login", async (req,res) => {
  const username = (process.env.ADMIN_USERNAME||"admin").trim();
@@ -699,7 +691,7 @@ app.post("/api/admin/login", async (req,res) => {
   const token=csrfToken(req);
   req.session.save(saveErr => {
    if (saveErr) {
-    console.error("Admin session save failed:",saveErr.message);
+    logError("session_save_failure",saveErr);
     return res.status(500).json({error:"Could not save admin session. Please try again."});
    }
    res.setHeader("Cache-Control","no-store");
@@ -735,7 +727,7 @@ app.patch("/api/admin/orders/:id", adminOnly, (req,res) => {
  const paymentStatus = cleanText(req.body?.paymentStatus,30);
  const note = cleanText(req.body?.adminNote,500);
  const confirmationDate = cleanText(req.body?.confirmationDate,10);
- if (confirmationDate && !/^\d{4}-\d{2}-\d{2}$/.test(confirmationDate)) return res.status(400).json({error:"Invalid confirmation date."});
+ if (confirmationDate && (!/^\d{4}-\d{2}-\d{2}$/.test(confirmationDate)||Number.isNaN(Date.parse(confirmationDate))||new Date(confirmationDate).toISOString().slice(0,10)!==confirmationDate)) return res.status(400).json({error:"Invalid confirmation date."});
  const allowedStatus = ["pending","confirmed","processing","shipped","completed","cancelled"];
  const allowedPayment = ["pending","paid","rejected"];
  if (!Number.isInteger(id) || !allowedStatus.includes(status) || !allowedPayment.includes(paymentStatus))
@@ -943,6 +935,6 @@ ensureAdmin().then(removeMachineryDemoProducts).then(addInitialEnginePartsStock)
  notifications.start();
  backupService.start();
  server=app.listen(PORT,()=>console.log(`GearHub running at http://localhost:${PORT}`));
-}).catch(err=>{console.error(err);process.exit(1);});
+}).catch(err=>{logError("startup_failure",err);process.exit(1);});
 function shutdown(){notifications.stop();backupService.stop();if(!server)return;const timeout=setTimeout(()=>process.exit(1),10000).unref();server.close(()=>{clearTimeout(timeout);db.close();process.exit(0)});}
 process.once("SIGTERM",shutdown);process.once("SIGINT",shutdown);
