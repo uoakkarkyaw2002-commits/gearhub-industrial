@@ -370,6 +370,51 @@ function cleanImageUrls(value) {
  return [...new Set(input.map(v => cleanText(v, 1000)).filter(v => /^https:\/\//i.test(v) || /^\/uploads\/[a-f0-9]+\.(jpg|png|webp|gif|avif)$/i.test(v)))].slice(0,10);
 }
 
+
+function orderProductCover(urls,index){
+ const selected=Number(index);
+ if(Number.isInteger(selected)&&selected>0&&selected<urls.length){const cover=urls.splice(selected,1)[0];urls.unshift(cover)}
+ return urls;
+}
+function driveFileId(value){
+ try{const url=new URL(String(value));if(url.protocol!=="https:"||url.hostname!=="drive.google.com")return null;
+ const id=url.pathname.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)?.[1]||url.searchParams.get("id");
+ return /^[a-zA-Z0-9_-]{10,200}$/.test(id||"")?id:null}catch{return null}
+}
+app.post("/api/admin/import-drive-images",adminOnly,async(req,res)=>{
+ const links=req.body?.links;
+ if(!Array.isArray(links)||!links.length||links.length>10||links.some(link=>!driveFileId(link)))return res.status(400).json({error:"Add valid Google Drive file links (up to 10)."});
+ const saved=[];
+ try{
+  for(const link of links){
+   const id=driveFileId(link),original=new URL(link);
+   let url=new URL("https://drive.google.com/uc");url.searchParams.set("export","download");url.searchParams.set("id",id);
+   if(original.searchParams.get("resourcekey"))url.searchParams.set("resourcekey",original.searchParams.get("resourcekey"));
+   let response;
+   for(let hop=0;hop<5;hop++){
+    const allowed=url.protocol==="https:"&&["drive.google.com","drive.usercontent.google.com","lh3.googleusercontent.com","lh4.googleusercontent.com","lh5.googleusercontent.com","lh6.googleusercontent.com"].includes(url.hostname)&&!url.username&&!url.password&&!url.port;
+    if(!allowed)throw new Error("Google Drive returned an unsupported download address.");
+    response=await fetch(url,{redirect:"manual",signal:AbortSignal.timeout(15000)});
+    if([301,302,303,307,308].includes(response.status)){const location=response.headers.get("location");if(!location)throw new Error("Drive download redirect failed.");await response.body?.cancel();url=new URL(location,url);continue}break;
+   }
+   if(!response?.ok||!response.body)throw new Error("Cannot download this Drive image. Allow Anyone with the link and enable downloads.");
+   if(Number(response.headers.get("content-length"))>5*1024*1024){await response.body.cancel();throw new Error("Each Drive image must be under 5 MB.");}
+   const chunks=[];let size=0;
+   for await(const chunk of response.body){size+=chunk.length;if(size>5*1024*1024)throw new Error("Each Drive image must be under 5 MB.");chunks.push(Buffer.from(chunk))}
+   const buffer=Buffer.concat(chunks);
+   let type="",ext="";
+   if(buffer[0]===255&&buffer[1]===216&&buffer[2]===255){type="image/jpeg";ext=".jpg"}
+   else if(buffer.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))){type="image/png";ext=".png"}
+   else if(buffer.toString("ascii",0,4)==="RIFF"&&buffer.toString("ascii",8,12)==="WEBP"){type="image/webp";ext=".webp"}
+   else if(["GIF87a","GIF89a"].includes(buffer.toString("ascii",0,6))){type="image/gif";ext=".gif"}
+   if(!type)throw new Error("Drive link is not a downloadable JPG, PNG, WebP or GIF image. Check sharing and download permission.");
+   const filename=crypto.randomBytes(16).toString("hex")+ext,filePath=path.join(uploadDir,filename);
+   await fs.promises.writeFile(filePath,buffer);saved.push({path:filePath,url:"/uploads/"+filename});
+  }
+  res.status(201).json({imageUrls:saved.map(file=>file.url)});
+ }catch(error){await Promise.all(saved.map(file=>fs.promises.unlink(file.path).catch(()=>{})));res.status(400).json({error:error.message||"Could not import Drive images."})}
+});
+
 const defaultSiteSettings = () => ({
  siteTitle: "GearHub Industrial | စက်မှုသုံးပစ္စည်းများ",
  brandName: "gearhub.", brandTagline: "INDUSTRIAL", heroIcon: "⚙️", logoUrl: "", appIconUrl: "", navigationBackgroundUrl: "", wallpaperUrl: "", heroImageUrl: "/images/hero-excavator.jpg",
@@ -715,12 +760,12 @@ app.put("/api/admin/categories", adminOnly, (req,res) => {
 });
 app.post("/api/admin/products", adminOnly, (req,res) => {
  const b=req.body||{};
- const sku=cleanText(b.sku,60), nameEn=cleanText(b.nameEn,160), nameMy=cleanText(b.nameMy,160);
- const categoryEn=cleanText(b.categoryEn,100), categoryMy=cleanText(b.categoryMy,100);
+ const sku=cleanText(b.sku,60), nameEn=cleanText(b.nameEn,160), nameMy=cleanText(b.nameMy,160)||nameEn;
+ const categoryEn=cleanText(b.categoryEn,100), categoryMy=cleanText(b.categoryMy,100)||categoryEn;
  const descriptionEn=cleanText(b.descriptionEn,1000), descriptionMy=cleanText(b.descriptionMy,1000);
  const price=Number(b.price), stock=Number(b.stock), emoji=cleanText(b.emoji,8)||"⚙️";
- const imageUrls=cleanImageUrls(b.imageUrls);
- if(!sku||!nameEn||!nameMy||!categoryEn||!categoryMy||!Number.isSafeInteger(price)||price<0||!Number.isInteger(stock)||stock<0)
+ const imageUrls=orderProductCover(cleanImageUrls(b.imageUrls),b.coverIndex);
+ if(!sku||!nameEn||!categoryEn||!Number.isSafeInteger(price)||price<0||!Number.isInteger(stock)||stock<0)
   return res.status(400).json({error:"Fill required fields; price and stock must be valid non-negative integers."});
  try {
   const r=db.prepare(`INSERT INTO products(sku,name_en,name_my,category_en,category_my,description_en,description_my,price,stock,image_emoji,image_urls)
@@ -733,15 +778,15 @@ app.patch("/api/admin/products/:id", adminOnly, (req,res) => {
  const id=Number(req.params.id), b=req.body||{};
  const existing=db.prepare("SELECT * FROM products WHERE id=?").get(id);
  if(!Number.isInteger(id)||!existing) return res.status(404).json({error:"Product not found."});
- const sku=cleanText(b.sku ?? existing.sku,60), nameEn=cleanText(b.nameEn ?? existing.name_en,160), nameMy=cleanText(b.nameMy ?? existing.name_my,160);
- const categoryEn=cleanText(b.categoryEn ?? existing.category_en,100), categoryMy=cleanText(b.categoryMy ?? existing.category_my,100);
+ const sku=cleanText(b.sku ?? existing.sku,60), nameEn=cleanText(b.nameEn ?? existing.name_en,160), nameMy=cleanText(b.nameMy ?? existing.name_my,160)||nameEn;
+ const categoryEn=cleanText(b.categoryEn ?? existing.category_en,100), categoryMy=cleanText(b.categoryMy ?? existing.category_my,100)||categoryEn;
  const descriptionEn=cleanText(b.descriptionEn ?? existing.description_en,1000), descriptionMy=cleanText(b.descriptionMy ?? existing.description_my,1000);
  const price=b.price===undefined?existing.price:Number(b.price), stock=b.stock===undefined?existing.stock:Number(b.stock);
  const emoji=cleanText(b.emoji ?? existing.image_emoji,8)||"⚙️";
  let oldImages=[];try{oldImages=JSON.parse(existing.image_urls||"[]")}catch{}
- const imageUrls=b.imageUrls===undefined?cleanImageUrls(oldImages):cleanImageUrls(b.imageUrls);
+ const imageUrls=orderProductCover(b.imageUrls===undefined?cleanImageUrls(oldImages):cleanImageUrls(b.imageUrls),b.coverIndex);
  const active=b.active===undefined?existing.active:(b.active===false||b.active===0||b.active==="0"?0:1);
- if(!sku||!nameEn||!nameMy||!categoryEn||!categoryMy||!Number.isSafeInteger(price)||price<0||!Number.isInteger(stock)||stock<0) return res.status(400).json({error:"Fill required fields; price and stock must be valid non-negative integers."});
+ if(!sku||!nameEn||!categoryEn||!Number.isSafeInteger(price)||price<0||!Number.isInteger(stock)||stock<0) return res.status(400).json({error:"Fill required fields; price and stock must be valid non-negative integers."});
  try { db.prepare("UPDATE products SET sku=?,name_en=?,name_my=?,category_en=?,category_my=?,description_en=?,description_my=?,price=?,stock=?,image_emoji=?,image_urls=?,active=? WHERE id=?").run(sku,nameEn,nameMy,categoryEn,categoryMy,descriptionEn,descriptionMy,price,stock,emoji,JSON.stringify(imageUrls),active,id); ensureProductCategory(categoryEn,categoryMy); res.json({ok:true}); }
  catch(e){res.status(400).json({error:"Could not update product. SKU may already exist."});}
 });
