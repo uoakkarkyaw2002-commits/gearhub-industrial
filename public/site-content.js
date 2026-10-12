@@ -22,3 +22,6 @@ Object.assign(window.GEARHUB_DEFAULT_TRANSLATIONS.my,{autoDownloadSetting:"Auto 
 
 Object.assign(window.GEARHUB_DEFAULT_TRANSLATIONS.en,{lightThemeLabel:"Light",darkThemeLabel:"Dark"});
 Object.assign(window.GEARHUB_DEFAULT_TRANSLATIONS.my,{lightThemeLabel:"အလင်း",darkThemeLabel:"အမှောင်"});
+
+Object.assign(window.GEARHUB_DEFAULT_TRANSLATIONS.en,{emptyCartDescription:"Looks like you haven’t added any products yet. Explore our categories and find what you need.",browseProducts:"Browse Products"});
+Object.assign(window.GEARHUB_DEFAULT_TRANSLATIONS.my,{emptyCartDescription:"ပစ္စည်းတွေ မထည့်ရသေးပါဘူး။ အမျိုးအစားတွေမှာ လိုချင်တဲ့ပစ္စည်းကို ရှာကြည့်ပါ။",browseProducts:"ပစ္စည်းများ ကြည့်ရန်"});
