@@ -19,3 +19,6 @@ Object.assign(window.GEARHUB_DEFAULT_TRANSLATIONS.en,{settingsProfileEdit:"Edit 
 
 Object.assign(window.GEARHUB_DEFAULT_TRANSLATIONS.en,{autoDownloadSetting:"Auto download",autoDownloadHelp:"Automatically save products and photos for offline browsing",autoDownloadSaving:"Downloading products and photos…",autoDownloadReady:"Downloaded · Available without internet",autoDownloadWaiting:"Waiting for internet · Saved downloads remain available",autoDownloadRetry:"Download paused · Will retry when internet is available",autoDownloadOff:"Auto download is off. Previously saved products remain available."});
 Object.assign(window.GEARHUB_DEFAULT_TRANSLATIONS.my,{autoDownloadSetting:"Auto download",autoDownloadHelp:"ပစ္စည်းနှင့်ပုံများကို လိုင်းရချိန် အလိုအလျောက် သိမ်းရန်",autoDownloadSaving:"ပစ္စည်းနှင့်ပုံများ download လုပ်နေပါတယ်…",autoDownloadReady:"Download ပြီးပါပြီ · လိုင်းမရှိလည်း ကြည့်နိုင်ပါတယ်",autoDownloadWaiting:"လိုင်းရတာ စောင့်နေပါတယ် · သိမ်းထားတာတွေ ကြည့်နိုင်ပါတယ်",autoDownloadRetry:"Download ခဏရပ်နေပါတယ် · လိုင်းရရင် ပြန်သိမ်းပေးပါမယ်",autoDownloadOff:"Auto download ပိတ်ထားပါပြီ။ သိမ်းပြီးသားပစ္စည်းတွေ ဆက်ကြည့်နိုင်ပါတယ်။"});
+
+Object.assign(window.GEARHUB_DEFAULT_TRANSLATIONS.en,{lightThemeLabel:"Light",darkThemeLabel:"Dark"});
+Object.assign(window.GEARHUB_DEFAULT_TRANSLATIONS.my,{lightThemeLabel:"အလင်း",darkThemeLabel:"အမှောင်"});
