@@ -367,7 +367,7 @@ function publicProduct(p) {
 }
 function cleanImageUrls(value) {
  const input = Array.isArray(value) ? value : String(value || "").split(/\r?\n/);
- return [...new Set(input.map(v => cleanText(v, 1000)).filter(v => /^\/demo-images\/[a-z-]+\.svg$/i.test(v) || /^https:\/\//i.test(v) || /^\/uploads\/[a-f0-9]+\.(jpg|png|webp|gif|avif)$/i.test(v)))].slice(0,10);
+ return [...new Set(input.map(v => cleanText(v, 1000)).filter(v => /^\/(?:demo|sample)-images\/[a-z-]+\.svg$/i.test(v) || /^https:\/\//i.test(v) || /^\/uploads\/[a-f0-9]+\.(jpg|png|webp|gif|avif)$/i.test(v)))].slice(0,10);
 }
 
 
@@ -807,7 +807,29 @@ async function removeMachineryDemoProducts(){
  console.log("Removed demo products:",demoRows.length);
 }
 
+
+const samplePartShapes={"engine":"<g fill=\"url(#metal)\" stroke=\"#758081\" stroke-width=\"2\"><rect x=\"52\" y=\"40\" width=\"30\" height=\"68\" rx=\"5\"/><rect x=\"92\" y=\"30\" width=\"30\" height=\"68\" rx=\"5\"/><rect x=\"131\" y=\"43\" width=\"30\" height=\"68\" rx=\"5\"/><ellipse cx=\"67\" cy=\"40\" rx=\"15\" ry=\"7\"/><ellipse cx=\"107\" cy=\"30\" rx=\"15\" ry=\"7\"/><ellipse cx=\"146\" cy=\"43\" rx=\"15\" ry=\"7\"/><ellipse cx=\"57\" cy=\"125\" rx=\"24\" ry=\"8\" fill=\"none\" stroke-width=\"5\"/><ellipse cx=\"110\" cy=\"128\" rx=\"25\" ry=\"8\" fill=\"none\" stroke-width=\"5\"/><ellipse cx=\"159\" cy=\"129\" rx=\"22\" ry=\"8\" fill=\"none\" stroke-width=\"5\"/></g>","hydraulic":"<g fill=\"url(#gold)\" stroke=\"#986611\" stroke-width=\"2\"><rect x=\"55\" y=\"65\" width=\"88\" height=\"58\" rx=\"13\"/><circle cx=\"62\" cy=\"88\" r=\"25\"/><circle cx=\"62\" cy=\"88\" r=\"12\" fill=\"url(#metal)\"/><path d=\"M110 67V43h24v29M145 75h26v31h-29\"/><rect x=\"85\" y=\"116\" width=\"45\" height=\"15\" rx=\"4\"/></g>","cooling":"<rect x=\"30\" y=\"48\" width=\"70\" height=\"80\" rx=\"5\" fill=\"url(#metal)\" stroke=\"#44595c\" stroke-width=\"4\"/><g stroke=\"#606f71\"><path d=\"M39 53v70m8-70v70m8-70v70m8-70v70m8-70v70m8-70v70m8-70v70\"/></g><circle cx=\"145\" cy=\"90\" r=\"36\" fill=\"#263c41\"/><g fill=\"#859796\"><path d=\"m144 87-5-31q24 2 24 15zM149 91l31 4q-7 20-22 17zM142 96l-9 29q-20-8-19-22zM139 91l-26-15q14-16 25-10z\"/></g><circle cx=\"145\" cy=\"90\" r=\"8\" fill=\"url(#metal)\"/>","head":"<path d=\"M38 70 140 45l30 25-100 34z\" fill=\"#9cacac\" stroke=\"#52696c\" stroke-width=\"3\"/><path d=\"m38 70 32 34v28l-32-30zM70 104l100-34v28l-100 34z\" fill=\"url(#metal)\" stroke=\"#52696c\" stroke-width=\"2\"/><g fill=\"#243c42\"><ellipse cx=\"69\" cy=\"73\" rx=\"10\" ry=\"6\"/><ellipse cx=\"99\" cy=\"66\" rx=\"10\" ry=\"6\"/><ellipse cx=\"129\" cy=\"59\" rx=\"10\" ry=\"6\"/></g><g stroke=\"#cbd6d5\" stroke-width=\"5\"><path d=\"m82 108 0 17m20-24v17m20-24v17m20-24v17\"/></g>","gasket":"<path d=\"M35 60h130v63H35z\" fill=\"#c3c6c2\" stroke=\"#677775\" stroke-width=\"3\"/><g fill=\"#f6f8f4\" stroke=\"#40544e\" stroke-width=\"4\"><circle cx=\"61\" cy=\"91\" r=\"16\"/><circle cx=\"101\" cy=\"91\" r=\"16\"/><circle cx=\"140\" cy=\"91\" r=\"16\"/></g><path d=\"M47 38h94v15H47zM57 136h80v7H57z\" fill=\"#bd883e\"/><g fill=\"#253f36\"><circle cx=\"43\" cy=\"68\" r=\"3\"/><circle cx=\"156\" cy=\"116\" r=\"3\"/></g>"};
+app.get("/sample-images/:kind.svg",(req,res)=>{
+ const shape=samplePartShapes[req.params.kind];if(!shape)return res.status(404).end();
+ res.type("image/svg+xml").set("Cache-Control","public,max-age=86400").send('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160"><defs><linearGradient id="metal" x2=".8" y2="1"><stop stop-color="#f5f8f8"/><stop offset=".45" stop-color="#a2b0b0"/><stop offset="1" stop-color="#53696a"/></linearGradient><linearGradient id="gold" x2=".8" y2="1"><stop stop-color="#ffda49"/><stop offset="1" stop-color="#d58910"/></linearGradient></defs><ellipse cx="100" cy="140" rx="75" ry="8" fill="#1e392c" opacity=".10"/>'+shape+'</svg>');
+});
+async function addInitialEnginePartsStock(){
+ const key="initial-engine-parts-stock-v1";
+ if(db.prepare("SELECT id FROM catalog_migrations WHERE id=?").get(key))return;
+ const rows=[["GH-EO-6D102","Engine Overhaul Kit (6D102)","Engine Overhaul Kit",7500000,"engine","Compatible with Komatsu PC200-7"],["GH-CH-6D102","Cylinder Head Assy (6D102)","Cylinder Head",4200000,"head","Genuine / OEM quality"],["GH-PR-6D102","Piston & Ring Set (6D102)","Piston & Ring",850000,"engine","Standard size"],["GH-GK-6D102","Full Gasket Kit (6D102)","Gasket",620000,"gasket","Engine overhaul gasket set"],["GH-FP-6D102","Fuel Injection Pump (6D102)","Fuel System",12800000,"hydraulic","Denso style fuel injection pump"],["GH-WP-6D102","Water Pump (6D102)","Cooling System",1250000,"cooling","OEM quality water pump"]];
+ const insert=db.prepare("INSERT OR IGNORE INTO products(sku,name_en,name_my,category_en,category_my,description_en,description_my,price,stock,image_emoji,image_urls,active) VALUES(?,?,?,?,?,?,?,?,?,?,?,1)");
+ db.transaction(()=>{
+  for(const [sku,name,category,price,art,details] of [...rows].reverse()){
+   const description=details+". Initial sample stock and price; edit in Admin before real sales.";
+   insert.run(sku,name,name,category,category,description,description,price,10,"⚙️",JSON.stringify(["/sample-images/"+art+".svg"]));
+   ensureProductCategory(category,category);
+  }
+  db.prepare("INSERT INTO catalog_migrations(id) VALUES(?)").run(key);
+ })();
+ console.log("Added six engine parts with initial stock of 10 each.");
+}
+
 app.get("/api/health", (req,res)=>res.json({ok:true}));
 app.use((err,req,res,next)=>{ console.error(err); res.status(500).json({error:"Unexpected server error."}); });
 
-ensureAdmin().then(removeMachineryDemoProducts).then(()=>app.listen(PORT,()=>console.log(`GearHub running at http://localhost:${PORT}`))).catch(err=>{console.error(err);process.exit(1);});
+ensureAdmin().then(removeMachineryDemoProducts).then(addInitialEnginePartsStock).then(()=>app.listen(PORT,()=>console.log(`GearHub running at http://localhost:${PORT}`))).catch(err=>{console.error(err);process.exit(1);});
