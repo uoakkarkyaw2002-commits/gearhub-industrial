@@ -64,18 +64,43 @@ with **Run backup now** and confirm the object exists in its console.
 
 ## Restore drill
 
-1. Use a trusted GearHub archive. List its contents with `tar -tzf archive.tar.gz`
-   and extract into an empty staging directory, never directly over a running
-   database. Verify SQLite `PRAGMA integrity_check` on the extracted copy and
-   inspect the expected files. Protect the staging directory from other users.
-2. Stop the Render service during an actual restore. Preserve a separate copy of
-   its current data first. Restore `gearhub.sqlite`, product `uploads/` and
-   private `receipts/` into their configured paths. Do not mix a restored database
-   with old `gearhub.sqlite-wal` or `gearhub.sqlite-shm` files.
-3. In the restored database, delete `sessions` and `password_reset_codes` rows
-   so restored authentication material cannot reopen old sessions/reset codes.
-4. Restart with the original durable paths, check health and admin login,
+1. Use a trusted GearHub archive. List contents with `tar -tzf archive.tar.gz`.
+   Extract into an empty, private staging directory with `umask 077`, never over
+   a running database. Verify before opening the staged database with another
+   SQLite tool:
+
+   ```sh
+   npm run verify:restore -- /absolute/staging/gearhub-backup
+   ```
+
+   This script checks integrity, foreign keys, required tables and referenced
+   product/site images and private receipts. It reads a private temporary copy
+   of the database so it cannot modify the staged database or leave WAL/SHM there.
+   It prints counts only and reports sessions/reset codes needing invalidation.
+   It rejects sidecars already present in staging. It does not restore anything.
+2. For an actual restore, stop the single shop process and verify it has exited.
+   Preserve its current database **together with its WAL/SHM files**, uploads and
+   receipts in a separate recovery location. Prefer downloading a fresh online
+   backup before stopping. Do not discard a live WAL, because it can contain
+   committed orders not yet copied into the database file.
+3. Replace the stopped service's database/media with the verified staged files,
+   preserving owners/permissions and configured paths. Keep the old WAL/SHM in
+   the separate recovery location; do not leave old sidecars beside the restored
+   database. Never combine two database generations.
+4. In the **restored database while the service remains stopped**, invalidate old
+   authentication material:
+
+   ```sql
+   DELETE FROM sessions;
+   DELETE FROM password_reset_codes;
+   ```
+
+   Do not run these statements against the active production database as part
+   of a verification-only drill. A restored backup can contain an older password
+   hash: after restart, use the owner-controlled recovery flow to rotate it.
+5. Restart with the original durable paths, check health and admin login,
    validate order totals, stock and images, and take a new off-site backup.
+   Practice the entire procedure with a disposable copy before customer launch.
 
 Disk snapshots are not a substitute for a verified database backup. The automated
 archive uses SQLite's online backup API, including committed WAL data.
@@ -127,3 +152,29 @@ References: [Render disks](https://render.com/docs/disks),
 [Render free services](https://render.com/docs/free),
 [OWASP CSRF](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html),
 [OWASP password storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html).
+
+## Recovery Gmail backups and alerts
+
+With the owner's explicit consent, set `BACKUP_EMAIL_ENABLED=true` and
+`ALERT_EMAIL_ENABLED=true`. Delivery uses the existing `SMTP_USER`,
+`SMTP_APP_PASSWORD` and `PASSWORD_RESET_EMAIL`; no additional storage account
+is needed for the current email-size-compatible shop. SMTP uses TLS on port 465.
+The first activation sends a monitoring-enabled message and a complete archive
+when no off-site copy exists. Successful daily backups continue every 24 hours;
+failed backups retry hourly. Alert events are throttled for one hour and the
+throttle survives service restarts.
+
+The Gmail copy contains the database, media and private receipts. It is accepted
+as an off-site copy only when SMTP confirms the intended recipient accepted the
+message. Acceptance does not guarantee inbox placement: check Spam and perform a
+restore drill from a received attachment. Archives above 18 MB are not emailed;
+the local copy remains and a failure alert is attempted. Use S3/R2 when archives
+outgrow email. The mailbox's retention and storage quota need management.
+
+Alerts cover backup failure, internal server errors, database/disk checks and
+low free disk space. The app checks storage/database every five minutes.
+`/api/health/notifications` reports configured/enabled flags and health without
+exposing credentials or the recipient. When the process is entirely stopped it
+cannot send SMTP alerts; Render's service-health/deploy notifications remain the
+platform-level failure mechanism. An independent uptime monitor can be added for
+full external outage coverage.
