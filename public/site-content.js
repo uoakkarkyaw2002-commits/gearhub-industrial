@@ -25,3 +25,6 @@ Object.assign(window.GEARHUB_DEFAULT_TRANSLATIONS.my,{lightThemeLabel:"အလင
 
 Object.assign(window.GEARHUB_DEFAULT_TRANSLATIONS.en,{emptyCartDescription:"Looks like you haven’t added any products yet. Explore our categories and find what you need.",browseProducts:"Browse Products"});
 Object.assign(window.GEARHUB_DEFAULT_TRANSLATIONS.my,{emptyCartDescription:"ပစ္စည်းတွေ မထည့်ရသေးပါဘူး။ အမျိုးအစားတွေမှာ လိုချင်တဲ့ပစ္စည်းကို ရှာကြည့်ပါ။",browseProducts:"ပစ္စည်းများ ကြည့်ရန်"});
+
+Object.assign(window.GEARHUB_DEFAULT_TRANSLATIONS.en,{categoryPageTitle:"Categories",categoryPageSubtitle:"Browse by category and find what you need",categorySearchPlaceholder:"Search category…",categoryBannerText:"Equipment and spare parts for your work"});
+Object.assign(window.GEARHUB_DEFAULT_TRANSLATIONS.my,{categoryPageTitle:"အမျိုးအစားများ",categoryPageSubtitle:"အမျိုးအစားအလိုက် လိုချင်တဲ့ပစ္စည်းကို ရှာပါ",categorySearchPlaceholder:"အမျိုးအစား ရှာရန်…",categoryBannerText:"လုပ်ငန်းသုံး စက်ပစ္စည်းနှင့် အပိုပစ္စည်းများ"});
