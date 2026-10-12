@@ -277,3 +277,12 @@ body:not(.non-home-view)>.home-navigation{background:transparent;border:0;box-sh
  #profile-view{overflow-x:visible}
  #profile-view>.settings-profile-hero{width:calc(100% + 30px);max-width:none;margin-inline:-15px;border-radius:0;border-inline:0;padding-inline:max(20px,env(safe-area-inset-left))}
 }
+
+/* Home and Settings share an edge-to-edge banner with no top gap. */
+@media(max-width:850px){
+ body:not(.non-home-view)>.home-navigation{padding:0;margin:0;position:relative;min-height:0}
+ #profile-view{margin-top:0;padding-top:0}
+ .home-profile-banner,#profile-view>.settings-profile-hero{min-height:116px;margin-top:0;margin-bottom:14px;border-radius:0;border-inline:0;border-top:0;padding:14px max(20px,env(safe-area-inset-left))}
+ .home-profile-banner{width:100%;max-width:none;margin-inline:0}
+ #profile-view>.settings-profile-hero{width:calc(100% + 30px);max-width:none;margin-inline:-15px}
+}
