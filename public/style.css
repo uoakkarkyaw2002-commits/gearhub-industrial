@@ -178,3 +178,27 @@ body.gallery-open{overflow:hidden}
 body:not(.non-home-view)>.home-navigation{background-image:var(--profile-banner-background);background-color:var(--profile-banner-color,var(--green));background-size:cover;background-position:center;color:#fff;border-bottom-color:rgba(255,255,255,.15)}
 body:not(.non-home-view)>.home-navigation .brand,body:not(.non-home-view)>.home-navigation nav a{color:#fff}
 body:not(.non-home-view)>.home-navigation .brand small{color:rgba(255,255,255,.8)}
+
+/* Avoid accidental double-tap zoom while retaining pinch zoom. */
+html{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button,a,input,select,textarea,summary{touch-action:manipulation}
+@media(max-width:850px){
+ input:not([type=checkbox]):not([type=radio]):not([type=color]),select,textarea{font-size:16px}
+ .profile-view,.settings-card,.settings-header{min-width:0;max-width:100%}
+ .settings-row{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;min-height:76px;padding:12px}
+ .settings-icon{width:36px;height:36px;font-size:21px}
+ .settings-copy strong{font-size:14px;overflow-wrap:anywhere}
+ .settings-copy small{font-size:12px;line-height:1.45;overflow-wrap:anywhere}
+ .settings-segment{max-width:100%}
+ .settings-segment button{min-height:44px;padding:8px;font-size:12px}
+ .settings-header h2{font-size:27px}
+ .settings-header p{font-size:14px;line-height:1.5}
+ .settings-profile-copy{min-width:0}
+ .settings-profile-copy strong,.settings-profile-copy small{overflow-wrap:anywhere}
+ .settings-detail{padding:14px 16px;font-size:14px;overflow-wrap:anywhere}
+}
+@media(max-width:380px){
+ .settings-row:has(.settings-segment){grid-template-columns:36px minmax(0,1fr)}
+ .settings-row>.settings-segment{grid-column:2;justify-self:start}
+ .settings-outline-button{font-size:11px;padding:8px}
+}
