@@ -14,17 +14,26 @@ const { promisify } = require("util");
 const execFileAsync = promisify(execFile);
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+const {passwordError, csrfToken, validToken, originGuard} = require("./lib/security");
+const {createBackupService} = require("./lib/backups");
 
 const app = express();
-app.set("trust proxy", 1); // Render runs behind a trusted reverse proxy.
+app.set("trust proxy", process.env.TRUST_PROXY === "false" ? false : 1); // Render runs behind a trusted reverse proxy.
 const PORT = Number(process.env.PORT || 3000);
 const production = process.env.NODE_ENV === "production";
+const publicOrigin = process.env.PUBLIC_ORIGIN ? new URL(process.env.PUBLIC_ORIGIN).origin : "";
+if (production && (!publicOrigin || !publicOrigin.startsWith("https://"))) throw new Error("Set PUBLIC_ORIGIN to the HTTPS storefront origin in production.");
+if (production && (!process.env.DATA_DIR || process.env.VERCEL)) throw new Error("Production requires DATA_DIR on durable storage and a persistent Node service, not Vercel functions.");
+const sessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(48).toString("hex");
 const sessionCookieName = production ? "__Host-gearhub.sid" : "gearhub.sid";
 // Set DATA_DIR to a persistent disk mount (for example /var/data on Render).
 // Keep the current paths as defaults until the persistent disk is attached and configured.
 const dataDir = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(__dirname, "data");
 const uploadDir = process.env.UPLOAD_DIR ? path.resolve(process.env.UPLOAD_DIR) : path.join(dataDir, "uploads");
 const receiptDir = path.join(dataDir, "receipts");
+const uploadRelative=path.relative(dataDir,uploadDir);
+if(!uploadRelative || uploadDir===receiptDir || uploadRelative==="backups" || uploadRelative.startsWith("backups"+path.sep)) throw new Error("UPLOAD_DIR must not overlap the database, receipts or backup directory.");
+if(production && (path.isAbsolute(uploadRelative) || uploadRelative.startsWith(".."+path.sep) || uploadRelative==="..")) throw new Error("Production uploads must be inside the configured persistent DATA_DIR.");
 fs.mkdirSync(dataDir, { recursive: true });
 fs.mkdirSync(uploadDir, { recursive: true });
 fs.mkdirSync(receiptDir, { recursive: true });
@@ -59,6 +68,8 @@ if (production && (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.len
 const db = new Database(path.join(dataDir, "gearhub.sqlite"));
 db.pragma("journal_mode = WAL");
 db.pragma("foreign_keys = ON");
+db.pragma("busy_timeout = 5000");
+db.pragma("synchronous = FULL");
 db.exec(`
 CREATE TABLE IF NOT EXISTS admins (
  id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE NOT NULL,
@@ -101,10 +112,14 @@ if (!db.prepare("PRAGMA table_info(categories)").all().some(column => column.nam
  db.exec("ALTER TABLE categories ADD COLUMN parent_id INTEGER REFERENCES categories(id) ON DELETE SET NULL");
 }
 // Safe schema migration for existing deployments.
+if (!db.prepare("PRAGMA table_info(admins)").all().some(c => c.name === "auth_version")) db.exec("ALTER TABLE admins ADD COLUMN auth_version INTEGER NOT NULL DEFAULT 1");
 const orderColumns = db.prepare("PRAGMA table_info(orders)").all().map(c => c.name);
 if (!orderColumns.includes("receipt_path")) db.exec("ALTER TABLE orders ADD COLUMN receipt_path TEXT NOT NULL DEFAULT ''");
 if (!orderColumns.includes("confirmation_date")) db.exec("ALTER TABLE orders ADD COLUMN confirmation_date TEXT NOT NULL DEFAULT ''");
 if (!orderColumns.includes("invoice_no")) db.exec("ALTER TABLE orders ADD COLUMN invoice_no TEXT NOT NULL DEFAULT ''");
+if (!orderColumns.includes("request_key")) db.exec("ALTER TABLE orders ADD COLUMN request_key TEXT");
+if (!orderColumns.includes("request_hash")) db.exec("ALTER TABLE orders ADD COLUMN request_hash TEXT");
+db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_request_key ON orders(request_key) WHERE request_key IS NOT NULL");
 const confirmedWithoutInvoice = db.prepare("SELECT id FROM orders WHERE status='confirmed' AND invoice_no='' ORDER BY CASE WHEN confirmation_date='' THEN created_at ELSE confirmation_date END ASC, id ASC").all();
 const nextInvoiceNumber = () => {
  const rows = db.prepare("SELECT invoice_no FROM orders WHERE invoice_no LIKE 'INV-%'").all();
@@ -114,7 +129,7 @@ for (const row of confirmedWithoutInvoice) db.prepare("UPDATE orders SET invoice
 const productColumns = db.prepare("PRAGMA table_info(products)").all().map(c => c.name);
 if (!productColumns.includes("image_urls")) db.exec("ALTER TABLE products ADD COLUMN image_urls TEXT NOT NULL DEFAULT '[]'");
 const count = db.prepare("SELECT COUNT(*) AS n FROM products").get().n;
-if (!count) {
+if (!count && (!production || process.env.SEED_DEMO === "true")) {
  const seed = [
   ["IND-PMP-001","Industrial Water Pump","စက်မှုသုံး ရေစုပ်စက်","Industrial Equipment","စက်မှုသုံးပစ္စည်း","Heavy-duty water pump for industrial water transfer.","စက်ရုံနှင့် လုပ်ငန်းသုံး ရေရွှေ့ပြောင်းမှုအတွက် အကြမ်းခံ ရေစုပ်စက်။",485000,12,"💧"],
   ["IND-MTR-002","3-Phase Electric Motor","သုံးဖေ့စ် လျှပ်စစ်မော်တာ","Motors & Drives","မော်တာနှင့် Drive","Industrial 3-phase electric motor. Confirm voltage and power rating before ordering.","စက်မှုသုံး သုံးဖေ့စ်မော်တာ။ မမှာယူမီ ဗို့အားနှင့် ပါဝါအချက်အလက်ကို အတည်ပြုပါ။",850000,8,"⚙️"],
@@ -150,16 +165,21 @@ async function ensureAdmin() {
   return;
  }
  if (!exists) {
-   if (production && (password.length < 16 || password.includes("ChangeThis"))) throw new Error("Set a unique ADMIN_PASSWORD of at least 16 characters before creating the initial admin account.");
+   if (passwordError(password) || password.includes("ChangeThis")) throw new Error(passwordError(password) || "Set a unique initial ADMIN_PASSWORD.");
    const hash = await bcrypt.hash(password, 12);
    db.prepare("INSERT INTO admins(username,password_hash) VALUES(?,?)").run(username, hash);
    console.log("Created the initial admin account.");
  }
 }
 app.disable("x-powered-by");
+app.use((req,res,next)=>{
+ const requestId=crypto.randomUUID(),started=Date.now();res.set("X-Request-ID",requestId);
+ res.on("finish",()=>{if(res.statusCode>=400||process.env.REQUEST_LOGS==="true") console.log(JSON.stringify({event:"http_response",requestId,method:req.method,route:req.route?.path||"unmatched",status:res.statusCode,durationMs:Date.now()-started}));});next();
+});
 app.use(helmet({contentSecurityPolicy:{directives:{defaultSrc:["'self'"],scriptSrc:["'self'"],styleSrc:["'self'","'unsafe-inline'"],imgSrc:["'self'","data:","https:"],fontSrc:["'self'","data:","https:"],connectSrc:["'self'"],formAction:["'self'"],baseUri:["'self'"],objectSrc:["'none'"],frameAncestors:["'none'"]}}}));
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: false, limit: "100kb" }));
+app.use("/api", originGuard(publicOrigin));
 // Persist sessions in the same SQLite database as the shop data. This avoids
 // express-session's in-memory store, which loses sessions on every restart.
 db.exec(`
@@ -218,7 +238,7 @@ const sessionStore = new SQLiteSessionStore();
 app.use(session({
  store: sessionStore,
  name: sessionCookieName,
- secret: process.env.SESSION_SECRET || crypto.randomBytes(48).toString("hex"),
+ secret: sessionSecret,
  resave: false, saveUninitialized: false,
  cookie: { httpOnly: true, sameSite: "lax", secure: production, path: "/", maxAge: 1000 * 60 * 60 * 8 }
 }));
@@ -279,19 +299,17 @@ app.use("/api/orders", rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standard
 app.use("/api/admin", (req, res, next) => {
  res.setHeader("Cache-Control", "no-store, private");
  res.setHeader("Pragma", "no-cache");
- if (["POST", "PATCH", "PUT", "DELETE"].includes(req.method)) {
-  const source = req.get("origin") || req.get("referer");
-  if (!source) return res.status(403).json({ error: "Request origin is required." });
-  try {
-   const expectedOrigin = `${req.protocol}://${req.get("host")}`;
-   if (new URL(source).origin !== expectedOrigin) return res.status(403).json({ error: "Cross-origin request blocked." });
-  } catch { return res.status(403).json({ error: "Invalid request origin." }); }
+ if (["POST", "PATCH", "PUT", "DELETE"].includes(req.method) && !validToken(req.session.csrfToken, req.get("x-csrf-token"))) {
+  return res.status(403).json({error:"Security token expired or missing. Reload and try again.",code:"CSRF_INVALID"});
  }
  next();
 });
 
+app.get("/api/admin/csrf", (req,res) => res.json({csrfToken:csrfToken(req)}));
 function adminOnly(req, res, next) {
  if (!req.session.admin) return res.status(401).json({ error: "Admin login required" });
+ const user=db.prepare("SELECT auth_version FROM admins WHERE id=?").get(req.session.admin.id);
+ if (!user || user.auth_version !== req.session.admin.authVersion) return req.session.destroy(() => res.status(401).json({error:"Session expired. Sign in again."}));
  next();
 }
 
@@ -570,8 +588,10 @@ app.post("/api/orders", (req,res) => receiptUpload.single("receipt")(req,res,asy
  let validReceipt = false;
  try { validReceipt = await hasValidImageSignature(req.file); } catch {}
  if (!validReceipt) return reject("The uploaded receipt is not a valid JPG, PNG or WebP image.");
+ const requestKey = req.get("idempotency-key");
+ if (requestKey && !/^[a-zA-Z0-9-]{16,80}$/.test(requestKey)) return reject("Invalid order request key.");
  const ids = b.items.map(x => Number(x.id));
- if (ids.some(id => !Number.isInteger(id) || id < 1)) return reject("Invalid product.");
+ if (ids.some(id => !Number.isSafeInteger(id) || id < 1)) return reject("Invalid product.");
  const qtyMap = new Map();
  for (const item of b.items) {
    const qty = Number(item.quantity);
@@ -579,7 +599,15 @@ app.post("/api/orders", (req,res) => receiptUpload.single("receipt")(req,res,asy
    qtyMap.set(Number(item.id), (qtyMap.get(Number(item.id)) || 0) + qty);
  }
  try {
+  const requestHash = crypto.createHash("sha256").update(JSON.stringify({name,phone,email,address,language,reference,items:[...qtyMap.entries()].sort((a,b)=>a[0]-b[0])})).update(await fs.promises.readFile(req.file.path)).digest("hex");
   const result = db.transaction(() => {
+   if (requestKey) {
+    const saved=db.prepare("SELECT * FROM orders WHERE request_key=?").get(requestKey);
+    if (saved) {
+     if (saved.request_hash !== requestHash) {const error=new Error("Order request key already used for different details.");error.status=409;throw error;}
+     return {id:saved.id,orderCode:saved.order_code,subtotal:saved.subtotal,total:saved.total,paymentStatus:saved.payment_status,status:saved.status,replayed:true};
+    }
+   }
    const lineItems = [];
    let subtotal = 0;
    for (const [id, quantity] of qtyMap.entries()) {
@@ -594,26 +622,29 @@ app.post("/api/orders", (req,res) => receiptUpload.single("receipt")(req,res,asy
    }
    const code = "GH-" + Date.now().toString(36).toUpperCase() + "-" + crypto.randomBytes(2).toString("hex").toUpperCase();
    const info = db.prepare(`INSERT INTO orders
-    (order_code,customer_name,phone,email,address,language,items_json,subtotal,delivery_fee,total,payment_reference,receipt_path)
-    VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`).run(code,name,phone,email,address,language,JSON.stringify(lineItems),subtotal,0,subtotal,reference,req.file.filename);
-   for (const item of lineItems) db.prepare("UPDATE products SET stock=stock-? WHERE id=?").run(item.quantity,item.productId);
+    (order_code,customer_name,phone,email,address,language,items_json,subtotal,delivery_fee,total,payment_reference,receipt_path,request_key,request_hash)
+    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(code,name,phone,email,address,language,JSON.stringify(lineItems),subtotal,0,subtotal,reference,req.file.filename,requestKey||null,requestHash);
+   for (const item of lineItems) { const change=db.prepare("UPDATE products SET stock=stock-? WHERE id=? AND stock>=? AND active=1").run(item.quantity,item.productId,item.quantity); if(change.changes!==1)throw new Error("Stock changed. Refresh your cart."); }
    return { id:info.lastInsertRowid, orderCode:code, subtotal, total:subtotal, paymentStatus:"pending", status:"pending" };
-  })();
-  res.status(201).json({ message:"Order created. Transfer payment and wait for admin confirmation.", order:result });
- } catch (e) { if (req.file) fs.promises.unlink(req.file.path).catch(() => {}); res.status(400).json({error:e.message || "Could not create order."}); }
+  }).immediate();
+  if (result.replayed) await fs.promises.unlink(req.file.path).catch(()=>{});
+  res.status(result.replayed ? 200 : 201).json({ message:"Order created. Transfer payment and wait for admin confirmation.", order:result });
+ } catch (e) { if (req.file) fs.promises.unlink(req.file.path).catch(() => {}); res.status(e.status||400).json({error:e.message || "Could not create order."}); }
 }));
 const resetRequestLimit = rateLimit({windowMs: 15 * 60 * 1000, limit: 3, standardHeaders: true, legacyHeaders: false});
 const resetVerifyLimit = rateLimit({windowMs: 15 * 60 * 1000, limit: 8, standardHeaders: true, legacyHeaders: false});
 function mailTransport() {
  if (!process.env.SMTP_USER || !process.env.SMTP_APP_PASSWORD) throw new Error("Gmail mail settings are not configured.");
- return nodemailer.createTransport({host:"smtp.gmail.com",port:465,secure:true,auth:{user:process.env.SMTP_USER,pass:String(process.env.SMTP_APP_PASSWORD).replace(/\\s+/g,"")}});
+ return nodemailer.createTransport({host:"smtp.gmail.com",port:465,secure:true,auth:{user:process.env.SMTP_USER,pass:String(process.env.SMTP_APP_PASSWORD).replace(/\s+/g,"")}});
 }
 app.post("/api/admin/password-reset/request", resetRequestLimit, async (req,res) => {
  try {
   const email = cleanText(process.env.PASSWORD_RESET_EMAIL,160).toLowerCase();
   if (!email || !process.env.SMTP_USER || !process.env.SMTP_APP_PASSWORD) return res.status(503).json({error:"Password reset email is not configured yet."});
+  const previous=db.prepare("SELECT created_at FROM password_reset_codes WHERE id=1").get();
+  if(previous && Date.now()-previous.created_at<60000) return res.status(429).json({error:"Wait one minute before requesting another reset code."});
   const code = String(crypto.randomInt(0,1000000)).padStart(6,"0");
-  const codeHash = crypto.createHash("sha256").update(code).digest("hex");
+  const codeHash = crypto.createHmac("sha256",sessionSecret).update(code).digest("hex");
   db.prepare("INSERT INTO password_reset_codes(id,code_hash,expires_at,attempts,created_at) VALUES(1,?,?,0,?) ON CONFLICT(id) DO UPDATE SET code_hash=excluded.code_hash,expires_at=excluded.expires_at,attempts=0,created_at=excluded.created_at").run(codeHash,Date.now()+10*60*1000,Date.now());
   const transport = mailTransport();
   await transport.sendMail({from:process.env.SMTP_USER,to:email,subject:"GearHub Admin password reset code",text:`Your GearHub Admin password reset code is ${code}. It expires in 10 minutes. If you did not request this, ignore this email.`,html:`<p>Your GearHub Admin password reset code is:</p><p style="font-size:28px;font-weight:bold;letter-spacing:6px">${code}</p><p>This code expires in 10 minutes. If you did not request this, ignore this email.</p>`});
@@ -621,12 +652,13 @@ app.post("/api/admin/password-reset/request", resetRequestLimit, async (req,res)
  } catch(err) { console.error("Password reset email failed:",err.message); res.status(503).json({error:"Could not send the verification email. Check SMTP settings and service logs."}); }
 });
 app.post("/api/admin/password-reset/verify", resetVerifyLimit, async (req,res) => {
- const code=cleanText(req.body?.code,6), password=String(req.body?.newPassword||"");
+ const code=String(req.body?.code||"").trim(), password=String(req.body?.newPassword||"");
  if (!/^\d{6}$/.test(code)) return res.status(400).json({error:"Enter the 6-digit verification code."});
- if (password.length!==6) return res.status(400).json({error:"New password must be exactly 6 characters."});
+ const validationError=passwordError(password);
+ if (validationError) return res.status(400).json({error:validationError});
  const row=db.prepare("SELECT * FROM password_reset_codes WHERE id=1").get();
  if (!row || row.expires_at<Date.now() || row.attempts>=8) { db.prepare("DELETE FROM password_reset_codes WHERE id=1").run(); return res.status(400).json({error:"Code expired. Request a new code."}); }
- const supplied=crypto.createHash("sha256").update(code).digest("hex");
+ const supplied=crypto.createHmac("sha256",sessionSecret).update(code).digest("hex");
  if (!crypto.timingSafeEqual(Buffer.from(supplied,"hex"),Buffer.from(row.code_hash,"hex"))) {
   const attempts=row.attempts+1;
   if(attempts>=8) db.prepare("DELETE FROM password_reset_codes WHERE id=1").run();
@@ -638,39 +670,46 @@ app.post("/api/admin/password-reset/verify", resetVerifyLimit, async (req,res) =
   const user=db.prepare("SELECT id FROM admins WHERE username=?").get(username);
   if(!user) return res.status(400).json({error:"Admin account not found."});
   const hash=await bcrypt.hash(password,12);
-  db.prepare("UPDATE admins SET password_hash=? WHERE id=?").run(hash,user.id);
-  db.prepare("DELETE FROM password_reset_codes WHERE id=1").run();
-  db.prepare("DELETE FROM sessions").run();
+  db.transaction(() => {
+   const current=db.prepare("SELECT * FROM password_reset_codes WHERE id=1").get();
+   if(!current || current.code_hash!==row.code_hash || current.created_at!==row.created_at || current.expires_at<=Date.now() || current.attempts>=8) {const error=new Error("Reset code expired or already used.");error.status=400;throw error;}
+   db.prepare("UPDATE admins SET password_hash=?,auth_version=auth_version+1 WHERE id=?").run(hash,user.id);
+   db.prepare("DELETE FROM password_reset_codes WHERE id=1").run();
+   db.prepare("DELETE FROM sessions").run();
+  }).immediate();
   req.session.destroy(err => {
    if (err) console.error("Could not destroy the password reset session:",err.message);
    res.clearCookie(sessionCookieName,{path:"/",secure:production,httpOnly:true,sameSite:"lax"});
    res.json({ok:true,message:"Password updated. Please sign in with your new password."});
   });
- } catch(err) { console.error("Password reset failed:",err.message); res.status(500).json({error:"Could not update password."}); }
+ } catch(err) { console.error("Password reset failed:",err.message); res.status(err.status||500).json({error:err.status?err.message:"Could not update password."}); }
 });
 app.post("/api/admin/login", async (req,res) => {
  const username = (process.env.ADMIN_USERNAME||"admin").trim();
  const password = String(req.body?.password || "");
- if (!password || password.length > 72) return res.status(401).json({error:"Invalid password."});
+ if (!password || Buffer.byteLength(password,"utf8") > 72 || password.includes("\0")) return res.status(401).json({error:"Invalid password."});
  const user = db.prepare("SELECT * FROM admins WHERE username=?").get(username);
  if (!user || !(await bcrypt.compare(password,user.password_hash))) return res.status(401).json({error:"Invalid password."});
  req.session.regenerate(err => {
   if (err) return res.status(500).json({error:"Could not create session."});
-  req.session.admin = {id:user.id,username:user.username};
+  const current=db.prepare("SELECT password_hash,auth_version FROM admins WHERE id=?").get(user.id);
+  if (!current || current.password_hash!==user.password_hash) return req.session.destroy(() => res.status(401).json({error:"Password changed. Sign in again."}));
+  req.session.admin = {id:user.id,username:user.username,authVersion:current.auth_version};
+  const token=csrfToken(req);
   req.session.save(saveErr => {
    if (saveErr) {
     console.error("Admin session save failed:",saveErr.message);
     return res.status(500).json({error:"Could not save admin session. Please try again."});
    }
    res.setHeader("Cache-Control","no-store");
-   res.json({ok:true,username:user.username});
+   res.json({ok:true,username:user.username,csrfToken:token});
   });
  });
 });
-app.get("/api/admin/me", (req,res) => req.session.admin ? res.json({authenticated:true,username:req.session.admin.username}) : res.status(401).json({authenticated:false}));
+app.get("/api/admin/me", adminOnly, (req,res) => res.json({authenticated:true,username:req.session.admin.username}));
 app.post("/api/admin/logout", (req,res) => req.session.destroy(() => { res.clearCookie(sessionCookieName,{path:"/",secure:production,httpOnly:true,sameSite:"lax"}); res.json({ok:true}); }));
 app.get("/api/admin/summary", adminOnly, (req,res) => {
- const sales = db.prepare("SELECT COALESCE(SUM(total),0) AS value FROM orders WHERE payment_status='paid'").get().value;
+ const sales = db.prepare("SELECT COALESCE(SUM(total),0) AS value FROM orders WHERE payment_status='paid' AND status!='cancelled'").get().value;
  const orders = db.prepare("SELECT COUNT(*) AS value FROM orders").get().value;
  const pending = db.prepare("SELECT COUNT(*) AS value FROM orders WHERE status='pending'").get().value;
  const products = db.prepare("SELECT COUNT(*) AS value FROM products WHERE active=1").get().value;
@@ -700,19 +739,31 @@ app.patch("/api/admin/orders/:id", adminOnly, (req,res) => {
  const allowedPayment = ["pending","paid","rejected"];
  if (!Number.isInteger(id) || !allowedStatus.includes(status) || !allowedPayment.includes(paymentStatus))
   return res.status(400).json({error:"Invalid order update."});
- const order = db.prepare("SELECT * FROM orders WHERE id=?").get(id);
- if (!order) return res.status(404).json({error:"Order not found."});
  try {
   db.transaction(() => {
+   const order = db.prepare("SELECT * FROM orders WHERE id=?").get(id);
+   if (!order) { const error=new Error("Order not found.");error.status=404;throw error; }
+   if (["processing","shipped","completed"].includes(status) && paymentStatus!=="paid") throw new Error("Verify payment before fulfilling an order.");
+   if (order.status==="completed" && status!=="completed") throw new Error("Completed orders cannot be reopened. Handle returns separately.");
+   if (order.status==="shipped" && !["shipped","completed"].includes(status)) throw new Error("Shipped stock cannot be returned through cancellation. Handle returns separately.");
    if (status === "cancelled" && order.status !== "cancelled") {
-    for (const item of JSON.parse(order.items_json)) db.prepare("UPDATE products SET stock=stock+? WHERE id=?").run(item.quantity,item.productId);
-   } else if (order.status === "cancelled" && status !== "cancelled") { for (const item of JSON.parse(order.items_json)) db.prepare("UPDATE products SET stock=MAX(0,stock-?) WHERE id=?").run(item.quantity,item.productId); }
+    for (const item of JSON.parse(order.items_json)) {
+     const product=db.prepare("SELECT stock FROM products WHERE id=?").get(item.productId);
+     if (!product || !Number.isSafeInteger(product.stock+item.quantity) || product.stock+item.quantity>1000000000) throw new Error("Cannot restore stock for an unavailable product.");
+     db.prepare("UPDATE products SET stock=stock+? WHERE id=?").run(item.quantity,item.productId);
+    }
+   } else if (order.status === "cancelled" && status !== "cancelled") {
+    for (const item of JSON.parse(order.items_json)) {
+     const result=db.prepare("UPDATE products SET stock=stock-? WHERE id=? AND stock>=? AND active=1").run(item.quantity,item.productId,item.quantity);
+     if (result.changes!==1) throw new Error("Not enough available stock to restore this order.");
+    }
+   }
    let invoiceNo = order.invoice_no || "";
    if (status === "confirmed" && !invoiceNo) invoiceNo = "INV-" + nextInvoiceNumber();
    db.prepare("UPDATE orders SET status=?,payment_status=?,admin_note=?,confirmation_date=?,invoice_no=? WHERE id=?").run(status,paymentStatus,note,confirmationDate,invoiceNo,id);
-  })();
+  }).immediate();
   res.json({ok:true});
- } catch(e) { res.status(500).json({error:"Could not update order."}); }
+ } catch(e) { res.status(e.status||400).json({error:e.message||"Could not update order."}); }
 });
 app.delete("/api/admin/orders/:id", adminOnly, (req,res) => {
  const id=Number(req.params.id); if(!Number.isInteger(id)) return res.status(400).json({error:"Invalid order."});
@@ -785,7 +836,7 @@ app.post("/api/admin/products", adminOnly, (req,res) => {
  const descriptionEn=cleanText(b.descriptionEn,1000), descriptionMy=cleanText(b.descriptionMy,1000);
  const price=Number(b.price), stock=Number(b.stock), emoji=cleanText(b.emoji,8)||"⚙️";
  const imageUrls=orderProductCover(cleanImageUrls(b.imageUrls),b.coverIndex);
- if(!sku||!nameEn||!categoryEn||!Number.isSafeInteger(price)||price<0||!Number.isInteger(stock)||stock<0)
+ if(!sku||!nameEn||!categoryEn||!Number.isSafeInteger(price)||price<0||!Number.isSafeInteger(stock)||stock<0||stock>1000000000)
   return res.status(400).json({error:"Fill required fields; price and stock must be valid non-negative integers."});
  try {
   const r=db.prepare(`INSERT INTO products(sku,name_en,name_my,category_en,category_my,description_en,description_my,price,stock,image_emoji,image_urls)
@@ -802,11 +853,12 @@ app.patch("/api/admin/products/:id", adminOnly, (req,res) => {
  const categoryEn=cleanText(b.categoryEn ?? existing.category_en,100), categoryMy=cleanText(b.categoryMy ?? existing.category_my,100)||categoryEn;
  const descriptionEn=cleanText(b.descriptionEn ?? existing.description_en,1000), descriptionMy=cleanText(b.descriptionMy ?? existing.description_my,1000);
  const price=b.price===undefined?existing.price:Number(b.price), stock=b.stock===undefined?existing.stock:Number(b.stock);
+ if(b.stock!==undefined && (b.expectedStock===undefined || Number(b.expectedStock)!==existing.stock)) return res.status(409).json({error:"Stock changed since this product was loaded. Refresh inventory before saving."});
  const emoji=cleanText(b.emoji ?? existing.image_emoji,8)||"⚙️";
  let oldImages=[];try{oldImages=JSON.parse(existing.image_urls||"[]")}catch{}
  const imageUrls=orderProductCover(b.imageUrls===undefined?cleanImageUrls(oldImages):cleanImageUrls(b.imageUrls),b.coverIndex);
  const active=b.active===undefined?existing.active:(b.active===false||b.active===0||b.active==="0"?0:1);
- if(!sku||!nameEn||!categoryEn||!Number.isSafeInteger(price)||price<0||!Number.isInteger(stock)||stock<0) return res.status(400).json({error:"Fill required fields; price and stock must be valid non-negative integers."});
+ if(!sku||!nameEn||!categoryEn||!Number.isSafeInteger(price)||price<0||!Number.isSafeInteger(stock)||stock<0||stock>1000000000) return res.status(400).json({error:"Fill required fields; price and stock must be valid non-negative integers."});
  try { db.prepare("UPDATE products SET sku=?,name_en=?,name_my=?,category_en=?,category_my=?,description_en=?,description_my=?,price=?,stock=?,image_emoji=?,image_urls=?,active=? WHERE id=?").run(sku,nameEn,nameMy,categoryEn,categoryMy,descriptionEn,descriptionMy,price,stock,emoji,JSON.stringify(imageUrls),active,id); ensureProductCategory(categoryEn,categoryMy); res.json({ok:true}); }
  catch(e){res.status(400).json({error:"Could not update product. SKU may already exist."});}
 });
@@ -834,6 +886,7 @@ app.get("/sample-images/:kind.svg",(req,res)=>{
  res.type("image/svg+xml").set("Cache-Control","public,max-age=86400").send('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160"><defs><linearGradient id="metal" x2=".8" y2="1"><stop stop-color="#f5f8f8"/><stop offset=".45" stop-color="#a2b0b0"/><stop offset="1" stop-color="#53696a"/></linearGradient><linearGradient id="gold" x2=".8" y2="1"><stop stop-color="#ffda49"/><stop offset="1" stop-color="#d58910"/></linearGradient></defs><ellipse cx="100" cy="140" rx="75" ry="8" fill="#1e392c" opacity=".10"/>'+shape+'</svg>');
 });
 async function addInitialEnginePartsStock(){
+ if(production && process.env.SEED_DEMO !== "true") return;
  const key="initial-engine-parts-stock-v1";
  if(db.prepare("SELECT id FROM catalog_migrations WHERE id=?").get(key))return;
  const rows=[["GH-EO-6D102","Engine Overhaul Kit (6D102)","Engine Overhaul Kit",7500000,"engine","Compatible with Komatsu PC200-7"],["GH-CH-6D102","Cylinder Head Assy (6D102)","Cylinder Head",4200000,"head","Genuine / OEM quality"],["GH-PR-6D102","Piston & Ring Set (6D102)","Piston & Ring",850000,"engine","Standard size"],["GH-GK-6D102","Full Gasket Kit (6D102)","Gasket",620000,"gasket","Engine overhaul gasket set"],["GH-FP-6D102","Fuel Injection Pump (6D102)","Fuel System",12800000,"hydraulic","Denso style fuel injection pump"],["GH-WP-6D102","Water Pump (6D102)","Cooling System",1250000,"cooling","OEM quality water pump"]];
@@ -849,7 +902,38 @@ async function addInitialEnginePartsStock(){
  console.log("Added six engine parts with initial stock of 10 each.");
 }
 
-app.get("/api/health", (req,res)=>res.json({ok:true}));
-app.use((err,req,res,next)=>{ console.error(err); res.status(500).json({error:"Unexpected server error."}); });
+const backupService=createBackupService({db,dataDir,uploadDir,receiptDir});
+app.get("/api/admin/operations", adminOnly, (_req,res)=>res.json(backupService.status()));
+app.post("/api/admin/backup/run", rateLimit({windowMs:60000,limit:2,standardHeaders:true,legacyHeaders:false}), adminOnly, async (_req,res,next)=>{try{res.json(await backupService.run())}catch(error){next(error)}});
+app.get("/api/health", (_req,res)=>{
+ res.set("Cache-Control","no-store");
+ try {
+  db.prepare("SELECT 1").get();
+  const disk=fs.statfsSync(dataDir);const enoughSpace=disk.bavail*disk.bsize>100*1024*1024;
+  res.status(enoughSpace?200:503).json({ok:enoughSpace});
+ }
+ catch { res.status(503).json({ok:false}); }
+});
+// Monitor backup failures separately so a remote storage outage cannot restart the shop.
+app.get("/api/health/backups", (_req,res)=>{
+ res.set("Cache-Control","no-store");
+ const state=backupService.status();
+ const fresh=state.last_success && Date.now()-Date.parse(state.last_success)<state.intervalHours*2*3600000;
+ const offsiteFresh=!state.offsiteConfigured || (state.last_offsite_success && Date.now()-Date.parse(state.last_offsite_success)<state.intervalHours*2*3600000);
+ const healthy=Boolean(fresh && offsiteFresh && !state.last_failure);
+ res.status(healthy?200:503).json({ok:healthy});
+});
+app.use((err,req,res,next)=>{
+ if(res.headersSent)return next(err);
+ const status=err.type==="entity.too.large"?413:err.type==="entity.parse.failed"?400:500;
+ console.error(JSON.stringify({event:"server_error",requestId:res.getHeader("X-Request-ID"),code:err.code||err.name,status}));
+ res.status(status).json({error:status===400?"Invalid request data.":status===413?"Request is too large.":"Unexpected server error."});
+});
 
-ensureAdmin().then(removeMachineryDemoProducts).then(addInitialEnginePartsStock).then(()=>app.listen(PORT,()=>console.log(`GearHub running at http://localhost:${PORT}`))).catch(err=>{console.error(err);process.exit(1);});
+let server;
+ensureAdmin().then(removeMachineryDemoProducts).then(addInitialEnginePartsStock).then(()=>{
+ backupService.start();
+ server=app.listen(PORT,()=>console.log(`GearHub running at http://localhost:${PORT}`));
+}).catch(err=>{console.error(err);process.exit(1);});
+function shutdown(){backupService.stop();if(!server)return;const timeout=setTimeout(()=>process.exit(1),10000).unref();server.close(()=>{clearTimeout(timeout);db.close();process.exit(0)});}
+process.once("SIGTERM",shutdown);process.once("SIGINT",shutdown);
