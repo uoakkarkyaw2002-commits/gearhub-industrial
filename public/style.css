@@ -220,3 +220,13 @@ button,a,input,select,textarea,summary{touch-action:manipulation}
  .settings-profile-hero{isolation:isolate}
  .mobile-bottom-nav{touch-action:manipulation}
 }
+
+/* Home and Settings use the same banner and avatar component. */
+body:not(.non-home-view)>.home-navigation{background:transparent;border:0;box-shadow:none}
+.home-profile-banner{background-image:var(--profile-banner-background);background-color:var(--profile-banner-color,var(--green));flex:1;min-width:0;margin:0}
+.home-profile-banner .settings-profile-avatar>img{object-fit:cover}
+@media(max-width:850px){
+ body:not(.non-home-view)>.home-navigation{padding:20px 15px 0;position:relative;min-height:0;display:block}
+ .home-profile-banner{width:100%;margin:0}
+ .home-profile-banner .settings-profile-copy{gap:5px}
+}
