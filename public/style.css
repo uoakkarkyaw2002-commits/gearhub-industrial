@@ -209,3 +209,14 @@ button,a,input,select,textarea,summary{touch-action:manipulation}
  .home-navigation{pointer-events:none;touch-action:manipulation}
  body{background-attachment:scroll!important}
 }
+
+/* Stable phone Settings: switches must not invoke smart zoom or sideways bounce. */
+@media(max-width:850px){
+ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
+ .profile-view,.profile-view *{touch-action:manipulation}
+ .profile-view{overflow-x:clip;overscroll-behavior-x:none}
+ .profile-view .settings-row{transform:none!important;animation:none!important}
+ .settings-row input[type=checkbox]{touch-action:manipulation}
+ .settings-profile-hero{isolation:isolate}
+ .mobile-bottom-nav{touch-action:manipulation}
+}
