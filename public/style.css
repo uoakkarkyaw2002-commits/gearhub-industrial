@@ -388,3 +388,8 @@ body:not(.non-home-view)>.home-navigation{background:transparent;border:0;box-sh
 .category-browser{display:grid}.category-sidebar{display:flex;flex-direction:column}.category-choice{width:100%;white-space:normal}.category-results{width:100%;min-width:0}
 
 .category-results-heading #selected-category-count[hidden]{display:none!important}
+
+/* Uniform typography throughout the left category list. */
+.category-sidebar .category-choice,.category-sidebar .category-sidebar-child{font-size:13px;font-weight:600;line-height:1.4}
+.category-sidebar .category-choice-name,.category-sidebar .category-sidebar-child>span:not(.category-child-dot){font-size:inherit}
+@media(max-width:850px){.category-sidebar .category-choice,.category-sidebar .category-sidebar-child{font-size:12px}}
