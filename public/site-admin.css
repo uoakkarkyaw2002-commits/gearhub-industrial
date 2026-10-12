@@ -35,3 +35,25 @@
 .password-input-wrap{position:relative;margin-top:5px}.login-card .password-input-wrap input{margin:0;padding-right:58px}.password-visibility-toggle{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;border-radius:8px;background:#eef2eb;color:var(--ink);padding:7px 9px;font:inherit;font-size:12px;font-weight:750;cursor:pointer}.password-visibility-toggle:focus-visible{outline:3px solid #b7f36b;outline-offset:2px}
 .category-manager-panel{grid-column:1/-1}.category-manager-rows{display:flex;flex-direction:column;gap:10px;margin:15px 0}.category-admin-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px;padding:13px;border:1px solid var(--line);border-radius:12px;background:#fbfcfa}.category-admin-fields{display:grid;grid-template-columns:1fr 1fr minmax(160px,1.2fr) minmax(100px,.5fr);gap:10px}.category-admin-fields label{display:block;margin:0;font-size:12px;font-weight:700}.category-admin-fields input{display:block;width:100%;margin-top:5px}.category-admin-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.category-admin-actions button{padding:8px 10px}.category-admin-actions button:disabled{opacity:.4;cursor:not-allowed}.category-manager-actions{display:flex;gap:10px;flex-wrap:wrap}.category-manager-actions button{min-width:140px}#category-manager-message{min-height:1.4em}.category-admin-row input:focus-visible{outline:3px solid #b7f36b88;border-color:#8bbf59}
 @media(max-width:620px){.category-admin-row{grid-template-columns:1fr;gap:8px}.category-admin-fields{grid-template-columns:1fr 1fr}.category-admin-fields label:first-child{grid-column:1/-1}.category-admin-actions{justify-content:flex-end}.category-admin-actions .muted{margin-right:auto}}
+
+/* Keep appearance controls within the phone viewport. */
+@media(max-width:800px){
+ .admin-page .nav-actions{display:flex;gap:8px}
+ .admin-page .nav{padding:12px;gap:12px;flex-wrap:wrap}
+ .admin-page .nav-actions a,.admin-page .nav-actions button{padding:10px 12px;font-size:13px}
+ .admin-wrap,.admin-grid,.site-settings-panel,.admin-section-content,#site-settings-form{min-width:0;max-width:100%}
+ .site-settings-panel,.category-manager-panel{overflow-x:hidden}
+ .site-settings-grid,.site-text-group-grid,.site-layout-grid{grid-template-columns:minmax(0,1fr)}
+ .site-settings-grid .wide{grid-column:auto}
+ .site-settings-grid label,.site-text-card label{min-width:0;font-size:13px;line-height:1.45;overflow-wrap:anywhere}
+ .site-settings-grid input,.site-settings-grid textarea,.site-text-card textarea,.site-layout-fields input[type=number],.site-layout-fields select,.site-image-field input[type=file]{min-width:0;max-width:100%;font-size:16px;padding:11px}
+ .site-layout-card .site-layout-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .site-layout-fields label{font-size:12px}
+ .site-text-group,.site-layout-card{padding:12px}
+ .site-text-group summary,.site-layout-card summary{font-size:14px;line-height:1.45;overflow-wrap:anywhere}
+ .admin-section-toggle h2{min-width:0;font-size:16px;line-height:1.35;overflow-wrap:anywhere}
+ .admin-section-toggle .section-icon{flex-basis:34px;width:34px;height:34px}
+ .admin-section-toggle .section-toggle-icon{flex-basis:30px;width:30px;height:30px}
+ .site-settings-panel p{font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+ #site-settings-form>button[type=submit]{width:100%;min-height:46px}
+}
