@@ -59,7 +59,7 @@ function renderCategoryBrowser(){
  const directProducts=c=>products.filter(p=>String(p.category_en).toLowerCase()===String(c.category_en).toLowerCase());
  const kids=c=>all.filter(child=>String(child.parent_id)===String(c.id));
  const count=c=>directProducts(c).length+kids(c).reduce((n,child)=>n+directProducts(child).length,0);
- if(!find(selectedCategory))selectedCategory=mains[0]?.category_en||"";
+ if(!find(selectedCategory))selectedCategory=(mains[0]?.category_en==="Heavy Machinery"?kids(mains[0])[0]?.category_en:mains[0]?.category_en)||"";
  const selected=find(selectedCategory),main=selected?.parent_id?find(selected.parent_id):selected;
  const query=String($("category-search")?.value||"").trim().toLowerCase();
  const matches=c=>[c.category_en,c.category_my].join(" ").toLowerCase().includes(query);
@@ -70,7 +70,7 @@ function renderCategoryBrowser(){
   button.setAttribute("role","tab");button.setAttribute("aria-selected",String(active));button.dataset.storeAction="select-category";button.dataset.categoryEn=c.category_en;
   button.innerHTML='<span class="category-choice-icon" aria-hidden="true">'+esc(c.icon||"⚙️")+'</span><span class="category-choice-name">'+esc(categoryLabel(c))+'</span><span class="category-expand" aria-hidden="true">'+(active?"⌄":"›")+'</span>';
   list.append(button);
-  if(active||query)kids(c).filter(child=>!query||matches(child)||matches(c)).forEach(child=>{
+  if(active||query||(main?.category_en==="Heavy Machinery"&&c.category_en==="Engine Parts"))kids(c).filter(child=>!query||matches(child)||matches(c)).forEach(child=>{
    const sub=document.createElement("button");sub.type="button";sub.className="category-sidebar-child "+(String(child.id)===String(selected?.id)?"selected":"");sub.dataset.storeAction="select-category";sub.dataset.categoryEn=child.category_en;
    sub.innerHTML='<span class="category-child-dot" aria-hidden="true">•</span><span>'+esc(categoryLabel(child))+'</span><span aria-hidden="true">›</span>';list.append(sub);
   });
@@ -81,9 +81,9 @@ function renderCategoryBrowser(){
  const selectedProducts=selected?directProducts(selected):[];
  const related=selected&&kids(selected).length?kids(selected).flatMap(directProducts):[];
  const banner=$("category-banner-image");if(banner){banner.src=[...selectedProducts,...related].find(p=>p.imageUrls?.length)?.imageUrls[0]||config.site?.heroImageUrl||"/images/hero-excavator.jpg";banner.alt=selected?categoryLabel(selected):""}
- const children=selected?kids(selected).filter(c=>!query||matches(c)):[];
+ const machineryView=main?.category_en==="Heavy Machinery";const children=(machineryView?mains.filter(c=>c.category_en!=="Heavy Machinery"):selected?kids(selected):[]).filter(c=>!query||matches(c));
  $("category-subcategories").innerHTML=children.map(c=>{
-  const photo=directProducts(c).find(p=>p.imageUrls?.length)?.imageUrls[0];
+  const photo=[...directProducts(c),...kids(c).flatMap(directProducts)].find(p=>p.imageUrls?.length)?.imageUrls[0];
   return '<button type="button" class="category-subcategory" data-store-action="select-category" data-category-en="'+esc(c.category_en)+'"><span class="category-card-art">'+(photo?'<img src="'+esc(photo)+'" alt="" loading="lazy">':'<span aria-hidden="true">'+esc(c.icon||"⚙️")+'</span>')+'</span><span class="category-card-copy"><strong>'+esc(categoryLabel(c))+'</strong><small>('+count(c)+')</small></span><span class="category-card-arrow" aria-hidden="true">›</span></button>';
  }).join("");
  const matching=selectedProducts.filter(p=>!query||matches(selected)||[p.name_en,p.name_my,p.sku].join(" ").toLowerCase().includes(query));
