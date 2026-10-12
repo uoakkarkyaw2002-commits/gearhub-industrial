@@ -11,6 +11,7 @@
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   function refresh() {
     if (title) title.textContent = standalone() ? 'Update app' : 'Add to Home Screen';
+    const icon=document.getElementById('home-screen-icon');if(icon)icon.textContent=standalone()?'🔄':'📲';
     if (help) help.textContent = standalone() ? 'နောက်ဆုံး app update ကို စစ်ရန်' : 'GearHub ကို ဖုန်း app အဖြစ် တင်ရန်';
   }
   function message(text) {
@@ -50,6 +51,7 @@
           });
         }
         // Refresh HTML and settings even when no new service worker is needed.
+        localStorage.setItem("gh-lang","en");
         window.location.reload();
       } catch (_) { message('Update မလုပ်နိုင်သေးပါ။ Internet ချိတ်ထားပြီး ပြန်နိပ်ပေးပါ။'); }
       finally { if(action) action.disabled = false; }
