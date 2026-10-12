@@ -5,7 +5,9 @@
   "scripts": {
     "start": "node server.js",
     "test": "node --test tests/*.test.js",
-    "check:production": "node scripts/check-production.js"
+    "check:production": "node scripts/check-production.js",
+    "check": "node scripts/check-static.js",
+    "verify:restore": "node scripts/verify-restore.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1149.0",
