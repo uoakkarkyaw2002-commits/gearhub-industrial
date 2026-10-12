@@ -93,3 +93,11 @@
  document.addEventListener('dblclick',event=>{if(!editable(event.target)&&event.cancelable)event.preventDefault();},{capture:true});
  document.addEventListener('touchcancel',()=>{start=null;last=null;},{passive:true});
 })();
+
+// Match Cart and checkout to the actual bottom navigation height.
+(() => {
+ const nav=document.querySelector(".mobile-bottom-nav");if(!nav)return;
+ const measure=()=>document.documentElement.style.setProperty("--bottom-nav-height",`${Math.ceil(nav.getBoundingClientRect().height)}px`);
+ measure();if("ResizeObserver" in window)new ResizeObserver(measure).observe(nav);
+ window.addEventListener("resize",measure);
+})();
