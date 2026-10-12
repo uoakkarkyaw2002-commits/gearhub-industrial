@@ -74,7 +74,7 @@
 // Cancel only a second stationary single-finger tap; leave pinch and scroll intact.
 (() => {
  let start=null,last=null;
- const editable=target=>target instanceof Element&&target.closest('input,textarea,select,[contenteditable="true"]');
+ const editable=target=>target instanceof Element&&target.closest('textarea,select,[contenteditable="true"],input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit])');
  document.addEventListener('touchstart',event=>{
   if(event.touches.length!==1){start=null;last=null;return;}
   const touch=event.touches[0];
@@ -87,6 +87,7 @@
   if(last&&now-last.time<350&&Math.hypot(touch.clientX-last.x,touch.clientY-last.y)<24){
    if(event.cancelable)event.preventDefault();last=null;
   }else last={time:now,x:touch.clientX,y:touch.clientY};
- },{passive:false});
+ },{passive:false,capture:true});
+ document.addEventListener('dblclick',event=>{if(!editable(event.target)&&event.cancelable)event.preventDefault();},{capture:true});
  document.addEventListener('touchcancel',()=>{start=null;last=null;},{passive:true});
 })();
