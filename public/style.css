@@ -294,3 +294,19 @@ body:not(.non-home-view)>.home-navigation{background:transparent;border:0;box-sh
  .home-profile-banner,.settings-profile-hero{filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;opacity:1}
  html{scroll-padding-top:env(safe-area-inset-top,0px)}
 }
+
+/* Border-free empty Cart with soft green artwork. */
+#drawer{border:0!important}.cart-line{border:0}
+#drawer:has(.cart-empty-design){padding:0;border:0!important;background:#f8fcf7;border-radius:22px;overflow:hidden}
+#drawer:has(.cart-empty-design)>.drawer-head{display:none}
+#drawer:has(.cart-empty-design) #cart-items{height:100%}
+.cart-empty-design{position:relative;display:flex;align-items:center;justify-content:center;min-height:100%;padding:30px 24px;background:radial-gradient(ellipse at 25% 20%,#e9f6e5,transparent 55%),linear-gradient(140deg,#f7fcf3,#fff 48%,#f3f9ef);border:0;isolation:isolate}
+.cart-empty-waves{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+.cart-empty-content{width:100%;max-width:390px;text-align:center}
+.cart-empty-illustration{display:block;width:min(280px,85%);height:auto;margin:0 auto 12px}
+.cart-empty-content h2{margin:0 0 8px;font-size:25px;line-height:1.25;letter-spacing:-.6px;color:#163529}
+.cart-empty-content p{margin:0 auto 20px;font-size:13px;line-height:1.5;color:#78847b;max-width:320px}
+.cart-empty-browse{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;max-width:300px;margin:auto;padding:13px 17px;border:0!important;border-radius:15px;background:linear-gradient(100deg,#00832b,#88bb4c);color:#fff;box-shadow:0 6px 14px #4b964b35;font:inherit;cursor:pointer}
+.cart-empty-browse>span{font-size:23px;line-height:1}.cart-empty-browse strong{font-size:15px}
+@media(max-width:850px){#drawer:has(.cart-empty-design){top:env(safe-area-inset-top,0px);bottom:calc(86px + env(safe-area-inset-bottom));width:100%;left:0;right:0;border-radius:20px 20px 0 0}.cart-empty-design{padding:24px 22px}}
+@media(max-height:600px){.cart-empty-illustration{max-height:150px}.cart-empty-content h2{font-size:21px}.cart-empty-design{padding:12px 20px}}
