@@ -753,8 +753,28 @@ app.put("/api/admin/categories", adminOnly, (req,res) => {
   const orderByParent=new Map();
   rows.forEach(row=>{const id=idsByKey.get(row.category_en.toLocaleLowerCase()),parentId=row.parent_en?idsByKey.get(row.parent_en.toLocaleLowerCase()):null;const orderKey=parentId||0,index=orderByParent.get(orderKey)||0;db.prepare("UPDATE categories SET parent_id=?,sort_order=? WHERE id=?").run(parentId,index,id);orderByParent.set(orderKey,index+1)});
   const keep=new Set(idsByKey.values());
-  for(const category of existing){if(keep.has(category.id))continue;const used=db.prepare("SELECT COUNT(*) AS n FROM products WHERE category_en=?").get(category.category_en).n;if(used)throw new Error(`Move or rename the ${category.category_en} products before removing this category.`);}
-  for(const category of existing)if(!keep.has(category.id))db.prepare("DELETE FROM categories WHERE id=?").run(category.id);
+  const removed=existing.filter(category=>!keep.has(category.id));
+  let fallback=null;
+  for(const category of removed){
+   const used=db.prepare("SELECT COUNT(*) AS n FROM products WHERE category_en=?").get(category.category_en).n;
+   if(!used)continue;
+   if(!fallback){
+    const requested=rows.find(row=>row.category_en.toLocaleLowerCase()==="uncategorized"&&!row.parent_en);
+    if(requested){fallback={id:idsByKey.get(requested.category_en.toLocaleLowerCase()),category_en:requested.category_en,category_my:requested.category_my};}
+    else{
+     let name="Uncategorized",number=2;
+     const unavailable=new Set([...existing.map(c=>c.category_en),...rows.map(c=>c.category_en)].map(name=>name.toLocaleLowerCase()));
+     while(unavailable.has(name.toLocaleLowerCase()))name="Uncategorized "+number++;
+     const result=db.prepare("INSERT INTO categories(category_en,category_my,icon,parent_id,sort_order) VALUES(?,?,?,NULL,?)").run(name,"အမျိုးအစားမသတ်မှတ်ရသေး","",rows.filter(row=>!row.parent_en).length);
+     fallback={id:Number(result.lastInsertRowid),category_en:name,category_my:"အမျိုးအစားမသတ်မှတ်ရသေး"};
+    }
+    keep.add(fallback.id);
+   }
+   db.prepare("UPDATE products SET category_en=?,category_my=? WHERE category_en=?").run(fallback.category_en,fallback.category_my,category.category_en);
+  }
+  // Remove children first so parent deletion remains valid with foreign keys enabled.
+  removed.sort((left,right)=>Number(Boolean(right.parent_id))-Number(Boolean(left.parent_id)));
+  for(const category of removed)db.prepare("DELETE FROM categories WHERE id=?").run(category.id);
  });
  try{save(cleaned);res.json({ok:true,categories:getCategories(false)});}catch(err){res.status(400).json({error:err.message||"Could not save categories. Check for duplicate names."});}
 });
