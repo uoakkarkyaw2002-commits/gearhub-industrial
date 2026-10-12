@@ -1,5 +1,6 @@
 const translations = window.GEARHUB_DEFAULT_TRANSLATIONS;
-let lang=localStorage.getItem("gh-lang")||"my", products=[], categories=[], selectedCategory="", storeView="home", cart=JSON.parse(localStorage.getItem("gh-cart")||"{}"), config={},activeSiteLayout={};
+let lang=localStorage.getItem("gh-lang")==="my"?"my":"en", products=[], categories=[], selectedCategory="", storeView="home", cart=JSON.parse(localStorage.getItem("gh-cart")||"{}"), config={},activeSiteLayout={};
+document.documentElement.lang=lang;
 const $=id=>document.getElementById(id), money=n=>new Intl.NumberFormat("en-US").format(n)+" Ks";
 function tr(k){return translations[lang][k]||translations.en[k]||k}
 function trHtml(k){return safeTranslation(tr(k))}
