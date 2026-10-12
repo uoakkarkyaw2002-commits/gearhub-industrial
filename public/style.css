@@ -386,3 +386,5 @@ body:not(.non-home-view)>.home-navigation{background:transparent;border:0;box-sh
 
 /* Preserve the reference two-column layout on phones as well. */
 .category-browser{display:grid}.category-sidebar{display:flex;flex-direction:column}.category-choice{width:100%;white-space:normal}.category-results{width:100%;min-width:0}
+
+.category-results-heading #selected-category-count[hidden]{display:none!important}
