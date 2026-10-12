@@ -20,6 +20,7 @@
       const active = button.dataset.themeChoice === mode;
       button.classList.toggle("selected", active);
       button.setAttribute("aria-pressed", String(active));
+      if(active)button.parentElement.dataset.selected=button===button.parentElement.lastElementChild?"right":"left";
     });
   }
 
@@ -28,6 +29,7 @@
       const active = button.dataset.languageChoice === document.documentElement.lang;
       button.classList.toggle("selected", active);
       button.setAttribute("aria-pressed", String(active));
+      if(active)button.parentElement.dataset.selected=button===button.parentElement.lastElementChild?"right":"left";
     });
   }
 
@@ -103,8 +105,17 @@
   updateStorageUsage();
   byId("offline-mode-toggle").checked = localStorage.getItem("gh-offline-mode") === "on";
 
-  document.querySelectorAll("[data-theme-choice]").forEach(button => button.addEventListener("click", () => applyTheme(button.dataset.themeChoice)));
-  document.querySelectorAll("[data-language-choice]").forEach(button => button.addEventListener("click", () => setLanguage(button.dataset.languageChoice)));
+  const choiceTimers = new WeakMap();
+  function animateChoice(button, apply) {
+    const group = button.parentElement;
+    clearTimeout(choiceTimers.get(group));
+    group.dataset.selected = button === group.lastElementChild ? "right" : "left";
+    group.setAttribute("aria-busy", "true");
+    const delay = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 260;
+    choiceTimers.set(group, setTimeout(() => { apply(); group.removeAttribute("aria-busy"); }, delay));
+  }
+  document.querySelectorAll("[data-theme-choice]").forEach(button => button.addEventListener("click", () => animateChoice(button, () => applyTheme(button.dataset.themeChoice))));
+  document.querySelectorAll("[data-language-choice]").forEach(button => button.addEventListener("click", () => animateChoice(button, () => setLanguage(button.dataset.languageChoice))));
   byId("lang").addEventListener("click", updateLanguageButtons);
   function showDownloadStatus(state) {
     const help = byId("auto-download-help");
@@ -117,8 +128,11 @@
   showDownloadStatus(localStorage.getItem("gh-offline-downloaded-at") ? "ready" : "waiting");
   window.addEventListener("gearhub:auto-download", event => showDownloadStatus(event.detail.state));
   byId("offline-mode-toggle").addEventListener("change", async event => {
-    const enabled = event.currentTarget.checked;
+    const input = event.currentTarget, enabled = input.checked;
+    input.disabled = true;
+    await new Promise(resolve => setTimeout(resolve, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 260));
     localStorage.setItem("gh-offline-mode", enabled ? "on" : "off");
+    input.disabled = false;
     if (enabled) {
       showDownloadStatus(navigator.onLine ? "downloading" : "waiting");
       try { await saveOfflineCatalog(); }
