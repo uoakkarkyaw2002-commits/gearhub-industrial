@@ -67,19 +67,6 @@
     }
   }
 
-  async function clearAppCache() {
-    if (!window.confirm(words("confirmClearCache"))) return;
-    localStorage.removeItem("gh-offline-catalog");
-    try {
-      const names = await caches.keys();
-      await Promise.all(names.filter(name => name.startsWith("gearhub-offline-")).map(name => caches.delete(name)));
-    } catch {}
-    localStorage.setItem("gh-offline-mode", "off");
-    byId("offline-mode-toggle").checked = false;
-    await updateStorageUsage();
-    message("cacheCleared");
-  }
-
   function setLanguage(language) {
     if (!(["my", "en"].includes(language))) return;
     if (language !== document.documentElement.lang) {
@@ -142,32 +129,9 @@
     updateStorageUsage();
   });
   byId("notifications-toggle").addEventListener("change", event => enableNotifications(event.currentTarget.checked));
-  byId("clear-cache").addEventListener("click", clearAppCache);
   byId("about-app-toggle").addEventListener("click", () => {
     const details = byId("about-app-details");
     details.hidden = !details.hidden;
-  });
-  byId("payment-details-toggle").addEventListener("click", () => {
-    const details = byId("payment-details-more");
-    details.hidden = !details.hidden;
-  });
-  byId("copy-payment-account").addEventListener("click", async () => {
-    const number = byId("payment-account-number").textContent.trim();
-    if (!number || number === "—") return;
-    try {
-      await navigator.clipboard.writeText(number);
-      message("copyDone");
-    } catch {
-      const input = document.createElement("textarea");
-      input.value = number;
-      input.style.position = "fixed";
-      input.style.opacity = "0";
-      document.body.append(input);
-      input.select();
-      const copied = document.execCommand("copy");
-      input.remove();
-      message(copied ? "copyDone" : "copyDone", copied ? "" : number);
-    }
   });
   window.addEventListener("gearhub:data-ready", updateStorageUsage);
   window.addEventListener("storage", updateLanguageButtons);
