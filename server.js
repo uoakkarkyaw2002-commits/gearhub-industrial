@@ -910,10 +910,18 @@ app.get("/api/health", (_req,res)=>{
  try {
   db.prepare("SELECT 1").get();
   const disk=fs.statfsSync(dataDir);const enoughSpace=disk.bavail*disk.bsize>100*1024*1024;
-  const backup=backupService.status();const healthyBackup=!backup.last_failure && (!backup.last_success || Date.now()-Date.parse(backup.last_success)<backup.intervalHours*2*3600000);
-  res.status(enoughSpace&&healthyBackup?200:503).json({ok:enoughSpace&&healthyBackup});
+  res.status(enoughSpace?200:503).json({ok:enoughSpace});
  }
  catch { res.status(503).json({ok:false}); }
+});
+// Monitor backup failures separately so a remote storage outage cannot restart the shop.
+app.get("/api/health/backups", (_req,res)=>{
+ res.set("Cache-Control","no-store");
+ const state=backupService.status();
+ const fresh=state.last_success && Date.now()-Date.parse(state.last_success)<state.intervalHours*2*3600000;
+ const offsiteFresh=!state.offsiteConfigured || (state.last_offsite_success && Date.now()-Date.parse(state.last_offsite_success)<state.intervalHours*2*3600000);
+ const healthy=Boolean(fresh && offsiteFresh && !state.last_failure);
+ res.status(healthy?200:503).json({ok:healthy});
 });
 app.use((err,req,res,next)=>{
  if(res.headersSent)return next(err);

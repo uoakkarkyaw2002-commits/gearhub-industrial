@@ -83,8 +83,11 @@ archive uses SQLite's online backup API, including committed WAL data.
 ## Monitoring
 
 - `/api/health` checks a database query and at least 100 MB of available disk
-  space. It returns 503 for a backup failure or for successful backups
-  older than twice the configured interval.
+  space. Use this endpoint for Render's instance health check.
+- `/api/health/backups` returns 503 for a backup failure, no successful backup,
+  or a backup/off-site copy older than twice the configured interval. Monitor
+  this endpoint for alerts; do not use it for Render's instance health check,
+  because an off-site outage must not restart the storefront.
 - Configure an external uptime monitor to check the live health URL and notify
   your operations contact. Render's health check handles unhealthy instances;
   it does not replace notification routing or off-site backups.
