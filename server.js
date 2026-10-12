@@ -372,7 +372,7 @@ function cleanImageUrls(value) {
 
 const defaultSiteSettings = () => ({
  siteTitle: "GearHub Industrial | စက်မှုသုံးပစ္စည်းများ",
- brandName: "gearhub.", brandTagline: "INDUSTRIAL", heroIcon: "⚙️", logoUrl: "", wallpaperUrl: "", heroImageUrl: "/images/hero-excavator.jpg",
+ brandName: "gearhub.", brandTagline: "INDUSTRIAL", heroIcon: "⚙️", logoUrl: "", appIconUrl: "", navigationBackgroundUrl: "", wallpaperUrl: "", heroImageUrl: "/images/hero-excavator.jpg",
  colors: { brand: "#183426", accent: "#b7f36b", page: "#f5f7f1", hero: "#183426" },
  payment: {
   bankName: process.env.BANK_NAME || "KPay",
@@ -442,11 +442,26 @@ function cleanSiteImageUrl(value) {
  } catch {}
  return null;
 }
+app.get("/app.webmanifest", (_req,res) => {
+ const site=getSiteSettings();
+ const manifest=JSON.parse(fs.readFileSync(path.join(__dirname,"public/manifest.webmanifest"),"utf8"));
+ manifest.name=site.brandName||manifest.name;
+ manifest.short_name=(site.brandName||manifest.short_name).slice(0,30);
+ if(site.appIconUrl)manifest.icons=[{src:site.appIconUrl,sizes:"512x512",purpose:"any"}];
+ res.set("Cache-Control","no-cache").type("application/manifest+json").json(manifest);
+});
+app.get("/app-icon.png", (_req,res) => {
+ const icon=getSiteSettings().appIconUrl;
+ res.set("Cache-Control","no-cache");
+ if(icon)return res.redirect(302,icon);
+ res.sendFile(path.join(__dirname,"public/icons/apple-touch-icon.png"));
+});
 app.get("/api/admin/site-settings", adminOnly, (_req,res) => res.json(getSiteSettings()));
 app.put("/api/admin/site-settings", adminOnly, (req,res) => {
  const body = req.body || {}, previous = getSiteSettings();
+ const appIconUrl = cleanSiteImageUrl(body.appIconUrl ?? previous.appIconUrl), navigationBackgroundUrl = cleanSiteImageUrl(body.navigationBackgroundUrl ?? previous.navigationBackgroundUrl);
  const logoUrl = cleanSiteImageUrl(body.logoUrl), wallpaperUrl = cleanSiteImageUrl(body.wallpaperUrl), heroImageUrl = cleanSiteImageUrl(body.heroImageUrl);
- if (logoUrl === null || wallpaperUrl === null || heroImageUrl === null) return res.status(400).json({error:"Logo and background image URLs must be HTTPS or an uploaded image."});
+ if (appIconUrl === null || navigationBackgroundUrl === null || logoUrl === null || wallpaperUrl === null || heroImageUrl === null) return res.status(400).json({error:"Logo and background image URLs must be HTTPS or an uploaded image."});
  const color = value => /^#[0-9a-f]{6}$/i.test(String(value || "")) ? String(value).toLowerCase() : null;
  const colors = {};
  for (const key of ["brand","accent","page","hero"]) {
@@ -473,7 +488,7 @@ app.put("/api/admin/site-settings", adminOnly, (req,res) => {
   brandName: cleanText(body.brandName ?? previous.brandName, 80),
   brandTagline: cleanText(body.brandTagline ?? previous.brandTagline, 120),
   heroIcon: cleanText(body.heroIcon ?? previous.heroIcon, 12) || "⚙️",
-  logoUrl, wallpaperUrl, heroImageUrl, colors, payment, translations,
+  logoUrl, appIconUrl, navigationBackgroundUrl, wallpaperUrl, heroImageUrl, colors, payment, translations,
   layout:normalizeSiteLayout(body.layout ?? previous.layout, previous.layout)
  };
  db.prepare(`INSERT INTO site_settings(id,settings_json,updated_at) VALUES(1,?,CURRENT_TIMESTAMP)
