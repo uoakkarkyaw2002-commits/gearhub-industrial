@@ -1,5 +1,5 @@
-const CACHE_NAME = "gearhub-shell-v18";
-const SHELL = ["/", "/style.css?v=20261012-4", "/site-content.js?v=20261011-4", "/store.js?v=20261012-1", "/app-install.js?v=20261012-2", "/settings.js?v=20261011-3", "/manifest.webmanifest", "/icons/icon.svg", "/icons/apple-touch-icon.png"];
+const CACHE_NAME = "gearhub-shell-v19";
+const SHELL = ["/", "/style.css?v=20261012-5", "/site-content.js?v=20261011-4", "/store.js?v=20261012-2", "/app-install.js?v=20261012-2", "/settings.js?v=20261011-3", "/app.webmanifest", "/app-icon.png", "/icons/icon.svg", "/icons/apple-touch-icon.png"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
 });
@@ -17,6 +17,7 @@ self.addEventListener("fetch", event => {
     }).catch(async () => (await caches.open("gearhub-offline-v1")).match("/").then(saved => saved || caches.match("/"))));
     return;
   }
+  if(url.pathname==="/app.webmanifest"){event.respondWith(fetch(request).then(response=>{if(response.ok)caches.open(CACHE_NAME).then(cache=>cache.put(request,response.clone()));return response}).catch(()=>caches.match(request)));return;}
   if (/\.(?:png|jpe?g|webp|gif|avif)$/.test(url.pathname) || url.pathname.startsWith("/uploads/")) {
     event.respondWith(fetch(request).catch(() => caches.match(request)));
     return;
