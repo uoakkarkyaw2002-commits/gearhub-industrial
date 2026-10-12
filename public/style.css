@@ -310,3 +310,18 @@ body:not(.non-home-view)>.home-navigation{background:transparent;border:0;box-sh
 .cart-empty-browse>span{font-size:23px;line-height:1}.cart-empty-browse strong{font-size:15px}
 @media(max-width:850px){#drawer:has(.cart-empty-design){top:env(safe-area-inset-top,0px);bottom:calc(86px + env(safe-area-inset-bottom));width:100%;left:0;right:0;border-radius:20px 20px 0 0}.cart-empty-design{padding:24px 22px}}
 @media(max-height:600px){.cart-empty-illustration{max-height:150px}.cart-empty-content h2{font-size:21px}.cart-empty-design{padding:12px 20px}}
+
+/* Cart shares the Admin-selected page background in both empty and filled states. */
+#drawer,#drawer:has(.cart-empty-design){border:0!important;border-radius:0!important;box-shadow:none;background-color:var(--app-page-color,var(--paper))!important;background-image:var(--app-page-background,none)!important;background-size:cover;background-position:center;background-repeat:no-repeat}
+#drawer:has(.cart-empty-design){overflow:auto}
+.cart-empty-design{background:transparent!important;border-radius:0!important}
+.cart-empty-waves{display:none}
+#drawer .cart-line{background:transparent;border:0}
+#drawer .drawer-head,#cart-summary{background:transparent}
+#drawer .cart-line-main{min-width:0}
+#drawer .cart-line-main>b{overflow-wrap:anywhere}
+@media(max-width:850px){
+ #drawer,#drawer:has(.cart-empty-design){top:env(safe-area-inset-top,0px);left:0;right:0;width:100%;bottom:calc(86px + env(safe-area-inset-bottom));border-radius:0!important}
+ #drawer:not(:has(.cart-empty-design)){padding:20px 18px}
+}
+:root[data-theme="dark"] #drawer .cart-empty-content h2{color:var(--ink)}
