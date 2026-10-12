@@ -68,16 +68,16 @@ function renderCategoryBrowser(){
   const active=String(main?.id)===String(c.id),button=document.createElement("button");
   button.type="button";button.className="category-choice "+(active?"selected":"");
   button.setAttribute("role","tab");button.setAttribute("aria-selected",String(active));button.dataset.storeAction="select-category";button.dataset.categoryEn=c.category_en;
-  button.innerHTML='<span class="category-choice-icon" aria-hidden="true">'+esc(c.icon||"⚙️")+'</span><span class="category-choice-name">'+esc(categoryLabel(c))+'</span><span class="category-expand" aria-hidden="true">'+(active?"⌄":"›")+'</span>';
+  button.innerHTML='<span class="category-choice-icon" aria-hidden="true">'+esc(c.icon||"⚙️")+'</span><span class="category-choice-name">'+esc(categoryLabel(c))+'</span><span class="category-expand" aria-hidden="true">'+(active||(main?.category_en==="Heavy Machinery"&&c.category_en==="Engine Parts")?"⌄":"›")+'</span>';
   list.append(button);
   if(active||query||(main?.category_en==="Heavy Machinery"&&c.category_en==="Engine Parts"))kids(c).filter(child=>!query||matches(child)||matches(c)).forEach(child=>{
    const sub=document.createElement("button");sub.type="button";sub.className="category-sidebar-child "+(String(child.id)===String(selected?.id)?"selected":"");sub.dataset.storeAction="select-category";sub.dataset.categoryEn=child.category_en;
-   sub.innerHTML='<span class="category-child-dot" aria-hidden="true">•</span><span>'+esc(categoryLabel(child))+'</span><span aria-hidden="true">›</span>';list.append(sub);
+   sub.innerHTML='<span class="category-child-dot" aria-hidden="true">•</span><span>'+esc(["Other Machinery","Other Engine Parts"].includes(child.category_en)?"Others":categoryLabel(child))+'</span><span aria-hidden="true">›</span>';list.append(sub);
   });
  });
  if(!list.children.length){const empty=document.createElement("p");empty.className="category-empty";empty.textContent=tr("noCategories");list.append(empty)}
  $("selected-category-name").textContent=selected?categoryLabel(selected):tr("categoryPageTitle");
- $("selected-category-count").textContent=selected?tr("categoryProductCount").replace("{count}",String(count(selected))):"";
+ $("selected-category-count").textContent=selected?tr("categoryProductCount").replace("{count}",String(count(selected))):"";$("selected-category-count").hidden=main?.category_en==="Heavy Machinery";const bannerCopy=document.querySelector(".category-banner-copy>p");if(bannerCopy)bannerCopy.textContent=main?.category_en==="Heavy Machinery"?(lang==="my"?"အမှတ်တံဆိပ်နှင့် မော်ဒယ်အားလုံးအတွက် အပိုပစ္စည်းများ":"Spare Parts for All Brands and Models"):tr("categoryBannerText");
  const selectedProducts=selected?directProducts(selected):[];
  const related=selected&&kids(selected).length?kids(selected).flatMap(directProducts):[];
  const banner=$("category-banner-image");if(banner){banner.src=[...selectedProducts,...related].find(p=>p.imageUrls?.length)?.imageUrls[0]||config.site?.heroImageUrl||"/images/hero-excavator.jpg";banner.alt=selected?categoryLabel(selected):""}
