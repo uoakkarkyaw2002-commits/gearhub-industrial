@@ -16,6 +16,7 @@ const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const {passwordError, csrfToken, validToken, originGuard} = require("./lib/security");
 const {createBackupService} = require("./lib/backups");
+const {createNotifications} = require("./lib/notifications");
 
 const app = express();
 app.set("trust proxy", process.env.TRUST_PROXY === "false" ? false : 1); // Render runs behind a trusted reverse proxy.
@@ -902,8 +903,9 @@ async function addInitialEnginePartsStock(){
  console.log("Added six engine parts with initial stock of 10 each.");
 }
 
-const backupService=createBackupService({db,dataDir,uploadDir,receiptDir});
-app.get("/api/admin/operations", adminOnly, (_req,res)=>res.json(backupService.status()));
+const notifications=createNotifications({db,dataDir});
+const backupService=createBackupService({db,dataDir,uploadDir,receiptDir,notifications});
+app.get("/api/admin/operations", adminOnly, (_req,res)=>res.json({...backupService.status(),notifications:notifications.status()}));
 app.post("/api/admin/backup/run", rateLimit({windowMs:60000,limit:2,standardHeaders:true,legacyHeaders:false}), adminOnly, async (_req,res,next)=>{try{res.json(await backupService.run())}catch(error){next(error)}});
 app.get("/api/health", (_req,res)=>{
  res.set("Cache-Control","no-store");
@@ -913,6 +915,11 @@ app.get("/api/health", (_req,res)=>{
   res.status(enoughSpace?200:503).json({ok:enoughSpace});
  }
  catch { res.status(503).json({ok:false}); }
+});
+app.get("/api/health/notifications",(_req,res)=>{
+ res.set("Cache-Control","no-store");const state=notifications.status();
+ const healthy=Boolean(state.enabled&&state.configured&&state.lastSent&&!state.hasFailure);
+ res.status(healthy?200:503).json({ok:healthy,configured:state.configured,enabled:state.enabled});
 });
 // Monitor backup failures separately so a remote storage outage cannot restart the shop.
 app.get("/api/health/backups", (_req,res)=>{
@@ -926,14 +933,16 @@ app.get("/api/health/backups", (_req,res)=>{
 app.use((err,req,res,next)=>{
  if(res.headersSent)return next(err);
  const status=err.type==="entity.too.large"?413:err.type==="entity.parse.failed"?400:500;
+ if(status===500)notifications.alert("server-error","The storefront returned an internal server error. Request ID: "+res.getHeader("X-Request-ID")).catch(()=>{});
  console.error(JSON.stringify({event:"server_error",requestId:res.getHeader("X-Request-ID"),code:err.code||err.name,status}));
  res.status(status).json({error:status===400?"Invalid request data.":status===413?"Request is too large.":"Unexpected server error."});
 });
 
 let server;
 ensureAdmin().then(removeMachineryDemoProducts).then(addInitialEnginePartsStock).then(()=>{
+ notifications.start();
  backupService.start();
  server=app.listen(PORT,()=>console.log(`GearHub running at http://localhost:${PORT}`));
 }).catch(err=>{console.error(err);process.exit(1);});
-function shutdown(){backupService.stop();if(!server)return;const timeout=setTimeout(()=>process.exit(1),10000).unref();server.close(()=>{clearTimeout(timeout);db.close();process.exit(0)});}
+function shutdown(){notifications.stop();backupService.stop();if(!server)return;const timeout=setTimeout(()=>process.exit(1),10000).unref();server.close(()=>{clearTimeout(timeout);db.close();process.exit(0)});}
 process.once("SIGTERM",shutdown);process.once("SIGINT",shutdown);
