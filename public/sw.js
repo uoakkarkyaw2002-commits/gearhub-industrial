@@ -1,5 +1,5 @@
-const CACHE_NAME = "gearhub-shell-v33";
-const SHELL = ["/", "/style.css?v=20261012-16", "/site-content.js?v=20261012-4", "/store.js?v=20261012-8", "/app-install.js?v=20261012-4", "/settings.js?v=20261012-3", "/app.webmanifest", "/app-icon.png", "/icons/icon.svg", "/icons/apple-touch-icon.png"];
+const CACHE_NAME = "gearhub-shell-v34";
+const SHELL = ["/", "/style.css?v=20261012-16", "/site-content.js?v=20261012-4", "/store.js?v=20261012-9", "/app-install.js?v=20261012-4", "/settings.js?v=20261012-3", "/app.webmanifest", "/app-icon.png", "/icons/icon.svg", "/icons/apple-touch-icon.png"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
 });
