@@ -1,4 +1,4 @@
-const CACHE_NAME = "gearhub-shell-v43";
+const CACHE_NAME = "gearhub-shell-v44";
 const SHELL = ["/", "/style.css?v=20261012-20", "/site-content.js?v=20261012-review-1", "/store.js?v=20261012-review-1", "/app-install.js?v=20261012-4", "/settings.js?v=20261012-3", "/dialogs.js?v=20261012-1", "/footer.js?v=20261012-1", "/images/hero-excavator.jpg", "/app.webmanifest", "/app-icon.png", "/icons/icon.svg", "/icons/apple-touch-icon.png"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -12,7 +12,7 @@ self.addEventListener("fetch", event => {
   if (request.method !== "GET" || url.origin !== self.location.origin || url.pathname.startsWith("/api/") || url.pathname.startsWith("/admin")) return;
   if (request.mode === "navigate") {
     event.respondWith(fetch(request).then(response => {
-      if (response.ok) caches.open(CACHE_NAME).then(cache => cache.put("/", response.clone()));
+      if (response.ok) caches.open(CACHE_NAME).then(cache => cache.put(url.pathname === "/" ? "/" : request.url, response.clone()));
       return response;
     }).catch(async () => (await caches.open("gearhub-offline-v1")).match("/").then(saved => saved || caches.match("/"))));
     return;

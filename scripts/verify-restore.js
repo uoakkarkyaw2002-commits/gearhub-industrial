@@ -4,6 +4,7 @@ function verifyRestore(directory){
  if(!fs.lstatSync(file).isFile()||fs.lstatSync(file).isSymbolicLink())throw Error('Expected a regular staged gearhub.sqlite file.');
  for(const suffix of ['-wal','-shm'])if(fs.existsSync(file+suffix))throw Error('Staging contains WAL/SHM files; do not mix old sidecars with an online backup.');
  for(const name of ['uploads','receipts'])if(!fs.lstatSync(path.join(root,name)).isDirectory()||fs.lstatSync(path.join(root,name)).isSymbolicLink())throw Error('Expected private staged media directories without symlinks.');
+ const manifest=require('../lib/backup-manifest').validateBackupManifest(root);
  const temp=fs.mkdtempSync(path.join(os.tmpdir(),'gearhub-restore-verify-'));let db;
  try{
   const copied=path.join(temp,'gearhub.sqlite');fs.copyFileSync(file,copied);db=new Database(copied,{readonly:true,fileMustExist:true});
@@ -19,7 +20,7 @@ function verifyRestore(directory){
   for(const name of uploadNames)if(!present('uploads',name))missingUploads++;
   for(const row of db.prepare("SELECT receipt_path FROM orders WHERE receipt_path<>''").all())if(!present('receipts',row.receipt_path))missingReceipts++;
   if(missingUploads||missingReceipts)throw Error(`Backup references missing media: ${missingUploads} uploads, ${missingReceipts} receipts.`);
-  return {ok:true,products:db.prepare('SELECT COUNT(*) n FROM products').get().n,orders:db.prepare('SELECT COUNT(*) n FROM orders').get().n,sessionsToInvalidate:db.prepare('SELECT COUNT(*) n FROM sessions').get().n,resetCodesToInvalidate:db.prepare('SELECT COUNT(*) n FROM password_reset_codes').get().n};
+  return {ok:true,manifest,products:db.prepare('SELECT COUNT(*) n FROM products').get().n,orders:db.prepare('SELECT COUNT(*) n FROM orders').get().n,sessionsToInvalidate:db.prepare('SELECT COUNT(*) n FROM sessions').get().n,resetCodesToInvalidate:db.prepare('SELECT COUNT(*) n FROM password_reset_codes').get().n};
  }finally{db?.close();fs.rmSync(temp,{recursive:true,force:true});}
 }
 if(require.main===module){try{if(process.argv.length!==3)throw Error('Usage: node scripts/verify-restore.js /absolute/path/to/extracted/gearhub-backup');console.log(JSON.stringify(verifyRestore(process.argv[2])));console.log('Read-only verification complete. No sessions were deleted and no production files were replaced. Follow the stopped-service restore checklist.');}catch(error){console.error(error.message);process.exitCode=1;}}

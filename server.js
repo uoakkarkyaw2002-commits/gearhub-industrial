@@ -19,6 +19,7 @@ const {createBackupService} = require("./lib/backups");
 const {createNotifications} = require("./lib/notifications");
 const {runtimeConfig,validateStorage}=require("./lib/config");
 const {logError}=require("./lib/logging");
+const {writeBackupManifest}=require("./lib/backup-manifest");
 
 const app = express();
 app.set("trust proxy", process.env.TRUST_PROXY === "false" ? false : 1); // Render runs behind a trusted reverse proxy.
@@ -317,6 +318,7 @@ app.get("/api/admin/backup", rateLimit({ windowMs: 60 * 1000, limit: 2, standard
   await db.backup(path.join(stageDir, "gearhub.sqlite"));
   await fs.promises.cp(uploadDir, path.join(stageDir, "uploads"), { recursive: true, force: true });
   await fs.promises.cp(receiptDir, path.join(stageDir, "receipts"), { recursive: true, force: true });
+  await writeBackupManifest(stageDir);
   await execFileAsync("tar", ["-czf", archivePath, "-C", tempRoot, "gearhub-backup"], { timeout: 120000 });
   res.setHeader("Cache-Control", "no-store, private");
   res.download(archivePath, path.basename(archivePath), async err => {
