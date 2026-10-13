@@ -198,6 +198,9 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
       aid = (await a.me()).shop.id;
       bid = (await b.me()).shop.id;
       assert.notEqual(aid, bid);
+    const trial=(await a.me()).shop;assert.equal(trial.subscription_status,'trial');assert.ok(trial.starts_at);assert.equal(trial.ends_at,model.addCalendarMonths(trial.starts_at,2));
+    assert.equal((await owner.call('/owner/applications/'+ar.id,'PATCH',{status:'approved'})).status,409);
+
     },
   );
   await t.test(
@@ -438,7 +441,7 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
     "expiry/permissions/suspension gate writes and selling while preserving reads/data",
     async () => {
       await owner.call("/owner/shops/" + bid, "PATCH", {
-        endsAt: "2020-01-01",
+        startsAt: "2019-01-01", endsAt: "2020-01-01",
       });
       assert.equal((await b.call("/shops/" + bid)).status, 200);
       assert.equal(
@@ -486,6 +489,7 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
       assert.equal((await b.call("/shops/" + bid)).status, 200);
     },
   );
+  await t.test('owner extension adds calendar months and cannot be used by sellers',async()=>{await owner.call('/owner/shops/'+bid,'PATCH',{endsAt:'2099-01-31T00:00:00.000Z'});const before=(await b.me()).shop;assert.equal((await b.call('/owner/shops/'+bid+'/extend','POST',{months:2})).status,403);const r=await owner.call('/owner/shops/'+bid+'/extend','POST',{months:2});assert.equal(r.status,200);assert.equal(r.data.startsAt,before.starts_at);assert.equal(r.data.endsAt,model.addCalendarMonths(before.ends_at,2));assert.equal((await owner.call('/owner/shops/'+bid+'/extend','POST',{months:0})).status,400);assert.equal((await owner.call('/owner/shops/'+bid+'/extend','POST',{months:2})).status,200);});
   await t.test(
     "multi-product reopen rollback and shipped/completed cancellation preserve stock",
     async () => {

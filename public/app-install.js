@@ -33,7 +33,7 @@
   window.addEventListener('appinstalled', () => { installPrompt = null; if(button) button.hidden = true; message('GearHub app တင်ပြီးပါပြီ။ Home Screen မှာ ဖွင့်နိုင်ပါပြီ။'); refresh(); });
   async function activate() {
     if (standalone()) {
-      if(window.GearHubUpdates){await window.GearHubUpdates.apply();return;}
+      if(window.GearHubUpdates){const applied=await window.GearHubUpdates.apply();if(!applied)message("လက်ရှိလုပ်ဆောင်မှု/ရွေးထားသောဖိုင်ကို အရင်ပြီးစီးပါ။ Browser storage နှင့် internet ကိုလည်း စစ်ပေးပါ။");return;}
       if (!navigator.onLine) { message('Update စစ်ဖို့ internet ချိတ်ပေးပါ။'); return; }
       if(action) action.disabled = true;
       message('App update ကို စစ်နေပါတယ်…');
