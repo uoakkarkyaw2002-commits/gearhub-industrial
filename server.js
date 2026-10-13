@@ -233,6 +233,17 @@ app.use(session({
  resave: false, saveUninitialized: false,
  cookie: { httpOnly: true, sameSite: "lax", secure: production, path: "/", maxAge: 1000 * 60 * 60 * 8 }
 }));
+// Opt-in development migration; legacy tables/routes remain unchanged.
+if(process.env.PLATFORM_ENABLED==='true'){
+ const {createPlatform}=require('./lib/platform');
+ app.use('/api/platform',createPlatform({db,dataDir,publicOrigin}));
+ app.get('/shops/:slug', (req,res)=>req.params.slug==='gearhub'?res.redirect('/'):res.sendFile(path.join(__dirname,'public','platform-shop.html')));
+}
+app.get('/api/app-release', (_req,res)=>{
+ res.set('Cache-Control','no-store');
+ const enabled=process.env.PLATFORM_ENABLED==='true';
+ res.json({... (enabled?require('./lib/platform-model').release(db):require('./lib/app-release').effectiveRelease(null)),platformEnabled:enabled});
+});
 // Periodically prune expired sessions without requiring an external service.
 setInterval(() => {
  try { db.prepare("DELETE FROM sessions WHERE expired_at <= ?").run(Date.now()); }
@@ -318,6 +329,7 @@ app.get("/api/admin/backup", rateLimit({ windowMs: 60 * 1000, limit: 2, standard
   await db.backup(path.join(stageDir, "gearhub.sqlite"));
   await fs.promises.cp(uploadDir, path.join(stageDir, "uploads"), { recursive: true, force: true });
   await fs.promises.cp(receiptDir, path.join(stageDir, "receipts"), { recursive: true, force: true });
+  const platformMedia=path.join(dataDir,"platform-media");if(fs.existsSync(platformMedia))await fs.promises.cp(platformMedia,path.join(stageDir,"platform-media"),{recursive:true});
   await writeBackupManifest(stageDir);
   await execFileAsync("tar", ["-czf", archivePath, "-C", tempRoot, "gearhub-backup"], { timeout: 120000 });
   res.setHeader("Cache-Control", "no-store, private");
