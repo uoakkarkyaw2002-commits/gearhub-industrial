@@ -178,3 +178,14 @@ exposing credentials or the recipient. When the process is entirely stopped it
 cannot send SMTP alerts; Render's service-health/deploy notifications remain the
 platform-level failure mechanism. An independent uptime monitor can be added for
 full external outage coverage.
+
+## Backup manifest version 2
+
+Scheduled and manual-download archives both include `manifest.json` with version,
+createdAt, components, database filename, media directory names and SHA-256 of
+the snapshot. `verify:restore` validates this checksum before database inspection.
+Legacy version 1 and manifest-less archives remain supported after integrity and
+media checks; missing metadata is not permission to bypass those checks. The
+manifest is not signed and cannot establish that an untrusted archive is safe.
+See LAUNCH_REMAINING.md for pending Render settings, external monitoring and
+owner-approved policy gates.
