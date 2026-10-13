@@ -1,0 +1,654 @@
+const { test } = require("node:test");
+const assert = require("node:assert/strict");
+const express = require("express");
+const session = require("express-session");
+const Database = require("better-sqlite3");
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
+const { once } = require("node:events");
+const { createPlatform } = require("../lib/platform");
+const { originGuard } = require("../lib/security");
+const model = require("../lib/platform-model");
+const png = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==",
+  "base64",
+);
+test("Google approval, tenant isolation, owner roles, quotas, subscriptions and orders", async (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "gearhub-platform-test-"));
+  const db = new Database(path.join(root, "gearhub.sqlite"));
+  db.pragma("foreign_keys=ON");
+  db.exec(
+    "CREATE TABLE products(id INTEGER,stock INTEGER);INSERT INTO products VALUES(99,12);CREATE TABLE orders(id INTEGER);INSERT INTO orders VALUES(99)",
+  );
+  const app = express();
+  app.use(express.json());
+  app.use(
+    session({
+      secret: "Platform-test-secret-123456789",
+      resave: false,
+      saveUninitialized: false,
+    }),
+  );
+  const server = app.listen(0, "127.0.0.1");
+  await once(server, "listening");
+  const base = "http://127.0.0.1:" + server.address().port;
+  app.use("/api", originGuard(base));
+  app.use(
+    "/api/platform",
+    createPlatform({
+      db,
+      dataDir: root,
+      publicOrigin: base,
+      env: {
+        PLATFORM_OWNER_EMAIL: "owner@gmail.com",
+        GOOGLE_CLIENT_ID: "fixture",
+      },
+      identityProvider: async (code, nonce) => ({
+        sub: code,
+        email: code + "@gmail.com",
+        email_verified: code !== "unverified",
+        name: code,
+        nonce: code === "badnonce" ? "wrong" : nonce,
+      }),
+    }),
+  );
+  t.after(async () => {
+    await new Promise((r) => server.close(r));
+    db.close();
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+  class Client {
+    constructor() {
+      this.cookie = "";
+      this.csrf = "";
+    }
+    async call(p, method = "GET", body, extra = {}) {
+      const h = { Origin: base, "X-CSRF-Token": this.csrf, ...extra };
+      if (this.cookie) h.Cookie = this.cookie;
+      if (body && !(body instanceof FormData)) {
+        h["Content-Type"] = "application/json";
+        body = JSON.stringify(body);
+      }
+      const r = await fetch(base + "/api/platform" + p, {
+        method,
+        headers: h,
+        body,
+        redirect: "manual",
+      });
+      const c = r.headers.get("set-cookie");
+      if (c) this.cookie = c.split(";")[0];
+      const data = r.status === 302 ? null : await r.json();
+      return { status: r.status, data };
+    }
+    async me() {
+      const r = await this.call("/me");
+      if (r.data.csrfToken) this.csrf = r.data.csrfToken;
+      return r.data;
+    }
+    async login(name) {
+      await this.me();
+      const start = await this.call("/auth/start", "POST", {});
+      const state = new URL(start.data.url).searchParams.get("state");
+      const result = await this.call(
+        "/auth/callback?code=" + name + "&state=" + state,
+      );
+      if (result.status === 302) await this.me();
+      return result;
+    }
+  }
+  const owner = new Client(),
+    a = new Client(),
+    b = new Client(),
+    buyer = new Client();
+  let aid, bid, pa, pb, order, receipt;
+  await t.test(
+    "callback rejects wrong state, replay, unverified mail and nonce; login creates no shop",
+    async () => {
+      const c = new Client();
+      await c.me();
+      assert.equal(
+        (await c.call("/auth/callback?code=a&state=wrong")).status,
+        400,
+      );
+      assert.equal((await c.login("badnonce")).status, 400);
+      assert.equal((await c.login("unverified")).status, 400);
+      assert.equal((await owner.login("owner")).status, 302);
+      assert.equal((await a.login("alice")).status, 302);
+      assert.equal((await b.login("bob")).status, 302);
+      assert.equal((await a.me()).shop, null);
+      assert.equal((await a.call("/shops/2")).status, 404);
+      assert.equal((await a.call("/owner")).status, 403);
+      assert.equal(
+        (await a.call("/owner/release", "POST", { version: "2.0.0" })).status,
+        403,
+      );
+    },
+  );
+  await t.test(
+    "pending/rejected applications never open shops; owner approval is explicit",
+    async () => {
+      assert.equal(
+        (
+          await a.call("/applications", "POST", {
+            name: "Alice store",
+            slug: "alice-store",
+          })
+        ).status,
+        201,
+      );
+      assert.equal(
+        (
+          await b.call("/applications", "POST", {
+            name: "Bob store",
+            slug: "bob-store",
+          })
+        ).status,
+        201,
+      );
+      const list = (await owner.call("/owner")).data;
+      const ar = list.applications.find((x) => x.name === "Alice store"),
+        br = list.applications.find((x) => x.name === "Bob store");
+      assert.equal((await a.me()).application.status, "pending");
+      assert.equal((await a.me()).shop, null);
+      assert.equal(
+        (
+          await a.call("/owner/applications/" + ar.id, "PATCH", {
+            status: "approved",
+          })
+        ).status,
+        403,
+      );
+      assert.equal(
+        (
+          await owner.call("/owner/applications/" + br.id, "PATCH", {
+            status: "rejected",
+            note: "Review details",
+          })
+        ).status,
+        200,
+      );
+      assert.equal((await b.me()).application.status, "rejected");
+      assert.equal((await b.me()).shop, null);
+      assert.equal(
+        (
+          await b.call("/applications", "POST", {
+            name: "Bob store",
+            slug: "bob-store",
+          })
+        ).status,
+        201,
+      );
+      assert.equal(
+        (
+          await owner.call("/owner/applications/" + ar.id, "PATCH", {
+            status: "approved",
+          })
+        ).status,
+        200,
+      );
+      assert.equal(
+        (
+          await owner.call("/owner/applications/" + br.id, "PATCH", {
+            status: "approved",
+          })
+        ).status,
+        200,
+      );
+      aid = (await a.me()).shop.id;
+      bid = (await b.me()).shop.id;
+      assert.notEqual(aid, bid);
+    },
+  );
+  await t.test(
+    "each shop scopes settings/products and cannot read or mutate another shop",
+    async () => {
+      assert.equal(
+        (
+          await a.call("/shops/" + aid, "PATCH", {
+            name: "Alice store",
+            phone: "fixture",
+            bankName: "Fixture",
+            bankAccountName: "Fixture",
+            bankAccountNumber: "Fixture",
+          })
+        ).status,
+        200,
+      );
+      assert.equal(
+        (
+          await b.call("/shops/" + bid, "PATCH", {
+            bankName: "Fixture",
+            bankAccountName: "Fixture",
+            bankAccountNumber: "Fixture",
+          })
+        ).status,
+        200,
+      );
+      for (const [client, id, name] of [
+        [a, aid, "A"],
+        [b, bid, "B"],
+      ])
+        assert.equal(
+          (
+            await client.call("/shops/" + id + "/products", "POST", {
+              name,
+              sku: "SAME-SKU",
+              price: 100,
+              stock: 3,
+              shop_id: aid,
+            })
+          ).status,
+          200,
+        );
+      pa = (await a.call("/shops/" + aid)).data.products[0].id;
+      pb = (await b.call("/shops/" + bid)).data.products[0].id;
+      assert.equal((await a.call("/shops/" + bid)).status, 404);
+      assert.equal(
+        (await a.call("/shops/" + bid, "PATCH", { name: "hacked" })).status,
+        404,
+      );
+      assert.equal(
+        (
+          await a.call("/shops/" + aid + "/products/" + pb, "PATCH", {
+            name: "hack",
+            sku: "SAME",
+            stock: 3,
+            expectedStock: 3,
+            price: 1,
+          })
+        ).status,
+        404,
+      );
+      assert.equal(
+        db.prepare("SELECT name FROM platform_products WHERE id=?").get(pb)
+          .name,
+        "B",
+      );
+    },
+  );
+  function fileForm() {
+    const f = new FormData();
+    f.set("file", new Blob([png], { type: "image/png" }), "fixture.png");
+    return f;
+  }
+  await t.test(
+    "quota enforced server-side under simultaneous uploads; lowering quota deletes nothing",
+    async () => {
+      await owner.call("/owner/shops/" + aid, "PATCH", {
+        storageBytes: png.length * 2,
+      });
+      const r = await Promise.all([
+        a.call("/shops/" + aid + "/files", "POST", fileForm()),
+        a.call("/shops/" + aid + "/files", "POST", fileForm()),
+        a.call("/shops/" + aid + "/files", "POST", fileForm()),
+      ]);
+      assert.deepEqual(r.map((x) => x.status).sort(), [201, 201, 413]);
+      const s = (await a.call("/shops/" + aid)).data;
+      assert.equal(s.limits.usedBytes, png.length * 2);
+      await owner.call("/owner/shops/" + aid, "PATCH", { storageBytes: 0 });
+      assert.equal(
+        (await a.call("/shops/" + aid + "/files", "POST", fileForm())).status,
+        413,
+      );
+      assert.equal((await a.call("/shops/" + aid)).data.files.length, 2);
+      assert.equal(
+        (await b.call("/shops/" + bid, "PATCH", { logoId: s.files[0].id }))
+          .status,
+        400,
+      );
+      await owner.call("/owner/shops/" + aid, "PATCH", { storageBytes: 10000 });
+    },
+  );
+  function orderForm(id, q = 2) {
+    const f = fileForm();
+    f.set("items", JSON.stringify([{ id, quantity: q, price: 1 }]));
+    f.set("customer", "Fixture");
+    f.set("phone", "fixture");
+    f.set("address", "fixture");
+    return f;
+  }
+  await t.test(
+    "public checkout uses server prices, rejects cross-shop products, retries once and keeps receipts private",
+    async () => {
+      await buyer.me();
+      const before = (await b.call("/shops/" + bid)).data.limits.usedBytes;
+      assert.equal(
+        (
+          await buyer.call("/store/bob-store/orders", "POST", orderForm(pa), {
+            "Idempotency-Key": cryptoKey(),
+          })
+        ).status,
+        409,
+      );
+      assert.equal(
+        (await b.call("/shops/" + bid)).data.limits.usedBytes,
+        before,
+      );
+      const key = cryptoKey();
+      const r = await Promise.all([
+        buyer.call("/store/bob-store/orders", "POST", orderForm(pb), {
+          "Idempotency-Key": key,
+        }),
+        buyer.call("/store/bob-store/orders", "POST", orderForm(pb), {
+          "Idempotency-Key": key,
+        }),
+      ]);
+      assert.deepEqual(r.map((x) => x.status).sort(), [200, 201]);
+      assert.equal(r[0].data.id, r[1].data.id);
+      assert.equal(r[0].data.total, 200);
+      order = r[0].data.id;
+      assert.equal(
+        db.prepare("SELECT stock FROM platform_products WHERE id=?").get(pb)
+          .stock,
+        1,
+      );
+      assert.equal(
+        (
+          await buyer.call(
+            "/store/bob-store/orders",
+            "POST",
+            orderForm(pb, 1),
+            { "Idempotency-Key": key },
+          )
+        ).status,
+        409,
+      );
+      const s = (await b.call("/shops/" + bid)).data;
+      receipt = s.orders[0].receipt_id;
+      assert.equal(
+        (await a.call("/shops/" + aid + "/receipts/" + receipt)).status,
+        400,
+      );
+      assert.equal(
+        (await buyer.call("/shops/" + bid + "/receipts/" + receipt)).status,
+        401,
+      );
+      assert.equal((await buyer.call("/images/" + receipt)).status, 404);
+      const privateResponse = await fetch(
+        base + "/api/platform/shops/" + bid + "/receipts/" + receipt,
+        { headers: { Cookie: b.cookie } },
+      );
+      assert.equal(privateResponse.status, 200);
+      assert.equal(
+        (
+          await a.call("/shops/" + aid + "/orders/" + order, "PATCH", {
+            status: "cancelled",
+            paymentStatus: "pending",
+          })
+        ).status,
+        404,
+      );
+    },
+  );
+  await t.test(
+    "cancellation once, stale edits and insufficient reopening are atomic",
+    async () => {
+      assert.equal(
+        (
+          await b.call("/shops/" + bid + "/products/" + pb, "PATCH", {
+            sku: "SAME-SKU",
+            name: "B",
+            price: 100,
+            stock: 10,
+            expectedStock: 3,
+          })
+        ).status,
+        409,
+      );
+      for (let n = 0; n < 2; n++)
+        assert.equal(
+          (
+            await b.call("/shops/" + bid + "/orders/" + order, "PATCH", {
+              status: "cancelled",
+              paymentStatus: "pending",
+            })
+          ).status,
+          200,
+        );
+      assert.equal(
+        db.prepare("SELECT stock FROM platform_products WHERE id=?").get(pb)
+          .stock,
+        3,
+      );
+      await b.call("/shops/" + bid + "/products/" + pb, "PATCH", {
+        sku: "SAME-SKU",
+        name: "B",
+        price: 100,
+        stock: 0,
+        expectedStock: 3,
+      });
+      assert.equal(
+        (
+          await b.call("/shops/" + bid + "/orders/" + order, "PATCH", {
+            status: "pending",
+            paymentStatus: "pending",
+          })
+        ).status,
+        409,
+      );
+      assert.equal(
+        db.prepare("SELECT status FROM platform_orders WHERE id=?").get(order)
+          .status,
+        "cancelled",
+      );
+    },
+  );
+  await t.test(
+    "expiry/permissions/suspension gate writes and selling while preserving reads/data",
+    async () => {
+      await owner.call("/owner/shops/" + bid, "PATCH", {
+        endsAt: "2020-01-01",
+      });
+      assert.equal((await b.call("/shops/" + bid)).status, 200);
+      assert.equal(
+        (await b.call("/shops/" + bid + "/products", "POST", { name: "new" }))
+          .status,
+        403,
+      );
+      assert.equal((await buyer.call("/store/bob-store")).status, 404);
+      assert.equal(
+        db
+          .prepare("SELECT COUNT(*) n FROM platform_orders WHERE shop_id=?")
+          .get(bid).n,
+        1,
+      );
+      await owner.call("/owner/shops/" + bid, "PATCH", { endsAt: null });
+      const plan = await owner.call("/owner/plans", "POST", {
+        name: "Read only",
+        storageBytes: 10000,
+        productLimit: 10,
+        permissions: {},
+      });
+      await owner.call("/owner/shops/" + bid, "PATCH", {
+        planId: plan.data.id,
+      });
+      assert.equal(
+        (
+          await b.call("/shops/" + bid + "/orders/" + order, "PATCH", {
+            status: "pending",
+            paymentStatus: "pending",
+          })
+        ).status,
+        403,
+      );
+      await owner.call("/owner/shops/" + bid, "PATCH", {
+        planId: 1,
+        status: "suspended",
+      });
+      assert.equal((await buyer.call("/store/bob-store")).status, 404);
+      await owner.call("/owner/shops/" + bid, "PATCH", { status: "active" });
+      const uid = (await b.me()).user.id;
+      await owner.call("/owner/users/" + uid, "PATCH", { status: "suspended" });
+      assert.equal((await b.call("/shops/" + bid)).status, 403);
+      assert.equal((await buyer.call("/store/bob-store")).status, 404);
+      await owner.call("/owner/users/" + uid, "PATCH", { status: "active" });
+      assert.equal((await b.call("/shops/" + bid)).status, 200);
+    },
+  );
+  await t.test(
+    "multi-product reopen rollback and shipped/completed cancellation preserve stock",
+    async () => {
+      await b.call("/shops/" + bid + "/products/" + pb, "PATCH", {
+        sku: "SAME-SKU",
+        name: "B",
+        price: 100,
+        stock: 3,
+        expectedStock: 0,
+      });
+      await b.call("/shops/" + bid + "/products", "POST", {
+        sku: "SECOND",
+        name: "Second",
+        price: 50,
+        stock: 1,
+      });
+      const second = (await b.call("/shops/" + bid)).data.products.find(
+        (p) => p.sku === "SECOND",
+      ).id;
+      const f = orderForm(pb, 1);
+      f.set(
+        "items",
+        JSON.stringify([
+          { id: pb, quantity: 1 },
+          { id: second, quantity: 1 },
+        ]),
+      );
+      const made = await buyer.call("/store/bob-store/orders", "POST", f, {
+        "Idempotency-Key": cryptoKey(),
+      });
+      assert.equal(made.status, 201);
+      const oid = made.data.id;
+      await b.call("/shops/" + bid + "/orders/" + oid, "PATCH", {
+        status: "cancelled",
+        paymentStatus: "pending",
+      });
+      await b.call("/shops/" + bid + "/products/" + second, "PATCH", {
+        sku: "SECOND",
+        name: "Second",
+        price: 50,
+        stock: 0,
+        expectedStock: 1,
+      });
+      assert.equal(
+        (
+          await b.call("/shops/" + bid + "/orders/" + oid, "PATCH", {
+            status: "confirmed",
+            paymentStatus: "paid",
+          })
+        ).status,
+        409,
+      );
+      assert.equal(
+        db.prepare("SELECT stock FROM platform_products WHERE id=?").get(pb)
+          .stock,
+        3,
+      );
+      await b.call("/shops/" + bid + "/products/" + second, "PATCH", {
+        sku: "SECOND",
+        name: "Second",
+        price: 50,
+        stock: 1,
+        expectedStock: 0,
+      });
+      assert.equal(
+        (
+          await b.call("/shops/" + bid + "/orders/" + oid, "PATCH", {
+            status: "confirmed",
+            paymentStatus: "paid",
+          })
+        ).status,
+        200,
+      );
+      assert.equal(
+        (
+          await b.call("/shops/" + bid + "/orders/" + oid, "PATCH", {
+            status: "shipped",
+            paymentStatus: "paid",
+          })
+        ).status,
+        200,
+      );
+      assert.equal(
+        (
+          await b.call("/shops/" + bid + "/orders/" + oid, "PATCH", {
+            status: "cancelled",
+            paymentStatus: "paid",
+          })
+        ).status,
+        409,
+      );
+      await b.call("/shops/" + bid + "/orders/" + oid, "PATCH", {
+        status: "completed",
+        paymentStatus: "paid",
+      });
+      assert.equal(
+        (
+          await b.call("/shops/" + bid + "/orders/" + oid, "PATCH", {
+            status: "pending",
+            paymentStatus: "paid",
+          })
+        ).status,
+        409,
+      );
+    },
+  );
+  await t.test(
+    "invalid image never consumes quota and owner subject binding cannot be replaced",
+    async () => {
+      const before = (await a.call("/shops/" + aid)).data.limits.usedBytes;
+      const f = new FormData();
+      f.set(
+        "file",
+        new Blob(["not an image"], { type: "image/png" }),
+        "fake.png",
+      );
+      assert.equal(
+        (await a.call("/shops/" + aid + "/files", "POST", f)).status,
+        400,
+      );
+      assert.equal(
+        (await a.call("/shops/" + aid)).data.limits.usedBytes,
+        before,
+      );
+      const impostor = model.identity(
+        db,
+        {
+          sub: "other-owner-subject",
+          email: "owner@gmail.com",
+          email_verified: true,
+        },
+        "owner@gmail.com",
+      );
+      assert.equal(model.isOwner(db, impostor, "owner@gmail.com"), false);
+    },
+  );
+  await t.test(
+    "release is owner-only; existing GearHub rows are untouched and migration repeats safely",
+    async () => {
+      assert.equal(
+        (
+          await owner.call("/owner/release", "POST", {
+            version: "1.1.0",
+            notes: "Fixture update",
+          })
+        ).status,
+        200,
+      );
+      assert.equal((await a.me()).release.version, "1.1.0");
+      model.migrate(db);
+      assert.equal(
+        db.prepare("SELECT stock FROM products WHERE id=99").get().stock,
+        12,
+      );
+      assert.equal(db.prepare("SELECT COUNT(*) n FROM orders").get().n, 1);
+      assert.equal(
+        db.prepare("SELECT COUNT(*) n FROM platform_shops WHERE legacy=1").get()
+          .n,
+        1,
+      );
+    },
+  );
+  function cryptoKey() {
+    return require("node:crypto").randomUUID();
+  }
+});

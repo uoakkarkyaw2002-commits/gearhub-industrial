@@ -115,7 +115,7 @@ function openCheckout(){closeCart();if(!Object.keys(cart).length)return;$("bank-
 $("checkout-close").onclick=()=>$("checkout-modal").classList.remove("open");$("checkout-modal").addEventListener("click",e=>{if(e.target.id==="checkout-modal")e.currentTarget.classList.remove("open")});
 $("checkout-form").addEventListener("submit",async e=>{
  e.preventDefault();const form=e.currentTarget;const button=e.submitter||form.querySelector('button[type="submit"]');
- if(button.disabled)return;button.disabled=true;$("checkout-message").className="";$("checkout-message").textContent=tr("submittingOrder");
+ if(button.disabled)return;window.__gearhubCheckoutPending=true;button.disabled=true;$("checkout-message").className="";$("checkout-message").textContent=tr("submittingOrder");
  try{
   const f=new FormData(form);const items=Object.entries(cart).map(([id,quantity])=>({id:Number(id),quantity:Number(quantity)}));f.set("items",JSON.stringify(items));f.set("language",lang);
   const receipt=f.get("receipt"),signature=JSON.stringify({fields:[...f.entries()].filter(([key])=>key!=="receipt"),receipt:receipt?{name:receipt.name,size:receipt.size,lastModified:receipt.lastModified}:null});
@@ -124,7 +124,7 @@ $("checkout-form").addEventListener("submit",async e=>{
   const r=await fetch("/api/orders",{method:"POST",headers:{"Idempotency-Key":request.key},body:f});const data=await r.json();if(!r.ok)throw new Error(data.error||"Order failed");
   try{sessionStorage.removeItem("gh-order-request")}catch{}
   cart={};saveCart();form.reset();$("checkout-modal").classList.remove("open");notifyOrderPlaced(data.order.orderCode);toast(`${tr("orderSuccess")} · ${tr("orderId")}: ${data.order.orderCode}`);
- }catch(err){$("checkout-message").className="error";$("checkout-message").textContent=err.message}finally{button.disabled=false}
+ }catch(err){$("checkout-message").className="error";$("checkout-message").textContent=err.message}finally{button.disabled=false;window.__gearhubCheckoutPending=false}
 });
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),2500)}
 function notifyOrderPlaced(orderCode){if(localStorage.getItem("gh-notifications")!=="on"||!window.Notification||Notification.permission!=="granted")return;const title=tr("orderSuccess"),body=`${tr("orderId")}: ${orderCode}`;if("serviceWorker"in navigator)navigator.serviceWorker.ready.then(registration=>registration.showNotification(title,{body,icon:"/icons/apple-touch-icon.png",badge:"/icons/apple-touch-icon.png"})).catch(()=>new Notification(title,{body}));else new Notification(title,{body})}

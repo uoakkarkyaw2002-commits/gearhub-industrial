@@ -65,3 +65,14 @@ GitHub Actions runs Node 22 `npm ci`, `npm run check` and `npm test` for pushes
 and pull requests to main. These checks use temporary fixture databases and
 mock delivery providers; they do not need production secrets or send real email.
 See `LAUNCH_CHECKLIST.md` for owner-supplied content and deployment gates.
+
+## Multi-store development preview
+
+See [MULTI_STORE_REVIEW.md](MULTI_STORE_REVIEW.md) for the opt-in data model,
+Google setup, tenant boundaries, quota/subscription rules, staged migration and
+rollback plan. `PLATFORM_ENABLED` defaults off. Do not deploy/migrate production
+from this development preview without owner review.
+
+With Node 22, `npm run demo:platform` starts a localhost-only disposable owner /
+alice / bob fixture dashboard at http://127.0.0.1:8870/platform.html. This demo is
+not real Google authentication and never reads production DATA_DIR.

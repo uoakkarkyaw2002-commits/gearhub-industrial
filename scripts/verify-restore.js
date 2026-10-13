@@ -19,6 +19,11 @@ function verifyRestore(directory){
   for(const row of db.prepare('SELECT settings_json FROM site_settings').all())collect(JSON.parse(row.settings_json));
   for(const name of uploadNames)if(!present('uploads',name))missingUploads++;
   for(const row of db.prepare("SELECT receipt_path FROM orders WHERE receipt_path<>''").all())if(!present('receipts',row.receipt_path))missingReceipts++;
+  if(tables.has('platform_files'))for(const row of db.prepare('SELECT shop_id,filename FROM platform_files WHERE ready=1').all()){
+   if(!Number.isInteger(row.shop_id)||row.filename!==path.basename(row.filename))throw Error('Invalid tenant media reference.');
+   const dir=path.join(root,'platform-media',String(row.shop_id)),target=path.join(dir,row.filename);
+   try{if(fs.lstatSync(path.join(root,'platform-media')).isSymbolicLink()||fs.lstatSync(dir).isSymbolicLink()||!fs.lstatSync(target).isFile()||fs.lstatSync(target).isSymbolicLink())throw Error();}catch{throw Error('Backup references missing or unsafe tenant media.');}
+  }
   if(missingUploads||missingReceipts)throw Error(`Backup references missing media: ${missingUploads} uploads, ${missingReceipts} receipts.`);
   return {ok:true,manifest,products:db.prepare('SELECT COUNT(*) n FROM products').get().n,orders:db.prepare('SELECT COUNT(*) n FROM orders').get().n,sessionsToInvalidate:db.prepare('SELECT COUNT(*) n FROM sessions').get().n,resetCodesToInvalidate:db.prepare('SELECT COUNT(*) n FROM password_reset_codes').get().n};
  }finally{db?.close();fs.rmSync(temp,{recursive:true,force:true});}

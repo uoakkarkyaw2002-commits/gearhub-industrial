@@ -1,7 +1,7 @@
-const CACHE_NAME = "gearhub-shell-v45";
-const SHELL = ["/desktop.css?v=20261013-1", "/", "/style.css?v=20261012-20", "/site-content.js?v=20261012-review-1", "/store.js?v=20261012-review-1", "/app-install.js?v=20261012-4", "/settings.js?v=20261012-3", "/dialogs.js?v=20261012-1", "/footer.js?v=20261012-1", "/images/hero-excavator.jpg", "/app.webmanifest", "/app-icon.png", "/icons/icon.svg", "/icons/apple-touch-icon.png"];
+const CACHE_NAME = "gearhub-shell-v46";
+const SHELL = ["/updates.js?v=20261013-platform-1", "/desktop.css?v=20261013-1", "/", "/style.css?v=20261012-20", "/site-content.js?v=20261012-review-1", "/store.js?v=20261013-platform-1", "/app-install.js?v=20261013-platform-1", "/settings.js?v=20261012-3", "/dialogs.js?v=20261012-1", "/footer.js?v=20261012-1", "/images/hero-excavator.jpg", "/app.webmanifest", "/app-icon.png", "/icons/icon.svg", "/icons/apple-touch-icon.png"];
 self.addEventListener("install", event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL)));
 });
 self.addEventListener("activate", event => {
   event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith("gearhub-shell-") && key !== CACHE_NAME).map(key => caches.delete(key)))).then(() => self.clients.claim()));
@@ -31,6 +31,7 @@ self.addEventListener("fetch", event => {
 });
 
 self.addEventListener("message", event => {
+ if(event.data?.type === "APPLY_UPDATE"){self.skipWaiting();return;}
  if(event.data?.type !== "SAVE_OFFLINE") return;
  event.waitUntil((async () => {
   try {
