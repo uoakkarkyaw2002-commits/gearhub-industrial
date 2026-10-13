@@ -242,7 +242,7 @@ if(process.env.PLATFORM_ENABLED==='true'){
 app.get('/api/app-release', (_req,res)=>{
  res.set('Cache-Control','no-store');
  const enabled=process.env.PLATFORM_ENABLED==='true';
- res.json({... (enabled?require('./lib/platform-model').release(db):{version:'1.0.0',notes:'GearHub web app'}),platformEnabled:enabled});
+ res.json({... (enabled?require('./lib/platform-model').release(db):require('./lib/app-release').effectiveRelease(null)),platformEnabled:enabled});
 });
 // Periodically prune expired sessions without requiring an external service.
 setInterval(() => {

@@ -61,6 +61,10 @@ test("update saves non-password drafts, retains cart, and blocks pending orders/
   assert.equal(await window.GearHubUpdates.apply(), false);
   assert.equal(reloads, 1);
   window.__gearhubCheckoutPending = false;
+  window.__gearhubPlatformPending=true;
+  assert.equal(await window.GearHubUpdates.apply(),false);
+  assert.equal(reloads,1);
+  window.__gearhubPlatformPending=false;
   file.files = [{}];
   assert.equal(window.GearHubUpdates.blocked(), true);
 });

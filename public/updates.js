@@ -47,7 +47,7 @@
   }
   function blocked() {
     return (
-      window.__gearhubCheckoutPending ||
+      window.__gearhubCheckoutPending || window.__gearhubPlatformPending ||
       [...document.querySelectorAll("form button")].some(
         (e) => e.disabled && e.dataset.busy === "true",
       ) ||

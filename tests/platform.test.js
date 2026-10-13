@@ -627,8 +627,9 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
     },
   );
   await t.test(
-    "release is owner-only; existing GearHub rows are untouched and migration repeats safely",
+    "release is owner-only and matches deployed version; existing GearHub rows survive repeat migration",
     async () => {
+      assert.equal((await owner.call("/owner/release","POST",{version:"9.9.9",notes:"Undeployed"})).status,409);
       assert.equal(
         (
           await owner.call("/owner/release", "POST", {
