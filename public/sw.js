@@ -1,4 +1,4 @@
-const CACHE_NAME = "gearhub-shell-v47-1.1.1";
+const CACHE_NAME = "gearhub-shell-v48-1.1.2";
 const SHELL = ["/tenant-store.js","/updates.js?v=20261013-platform-1", "/desktop.css?v=20261013-1", "/", "/style.css?v=20261012-20", "/site-content.js?v=20261012-review-1", "/store.js?v=20261013-platform-1", "/app-install.js?v=20261013-platform-1", "/settings.js?v=20261012-3", "/dialogs.js?v=20261012-1", "/footer.js?v=20261012-1", "/images/hero-excavator.jpg", "/app.webmanifest", "/app-icon.png", "/icons/icon.svg", "/icons/apple-touch-icon.png"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL)));
@@ -9,7 +9,7 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   const request = event.request;
   const url = new URL(request.url);
-  if (request.method !== "GET" || url.origin !== self.location.origin || url.pathname.startsWith("/api/") || url.pathname.startsWith("/admin")) return;
+  if (request.method !== "GET" || url.origin !== self.location.origin || url.pathname.startsWith("/api/") || url.pathname.startsWith("/admin") || /^\/shops\/[^/]+\/admin\/?$/.test(url.pathname)) return;
   if (request.mode === "navigate") {
     event.respondWith(fetch(request).then(response => {
       if (response.ok) caches.open(CACHE_NAME).then(cache => cache.put(url.pathname === "/" ? "/" : request.url, response.clone()));
