@@ -1,0 +1,11 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+function fixture({uploadFails=false,saveFails=false}={}){
+ const source=fs.readFileSync(require.resolve('../public/admin.js'),'utf8');const start=source.indexOf('async function saveProductFormInternal('),end=source.indexOf('const productForm=',start);
+ const image={files:[{name:'photo.png'}]},urls={value:''};Object.defineProperty(image,'value',{set:()=>image.files=[]});const form={elements:{namedItem:name=>name==='images'?image:urls},reset:()=>{}};
+ let uploads=0,saves=0,message='';class FormData{constructor(form){this.form=form}*entries(){yield ['nameEn','Fixture'];yield ['sku','FIXTURE'];yield ['price','10'];yield ['stock','1'];}append(){}}
+ const context={window:{GearHubTenantAdmin:{}},FormData,editingProductId:null,editingStock:null,selectedCoverKey:'',getProductImageUrls:()=>urls.value?urls.value.split('\n'):[],importDriveUrls:async urls=>urls,optimizeImage:async f=>f,renderProductCoverOptions(){},refreshAll:async()=>{},msg:(_id,text)=>message=text,toast(){},adminFetch:async()=>{uploads++;if(uploadFails)throw Error('Failed to fetch');return {ok:true,json:async()=>({imageUrls:['/api/platform/images/fixture-photo']})};},api:async()=>{saves++;if(saveFails)throw Error('Failed to fetch');}};
+ vm.createContext(context);vm.runInContext(source.slice(start,end)+';this.save=saveProductFormInternal',context);
+ return {form,image,urls,run:()=>context.save(form),state:()=>({uploads,saves,message}),succeed:()=>saveFails=false};
+}
+test('upload network failure preserves input and identifies the failed stage',async()=>{const f=fixture({uploadFails:true});await f.run();assert.equal(f.image.files.length,1);assert.equal(f.state().saves,0);assert.match(f.state().message,/Photo upload request/);});
+test('successful upload survives a later save failure without uploading twice on manual retry',async()=>{const f=fixture({saveFails:true});await f.run();assert.equal(f.urls.value,'/api/platform/images/fixture-photo');assert.equal(f.image.files.length,0);assert.match(f.state().message,/Check the inventory/);f.succeed();await f.run();assert.equal(f.state().uploads,1);assert.equal(f.state().saves,2);});
