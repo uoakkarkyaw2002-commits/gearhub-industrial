@@ -1,4 +1,5 @@
 (() => {
+  if(location.pathname==="/admin.html")return;
   const draftKey = "gh-update-draft:" + location.pathname;
   let registration,
     release,
@@ -9,6 +10,7 @@
     );
   }
   function saveDraft() {
+    window.GearHubTenantAdmin?.saveCategories?.();
     const entries = fields().map((e) => ({
       form: e.form?.id || "",
       name: e.name,
@@ -20,6 +22,7 @@
     sessionStorage.setItem(draftKey, JSON.stringify(entries));
   }
   function restore() {
+    if(window.GearHubTenantAdmin&&!window.GearHubTenantAdmin.draftReady)return;
     let entries;
     try {
       entries = JSON.parse(sessionStorage.getItem(draftKey) || "null");

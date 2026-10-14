@@ -237,6 +237,10 @@ app.use(session({
 if(process.env.PLATFORM_ENABLED==='true'){
  const {createPlatform}=require('./lib/platform');
  app.use('/api/platform',createPlatform({db,dataDir,publicOrigin}));
+ app.get('/shops/:slug/admin', (req,res)=>{
+  res.set({'Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow, noarchive'});
+  res.sendFile(path.join(__dirname,'public','admin.html'));
+ });
  app.get('/shops/:slug', (req,res)=>req.params.slug==='gearhub'?res.redirect('/'):res.sendFile(path.join(__dirname,'public','index.html')));
 }
 app.get('/api/app-release', (_req,res)=>{

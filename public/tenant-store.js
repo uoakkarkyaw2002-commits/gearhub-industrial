@@ -16,10 +16,11 @@
   function configFor(s){
     const b=s.settings||{},ready=Boolean(b.bankName&&b.bankAccountName&&b.bankAccountNumber);
     const image=b.logoId?location.origin+'/api/platform/images/'+encodeURIComponent(b.logoId):'';
-    return {bankName:ready?b.bankName:'',bankAccountName:ready?b.bankAccountName:'',bankAccountNumber:ready?b.bankAccountNumber:'',paymentInstructions:ready?b.paymentInstructions:'',site:{brandName:s.name,brandTagline:b.description||'',siteTitle:s.name,logoUrl:image,supportEmail:b.email||'',translations:{en:{heroTitle:s.name,heroText:b.description||'Browse our products.',footer:b.description||'Contact this shop for product information.',footerLocation:b.address||'Address not configured',footerHours:'',promotionText:'Contact this shop for current offers.'},my:{heroTitle:s.name,heroText:b.description||'ပစ္စည်းများ ကြည့်ရှုပါ။',footer:b.description||'ပစ္စည်းအကြောင်း ဆိုင်ကို ဆက်သွယ်ပါ။',footerLocation:b.address||'လိပ်စာ မသတ်မှတ်ရသေးပါ။',footerHours:'',promotionText:'လက်ရှိကမ်းလှမ်းချက်များအတွက် ဆိုင်ကို ဆက်သွယ်ပါ။'}}}};
+    const result={bankName:ready?b.bankName:'',bankAccountName:ready?b.bankAccountName:'',bankAccountNumber:ready?b.bankAccountNumber:'',paymentInstructions:ready?b.paymentInstructions:'',site:{brandName:s.name,brandTagline:b.description||'',siteTitle:s.name,logoUrl:image,supportEmail:b.email||'',translations:{en:{heroTitle:s.name,heroText:b.description||'Browse our products.',footer:b.description||'Contact this shop for product information.',footerLocation:b.address||'Address not configured',footerHours:'',promotionText:'Contact this shop for current offers.'},my:{heroTitle:s.name,heroText:b.description||'ပစ္စည်းများ ကြည့်ရှုပါ။',footer:b.description||'ပစ္စည်းအကြောင်း ဆိုင်ကို ဆက်သွယ်ပါ။',footerLocation:b.address||'လိပ်စာ မသတ်မှတ်ရသေးပါ။',footerHours:'',promotionText:'လက်ရှိကမ်းလှမ်းချက်များအတွက် ဆိုင်ကို ဆက်သွယ်ပါ။'}}}};
+    const a=b.appearance||{};result.site={...result.site,...a,translations:{en:{...result.site.translations.en,...a.translations?.en},my:{...result.site.translations.my,...a.translations?.my}}};return result;
   }
   function prepare(s){
-    document.querySelectorAll('a[href^="/admin.html"]').forEach(a=>a.href='/platform.html#shop');
+    document.querySelectorAll('a[href^="/admin.html"]').forEach(a=>a.href='/shops/'+encodeURIComponent(slug)+'/admin');
     document.querySelectorAll('.settings-verified,.footer-features,[data-i18n="footerHours"]').forEach(e=>e.remove());
     const word=document.querySelector('.footer-wordmark');if(word)word.textContent=s.name;
     const fallback=document.querySelector('.footer-logo-fallback b');if(fallback)fallback.textContent=s.name;
@@ -35,12 +36,12 @@
       try{
         if(url==='/api/products'){
           const s=await load();prepare(s);
-          return json(s.products.map(p=>({...p,name_en:p.name,name_my:p.name,category_en:p.category,category_my:p.category,description_en:p.description,description_my:p.description,image_emoji:'⚙',imageUrls:p.image_id?['/api/platform/images/'+encodeURIComponent(p.image_id)]:[]})));
+          return json(s.products.map(p=>{const d=JSON.parse(p.details||'{}');return {...p,name_en:p.name,name_my:d.nameMy||p.name,category_en:p.category,category_my:d.categoryMy||p.category,description_en:p.description,description_my:d.descriptionMy||p.description,image_emoji:d.imageEmoji||'⚙',imageUrls:(d.imageIds||[p.image_id].filter(Boolean)).map(id=>'/api/platform/images/'+encodeURIComponent(id))};}));
         }
         if(url==='/api/categories'){
           const s=snapshot||await load();
           const names=[...new Set(s.products.map(p=>p.category).filter(Boolean))];
-          return json(names.map((name,i)=>({id:i+1,parent_id:null,category_en:name,category_my:name,product_count:s.products.filter(p=>p.category===name).length,icon:'⚙'})));
+          const rows=(s.settings.categories||[]).map(c=>({...c}));for(const name of names)if(!rows.some(c=>c.category_en===name))rows.push({id:Math.max(0,...rows.map(c=>c.id))+1,category_en:name,category_my:name,icon:'⚙'});return json(rows.map(c=>({...c,parent_id:rows.find(p=>p.category_en===c.parent_en)?.id||null,product_count:s.products.filter(p=>p.category===c.category_en).length})));
         }
         if(url==='/api/config'){const s=snapshot||await load();prepare(s);return json(configFor(s));}
         if(url==='/api/storage'){

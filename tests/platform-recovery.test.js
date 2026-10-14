@@ -11,3 +11,17 @@ test('additive migration, repeat migration, tenant backup/restore and non-destru
  assert.equal(fs.readFileSync(path.join(restored,'platform-media','2','fixture.png'),'utf8'),'fixture-media');assert.equal(legacy(),before);
  assert.equal(db.prepare('SELECT count(*) n FROM platform_shops').get().n,2);
 });
+
+test('admin metadata migration upgrades pre-parity tenant rows once and old code still reads core data',t=>{
+ const db=new DB(':memory:');t.after(()=>db.close());model.migrate(db);
+ db.exec("ALTER TABLE platform_products DROP COLUMN details;ALTER TABLE platform_orders DROP COLUMN details;INSERT INTO platform_products(shop_id,sku,name,price,stock,image_id) VALUES(1,'OLD','Existing product',123,8,NULL);");
+ const before=db.prepare('SELECT id,shop_id,sku,name,price,stock,image_id FROM platform_products').all();
+ model.migrate(db);model.migrate(db);
+ assert.deepEqual(db.prepare('SELECT id,shop_id,sku,name,price,stock,image_id FROM platform_products').all(),before);
+ assert.equal(db.prepare('SELECT details FROM platform_products').get().details,'{}');
+ assert.equal(db.prepare('PRAGMA table_info(platform_products)').all().filter(c=>c.name==='details').length,1);
+ assert.equal(db.pragma('integrity_check',{simple:true}),'ok');
+ // Rollback is code-only: extra columns are harmless to old explicit queries.
+ db.prepare("UPDATE platform_products SET stock=stock-1 WHERE id=?").run(before[0].id);
+ assert.equal(db.prepare('SELECT stock FROM platform_products WHERE id=?').get(before[0].id).stock,7);
+});

@@ -79,7 +79,7 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
       const c = r.headers.get("set-cookie");
       if (c) this.cookie = c.split(";")[0];
       const data = r.status === 302 ? null : await r.json();
-      return { status: r.status, data };
+      return { status: r.status, data, location:r.headers.get("location") };
     }
     async me() {
       const r = await this.call("/me");
@@ -225,6 +225,44 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
 
     },
   );
+  await t.test("shared admin metadata stays scoped, validates photos and categories, and survives migration replay",async()=>{
+    const endpoint='/shops/'+aid;
+    assert.equal((await a.login('alice')).location,'/shops/alice-store/admin');
+    assert.equal((await b.call(endpoint+'/export')).status,404);
+    assert.equal((await a.call(endpoint+'/export')).data.shop.slug,'alice-store');
+    assert.equal((await b.call(endpoint+'/categories')).status,404);
+    assert.equal((await b.call(endpoint+'/appearance','PUT',{})).status,404);
+    assert.equal((await a.call(endpoint+'/categories','PUT',{categories:[{category_en:'Tools',category_my:'Tools'},{category_en:'Parts',category_my:'Parts',parent_en:'Tools'}]})).status,200);
+    const cats=(await a.call(endpoint+'/categories')).data;
+    assert.equal(cats[1].parent_id,cats[0].id);
+    assert.deepEqual((await b.call('/shops/'+bid+'/categories')).data,[]);
+    assert.equal((await a.call(endpoint+'/categories','PUT',{categories:[{category_en:'Same'},{category_en:'same'}]})).status,400);
+    assert.equal((await a.call(endpoint+'/categories','PUT',{categories:[{category_en:'Cycle',parent_en:'Cycle'}]})).status,400);
+    const appearance={brandName:'Only Alice',siteTitle:'Alice',colors:{brand:'#123456',accent:'#123456',page:'#ffffff',hero:'#123456'},translations:{en:{heroTitle:'Alice only'},my:{}},layout:{hero:{enabled:true,padding:30}}};
+    assert.equal((await a.call(endpoint+'/appearance','PUT',appearance)).status,200);
+    assert.equal((await a.call('/store/alice-store')).data.settings.appearance.brandName,'Only Alice');
+    assert.equal((await b.call('/store/bob-store')).data.settings.appearance,undefined);
+    assert.equal((await a.call(endpoint+'/appearance','PUT',{...appearance,logoUrl:'/uploads/other.jpg'})).status,400);
+    const file=new FormData();file.append('file',new Blob([png],{type:'image/png'}),'photo.png');
+    const own=(await a.call(endpoint+'/files','POST',file)).data.id;
+    const other=new FormData();other.append('file',new Blob([png],{type:'image/png'}),'photo.png');
+    const foreign=(await b.call('/shops/'+bid+'/files','POST',other)).data.id;
+    assert.equal((await a.call(endpoint+'/appearance','PUT',{...appearance,logoUrl:'/api/platform/images/'+foreign})).status,400);
+    assert.equal((await a.call(endpoint+'/appearance','PUT',{...appearance,logoUrl:'/api/platform/images/'+own})).status,200);
+    assert.equal((await a.call(endpoint+'/files/'+own,'DELETE')).status,409);
+    assert.equal((await a.call(endpoint+'/products','POST',{name:'Photo test',sku:'PHOTO',stock:1,price:10,imageIds:[foreign]})).status,400);
+    assert.equal((await a.call(endpoint+'/appearance','PUT',appearance)).status,200);
+    assert.equal((await a.call(endpoint+'/files/'+own,'DELETE')).status,200);
+    assert.equal((await b.call('/shops/'+bid+'/files/'+foreign,'DELETE')).status,200);
+    const before=db.prepare('SELECT settings FROM platform_shops WHERE id=?').get(aid).settings;
+    model.migrate(db);model.migrate(db);assert.equal(db.prepare('SELECT settings FROM platform_shops WHERE id=?').get(aid).settings,before);
+    assert.equal(db.prepare('SELECT stock FROM products WHERE id=99').get().stock,12);
+    db.prepare("UPDATE platform_shops SET ends_at='2000-01-01' WHERE id=?").run(aid);
+    assert.equal((await a.call(endpoint+'/appearance','PUT',appearance)).status,403);
+    assert.equal((await a.call(endpoint+'/categories','PUT',{categories:[]})).status,403);
+    assert.equal((await a.call(endpoint+'/appearance')).status,200);
+    db.prepare('UPDATE platform_shops SET ends_at=? WHERE id=?').run(model.addCalendarMonths(new Date().toISOString(),2),aid);
+  });
   await t.test(
     "each shop scopes settings/products and cannot read or mutate another shop",
     async () => {
@@ -655,13 +693,13 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
       assert.equal(
         (
           await owner.call("/owner/release", "POST", {
-            version: "1.1.1",
+            version: "1.1.2",
             notes: "Fixture update",
           })
         ).status,
         200,
       );
-      assert.equal((await a.me()).release.version, "1.1.1");
+      assert.equal((await a.me()).release.version, "1.1.2");
       model.migrate(db);
       assert.equal(
         db.prepare("SELECT stock FROM products WHERE id=99").get().stock,

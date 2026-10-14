@@ -6,5 +6,5 @@ for(const file of files){const result=spawnSync(process.execPath,['--check',path
 for(const file of ['package.json','package-lock.json','public/manifest.webmanifest'])JSON.parse(fs.readFileSync(path.join(root,file),'utf8'));
 const pkg=JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8')),lock=JSON.parse(fs.readFileSync(path.join(root,'package-lock.json'),'utf8'));if(JSON.stringify(pkg.dependencies)!==JSON.stringify(lock.packages[''].dependencies))throw Error('Package dependencies and lockfile root differ.');
 if(pkg.version!==lock.version||pkg.version!==lock.packages[''].version)throw Error('Build version and lockfile differ.');
-if(!fs.readFileSync(path.join(root,'public/sw.js'),'utf8').includes('gearhub-shell-v47-'+pkg.version))throw Error('Worker cache generation must match the installed build version.');
+if(!fs.readFileSync(path.join(root,'public/sw.js'),'utf8').includes('gearhub-shell-v48-'+pkg.version))throw Error('Worker cache generation must match the installed build version.');
 console.log(`Static validation passed: ${files.length} JavaScript files and 3 JSON files. No production secrets required.`);
