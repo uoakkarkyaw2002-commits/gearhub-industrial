@@ -163,7 +163,7 @@
       return false;
     }
   }
-  window.GearHubUpdates = { apply, restore, blocked };
+  window.GearHubUpdates = { apply, restore, blocked, saveDraft };
   navigator.serviceWorker?.addEventListener("controllerchange", () => {
     if (requested) location.reload();
   });
