@@ -187,3 +187,75 @@ section,
 article {
   max-width: 100%;
 }
+/* Reference-inspired application cards. Owner controls retain their existing UI. */
+#application:empty,#shop:empty,#owner:empty{display:none}
+body.onboarding{background:radial-gradient(ellipse at top,#f0f9f3 0%,#f7faf7 72%);font-family:system-ui,"Myanmar Sangam MN","Myanmar Text",sans-serif}
+.onboarding header{max-width:1040px;padding:24px 28px}
+.onboarding header>a{font-size:20px;font-weight:800;text-decoration:none;color:#16472e}
+.onboarding header h1{font-size:16px;font-weight:600;color:#69776f}
+.onboarding #logout{background:transparent;color:#16472e;border-color:#dbe5df;padding:8px 16px}
+.onboarding main{max-width:760px;padding:12px 24px 64px}
+.onboarding #application{padding:0;border:0;background:transparent;margin:0}
+.application-card{padding:40px;background:#fff;border:1px solid #edf3ee;border-radius:26px;box-shadow:0 14px 46px #16472e08}
+.application-progress{display:flex;list-style:none;padding:0;margin:0 0 48px;gap:0;color:#748078;font-size:12px;font-weight:600;text-align:center}
+.application-progress li{flex:1;position:relative;display:flex;align-items:center;flex-direction:column;gap:10px;min-width:0}
+.application-progress li:not(:last-child)::after{content:"";position:absolute;height:3px;left:calc(50% + 30px);right:calc(-50% + 30px);top:23px;background:#e2e8e4}
+.application-progress li.complete::after{background:#86c49a}
+.step-number{width:48px;height:48px;display:grid;place-items:center;flex:none;border-radius:50%;font-size:20px;background:#e8edea;color:#34453b;z-index:1}
+.current,.complete{color:#187c41}.current .step-number,.complete .step-number{color:#fff;background:#168345;box-shadow:inset 0 0 0 2px #16743e}
+.app-icon{width:24px;height:24px;flex:none;vertical-align:middle}
+.application-heading{display:flex;align-items:flex-start;gap:20px;margin-bottom:30px}
+.heading-icon{width:76px;height:76px;display:grid;place-items:center;background:#eaf7ee;border-radius:50%;color:#188144;flex:none}
+.heading-icon .app-icon{width:34px;height:34px}
+.application-card h2{font-size:25px;line-height:1.65;margin:0 0 12px;font-weight:750;letter-spacing:-.4px;color:#172d21}
+.application-card h2 span{font-size:24px}
+.application-intro{color:#738077;line-height:1.75;font-size:16px;margin:8px 0 0}
+.application-form{border:0;padding:0;margin:0;background:transparent;border-radius:0}
+.application-form label{font-size:16px;line-height:1.7;font-weight:650;margin:24px 0 0}
+.application-field{display:flex;align-items:stretch;border:1px solid #dce3e0;border-radius:12px;margin-top:9px;overflow:hidden;background:#fff;box-shadow:0 1px 2px #19342603}
+.application-field>.app-icon{box-sizing:content-box;width:23px;height:23px;padding:18px 16px;color:#63726a;background:#f8faf9;border-right:1px solid #e5eae7;align-self:stretch;min-height:24px}
+.application-field input,.application-field textarea{font-size:16px;border:0;border-radius:0;min-width:0;flex:1;padding:16px 18px;line-height:1.7;outline:none;background:transparent}
+.application-field:focus-within{outline:3px solid #d3eadb;border-color:#27864b}
+.application-field input::placeholder,.application-field textarea::placeholder{color:#99a39d;opacity:1;font-weight:400}
+.application-form small{display:block;font-weight:400;font-size:12px;color:#829087;margin:8px 0 0}
+.readonly-field{background:#f7faf8;color:#617368}
+.application-field textarea{min-height:150px;resize:vertical}
+.textarea-field>.app-icon{height:24px;align-self:flex-start;background:transparent}
+.required-mark{color:#d24740}.optional-label{font-size:12px;color:#7a897f;font-weight:400}
+.application-counter{text-align:right;margin:6px 0 22px;font-size:13px;color:#8a978e}
+.application-primary{display:flex;justify-content:center;align-items:center;gap:12px;width:100%;padding:17px 18px;background:#12432d;border:1px solid #0b3622;color:#fff;border-radius:12px;margin:20px 0 0;text-decoration:none;font-size:16px;font-weight:650;line-height:1.8;text-align:center;transition:background .15s}
+.application-primary:hover{background:#0b3522}.application-primary:disabled{cursor:wait;opacity:.55}
+.application-help{text-align:center;color:#849086;font-size:12px;line-height:1.8;margin:16px 0 0}
+.pending-card,.approved-card{text-align:center}
+.application-badge{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:12px;background:#eef8f1;padding:7px 12px;border-radius:30px;color:#237445;margin:10px 0 20px}
+.application-badge .app-icon{width:18px;height:18px}
+.application-next{display:flex;gap:16px;background:#eff8f1;border-radius:16px;padding:22px;text-align:left;margin:28px 0;color:#64756a}
+.next-icon{display:grid;place-items:center;align-self:flex-start;width:40px;height:40px;border-radius:50%;background:#e0f3e5;color:#178142;flex:none}
+.application-next h3{font-size:16px;line-height:1.7;margin:0 0 10px;color:#203b2a}
+.application-next ol{padding-left:20px;margin:0;font-size:14px;line-height:1.9}
+.application-next li+li{margin-top:8px}
+.submitted-art{width:180px;height:180px;position:relative;margin:0 auto 22px;border-radius:50%;background:radial-gradient(circle,#e6f4ea,#f3faf5)}
+.art-envelope{position:absolute;width:118px;height:74px;left:31px;top:77px;background:linear-gradient(35deg,#159b50 49%,#1ca458 50%);border-radius:9px;box-shadow:0 6px 12px #14803d0c}
+.art-envelope::before{content:"";position:absolute;width:86px;height:86px;background:#b9dfc6;transform:rotate(45deg);left:16px;top:-39px;clip-path:polygon(0 0,100% 0,0 100%)}
+.art-paper{position:absolute;width:92px;height:84px;background:#d6ebdd;left:44px;top:45px;transform:rotate(-4deg);border-radius:5px}
+.art-paper::after{content:"";position:absolute;left:14px;bottom:20px;width:62px;height:6px;background:#aad5b9;box-shadow:0 -13px 0 #bddfca}
+.art-mark{position:absolute;left:84px;top:35px;width:58px;height:58px;background:#179341;box-shadow:0 0 0 6px #d7eddf;border-radius:50%;display:grid;place-items:center;color:#fff}
+.art-mark .app-icon{width:33px;height:33px;stroke-width:3}
+.application-secondary{display:flex;justify-content:center;align-items:center;gap:12px;padding:16px;color:#17693c;font-weight:600;text-decoration:none;margin-top:12px}
+.approval-dates{display:grid;grid-template-columns:1fr 1fr;background:#f2f8f4;padding:18px;border-radius:14px;margin:28px 0;gap:12px;color:#75867b;font-size:13px}
+.approval-dates strong{display:block;color:#23452e;font-size:17px;margin-top:5px}
+.application-rejected{text-align:left;color:#804838;border:1px solid #ead8cc;border-radius:12px;background:#fff8f1;font-size:14px;padding:16px}
+.login-application{text-align:center}.login-application>.heading-icon{margin:0 auto 24px}
+.onboarding #message{margin-top:0;font-size:14px}
+@media(max-width:600px){
+ .onboarding header{padding:16px;gap:10px}.onboarding header h1{font-size:12px;flex:1}.onboarding header>a{font-size:17px}
+ .onboarding main{padding:8px 12px 36px}.application-card{padding:24px 18px;border-radius:22px}
+ .application-progress{margin-bottom:30px;font-size:10px}.step-number{width:40px;height:40px;font-size:17px}
+ .application-progress li:not(:last-child)::after{top:19px;left:calc(50% + 25px);right:calc(-50% + 25px)}
+ .application-heading{gap:12px;margin-bottom:24px}.heading-icon{width:52px;height:52px}.heading-icon .app-icon{width:26px;height:26px}
+ .application-card h2,.application-card h2 span{font-size:20px;letter-spacing:0}.application-intro{font-size:14px}
+ .application-form label{font-size:14px;margin-top:22px}.application-field>.app-icon{padding:17px 11px;width:20px;height:20px}
+ .application-field input,.application-field textarea{padding:14px 12px;font-size:15px}.application-primary{font-size:14px;padding:15px 10px;gap:8px}
+ .application-next{padding:18px 14px;gap:12px}.application-next h3{font-size:14px}.application-next ol{font-size:13px}
+ .submitted-art{width:180px;transform:scale(.9);margin-top:-5px;margin-bottom:8px}
+}
