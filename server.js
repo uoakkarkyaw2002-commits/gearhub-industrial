@@ -233,11 +233,11 @@ app.use(session({
  resave: false, saveUninitialized: false,
  cookie: { httpOnly: true, sameSite: "lax", secure: production, path: "/", maxAge: 1000 * 60 * 60 * 8 }
 }));
-// Opt-in development migration; legacy tables/routes remain unchanged.
+// Opt-in additive platform migration; legacy tables/routes remain unchanged.
 if(process.env.PLATFORM_ENABLED==='true'){
  const {createPlatform}=require('./lib/platform');
  app.use('/api/platform',createPlatform({db,dataDir,publicOrigin}));
- app.get('/shops/:slug', (req,res)=>req.params.slug==='gearhub'?res.redirect('/'):res.sendFile(path.join(__dirname,'public','platform-shop.html')));
+ app.get('/shops/:slug', (req,res)=>req.params.slug==='gearhub'?res.redirect('/'):res.sendFile(path.join(__dirname,'public','index.html')));
 }
 app.get('/api/app-release', (_req,res)=>{
  res.set('Cache-Control','no-store');

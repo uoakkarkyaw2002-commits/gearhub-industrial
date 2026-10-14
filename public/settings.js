@@ -56,7 +56,7 @@
     const label = byId("storage-usage"), meter = byId("storage-meter-fill");
     if (!label || !meter) return;
     try {
-      const response = await fetch("/api/storage", { cache: "no-store" });
+      const response = await (window.GearHubTenantStore ? window.GearHubTenantStore.fetch("/api/storage") : fetch("/api/storage", { cache: "no-store" }));
       if (!response.ok) throw new Error("Storage endpoint unavailable");
       const { usedBytes = 0, capacityBytes = 0, availableBytes = 0 } = await response.json();
       const used = formatBytes(usedBytes), capacity = formatBytes(capacityBytes), available = formatBytes(availableBytes);

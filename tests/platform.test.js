@@ -125,6 +125,28 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
       );
     },
   );
+  await t.test("name-only applications allocate unique URLs; approval retries preserve one shop and trial", async () => {
+    const first = new Client(), second = new Client();
+    await first.login("simplea"); await second.login("simpleb");
+    assert.equal((await first.call("/applications","POST",{name:"Same shop"})).status,201);
+    assert.equal((await second.call("/applications","POST",{name:"Same shop"})).status,201);
+    const one=(await first.me()).application,two=(await second.me()).application;
+    assert.notEqual(one.slug,two.slug);
+    assert.equal((await first.me()).shop,null);
+    assert.equal((await first.call("/store/"+one.slug)).status,404);
+    assert.equal((await first.call("/owner/applications/"+one.id,"PATCH",{status:"approved"})).status,403);
+    const responses=await Promise.all([1,2,3].map(()=>owner.call("/owner/applications/"+one.id,"PATCH",{status:"approved"})));
+    assert.ok(responses.every(r=>r.status===200));
+    const shop=(await first.me()).shop;
+    assert.equal(shop.ends_at,model.addCalendarMonths(shop.starts_at,2));
+    assert.equal(shop.limits.storageLimit,50*1024*1024);
+    assert.equal(db.prepare("SELECT COUNT(*) n FROM platform_shops WHERE owner_id=?").get(shop.owner_id).n,1);
+    assert.equal((await owner.call("/owner/applications/"+one.id,"PATCH",{status:"approved"})).status,200);
+    assert.equal((await first.me()).shop.starts_at,shop.starts_at);
+    assert.equal((await second.call("/shops/"+shop.id)).status,404);
+    assert.deepEqual((await first.call("/store/"+shop.slug)).data.products,[]);
+    assert.deepEqual(JSON.parse(db.prepare("SELECT settings FROM platform_shops WHERE id=?").get(shop.id).settings),{});
+  });
   await t.test(
     "pending/rejected applications never open shops; owner approval is explicit",
     async () => {
@@ -199,7 +221,7 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
       bid = (await b.me()).shop.id;
       assert.notEqual(aid, bid);
     const trial=(await a.me()).shop;assert.equal(trial.subscription_status,'trial');assert.ok(trial.starts_at);assert.equal(trial.ends_at,model.addCalendarMonths(trial.starts_at,2));
-    assert.equal((await owner.call('/owner/applications/'+ar.id,'PATCH',{status:'approved'})).status,409);
+    assert.equal((await owner.call('/owner/applications/'+ar.id,'PATCH',{status:'approved'})).status,200);
 
     },
   );
@@ -633,13 +655,13 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
       assert.equal(
         (
           await owner.call("/owner/release", "POST", {
-            version: "1.1.0",
+            version: "1.1.1",
             notes: "Fixture update",
           })
         ).status,
         200,
       );
-      assert.equal((await a.me()).release.version, "1.1.0");
+      assert.equal((await a.me()).release.version, "1.1.1");
       model.migrate(db);
       assert.equal(
         db.prepare("SELECT stock FROM products WHERE id=99").get().stock,
