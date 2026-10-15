@@ -5,6 +5,12 @@
   const action = document.getElementById('home-screen-action');
   const title = document.getElementById('home-screen-title');
   const help = document.getElementById('home-screen-help');
+  const shopName=document.querySelector('meta[name="gearhub-shop-name"]')?.content;
+  const appName=shopName||'GearHub';
+  if(shopName){
+    for(const lang of ['en','my'])Object.assign(window.GEARHUB_DEFAULT_TRANSLATIONS?.[lang]||{},{settingsEyebrow:shopName+' APP',installAppTitle:'Install '+shopName,installAppIos:'Share → Add to Home Screen → Add',aboutAppDetails:shopName+' · Shop app',notificationDenied:'Allow notifications for this app in device settings.'});
+    for(const key of ['settingsEyebrow','installAppTitle','installAppIos','aboutAppDetails'])document.querySelectorAll('[data-i18n="'+key+'"]').forEach(el=>el.textContent=window.GEARHUB_DEFAULT_TRANSLATIONS.en[key]);
+  }
   let installPrompt = null;
   let registrationPromise;
   const standalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
@@ -12,7 +18,7 @@
   function refresh() {
     if (title) title.textContent = standalone() ? 'Update app' : 'Add to Home Screen';
     const icon=document.getElementById('home-screen-icon');if(icon)icon.textContent=standalone()?'🔄':'📲';
-    if (help) help.textContent = standalone() ? 'နောက်ဆုံး app update ကို စစ်ရန်' : 'GearHub ကို ဖုန်း app အဖြစ် တင်ရန်';
+    if (help) help.textContent = standalone() ? 'နောက်ဆုံး app update ကို စစ်ရန်' : appName+' ကို ဖုန်း app အဖြစ် တင်ရန်';
   }
   function message(text) {
     if (!card || !instructions) return;
@@ -30,7 +36,7 @@
     event.preventDefault(); installPrompt = event;
     if (button) button.hidden = false;
   });
-  window.addEventListener('appinstalled', () => { installPrompt = null; if(button) button.hidden = true; message('GearHub app တင်ပြီးပါပြီ။ Home Screen မှာ ဖွင့်နိုင်ပါပြီ။'); refresh(); });
+  window.addEventListener('appinstalled', () => { installPrompt = null; if(button) button.hidden = true; message(appName+' app တင်ပြီးပါပြီ။ Home Screen မှာ ဖွင့်နိုင်ပါပြီ။'); refresh(); });
   async function activate() {
     if (standalone()) {
       if(window.GearHubUpdates){const applied=await window.GearHubUpdates.apply();if(!applied)message("လက်ရှိလုပ်ဆောင်မှု/ရွေးထားသောဖိုင်ကို အရင်ပြီးစီးပါ။ Browser storage နှင့် internet ကိုလည်း စစ်ပေးပါ။");return;}
@@ -65,7 +71,7 @@
       catch (_) { message('Browser menu မှ Add to Home Screen / Install app ကို ရွေးပေးပါ။'); }
       if(button) button.hidden = true;
     } else {
-      message(isIOS ? 'Safari မှာ ဒီ website ကို ဖွင့်ပါ။ Share ခလုတ် → Add to Home Screen → Open as Web App ကို ဖွင့်ပြီး Add နိပ်ပေးပါ။ တင်ပြီးသားဆို Home Screen က GearHub ကို ဖွင့်ပြီး ဒီခလုတ်နဲ့ update စစ်နိုင်ပါတယ်။' : 'Browser menu မှ Install app / Add to Home Screen ကို ရွေးပေးပါ။ တင်ပြီးသားဆို Home Screen က GearHub ကို ဖွင့်ပြီး update စစ်နိုင်ပါတယ်။');
+      message((isIOS ? 'Safari မှာ ဒီ website ကို ဖွင့်ပါ။ Share ခလုတ် → Add to Home Screen → Open as Web App ကို ဖွင့်ပြီး Add နိပ်ပေးပါ။ တင်ပြီးသားဆို Home Screen က GearHub ကို ဖွင့်ပြီး ဒီခလုတ်နဲ့ update စစ်နိုင်ပါတယ်။' : 'Browser menu မှ Install app / Add to Home Screen ကို ရွေးပေးပါ။ တင်ပြီးသားဆို Home Screen က GearHub ကို ဖွင့်ပြီး update စစ်နိုင်ပါတယ်။').replaceAll('GearHub',()=>appName));
     }
   }
   action?.addEventListener('click', activate);

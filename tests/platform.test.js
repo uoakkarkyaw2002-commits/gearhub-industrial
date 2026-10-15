@@ -693,13 +693,13 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
       assert.equal(
         (
           await owner.call("/owner/release", "POST", {
-            version: "1.1.3",
+            version: require("../package.json").version,
             notes: "Fixture update",
           })
         ).status,
         200,
       );
-      assert.equal((await a.me()).release.version, "1.1.3");
+      assert.equal((await a.me()).release.version, require("../package.json").version);
       model.migrate(db);
       assert.equal(
         db.prepare("SELECT stock FROM products WHERE id=99").get().stock,

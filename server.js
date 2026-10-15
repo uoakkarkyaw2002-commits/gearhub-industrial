@@ -241,7 +241,7 @@ if(process.env.PLATFORM_ENABLED==='true'){
   res.set({'Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow, noarchive'});
   res.sendFile(path.join(__dirname,'public','admin.html'));
  });
- app.get('/shops/:slug', (req,res)=>req.params.slug==='gearhub'?res.redirect('/'):res.sendFile(path.join(__dirname,'public','index.html')));
+ require('./lib/tenant-install').installTenantApps(app,{db,dataDir,publicDir:path.join(__dirname,'public'),publicOrigin});
 }
 app.get('/api/app-release', (_req,res)=>{
  res.set('Cache-Control','no-store');
