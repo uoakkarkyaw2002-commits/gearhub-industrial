@@ -16,6 +16,7 @@
   const standalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   function refresh() {
+    if(action&&standalone())action.hidden=true;
     if (title) title.textContent = standalone() ? 'Update app' : 'Add to Home Screen';
     const icon=document.getElementById('home-screen-icon');if(icon)icon.textContent=standalone()?'🔄':'📲';
     if (help) help.textContent = standalone() ? 'နောက်ဆုံး app update ကို စစ်ရန်' : appName+' ကို ဖုန်း app အဖြစ် တင်ရန်';

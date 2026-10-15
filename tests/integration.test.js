@@ -20,6 +20,14 @@ test('stock transactions, CSRF, idempotency, reset races, backups and restart pe
   const oldForm={...saved.data.settings};delete oldForm.categoryBannerUrl;assert.equal((await admin.json('/api/admin/site-settings','PUT',oldForm)).data.settings.categoryBannerUrl,banner);
   assert.equal((await admin.json('/api/admin/site-settings','PUT',{...saved.data.settings,categoryBannerUrl:''})).data.settings.categoryBannerUrl,'');assert.equal(snapshot(),before);
  });
+ await t.test('empty root category deletion persists; populated deletion conflicts atomically without changing any products/orders',async()=>{
+  const original=(await admin.json('/api/admin/categories')).data;
+  let r=await admin.json('/api/admin/categories','PUT',{categories:[...original,{category_en:'EMPTY-DELETE-FIXTURE',category_my:'Empty fixture'}]});assert.equal(r.status,200);
+  const withEmpty=r.data.categories;assert(withEmpty.some(c=>c.category_en==='EMPTY-DELETE-FIXTURE'));
+  r=await admin.json('/api/admin/categories','PUT',{categories:withEmpty.filter(c=>c.category_en!=='EMPTY-DELETE-FIXTURE')});assert.equal(r.status,200);assert(!(await admin.json('/api/admin/categories')).data.some(c=>c.category_en==='EMPTY-DELETE-FIXTURE'));
+  const rows=()=>crypto.createHash('sha256').update(JSON.stringify(['products','orders','categories'].map(t=>db.prepare('SELECT * FROM '+t+' ORDER BY id').all()))).digest('hex'),before=rows(),used=r.data.categories.find(c=>c.product_count>0);assert(used);
+  const rejected=await admin.json('/api/admin/categories','PUT',{categories:r.data.categories.filter(c=>c.id!==used.id)});assert.equal(rejected.status,409);assert.match(rejected.data.error,/choose another category/);assert.equal(rows(),before);
+ });
  await t.test('invalid receipt MIME, signatures and oversize files fail without creating orders',async()=>{
  const before=db.prepare('SELECT COUNT(*) n FROM orders').get().n;
  const client=new Client(origin);

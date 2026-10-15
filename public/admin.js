@@ -124,7 +124,12 @@ $("category-manager-rows").addEventListener("click",event=>{
  if(action==="edit"){categoryEditing.has(c._key)?categoryEditing.delete(c._key):categoryEditing.add(c._key);}
  if(action==="done"){if(!c.category_en.trim()){msg("category-manager-message","Enter an English category name.","error");return;}categoryEditing.delete(c._key);}
  if(action==="add-sub"){if(!c.category_en.trim()){msg("category-manager-message","Name the main category first.","error");return;}addCategory(c);return;}
- if(action==="remove"){const remove=new Set([c._key,...categoryChildren(c).map(child=>child._key)]);categoryRows=categoryRows.filter(row=>!remove.has(row._key));msg("category-manager-message","Category removed from the editor. Save categories to apply. Products will be kept in Uncategorized.","");}
+ if(action==="remove"){
+  if(categoryChildren(c).length){msg("category-manager-message","Remove subcategories first. အောက်အမျိုးအစားများကို အရင်ဖျက်ပါ။", "error");return;}
+  if(Number(c.product_count)>0){msg("category-manager-message","This category contains products. Edit those products and choose another category before deleting. ပစ္စည်းများကို အခြားအမျိုးအစားသို့ အရင်ပြောင်းပါ။","error");return;}
+  categoryRows=categoryRows.filter(row=>row._key!==c._key);msg("category-manager-message","Empty category removed from the editor. Save Categories to apply. သိမ်းရန် Save Categories ကိုနှိပ်ပါ။","");
+ }
+
  if(action==="up"||action==="down"){const peers=categoryRows.filter(row=>(row.parent_en||"")===(c.parent_en||"")),index=peers.indexOf(c),other=peers[index+(action==="up"?-1:1)];if(other){const a=categoryRows.indexOf(c),b=categoryRows.indexOf(other);[categoryRows[a],categoryRows[b]]=[categoryRows[b],categoryRows[a]];}}
  renderCategoryManager();
 });

@@ -8,7 +8,7 @@
   const kids=c=>all.filter(x=>String(x.parent_id)===String(c?.id));
   function names(c,seen=new Set()){if(!c||seen.has(String(c.id)))return [];seen.add(String(c.id));return [normalized(c.category_en),...kids(c).flatMap(x=>names(x,seen))];}
   const records=c=>{const n=new Set(names(c));return products.filter(p=>n.has(normalized(p.category_en)));};
-  const count=c=>records(c).length,current=selected?find(selected):null,parent=current?.parent_id?find(current.parent_id):current;
+  const count=c=>records(c).length,current=(selected?find(selected):null)||all.find(c=>!c.parent_id)||all[0]||null,parent=current?.parent_id?find(current.parent_id):current;
   const q=normalized(query),matches=c=>[c.category_en,c.category_my].some(v=>normalized(v).includes(q));
   const mains=all.filter(c=>!c.parent_id||!find(c.parent_id));
   const visibleMains=mains.filter(c=>!q||matches(c)||names(c).some(n=>all.some(x=>normalized(x.category_en)===n&&matches(x)))||records(c).some(p=>[p.name_en,p.name_my,p.sku].some(v=>normalized(v).includes(q))));
