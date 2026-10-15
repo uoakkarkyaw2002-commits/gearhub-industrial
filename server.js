@@ -167,7 +167,7 @@ app.use((req,res,next)=>{
  const requestId=crypto.randomUUID(),started=Date.now();res.set("X-Request-ID",requestId);
  res.on("finish",()=>{if(res.statusCode>=400||process.env.REQUEST_LOGS==="true") console.log(JSON.stringify({event:"http_response",requestId,method:req.method,route:req.route?.path||"unmatched",status:res.statusCode,durationMs:Date.now()-started}));});next();
 });
-app.use(helmet({contentSecurityPolicy:{directives:{defaultSrc:["'self'"],scriptSrc:["'self'"],styleSrc:["'self'","'unsafe-inline'"],imgSrc:["'self'","data:","https:"],fontSrc:["'self'","data:","https:"],connectSrc:["'self'"],formAction:["'self'"],baseUri:["'self'"],objectSrc:["'none'"],frameAncestors:["'none'"]}}}));
+app.use(helmet({contentSecurityPolicy:{directives:{defaultSrc:["'self'"],scriptSrc:["'self'"],styleSrc:["'self'","'unsafe-inline'"],imgSrc:["'self'","data:","blob:","https:"],fontSrc:["'self'","data:","https:"],connectSrc:["'self'"],formAction:["'self'"],baseUri:["'self'"],objectSrc:["'none'"],frameAncestors:["'none'"]}}}));
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: false, limit: "100kb" }));
 app.use("/api", originGuard(publicOrigin));

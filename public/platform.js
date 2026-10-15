@@ -65,13 +65,15 @@
   async function load() {
     me = await api("/me");
     csrf = me.csrfToken;
+    document.body.classList.toggle("onboarding",!me.isOwner);
     $("logout").hidden = !me.user;
+    $("account").hidden=!!me.user&&!me.isOwner;
     $("owner").innerHTML = "";
     $("shop").innerHTML = "";
     $("application").innerHTML = "";
     $("account").innerHTML = me.user
       ? `<p>${esc(me.user.name)} · ${esc(me.user.email)}</p>`
-      : `<p>Google login ဝင်ပြီး ဆိုင်ဖွင့်ရန် လျှောက်ထားပါ။ Approval မရမချင်း ဆိုင်မဖွင့်ပါ။</p><button id="google-login" ${me.oauthReady ? "" : "disabled"}>Continue with Google</button><p class="muted">${me.oauthReady ? "" : "Owner must configure Google OAuth before login."}</p>`;
+      : window.GearHubApplication.login(me.oauthReady);
     $("google-login")?.addEventListener("click", async () => {
       try {
         location.href = (await api("/auth/start", "POST", {})).url;
@@ -81,14 +83,17 @@
     });
     if (!me.user) return;
     if (!me.shop && !me.isOwner) {
-      const a = me.application;
-      $("application").innerHTML =
-        `<h2>ဆိုင်လျှောက်လွှာ / Application</h2>${a ? `<p>Status: <strong>${esc(a.status)}</strong> · ${esc(a.decision_note)}</p>` : ""}${!a || a.status === "rejected" ? `<form id="apply"><label>ဆိုင်နာမည် / Shop name<input name="name" required maxlength="100" autocomplete="organization"></label><button>ဆိုင်ဖွင့်ခွင့်တောင်းရန် / Request a shop</button></form>` : `<button id="check-approval">အခြေအနေစစ်ရန် / Check status</button>`}`;
+      $("application").innerHTML = window.GearHubApplication.render(me);
+      $("application-message")?.addEventListener("input",e=>$("application-counter").textContent=e.target.value.length+" / 500");
       form("apply", (d) => api("/applications", "POST", d));
-    } else if (me.shop) await shop(me.shop.id);
+    } else if (me.shop) {
+      if(me.isOwner)await shop(me.shop.id);
+      else $("application").innerHTML=window.GearHubApplication.render(me);
+    }
     $("check-approval")?.addEventListener("click",()=>load().catch(e=>msg(e.message)));
     if (me.isOwner) await owner();
     window.GearHubUpdates?.restore();
+    if($("application-message"))$("application-counter").textContent=$("application-message").value.length+" / 500";
   }
   async function shop(id) {
     const s = await api("/shops/" + id),
@@ -158,7 +163,7 @@
   async function owner() {
     const v = await api("/owner");
     $("owner").innerHTML =
-      `<h2>Platform Owner Dashboard</h2><h3>Applications</h3>${v.applications.length?"":"<p class=\"muted\">ဆိုင်လျှောက်လွှာ မရှိသေးပါ။ / No shop applications yet.</p>"}${v.applications.map((a) => `<form id="a-${a.id}"><strong>${esc(a.name)} · ${esc(a.email)} · ${esc(a.status)}</strong>${a.status === "pending" ? `<button name="status" value="approved">လက်ခံ / Approve</button><button name="status" value="rejected" class="secondary">ငြင်းပယ် / Reject</button>` : ""}</form>`).join("")}<h3>Users</h3>${v.users.map((u) => `<form id="u-${u.id}"><strong>${esc(u.email)}</strong>${select("status", "User status", ["active", "suspended"], u.status)}<button>Save user</button></form>`).join("")}<h3>Shops, storage and subscriptions</h3>${v.shops.some(s=>!s.legacy)?"":"<p class=\"muted\">အတည်ပြုထားသော seller ဆိုင် မရှိသေးပါ။ လျှောက်လွှာကို approve လုပ်ပြီးမှ ဒီနေရာတွင် ပေါ်လာပါမည်။ / No seller shops yet. Approve an application to create one.</p>"}${v.shops.map((s) => (s.legacy ? "<p>Existing GearHub preserved. Manage using the existing /admin.html account.</p>" : `<form id="s-${s.id}"><strong>${esc(s.name)} · ${esc(s.slug)}</strong><p>${storage.label(s.limits.usedBytes)} / ${storage.label(s.limits.storageLimit)} · ${esc(s.limits.subscriptionState)}</p><p>Starts: ${esc(dateLabel(s.starts_at))} · End: ${esc(s.ends_at?dateLabel(s.ends_at):"No expiry")}</p>${select("status", "Shop status", ["active", "suspended"], s.status)}${select("subscriptionStatus", "Subscription", ["sponsored", "active", "trial", "inactive", "expired"], s.subscription_status)}<label>Plan<select name="planId">${v.plans.map((p) => `<option value="${p.id}" ${p.id === s.plan_id ? "selected" : ""}>${esc(p.name)}</option>`).join("")}</select></label>${storageFields(s.storage_override,true)}${field("startsAt", "Starts (ISO date)", s.starts_at)}${field("endsAt", "Expires (ISO date)", s.ends_at)}<button>Save subscription</button><button type="button" data-extend-shop="${s.id}">Extend 2 calendar months / ၂ လတိုးရန်</button></form>`)).join("")}<h3>Plans (manual, no automatic billing)</h3>${[...v.plans, { id: "new", permissions: {}, storage_bytes: 52428800, product_limit: 100 }].map((p) => `<form id="plan-${p.id}">${field("name", "Plan name", p.name)}${storageFields(p.storage_bytes)}${field("productLimit", "Active product limit", p.product_limit, "number")}${["products", "orders", "uploads", "selling"].map((k) => `<label><input type="checkbox" name="${k}" ${p.permissions[k] ? "checked" : ""}> ${k}</label>`).join("")}<button>${p.id === "new" ? "Create plan" : "Save plan"}</button></form>`).join("")}<form id="release"><h3>Publish in-app update announcement</h3>${field("version", "Deployed version", v.release.version).replace('<input ','<input readonly ')}${field("notes", "Update notes", v.release.notes)}<p>Deploy reviewed shared code before announcing that version. No automatic billing/push service.</p><button>Publish</button></form>`;
+      `<h2>Platform Owner Dashboard</h2><h3>Applications</h3>${v.applications.length?"":"<p class=\"muted\">ဆိုင်လျှောက်လွှာ မရှိသေးပါ။ / No shop applications yet.</p>"}${v.applications.map((a) => `<form id="a-${a.id}"><strong>${esc(a.name)} · ${esc(a.email)} · ${esc(a.status)}</strong>${a.reason?`<p class="muted">${esc(a.reason)}</p>`:""}${a.status === "pending" ? `<button name="status" value="approved">လက်ခံ / Approve</button><button name="status" value="rejected" class="secondary">ငြင်းပယ် / Reject</button>` : ""}</form>`).join("")}<h3>Users</h3>${v.users.map((u) => `<form id="u-${u.id}"><strong>${esc(u.email)}</strong>${select("status", "User status", ["active", "suspended"], u.status)}<button>Save user</button></form>`).join("")}<h3>Shops, storage and subscriptions</h3>${v.shops.some(s=>!s.legacy)?"":"<p class=\"muted\">အတည်ပြုထားသော seller ဆိုင် မရှိသေးပါ။ လျှောက်လွှာကို approve လုပ်ပြီးမှ ဒီနေရာတွင် ပေါ်လာပါမည်။ / No seller shops yet. Approve an application to create one.</p>"}${v.shops.map((s) => (s.legacy ? "<p>Existing GearHub preserved. Manage using the existing /admin.html account.</p>" : `<form id="s-${s.id}"><strong>${esc(s.name)} · ${esc(s.slug)}</strong><p>${storage.label(s.limits.usedBytes)} / ${storage.label(s.limits.storageLimit)} · ${esc(s.limits.subscriptionState)}</p><p>Starts: ${esc(dateLabel(s.starts_at))} · End: ${esc(s.ends_at?dateLabel(s.ends_at):"No expiry")}</p>${select("status", "Shop status", ["active", "suspended"], s.status)}${select("subscriptionStatus", "Subscription", ["sponsored", "active", "trial", "inactive", "expired"], s.subscription_status)}<label>Plan<select name="planId">${v.plans.map((p) => `<option value="${p.id}" ${p.id === s.plan_id ? "selected" : ""}>${esc(p.name)}</option>`).join("")}</select></label>${storageFields(s.storage_override,true)}${field("startsAt", "Starts (ISO date)", s.starts_at)}${field("endsAt", "Expires (ISO date)", s.ends_at)}<button>Save subscription</button><button type="button" data-extend-shop="${s.id}">Extend 2 calendar months / ၂ လတိုးရန်</button></form>`)).join("")}<h3>Plans (manual, no automatic billing)</h3>${[...v.plans, { id: "new", permissions: {}, storage_bytes: 52428800, product_limit: 100 }].map((p) => `<form id="plan-${p.id}">${field("name", "Plan name", p.name)}${storageFields(p.storage_bytes)}${field("productLimit", "Active product limit", p.product_limit, "number")}${["products", "orders", "uploads", "selling"].map((k) => `<label><input type="checkbox" name="${k}" ${p.permissions[k] ? "checked" : ""}> ${k}</label>`).join("")}<button>${p.id === "new" ? "Create plan" : "Save plan"}</button></form>`).join("")}<form id="release"><h3>Publish in-app update announcement</h3>${field("version", "Deployed version", v.release.version).replace('<input ','<input readonly ')}${field("notes", "Update notes", v.release.notes)}<p>Deploy reviewed shared code before announcing that version. No automatic billing/push service.</p><button>Publish</button></form>`;
     document.querySelectorAll('[data-extend-shop]').forEach(button=>button.onclick=async()=>{button.disabled=true;button.dataset.busy='true';try{await api('/owner/shops/'+button.dataset.extendShop+'/extend','POST',{months:2});msg('Extended without charging. သက်တမ်းတိုးပြီးပါပြီ။');await load();}catch(e){msg(e.message);}finally{button.disabled=false;delete button.dataset.busy;}});
     for (const a of v.applications)
       form("a-" + a.id, (d) => api("/owner/applications/" + a.id, "PATCH", d));
