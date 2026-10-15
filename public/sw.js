@@ -1,5 +1,5 @@
-const CACHE_NAME = "gearhub-shell-v50-1.1.4";
-const SHELL = ["/tenant-store.js","/updates.js?v=20261013-platform-1", "/desktop.css?v=20261013-1", "/", "/style.css?v=20261012-20", "/site-content.js?v=20261012-review-1", "/store.js?v=20261013-platform-1", "/app-install.js?v=20261013-platform-1", "/settings.js?v=20261012-3", "/dialogs.js?v=20261012-1", "/footer.js?v=20261012-1", "/images/hero-excavator.jpg", "/app.webmanifest", "/app-icon.png", "/icons/icon.svg", "/icons/apple-touch-icon.png"];
+const CACHE_NAME = "gearhub-shell-v51-1.1.5";
+const SHELL = ["/category-browser.js","/tenant-store.js","/updates.js?v=20261013-platform-1", "/desktop.css?v=20261013-1", "/", "/style.css?v=20261012-20", "/site-content.js?v=20261012-review-1", "/store.js?v=20261013-platform-1", "/app-install.js?v=20261013-platform-1", "/settings.js?v=20261012-3", "/dialogs.js?v=20261012-1", "/footer.js?v=20261012-1", "/images/hero-excavator.jpg", "/app.webmanifest", "/app-icon.png", "/icons/icon.svg", "/icons/apple-touch-icon.png"];
 const shopPath=pathname=>{const m=pathname.match(/^\/shops\/([a-z0-9-]+)(?:\/|$)/);return m?'/shops/'+m[1]+'/':null;};
 const offlineCache=pathname=>'gearhub-offline-v2:'+ (shopPath(pathname)||'root');
 self.addEventListener("install", event => {

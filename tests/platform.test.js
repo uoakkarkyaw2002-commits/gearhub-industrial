@@ -249,6 +249,19 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
     const foreign=(await b.call('/shops/'+bid+'/files','POST',other)).data.id;
     assert.equal((await a.call(endpoint+'/appearance','PUT',{...appearance,logoUrl:'/api/platform/images/'+foreign})).status,400);
     assert.equal((await a.call(endpoint+'/appearance','PUT',{...appearance,logoUrl:'/api/platform/images/'+own})).status,200);
+    const rowsSnapshot=()=>JSON.stringify(['products','orders','platform_products','platform_orders'].map(table=>db.prepare('SELECT * FROM '+table+' ORDER BY id').all()));
+    const beforeBanner=rowsSnapshot(),otherSettings=db.prepare('SELECT settings FROM platform_shops WHERE id=?').get(bid).settings;
+    assert.equal((await a.call(endpoint+'/appearance','PUT',{...appearance,categoryBannerUrl:'/api/platform/images/'+foreign})).status,400);
+    assert.equal((await a.call(endpoint+'/appearance','PUT',{...appearance,categoryBannerUrl:'/api/platform/images/'+own})).status,200);
+    assert.equal((await a.call('/store/alice-store')).data.settings.appearance.categoryBannerUrl,'/api/platform/images/'+own);
+    assert.equal((await a.call(endpoint+'/files/'+own,'DELETE')).status,409);
+    assert.equal((await a.call(endpoint+'/appearance','PUT',appearance)).status,200); // older form must preserve banner
+    assert.equal((await a.call('/store/alice-store')).data.settings.appearance.categoryBannerUrl,'/api/platform/images/'+own);
+    assert.equal(db.prepare('SELECT settings FROM platform_shops WHERE id=?').get(bid).settings,otherSettings);
+    assert.equal(rowsSnapshot(),beforeBanner,'banner changes preserve all legacy/tenant product and order records');
+    assert.equal((await a.call(endpoint+'/appearance','PUT',{...appearance,categoryBannerUrl:''})).status,200);
+    assert.equal((await a.call(endpoint+'/appearance','PUT',{...appearance,logoUrl:'/api/platform/images/'+own})).status,200);
+
     assert.equal((await a.call(endpoint+'/files/'+own,'DELETE')).status,409);
     assert.equal((await a.call(endpoint+'/products','POST',{name:'Photo test',sku:'PHOTO',stock:1,price:10,imageIds:[foreign]})).status,400);
     assert.equal((await a.call(endpoint+'/appearance','PUT',appearance)).status,200);
