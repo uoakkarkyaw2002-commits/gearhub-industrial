@@ -1,5 +1,5 @@
-const CACHE_NAME = "gearhub-shell-v52-1.1.6";
-const SHELL = ["/category-browser.js","/tenant-store.js","/updates.js?v=20261013-platform-1", "/desktop.css?v=20261013-1", "/", "/style.css?v=20261012-20", "/site-content.js?v=20261012-review-1", "/store.js?v=20261013-platform-1", "/app-install.js?v=20261013-platform-1", "/settings.js?v=20261012-3", "/dialogs.js?v=20261012-1", "/footer.js?v=20261012-1", "/images/hero-excavator.jpg", "/app.webmanifest", "/app-icon.png", "/icons/icon.svg", "/icons/apple-touch-icon.png"];
+const CACHE_NAME = "gearhub-shell-v53-1.1.7";
+const SHELL = ["/push-client.js","/category-browser.js","/tenant-store.js","/updates.js?v=20261013-platform-1", "/desktop.css?v=20261013-1", "/", "/style.css?v=20261012-20", "/site-content.js?v=20261012-review-1", "/store.js?v=20261013-platform-1", "/app-install.js?v=20261013-platform-1", "/settings.js?v=20261012-3", "/dialogs.js?v=20261012-1", "/footer.js?v=20261012-1", "/images/hero-excavator.jpg", "/app.webmanifest", "/app-icon.png", "/icons/icon.svg", "/icons/apple-touch-icon.png"];
 const shopPath=pathname=>{const m=pathname.match(/^\/shops\/([a-z0-9-]+)(?:\/|$)/);return m?'/shops/'+m[1]+'/':null;};
 const offlineCache=pathname=>'gearhub-offline-v2:'+ (shopPath(pathname)||'root');
 self.addEventListener("install", event => {
@@ -33,6 +33,7 @@ self.addEventListener("fetch", event => {
 });
 
 self.addEventListener("message", event => {
+ if(event.data?.type==='PUSH_CAPABILITY'){event.ports[0]?.postMessage({push:true});return;}
  if(event.data?.type === "APPLY_UPDATE"){self.skipWaiting();return;}
  if(event.data?.type !== "SAVE_OFFLINE") return;
  event.waitUntil((async () => {
@@ -53,5 +54,29 @@ self.addEventListener("message", event => {
    }
    event.ports[0]?.postMessage({ok:failures===0,error:failures?"ပုံအချို့ သိမ်းမရသေးပါ။ Internet ချိတ်ပြီး Offline mode ကို ပြန်ဖွင့်ပေးပါ။":null});
   }catch(_){event.ports[0]?.postMessage({ok:false,error:"Offline သိမ်းမရပါ။ ဖုန်း storage နဲ့ internet ကို စစ်ပေးပါ။"});}
+ })());
+});
+
+// Notification clicks open review only. They never activate a waiting worker.
+self.addEventListener('push',event=>{
+ event.waitUntil((async()=>{
+  let p;try{p=event.data.json();}catch{return;}
+  const scope=new URL(self.registration.scope).pathname;
+  if(p.type!=='app-update'||!/^\d+\.\d+\.\d+$/.test(p.version||'')||p.url!==scope+'#app-update')return;
+  const icon=scope==='/'?'/app-icon.png':scope+'app-icon-192.png';
+  if(p.icon!==icon)return;
+  await self.registration.showNotification(String(p.title).slice(0,160),{body:String(p.body).slice(0,200),icon,badge:icon,tag:'gearhub-update-'+p.version,renotify:false,data:{url:p.url,version:p.version}});
+ })());
+});
+self.addEventListener('notificationclick',event=>{
+ event.notification.close();event.waitUntil((async()=>{
+  const scope=new URL(self.registration.scope).pathname,url=event.notification.data?.url;
+  if(url!==scope+'#app-update')return;
+  const target=new URL(url,self.location.origin).href;
+  const windows=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+  const existing=windows.find(w=>{const u=new URL(w.url);return u.origin===self.location.origin&&u.pathname===scope;});
+  // Preserve any active form/cart/checkout: focus and request Settings, never navigate/reload an existing window.
+  if(existing){await existing.focus();existing.postMessage({type:'OPEN_UPDATE_SETTINGS',scope});}
+  else await self.clients.openWindow(target);
  })());
 });

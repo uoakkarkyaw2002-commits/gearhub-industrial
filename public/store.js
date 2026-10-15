@@ -115,7 +115,8 @@ $("checkout-form").addEventListener("submit",async e=>{
  }catch(err){$("checkout-message").className="error";$("checkout-message").textContent=err.message}finally{button.disabled=false;window.__gearhubCheckoutPending=false}
 });
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),2500)}
-function notifyOrderPlaced(orderCode){if(localStorage.getItem("gh-notifications")!=="on"||!window.Notification||Notification.permission!=="granted")return;const title=tr("orderSuccess"),body=`${tr("orderId")}: ${orderCode}`;if("serviceWorker"in navigator)navigator.serviceWorker.ready.then(registration=>registration.showNotification(title,{body,icon:"/icons/apple-touch-icon.png",badge:"/icons/apple-touch-icon.png"})).catch(()=>new Notification(title,{body}));else new Notification(title,{body})}
+function notifyOrderPlaced(orderCode){const scope=window.GearHubPush?.scope||'/';if(localStorage.getItem('gh-push-enabled:'+scope)!=='on'||!window.Notification||Notification.permission!=='granted')return;const title=tr('orderSuccess'),body=`${tr('orderId')}: ${orderCode}`,icon=scope==='/'?'/app-icon.png':scope+'app-icon-192.png';navigator.serviceWorker?.getRegistration(scope).then(registration=>registration?.showNotification(title,{body,icon,badge:icon})).catch(()=>{});}
+
 let galleryProduct=null,galleryIndex=0;
 function openGallery(id,index=0){galleryProduct=products.find(p=>p.id===id);if(!galleryProduct||!galleryProduct.imageUrls||!galleryProduct.imageUrls.length)return;galleryIndex=Math.max(0,Math.min(index,galleryProduct.imageUrls.length-1));renderGallery();$("gallery-modal").classList.add("open");document.body.classList.add("gallery-open")}
 function closeGallery(){$("gallery-modal").classList.remove("open");document.body.classList.remove("gallery-open")}

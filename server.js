@@ -248,6 +248,11 @@ app.get('/api/app-release', (_req,res)=>{
  const enabled=process.env.PLATFORM_ENABLED==='true';
  res.json({... (enabled?require('./lib/platform-model').release(db):require('./lib/app-release').effectiveRelease(null)),platformEnabled:enabled});
 });
+// Additive push tables only; no storefront/customer rows are rewritten.
+const webPushService=require('./lib/web-push').createWebPush({db});
+app.use('/api/push',rateLimit({windowMs:60000,limit:30,standardHeaders:true,legacyHeaders:false}),webPushService.router);
+setInterval(()=>webPushService.deliver().catch(()=>{}),60000).unref();
+setInterval(()=>webPushService.deliverTests().catch(()=>{}),15000).unref();
 // Periodically prune expired sessions without requiring an external service.
 setInterval(() => {
  try { db.prepare("DELETE FROM sessions WHERE expired_at <= ?").run(Date.now()); }

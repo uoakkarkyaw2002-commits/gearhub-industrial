@@ -64,7 +64,7 @@
   const versionKey='gh-app-version:'+scope,notifiedKey='gh-update-notified:'+scope;
   const buildVersion=document.querySelector?.('meta[name="gearhub-build-version"]')?.content;
   let available=false,audio,toastTimer;
-  const notificationsOn=()=>localStorage.getItem('gh-notifications')==='on';
+  const notificationsOn=()=>localStorage.getItem('gh-push-enabled:'+scope)==='on' && typeof Notification!=='undefined' && Notification.permission==='granted';
   function feedback(text){const node=document.getElementById('app-update-feedback');if(node)node.textContent=text;}
   async function enableSound(){
     if(!notificationsOn())return false;
@@ -97,6 +97,8 @@
   }
   function notifyOnce(){
     if(!available||!notificationsOn()||document.visibilityState==='hidden')return;
+    // A registered Web Push client uses the OS notification in foreground too; avoid a second local toast/beep.
+    if(window.GearHubPush)return;
     let seen;try{seen=JSON.parse(localStorage.getItem(notifiedKey)||'[]');if(!Array.isArray(seen))seen=[];if(seen.includes(release.version))return;localStorage.setItem(notifiedKey,JSON.stringify([...seen,release.version]));}catch{return;}
     const toast=document.createElement('aside');toast.className='app-update-toast';toast.id='app-update-toast';toast.setAttribute('role','status');
     const text=document.createElement('p');text.textContent='Update available · '+release.version+' / App အသစ် ရပါပြီ။';
@@ -173,7 +175,8 @@
     restore();
     if ("serviceWorker" in navigator && isSecureContext) {
       try {
-        registration = await navigator.serviceWorker.register("/sw.js", {
+        registration = await navigator.serviceWorker.register(shop ? scope+"sw.js" : "/sw.js", {
+          scope:shop?scope:"/",
           updateViaCache: "none",
         });
         registration.addEventListener("updatefound", () => {
@@ -184,6 +187,7 @@
       } catch {}
     }
     await check();
+    if(location.hash==='#app-update')review();
     setInterval(check, 60000);
   });
 })();
