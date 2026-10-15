@@ -34,13 +34,8 @@
   }
 
   function updateNotificationSetting() {
-    const input = byId("notifications-toggle");
-    const help = byId("notifications-help");
-    if (!input || !help) return;
-    input.disabled = false;
-    input.checked = localStorage.getItem("gh-notifications") === "on";
-    help.removeAttribute('data-i18n');
-    help.textContent = 'In-app alerts while open. Sound depends on browser/device settings. / App ဖွင့်ထားချိန် အသိပေးရန်';
+    if(window.GearHubPush){window.GearHubPush.refresh();return;}
+    const input=byId('notifications-toggle');if(input){input.checked=false;input.disabled=true;}
   }
 
   const formatBytes = bytes => {
@@ -76,17 +71,7 @@
   }
 
   async function enableNotifications(enabled) {
-    if (!enabled) {
-      localStorage.removeItem("gh-notifications");
-      document.getElementById("app-update-toast")?.remove();
-      updateNotificationSetting();
-      return;
-    }
-    localStorage.setItem("gh-notifications","on");
-    // This preference enables foreground alerts; it is not a remote push subscription.
-    Promise.resolve(window.GearHubUpdates?.enableSound?.()).finally(()=>window.GearHubUpdates?.check?.());
-    message("notificationEnabled");
-    updateNotificationSetting();
+    return window.GearHubPush?.setEnabled(enabled);
   }
 
   applyTheme(savedTheme);

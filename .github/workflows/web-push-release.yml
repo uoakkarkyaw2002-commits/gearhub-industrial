@@ -1,0 +1,29 @@
+name: Confirm live Web Push release
+on:
+  workflow_run:
+    workflows: [Production readiness]
+    types: [completed]
+permissions:
+  contents: read
+concurrency:
+  group: web-push-production
+  cancel-in-progress: false
+jobs:
+  confirm-live:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: production-push
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "22"
+      - run: node scripts/announce-web-push.js
+        env:
+          RELEASE_COMMIT: ${{ github.event.workflow_run.head_sha }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          WEB_PUSH_RELEASE_TOKEN: ${{ secrets.WEB_PUSH_RELEASE_TOKEN }}
