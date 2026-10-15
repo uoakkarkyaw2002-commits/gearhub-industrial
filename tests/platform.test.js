@@ -282,6 +282,22 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
     assert.equal((await a.call(endpoint+'/appearance')).status,200);
     db.prepare('UPDATE platform_shops SET ends_at=? WHERE id=?').run(model.addCalendarMonths(new Date().toISOString(),2),aid);
   });
+  await t.test('tenant three-level editor and product trash/restore enforce ownership, references, quota and stable data',async()=>{
+    const endpoint='/shops/'+aid,original=(await a.call(endpoint+'/categories')).data;let id;const orders=JSON.stringify(db.prepare('SELECT * FROM platform_orders ORDER BY id').all());
+    try{
+      const rows=[...original,{category_en:'TREE-MAIN-FIX'},{category_en:'TREE-SUB-FIX',parent_en:'TREE-MAIN-FIX'},{category_en:'TREE-CHILD-FIX',parent_en:'TREE-SUB-FIX'}];
+      const saved=await a.call(endpoint+'/categories','PUT',{categories:rows});assert.equal(saved.status,200);const tree=saved.data.categories,child=tree.find(c=>c.category_en==='TREE-CHILD-FIX'),sub=tree.find(c=>c.category_en==='TREE-SUB-FIX');assert.equal(child.parent_id,sub.id);
+      assert.equal((await a.call(endpoint+'/categories','PUT',{categories:[...tree,{category_en:'BAD-DEPTH',parent_en:child.category_en}]})).status,400);
+      assert.equal((await a.call(endpoint+'/categories','PUT',{categories:tree.map(c=>c.id===child.id?{...c,parent_id:999999}:c)})).status,400);
+      assert.equal((await a.call(endpoint+'/products','POST',{name:'Fixture only',sku:'TREE-TRASH-FIX',category:child.category_en.toLowerCase(),stock:3,price:111})).status,200);id=(await a.call(endpoint)).data.products.find(p=>p.sku==='TREE-TRASH-FIX').id;const before=db.prepare('SELECT * FROM platform_products WHERE id=?').get(id);assert.equal((await a.call(endpoint+'/categories')).data.find(c=>c.id===child.id).product_count,1);
+      assert.equal((await b.call(endpoint+'/products/'+id+'/trash','POST',{})).status,404);
+      assert.equal((await a.call(endpoint+'/products/'+id+'/trash','POST',{})).status,200);assert(!(await a.call('/store/alice-store')).data.products.some(p=>p.id===id));
+      assert.equal((await a.call(endpoint+'/products/'+id,'PATCH',{name:'Bad edit',sku:'TREE-TRASH-FIX',expectedStock:3,stock:3,price:111})).status,409);
+      assert.equal((await a.call(endpoint+'/products/'+id+'/restore','POST',{})).status,200);assert.deepEqual(db.prepare('SELECT * FROM platform_products WHERE id=?').get(id),before);
+      assert.equal((await a.call(endpoint+'/categories','PUT',{categories:tree.filter(c=>c.id!==child.id)})).status,409);assert.equal((await a.call(endpoint+'/categories','PUT',{categories:tree.filter(c=>c.id!==sub.id)})).status,400);
+      const renamed=await a.call(endpoint+'/categories','PUT',{categories:tree.map(c=>c.id===child.id?{...c,category_en:'TREE-RENAMED-FIX'}:c)});assert.equal(renamed.status,200);assert.equal(renamed.data.categories.find(c=>c.id===child.id).parent_id,sub.id);assert.equal(db.prepare('SELECT category FROM platform_products WHERE id=?').get(id).category,'TREE-RENAMED-FIX');assert.equal(JSON.stringify(db.prepare('SELECT * FROM platform_orders ORDER BY id').all()),orders);
+    }finally{if(id)db.prepare('DELETE FROM platform_products WHERE id=?').run(id);assert.equal((await a.call(endpoint+'/categories','PUT',{categories:original})).status,200);}
+  });
   await t.test(
     "each shop scopes settings/products and cannot read or mutate another shop",
     async () => {

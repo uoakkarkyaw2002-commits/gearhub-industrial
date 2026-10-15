@@ -20,6 +20,26 @@ test('stock transactions, CSRF, idempotency, reset races, backups and restart pe
   const oldForm={...saved.data.settings};delete oldForm.categoryBannerUrl;assert.equal((await admin.json('/api/admin/site-settings','PUT',oldForm)).data.settings.categoryBannerUrl,banner);
   assert.equal((await admin.json('/api/admin/site-settings','PUT',{...saved.data.settings,categoryBannerUrl:''})).data.settings.categoryBannerUrl,'');assert.equal(snapshot(),before);
  });
+ await t.test('root three-level save/rename/references and direct product trash/restore persist without data loss',async()=>{
+  const original=(await admin.json('/api/admin/categories')).data,orders=JSON.stringify(db.prepare('SELECT * FROM orders ORDER BY id').all());let id;
+  try{
+   const added=[...original,{category_en:'TREE-MAIN-FIX',category_my:'ပင်မ'},{category_en:'TREE-SUB-FIX',category_my:'အောက်',parent_en:'TREE-MAIN-FIX'},{category_en:'TREE-CHILD-FIX',category_my:'ကလေး',parent_en:'TREE-SUB-FIX'}];
+   let result=await admin.json('/api/admin/categories','PUT',{categories:added});assert.equal(result.status,200);const tree=result.data.categories,child=tree.find(c=>c.category_en==='TREE-CHILD-FIX'),sub=tree.find(c=>c.category_en==='TREE-SUB-FIX');assert.equal(child.parent_id,sub.id);
+   const photo='/uploads/'+fs.readdirSync(path.join(temp,'uploads')).find(n=>n.endsWith('.png'));
+   const created=await admin.json('/api/admin/products','POST',{sku:'TREE-TRASH-FIX',nameEn:'Fixture only',categoryEn:child.category_en.toLowerCase(),price:111,stock:9,imageUrls:[photo]});assert.equal(created.status,201);id=created.data.id;
+   assert.equal((await admin.json('/api/admin/categories')).data.find(c=>c.id===child.id).product_count,1);
+   const before=db.prepare('SELECT * FROM products WHERE id=?').get(id),fileHash=crypto.createHash('sha256').update(fs.readFileSync(path.join(temp,photo.slice(1)))).digest('hex');
+   const anon=new Client(origin);assert.equal((await anon.json('/api/admin/products/'+id+'/trash','POST',{})).status,403);
+   assert.equal((await admin.json('/api/admin/products/'+id+'/trash','POST',{})).status,200);assert(!(await admin.json('/api/products')).data.some(p=>p.id===id));assert((await admin.json('/api/admin/products')).data.find(p=>p.id===id).trashed_at);
+   assert.equal((await admin.json('/api/admin/products/'+id,'PATCH',{active:true})).status,409);
+   assert.equal((await admin.json('/api/admin/products/'+id+'/restore','POST',{})).status,200);assert.deepEqual(db.prepare('SELECT * FROM products WHERE id=?').get(id),before);assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(temp,photo.slice(1)))).digest('hex'),fileHash);
+   assert.equal((await admin.json('/api/admin/categories','PUT',{categories:tree.filter(c=>c.id!==child.id)})).status,409);
+   assert.equal((await admin.json('/api/admin/categories','PUT',{categories:tree.filter(c=>c.id!==sub.id)})).status,400);
+   assert.equal((await admin.json('/api/admin/categories','PUT',{categories:[...tree,{category_en:'TOO-DEEP',category_my:'Too deep',parent_en:child.category_en}]})).status,400);
+   assert.equal((await admin.json('/api/admin/categories','PUT',{categories:tree.map(c=>c.id===child.id?{...c,parent_id:999999}:c)})).status,400);
+   result=await admin.json('/api/admin/categories','PUT',{categories:tree.map(c=>c.id===child.id?{...c,category_en:'TREE-CHILD-RENAMED'}:c)});assert.equal(result.status,200);assert.equal(result.data.categories.find(c=>c.id===child.id).parent_id,sub.id);assert.equal(db.prepare('SELECT category_en FROM products WHERE id=?').get(id).category_en,'TREE-CHILD-RENAMED');assert.equal(JSON.stringify(db.prepare('SELECT * FROM orders ORDER BY id').all()),orders);
+  }finally{if(id)db.prepare('DELETE FROM products WHERE id=?').run(id);assert.equal((await admin.json('/api/admin/categories','PUT',{categories:original})).status,200);}
+ });
  await t.test('empty root category deletion persists; populated deletion conflicts atomically without changing any products/orders',async()=>{
   const original=(await admin.json('/api/admin/categories')).data;
   let r=await admin.json('/api/admin/categories','PUT',{categories:[...original,{category_en:'EMPTY-DELETE-FIXTURE',category_my:'Empty fixture'}]});assert.equal(r.status,200);
