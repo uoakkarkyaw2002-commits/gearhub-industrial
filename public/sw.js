@@ -1,5 +1,7 @@
-const CACHE_NAME = "gearhub-shell-v49-1.1.3";
+const CACHE_NAME = "gearhub-shell-v50-1.1.4";
 const SHELL = ["/tenant-store.js","/updates.js?v=20261013-platform-1", "/desktop.css?v=20261013-1", "/", "/style.css?v=20261012-20", "/site-content.js?v=20261012-review-1", "/store.js?v=20261013-platform-1", "/app-install.js?v=20261013-platform-1", "/settings.js?v=20261012-3", "/dialogs.js?v=20261012-1", "/footer.js?v=20261012-1", "/images/hero-excavator.jpg", "/app.webmanifest", "/app-icon.png", "/icons/icon.svg", "/icons/apple-touch-icon.png"];
+const shopPath=pathname=>{const m=pathname.match(/^\/shops\/([a-z0-9-]+)(?:\/|$)/);return m?'/shops/'+m[1]+'/':null;};
+const offlineCache=pathname=>'gearhub-offline-v2:'+ (shopPath(pathname)||'root');
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL)));
 });
@@ -14,7 +16,7 @@ self.addEventListener("fetch", event => {
     event.respondWith(fetch(request).then(response => {
       if (response.ok) caches.open(CACHE_NAME).then(cache => cache.put(url.pathname === "/" ? "/" : request.url, response.clone()));
       return response;
-    }).catch(async () => (await caches.open("gearhub-offline-v1")).match("/").then(saved => saved || caches.match("/"))));
+    }).catch(async () => (async()=>{const tenant=shopPath(url.pathname);if(tenant)return (await caches.open(offlineCache(url.pathname))).match(url.href).then(async saved=>saved||await (await caches.open(CACHE_NAME)).match(url.href)||new Response('This shop is unavailable offline. Connect to the internet to open it.',{status:503,headers:{'Content-Type':'text/plain'}}));return (await caches.open(offlineCache('/'))).match('/').then(saved=>saved||caches.match('/'));})()));
     return;
   }
   if(url.pathname==="/app.webmanifest"){event.respondWith(fetch(request).then(response=>{if(response.ok)caches.open(CACHE_NAME).then(cache=>cache.put(request,response.clone()));return response}).catch(()=>caches.match(request)));return;}
@@ -35,10 +37,12 @@ self.addEventListener("message", event => {
  if(event.data?.type !== "SAVE_OFFLINE") return;
  event.waitUntil((async () => {
   try {
-   const cache = await caches.open("gearhub-offline-v1");
+   const clientUrl=new URL(event.source?.url||self.location.origin);
+   const tenant=shopPath(clientUrl.pathname);
+   const cache = await caches.open(offlineCache(clientUrl.pathname));
    const urls = [...new Set(event.data.urls || [])].filter(value => {
     const url = new URL(value,self.location.origin);
-    return url.origin === self.location.origin && !url.pathname.startsWith("/api/") && !url.pathname.startsWith("/admin");
+    return url.origin === self.location.origin && !url.pathname.startsWith("/api/") && !url.pathname.startsWith("/admin") && !/^\/shops\/[^/]+\/admin(?:\/|$)/.test(url.pathname) && (tenant ? (!url.pathname.startsWith('/shops/') || shopPath(url.pathname)===tenant) && url.pathname!=='/' : !url.pathname.startsWith('/shops/'));
    });
    let failures = 0;
    for(let start=0;start<urls.length;start+=6){
