@@ -37,12 +37,10 @@
     const input = byId("notifications-toggle");
     const help = byId("notifications-help");
     if (!input || !help) return;
-    const supported = "Notification" in window && "serviceWorker" in navigator;
-    input.disabled = !supported;
-    input.checked = supported && localStorage.getItem("gh-notifications") === "on" && Notification.permission === "granted";
-    if (!supported) help.textContent = words("notificationUnsupported");
-    else if (Notification.permission === "denied") help.textContent = words("notificationDenied");
-    else help.textContent = words("notificationsHelp");
+    input.disabled = false;
+    input.checked = localStorage.getItem("gh-notifications") === "on";
+    help.removeAttribute('data-i18n');
+    help.textContent = 'In-app alerts while open. Sound depends on browser/device settings. / App ဖွင့်ထားချိန် အသိပေးရန်';
   }
 
   const formatBytes = bytes => {
@@ -80,22 +78,14 @@
   async function enableNotifications(enabled) {
     if (!enabled) {
       localStorage.removeItem("gh-notifications");
+      document.getElementById("app-update-toast")?.remove();
       updateNotificationSetting();
       return;
     }
-    if (!("Notification" in window) || !("serviceWorker" in navigator)) {
-      updateNotificationSetting();
-      return;
-    }
-    let permission = Notification.permission;
-    if (permission === "default") permission = await Notification.requestPermission();
-    if (permission === "granted") {
-      localStorage.setItem("gh-notifications", "on");
-      message("notificationEnabled");
-    } else {
-      localStorage.removeItem("gh-notifications");
-      message("notificationDenied");
-    }
+    localStorage.setItem("gh-notifications","on");
+    // This preference enables foreground alerts; it is not a remote push subscription.
+    Promise.resolve(window.GearHubUpdates?.enableSound?.()).finally(()=>window.GearHubUpdates?.check?.());
+    message("notificationEnabled");
     updateNotificationSetting();
   }
 

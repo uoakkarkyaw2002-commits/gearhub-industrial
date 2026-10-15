@@ -238,6 +238,12 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
     assert.deepEqual((await b.call('/shops/'+bid+'/categories')).data,[]);
     assert.equal((await a.call(endpoint+'/categories','PUT',{categories:[{category_en:'Same'},{category_en:'same'}]})).status,400);
     assert.equal((await a.call(endpoint+'/categories','PUT',{categories:[{category_en:'Cycle',parent_en:'Cycle'}]})).status,400);
+    const categorySnapshot=()=>JSON.stringify(['products','orders','platform_products','platform_orders'].map(table=>db.prepare('SELECT * FROM '+table+' ORDER BY id').all()));
+    const initialCategoryRows=(await a.call(endpoint+'/categories')).data,originalCategoryData=categorySnapshot();
+    const withEmpty=(await a.call(endpoint+'/categories','PUT',{categories:[...initialCategoryRows,{category_en:'Empty deletion fixture'}]})).data.categories;
+    assert(withEmpty.some(c=>c.category_en==='Empty deletion fixture'));
+    const deleted=await a.call(endpoint+'/categories','PUT',{categories:withEmpty.filter(c=>c.category_en!=='Empty deletion fixture')});assert.equal(deleted.status,200);assert(!(await a.call(endpoint+'/categories')).data.some(c=>c.category_en==='Empty deletion fixture'));
+    assert.equal(categorySnapshot(),originalCategoryData);
     const appearance={brandName:'Only Alice',siteTitle:'Alice',colors:{brand:'#123456',accent:'#123456',page:'#ffffff',hero:'#123456'},translations:{en:{heroTitle:'Alice only'},my:{}},layout:{hero:{enabled:true,padding:30}}};
     assert.equal((await a.call(endpoint+'/appearance','PUT',appearance)).status,200);
     assert.equal((await a.call('/store/alice-store')).data.settings.appearance.brandName,'Only Alice');
@@ -310,6 +316,7 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
             await client.call("/shops/" + id + "/products", "POST", {
               name,
               sku: "SAME-SKU",
+              category: "Parts",
               price: 100,
               stock: 3,
               shop_id: aid,
@@ -317,6 +324,16 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
           ).status,
           200,
         );
+      const categoryEndpoint='/shops/'+aid+'/categories';
+      const populatedCategories=(await a.call(categoryEndpoint)).data;
+      const usedCategory=populatedCategories.find(c=>c.product_count>0);
+      assert.ok(usedCategory,'created product must have a populated category');
+      const beforeDelete=JSON.stringify(db.prepare('SELECT * FROM platform_products ORDER BY id').all());
+      const deniedDelete=await a.call(categoryEndpoint,'PUT',{categories:populatedCategories.filter(c=>c.id!==usedCategory.id)});
+      assert.equal(deniedDelete.status,409);
+      assert.match(deniedDelete.data.error,/choose another category/);
+      assert.deepEqual((await a.call(categoryEndpoint)).data,populatedCategories);
+      assert.equal(JSON.stringify(db.prepare('SELECT * FROM platform_products ORDER BY id').all()),beforeDelete);
       pa = (await a.call("/shops/" + aid)).data.products[0].id;
       pb = (await b.call("/shops/" + bid)).data.products[0].id;
       assert.equal((await a.call("/shops/" + bid)).status, 404);

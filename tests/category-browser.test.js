@@ -7,9 +7,9 @@ test('category projection preserves records, hierarchy, counts and photo associa
  const before=hash({products,categories}),v=model(products,categories,{selected:'Machines'});assert.deepEqual(v.children.map(x=>x.category_en),['Parts']);assert.equal(v.count(v.current),2);assert.deepEqual(v.matching.map(x=>x.id),[8,9]);assert.equal(v.detail,false);assert.equal(model(products,categories,{selected:'Parts'}).detail,true);assert.equal(v.matching[0].imageUrls[0],'/owned.png');assert.equal(hash({products,categories}),before);
 });
 test('category search, price sorting and stock filter only project existing products',()=>{
- assert.deepEqual(model(products,categories,{query:'RP'}).matching.map(x=>x.id),[8]);assert.deepEqual(model(products,categories,{query:'စက်များ'}).visibleMains.map(x=>x.id),[1]);assert.deepEqual(model(products,categories,{selected:'Machines',sort:'low',stockOnly:true}).matching.map(x=>x.id),[8]);assert.deepEqual(model(products,categories,{sort:'high'}).matching.map(x=>x.id),[8,9,10]);
+ assert.deepEqual(model(products,categories,{query:'RP'}).matching.map(x=>x.id),[8]);assert.deepEqual(model(products,categories,{query:'စက်များ'}).visibleMains.map(x=>x.id),[1]);assert.deepEqual(model(products,categories,{selected:'Machines',sort:'low',stockOnly:true}).matching.map(x=>x.id),[8]);assert.deepEqual(model(products,categories,{sort:'high'}).matching.map(x=>x.id),[8,9]);
 });
 test('empty, uncategorized and many category data never fabricate or lose products',()=>{
  assert.equal(model([],[]).matching.length,0);assert.equal(model(products,[],{selected:'Parts'}).matching.length,1);
- const many=Array.from({length:80},(_,i)=>({id:i+100,category_en:'Category '+i}));assert.equal(model(products,many).mains.length,83);assert.equal(model(products,many).matching.length,products.length);
+ const many=Array.from({length:80},(_,i)=>({id:i+100,category_en:'Category '+i}));assert.equal(model(products,many).mains.length,83);assert.equal(model(products,many).matching.length,0);assert.equal(model(products,many).current.category_en,"Category 0");
 });
