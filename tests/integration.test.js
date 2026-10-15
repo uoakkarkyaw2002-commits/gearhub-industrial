@@ -12,6 +12,14 @@ test('stock transactions, CSRF, idempotency, reset races, backups and restart pe
  const stop=async()=>{if(server&&server.exitCode===null){const finished=once(server,'exit');server.kill('SIGTERM');await finished;}};
  t.after(async()=>{db?.close();await stop();fs.rmSync(temp,{recursive:true,force:true});});await start();db=new Database(path.join(temp,'gearhub.sqlite'));const admin=new Client(origin);await admin.login();
  await t.test('origin and CSRF defenses cover JSON, login, and multipart uploads',async()=>{const anonymous=new Client(origin);assert.equal((await anonymous.json('/api/admin/login','POST',{password})).status,403);await anonymous.csrf();assert.equal((await anonymous.json('/api/admin/login','POST',{password},{Origin:'https://attacker.example'})).status,403);assert.equal((await admin.json('/api/admin/products','POST',{}, {'X-CSRF-Token':'bad'})).status,403);const files=new FormData();files.set('images',new Blob([png],{type:'image/png'}),'image.png');const uploaded=await admin.json('/api/admin/uploads','POST',files);assert.equal(uploaded.status,201);assert.equal(uploaded.data.imageUrls.length,1);const headers=(await fetch(origin+'/')).headers;assert.match(headers.get('content-security-policy'),/script-src 'self'/);assert.equal(headers.get('x-content-type-options'),'nosniff');});
+ await t.test('root category banner upload/change/remove preserves catalogue, orders and payments',async()=>{
+  const snapshot=()=>crypto.createHash('sha256').update(JSON.stringify(['products','orders','categories'].map(table=>db.prepare('SELECT * FROM '+table+' ORDER BY id').all()))).digest('hex');
+  const before=snapshot(),settings=(await admin.json('/api/admin/site-settings')).data;
+  const files=new FormData();files.set('images',new Blob([png],{type:'image/png'}),'category-banner.png');const uploaded=await admin.json('/api/admin/uploads','POST',files);assert.equal(uploaded.status,201);const banner=uploaded.data.imageUrls[0];
+  const saved=await admin.json('/api/admin/site-settings','PUT',{...settings,categoryBannerUrl:banner});assert.equal(saved.status,200);assert.equal(saved.data.settings.categoryBannerUrl,banner);assert.deepEqual(saved.data.settings.payment,settings.payment);
+  const oldForm={...saved.data.settings};delete oldForm.categoryBannerUrl;assert.equal((await admin.json('/api/admin/site-settings','PUT',oldForm)).data.settings.categoryBannerUrl,banner);
+  assert.equal((await admin.json('/api/admin/site-settings','PUT',{...saved.data.settings,categoryBannerUrl:''})).data.settings.categoryBannerUrl,'');assert.equal(snapshot(),before);
+ });
  await t.test('invalid receipt MIME, signatures and oversize files fail without creating orders',async()=>{
  const before=db.prepare('SELECT COUNT(*) n FROM orders').get().n;
  const client=new Client(origin);
