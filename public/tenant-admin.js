@@ -17,7 +17,7 @@
   await init();return fetch(base()+suffix,{...options,credentials:'same-origin',cache:'no-store',headers:{...options.headers,'X-CSRF-Token':token}});
  }
  const details=p=>{try{return JSON.parse(p.details||'{}');}catch{return {};}};
- function product(p){const d=details(p);return {...p,name_en:p.name,name_my:d.nameMy||p.name,category_en:p.category,category_my:d.categoryMy||p.category,description_en:p.description,description_my:d.descriptionMy||'',image_emoji:d.imageEmoji||'⚙',imageUrls:(d.imageIds||[p.image_id].filter(Boolean)).map(id=>'/api/platform/images/'+encodeURIComponent(id))};}
+ function product(p){const d=details(p);return {...p,name_en:p.name,name_my:d.nameMy||p.name,category_en:p.category,category_my:d.categoryMy||p.category,description_en:p.description,description_my:d.descriptionMy||'',image_emoji:d.imageEmoji||'⚙',promotion_price:d.promotionPrice??null,imageUrls:(d.imageIds||[p.image_id].filter(Boolean)).map(id=>'/api/platform/images/'+encodeURIComponent(id))};}
  function order(o){const d=details(o);return {...o,...d,order_code:o.code,customer_name:o.customer,invoice_no:o.invoice,hasReceipt:!!o.receipt_id,items:o.items.map(i=>({...i,nameEn:i.name}))};}
  async function snapshot(){const r=await call('');if(!r.ok)throw Error((await r.json()).error);return r.json();}
  function setup(shop){
@@ -44,6 +44,7 @@
   host.append(form);document.getElementById('dashboard').append(host);
   const layout=document.createElement('div');layout.id='site-layout-editor';document.getElementById('site-settings-form').append(layout);
   const active=document.createElement('label');active.textContent='Product visibility';active.innerHTML+=' <select name=active><option value=1>Active</option><option value=0>Hidden</option></select>';document.getElementById('product-form').append(active);
+  const promotion=document.createElement('label');promotion.className='wide promotion-price-field';promotion.textContent='Promotion price (MMK)';promotion.innerHTML+='<span class="product-input-wrap"><input name="promotionPrice" type="number" min="0" step="1" placeholder="Optional sale price"></span><small>Shown in Promotion while the original price stays in the catalogue.</small>';document.querySelector('#product-form .product-entry-card:nth-of-type(2) .product-field-grid')?.append(promotion);
   const exports=document.createElement('a');exports.href=base()+'/export';exports.textContent='Export this shop data (JSON)';exports.download='shop-data.json';host.append(exports);
   const quota=document.createElement('p');quota.textContent=`Storage ${(shop.limits.usedBytes/1048576).toFixed(2)} / ${(shop.limits.storageLimit/1048576).toFixed(0)} MB · ${shop.limits.subscriptionState} · ${shop.starts_at||''} → ${shop.ends_at||'No expiry'}`;host.prepend(quota);
  }
@@ -55,6 +56,7 @@
   },
   receipt:o=>base()+'/receipts/'+encodeURIComponent(o.receipt_id),
   login:error=>{
+   if(/google login required/i.test(error?.message||'')){location.replace('/platform.html');return;}
    document.getElementById('dashboard').classList.add('hidden');document.getElementById('login-view').classList.remove('hidden');
    const box=document.getElementById('login-view');box.replaceChildren();const p=document.createElement('p');p.textContent=error.message;const a=document.createElement('a');a.href='/platform.html';a.textContent='Continue with Google / Google ဖြင့်ဝင်ရန်';box.append(p,a);
   },
@@ -75,7 +77,7 @@
     if(/^\/products(?:\/\d+)?$/.test(suffix)&&['POST','PATCH'].includes(method)){
      const b=JSON.parse(options.body),ids=[];
      const photos=[...(b.imageUrls||[])];if(Number.isInteger(Number(b.coverIndex))&&photos[Number(b.coverIndex)])photos.unshift(...photos.splice(Number(b.coverIndex),1));for(const url of photos){const m=url.match(/^\/api\/platform\/images\/([^/?#]+)$/);if(!m)return json({error:'Upload images to this shop first.'},400);ids.push(m[1]);}
-     return await call(suffix,{...options,body:JSON.stringify({name:b.nameEn,nameMy:b.nameMy,sku:b.sku,description:b.descriptionEn,descriptionMy:b.descriptionMy,category:b.categoryEn,categoryMy:b.categoryMy,imageEmoji:b.emoji,price:b.price,stock:b.stock,expectedStock:b.expectedStock,active:b.active!==false&&b.active!=='0',imageId:ids[0]||null,imageIds:ids})});
+     return await call(suffix,{...options,body:JSON.stringify({name:b.nameEn,nameMy:b.nameMy,sku:b.sku,description:b.descriptionEn,descriptionMy:b.descriptionMy,category:b.categoryEn,categoryMy:b.categoryMy,imageEmoji:b.emoji,price:b.price,promotionPrice:b.promotionPrice,stock:b.stock,expectedStock:b.expectedStock,active:b.active!==false&&b.active!=='0',imageId:ids[0]||null,imageIds:ids})});
     }
     if(suffix==='/uploads'&&method==='POST'){
      const urls=[];for(const f of options.body.getAll('images')){const form=new FormData();form.append('file',f);const r=await call('/files',{method:'POST',body:form});const d=await r.json();if(!r.ok)return json(d,r.status);urls.push('/api/platform/images/'+d.id);}return json({imageUrls:urls});
