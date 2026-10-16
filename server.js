@@ -830,6 +830,7 @@ app.put("/api/admin/categories", adminOnly, (req,res) => {
  });
  try{save.immediate(cleaned);res.json({ok:true,categories:getCategories(false)});}catch(err){res.status(err.status===409?409:400).json({error:err.message||"Could not save categories. Check for duplicate names."});}
 });
+app.post('/api/admin/products/:id/delete-permanently',adminOnly,(req,res)=>{try{res.json(require('./lib/product-trash').deleteTrashedProduct(db,{table:'products',id:Number(req.params.id),confirmed:req.body.confirmPermanent===true}));}catch(e){res.status(e.status||400).json({error:e.message});}});
 for(const action of ['trash','restore'])app.post('/api/admin/products/:id/'+action,adminOnly,(req,res)=>{try{res.json(require('./lib/product-trash').changeTrash(db,{table:'products',id:Number(req.params.id),restore:action==='restore'}));}catch(e){res.status(e.status||400).json({error:e.message});}});
 app.post("/api/admin/products", adminOnly, (req,res) => {
  const b=req.body||{};
