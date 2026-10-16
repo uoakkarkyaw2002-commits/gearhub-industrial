@@ -42,7 +42,7 @@ function toast(t){$("toast").textContent=t;$("toast").classList.add("show");setT
 document.addEventListener("click",e=>{if(e.target.closest("#cancelled-toggle")){$("trash-panel").classList.toggle("hidden");if(!$("trash-panel").classList.contains("hidden"))$("trash-panel").scrollIntoView({behavior:"smooth",block:"start"})}if(e.target.closest("#confirmed-toggle")){$("confirmed-panel").classList.toggle("hidden");if(!$("confirmed-panel").classList.contains("hidden"))$("confirmed-panel").scrollIntoView({behavior:"smooth",block:"start"})}if(e.target.closest("#empty-trash"))emptyTrash()});
 async function checkSession(){try{await api("/api/admin/me");showDashboard()}catch(e){if(window.GearHubTenantAdmin){window.GearHubTenantAdmin.login(e);return;}$("login-view").classList.remove("hidden");$("dashboard").classList.add("hidden");$("logout").classList.add("hidden");$("admin-user-menu")?.classList.add("hidden")}}
 function openLinkedSiteSettings(){if(!["#site-settings-content","#site-app-icon-field","#site-navigation-background-field"].includes(location.hash))return;const toggle=document.querySelector(".site-settings-panel .admin-section-toggle"),content=$("site-settings-content");if(toggle&&content?.classList.contains("hidden"))toggle.click();requestAnimationFrame(()=>(document.querySelector(location.hash)||document.querySelector(".site-settings-panel"))?.scrollIntoView({behavior:"smooth",block:"start"}))}
-function showDashboard(){const categoryBannerRequested=location.hash==="#category-banner";$("login-view").classList.add("hidden");$("dashboard").classList.remove("hidden");$("logout").classList.remove("hidden");$("admin-user-menu")?.classList.remove("hidden");document.querySelectorAll(".admin-section-toggle").forEach(toggle=>{const content=$(toggle.dataset.contentId);if(content)content.classList.add("hidden");toggle.setAttribute("aria-expanded","false");const icon=$(toggle.dataset.iconId);if(icon)icon.textContent="＋";});if(location.hash)history.replaceState(null,"",location.pathname+location.search);prepareAdminLayout();refreshAll();loadSiteSettings();if(categoryBannerRequested){const content=$("site-settings-content"),toggle=document.querySelector('[data-content-id="site-settings-content"]');content?.classList.remove("hidden");toggle?.setAttribute("aria-expanded","true");requestAnimationFrame(()=>$("site-category-banner-url").closest("section").scrollIntoView({block:"center"}))}}
+function showDashboard(){const categoryBannerRequested=location.hash==="#category-banner";$("login-view").classList.add("hidden");$("dashboard").classList.remove("hidden");$("logout").classList.remove("hidden");$("admin-user-menu")?.classList.remove("hidden");document.querySelectorAll(".admin-section-toggle").forEach(toggle=>{const content=$(toggle.dataset.contentId);if(content)content.classList.add("hidden");toggle.setAttribute("aria-expanded","false");const icon=$(toggle.dataset.iconId);if(icon)icon.textContent="＋";});if(location.hash)history.replaceState(null,"",location.pathname+location.search);prepareAdminLayout();setDesktopAdminView("inventory-panel");refreshAll();loadSiteSettings();if(categoryBannerRequested){setDesktopAdminView("site-settings-content");const content=$("site-settings-content"),toggle=document.querySelector('[data-content-id="site-settings-content"]');content?.classList.remove("hidden");toggle?.setAttribute("aria-expanded","true");requestAnimationFrame(()=>$("site-category-banner-url").closest("section").scrollIntoView({block:"center"}))}}
 $("login-form").addEventListener("submit",async e=>{e.preventDefault();const f=new FormData(e.currentTarget);try{await api("/api/admin/login",{method:"POST",body:JSON.stringify({password:f.get("password")})});msg("login-message","");showDashboard()}catch(err){msg("login-message",err.message,"error")}});
 document.addEventListener("click",e=>{const button=e.target.closest("[data-password-toggle]");if(!button)return;const input=$(button.dataset.passwordToggle);if(!input)return;const show=input.type==="password";input.type=show?"text":"password";button.setAttribute("aria-pressed",String(show));button.setAttribute("aria-label",show?"Hide password":"Show password");button.title=show?"Hide password":"Show password";button.textContent=show?"Hide":"Show";});
 $("show-reset").addEventListener("click",()=>{$("login-form").classList.add("hidden");$("reset-request-form").classList.remove("hidden");$("reset-verify-form").classList.add("hidden")});
@@ -302,3 +302,36 @@ async function refreshOperations(){
 $("backup-run").addEventListener("click",async event=>{const button=event.currentTarget;button.disabled=true;try{await api("/api/admin/backup/run",{method:"POST",body:"{}"});toast("Backup completed");}catch(error){toast(error.message);}finally{button.disabled=false;refreshOperations();}});
 
 $("remove-category-banner").addEventListener("click",()=>{$("site-category-banner-url").value="";updateSiteImagePreview("site-category-banner-url","site-category-banner-preview");msg("site-settings-message","Banner removed from draft. Save Changes to apply.","")});
+
+// Desktop administration shows one work area at a time. The sidebar opens the
+// requested area, so its cards do not repeat below the product inventory.
+const desktopAdminTargets={
+  "inventory-panel":["#inventory-panel"],
+  dashboard:["#inventory-panel"],
+  "orders-content":["#dashboard>.admin-grid>div:first-child"],
+  "confirmed-panel":["#confirmed-panel"],
+  "confirmed-toggle":["#confirmed-panel"],
+  "cancelled-toggle":["#trash-panel"],
+  "low-stock-content":["#dashboard>.admin-grid>div:nth-child(2)>div:first-child"],
+  "product-form-content":["#product-form-panel"],
+  "product-form-panel":["#product-form-panel"],
+  "category-manager-content":[".category-manager-panel"],
+  "site-settings-content":[".site-settings-panel","#dashboard>section[aria-labelledby='operations-heading']"]
+};
+const desktopAdminRoots=["#inventory-panel","#dashboard>.admin-grid>div:first-child","#dashboard>.admin-grid>div:nth-child(2)>div:first-child","#product-form-panel",".category-manager-panel",".site-settings-panel","#confirmed-panel","#trash-panel","#dashboard>section[aria-labelledby='operations-heading']","#dashboard>.order-list-controls"];
+function setDesktopAdminView(targetId){
+  if(!window.matchMedia("(min-width:1100px)").matches)return;
+  const visible=new Set((desktopAdminTargets[targetId]||desktopAdminTargets["inventory-panel"]).flatMap(selector=>[...document.querySelectorAll(selector)]));
+  desktopAdminRoots.forEach(selector=>document.querySelectorAll(selector).forEach(node=>node.classList.toggle("desktop-admin-view-hidden",!visible.has(node))));
+}
+document.addEventListener("click",event=>{
+  if(!window.matchMedia("(min-width:1100px)").matches)return;
+  const sidebarLink=event.target.closest(".admin-sidebar a[href^='#']");
+  if(sidebarLink){const targetId=sidebarLink.getAttribute("href").slice(1);setDesktopAdminView(targetId);if(targetId==="confirmed-panel"&&$("confirmed-panel")?.classList.contains("hidden"))$("confirmed-toggle").click();return;}
+  if(event.target.closest(".inventory-edit-product")){setDesktopAdminView("product-form-panel");}
+  if(event.target.closest("#inventory-add-product")){setDesktopAdminView("product-form-panel");}
+},true);
+window.addEventListener("resize",()=>{
+  if(window.matchMedia("(min-width:1100px)").matches)setDesktopAdminView("inventory-panel");
+  else document.querySelectorAll(".desktop-admin-view-hidden").forEach(node=>node.classList.remove("desktop-admin-view-hidden"));
+});
