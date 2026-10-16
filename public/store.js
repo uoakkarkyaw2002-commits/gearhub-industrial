@@ -10,7 +10,7 @@ function tr(k){return translations[lang][k]||translations.en[k]||k}
 function trHtml(k){return safeTranslation(tr(k))}
 function safeTranslation(value){return esc(value).replace(/&lt;br\s*\/?&gt;/gi,"<br>").replace(/\r?\n/g,"<br>")}
 async function downloadOfflineCatalog(){
- if(localStorage.getItem("gh-offline-mode")!=="on")return;
+ if(localStorage.getItem("gh-offline-mode")==="off")return;
  if(!catalogLoaded)throw new Error("ပစ္စည်းစာရင်း မရသေးပါ။ Internet ချိတ်ပြီး ပြန်ဖွင့်ပေးပါ။");
  localStorage.setItem(storefrontKey("gh-offline-catalog"),JSON.stringify({products,categories,config}));
  if(!("serviceWorker" in navigator))throw new Error("ဒီ browser မှာ offline မရနိုင်ပါ။");
@@ -28,7 +28,7 @@ async function downloadOfflineCatalog(){
 let offlineDownloadPromise=null;
 function downloadStatus(state){window.dispatchEvent(new CustomEvent("gearhub:auto-download",{detail:{state}}))}
 function saveOfflineCatalog(){
- if(localStorage.getItem("gh-offline-mode")!=="on")return Promise.resolve(false);
+ if(localStorage.getItem("gh-offline-mode")==="off")return Promise.resolve(false);
  if(!navigator.onLine){downloadStatus("waiting");return Promise.resolve(false)}
  if(offlineDownloadPromise)return offlineDownloadPromise;
  downloadStatus("downloading");
@@ -134,7 +134,7 @@ async function init(){ $("year").textContent=new Date().getFullYear();try{if(!na
 
 let autoRefreshBusy=false,lastAutoRefresh=0;
 async function syncAutoDownloads(force=false){
- if(localStorage.getItem("gh-offline-mode")!=="on"||!navigator.onLine||document.hidden||autoRefreshBusy)return;
+ if(localStorage.getItem("gh-offline-mode")==="off"||!navigator.onLine||document.hidden||autoRefreshBusy)return;
  if(!force&&Date.now()-lastAutoRefresh<60000)return;
  autoRefreshBusy=true;lastAutoRefresh=Date.now();
  try{await init()}finally{autoRefreshBusy=false}
