@@ -151,4 +151,11 @@ $("category-search-close").addEventListener("click",closeCategorySearch);
 $("category-search-panel").addEventListener("keydown",event=>{if(event.key==="Escape"){event.preventDefault();closeCategorySearch();}});
 
 
-$("category-back").addEventListener('click',()=>{categoryProductsOpen=false;categoryDirectOnly=false;renderCategoryBrowser();$("category-list").querySelector("button")?.focus();});
+function returnToCategoryBrowse(){categoryProductsOpen=false;categoryDirectOnly=false;renderCategoryBrowser();$("category-list").querySelector("button")?.focus({preventScroll:true});$("category-view").scrollIntoView({block:'start',behavior:'instant'});}
+$("category-back").addEventListener('click',returnToCategoryBrowse);
+let categorySwipe=null;
+const categorySwipeBlocked=()=>storeView!=="category"||!categoryProductsOpen||!matchMedia('(max-width:850px)').matches||document.querySelector('.modal.open,.drawer.open');
+$("category-products").addEventListener('touchstart',event=>{categorySwipe=null;if(categorySwipeBlocked()||event.touches.length!==1||event.target.closest('input,textarea,select,[contenteditable=true]'))return;const point=event.touches[0];categorySwipe={id:point.identifier,x:point.clientX,y:point.clientY,at:performance.now()};},{passive:true});
+$("category-products").addEventListener('touchmove',event=>{if(!categorySwipe)return;if(event.touches.length!==1){categorySwipe=null;return;}const p=event.touches[0];if(p.identifier!==categorySwipe.id||Math.abs(p.clientY-categorySwipe.y)>Math.max(18,Math.abs(p.clientX-categorySwipe.x)))categorySwipe=null;},{passive:true});
+$("category-products").addEventListener('touchcancel',()=>{categorySwipe=null;},{passive:true});
+$("category-products").addEventListener('touchend',event=>{const start=categorySwipe;categorySwipe=null;if(!start||categorySwipeBlocked())return;const point=[...event.changedTouches].find(p=>p.identifier===start.id);if(!point)return;if(window.GearHubCategories.isReturnSwipe({dx:point.clientX-start.x,dy:point.clientY-start.y,elapsed:performance.now()-start.at})){if(event.cancelable)event.preventDefault();returnToCategoryBrowse();}},{passive:false});

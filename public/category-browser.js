@@ -20,5 +20,6 @@
   if(sort==='low')matching.sort((a,b)=>a.price-b.price);if(sort==='high')matching.sort((a,b)=>b.price-a.price);
   return {all,mains,visibleMains,current,parent,children,matching,count,kids,direct,path,rootCategory:path[0]||null,detail:!!current&&!kids(current).length};
  }
- return {model};
+ function isReturnSwipe({dx,dy,elapsed}){return Number.isFinite(dx)&&Number.isFinite(dy)&&elapsed>=0&&elapsed<=700&&dx>=72&&dx>Math.abs(dy)*1.8;}
+ return {model,isReturnSwipe};
 });

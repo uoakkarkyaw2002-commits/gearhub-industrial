@@ -629,3 +629,5 @@ footer.gearhub-footer{padding:0;background:radial-gradient(ellipse at 30% 20%,#0
  :root[data-theme="dark"] #category-view:not(.category-products-mode){background:linear-gradient(135deg,#182d21,#243c2b)}
  :root[data-theme="dark"] #category-view:not(.category-products-mode) .category-choice:not(.selected),:root[data-theme="dark"] #category-view:not(.category-products-mode) .category-tree-choice,:root[data-theme="dark"] #category-view:not(.category-products-mode) .category-direct-products{background:#263e2e;color:#e4f4e7;border-color:#3c5744}
 }
+
+@media(max-width:850px){#category-view .category-search-tools{display:none!important}#category-view.category-products-mode .category-page-top{display:none!important}#category-view #category-back{display:none!important}#category-view.category-products-mode{padding-top:0}}
