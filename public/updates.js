@@ -87,9 +87,6 @@
     if(status)status.textContent=available?'Version '+release.version+' available / အသစ်ရပါပြီ':('Version '+(buildVersion||release.version)+' · Up to date / နောက်ဆုံးဗားရှင်း');
     if(current)current.textContent=buildVersion||release.version;
     if(summary)summary.textContent=available?'Version '+release.version+' · '+release.notes:'No update pending / Update မရှိသေးပါ။';
-    if(!document.getElementById('app-update-action')&&available){
-      const header=document.querySelector?.('header');if(header){const button=document.createElement('button');button.type='button';button.id='app-update-action';button.className='app-update-badge';button.textContent='Update available · '+release.version;button.addEventListener('click',()=>apply());header.append(button);}
-    }
     const headerUpdate=document.querySelector?.('header #app-update-action');if(headerUpdate){headerUpdate.hidden=!available;headerUpdate.textContent='Update available · '+release.version;}
     const centre=document.getElementById('app-update-notification');if(centre&&!available)centre.hidden=true;
     const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent||'');
@@ -166,9 +163,12 @@
   document.addEventListener?.('pointerdown',()=>{if(notificationsOn())enableSound();},{passive:true});
   document.addEventListener?.('keydown',()=>{if(notificationsOn())enableSound();});
   document.addEventListener?.('visibilitychange',()=>{if(document.visibilityState!=='hidden')check();});
-  navigator.serviceWorker?.addEventListener("controllerchange", () => {
-    if (requested) location.reload();
-  });
+  function reloadWhenSafe(){
+    if(blocked()){setTimeout(reloadWhenSafe,1000);return;}
+    saveDraft();
+    location.reload();
+  }
+  navigator.serviceWorker?.addEventListener("controllerchange", reloadWhenSafe);
   window.addEventListener("load", async () => {
     restore();
     if ("serviceWorker" in navigator && isSecureContext) {
