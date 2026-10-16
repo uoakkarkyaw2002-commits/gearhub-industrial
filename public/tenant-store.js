@@ -32,6 +32,7 @@
   }
   window.GearHubTenantStore={
     key:key=>key==='gh-cart'?'gh-shop-cart:'+slug:'gh-shop:'+slug+':'+key,
+    adminUrl:'/shops/'+encodeURIComponent(slug)+'/admin',
     async fetch(url,options){
       try{
         if(url==='/api/products'){
