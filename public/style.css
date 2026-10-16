@@ -657,3 +657,16 @@ footer.gearhub-footer{padding:0;background:radial-gradient(ellipse at 30% 20%,#0
  .toast{bottom:100px;z-index:70}
  .bottom-nav-item:focus-visible{outline:3px solid #68a944;outline-offset:-4px}
 }
+/* Settings is available at every viewport, not only inside the phone media query. */
+#profile-view:not(.store-view-hidden){display:block;margin-top:24px;margin-bottom:110px;min-height:65vh}
+#category-view .category-search-tools{display:none!important}
+@media(min-width:851px){
+ #category-view #category-products{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+ #category-view .category-product-art{height:180px}
+ #category-view .category-product-info h4{font-size:15px;line-height:1.5}
+ #category-view .category-product-info .price{font-size:18px}
+ #profile-view{max-width:920px}
+ #profile-view .settings-header{margin-top:20px}
+ #profile-view .settings-row{min-height:80px;padding:16px 22px}
+ #profile-view .settings-copy{min-width:0}
+}
