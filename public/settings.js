@@ -93,7 +93,14 @@
   updateLanguageButtons();
   updateNotificationSetting();
   updateStorageUsage();
-  byId("offline-mode-toggle").checked = localStorage.getItem("gh-offline-mode") === "on";
+  if (!window.GearHubTenantStore && !byId("my-shops-action")) {
+    const button = document.createElement("button");
+    button.className = "settings-row settings-row-button";
+    button.type = "button";
+    button.id = "my-shops-action";
+    button.innerHTML = '<span class="settings-icon" aria-hidden="true">🏪</span><span class="settings-copy"><strong>'+words("myShopsSetting")+'</strong><small>'+words("myShopsHelp")+'</small></span><span class="settings-chevron" aria-hidden="true">›</span>';
+    byId("home-screen-action")?.before(button);
+  }
 
   const choiceTimers = new WeakMap();
   function animateChoice(button, apply) {
@@ -107,34 +114,9 @@
   document.querySelectorAll("[data-theme-choice]").forEach(button => button.addEventListener("click", () => animateChoice(button, () => applyTheme(button.dataset.themeChoice))));
   document.querySelectorAll("[data-language-choice]").forEach(button => button.addEventListener("click", () => animateChoice(button, () => setLanguage(button.dataset.languageChoice))));
   byId("lang").addEventListener("click", updateLanguageButtons);
-  function showDownloadStatus(state) {
-    const help = byId("auto-download-help");
-    if (!help) return;
-    const enabled = localStorage.getItem("gh-offline-mode") === "on";
-    const status = !enabled ? "autoDownloadHelp" : ({downloading:"autoDownloadSaving",ready:"autoDownloadReady",waiting:"autoDownloadWaiting",retry:"autoDownloadRetry"}[state] || "autoDownloadHelp");
-    help.dataset.i18n = status;
-    help.textContent = words(status);
-  }
-  showDownloadStatus(localStorage.getItem("gh-offline-downloaded-at") ? "ready" : "waiting");
-  window.addEventListener("gearhub:auto-download", event => showDownloadStatus(event.detail.state));
-  byId("offline-mode-toggle").addEventListener("change", async event => {
-    const input = event.currentTarget, enabled = input.checked;
-    input.disabled = true;
-    await new Promise(resolve => setTimeout(resolve, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 260));
-    localStorage.setItem("gh-offline-mode", enabled ? "on" : "off");
-    input.disabled = false;
-    if (enabled) {
-      showDownloadStatus(navigator.onLine ? "downloading" : "waiting");
-      try { await saveOfflineCatalog(); }
-      catch { message("", words("autoDownloadRetry")); }
-    } else {
-      showDownloadStatus("off");
-      message("", words("autoDownloadOff"));
-    }
-  });
   byId("notifications-toggle")?.addEventListener("change", event => enableNotifications(event.currentTarget.checked));
   byId("my-shops-action")?.addEventListener("click", () => {
-    location.href = window.GearHubTenantStore?.adminUrl || "/platform.html";
+    location.href = "/platform.html";
   });
   byId("about-app-toggle").addEventListener("click", () => {
     const details = byId("about-app-details");
