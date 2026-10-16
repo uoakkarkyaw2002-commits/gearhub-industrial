@@ -590,3 +590,13 @@ footer.gearhub-footer{padding:0;background:radial-gradient(ellipse at 30% 20%,#0
 #category-view .category-search input{flex:1;width:0;min-width:0}
 #category-view #category-search-close{flex:0 0 36px;width:36px;height:36px;border:0;background:transparent;color:inherit;font-size:26px}
 #category-view .category-search-toggle:focus-visible,#category-view #category-search-close:focus-visible{outline:3px solid #68a944;outline-offset:3px}
+
+/* Category browsing and product viewing are separate screens. */
+#category-view .category-browser,#category-view .category-browser.category-detail{grid-template-columns:minmax(98px,32%) minmax(0,1fr)}
+#category-view .category-sidebar,#category-view .category-detail .category-sidebar{grid-column:1}
+#category-view .category-results{grid-column:2}
+#category-view:not(.category-products-mode) #category-products{display:none!important}
+#category-view.category-products-mode .category-sidebar,#category-view.category-products-mode .category-results{display:none!important}
+#category-view.category-products-mode #category-products{grid-row:1;grid-column:1/-1}
+#category-view #category-back[hidden]{display:none}
+#category-view .category-page-top{gap:10px}
