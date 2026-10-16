@@ -581,3 +581,12 @@ footer.gearhub-footer{padding:0;background:radial-gradient(ellipse at 30% 20%,#0
 @media(max-width:360px){#category-view .category-browser,#category-view .category-browser.category-detail{grid-template-columns:minmax(0,1fr) 98px;gap:7px}#category-view .category-tree-choice{font-size:11px}#category-view .category-product-art{height:110px}}
 #category-view #category-products[hidden]{display:none}
 #category-view #category-products{scroll-margin-top:24px}
+
+/* Category search opens only after an explicit user action. */
+#category-view .category-search-tools{position:relative;flex:0 0 auto;margin-inline-start:auto}
+#category-view .category-search-toggle{display:grid;place-items:center;width:44px;height:44px;padding:10px;border:1px solid var(--line);border-radius:50%;background:var(--card,#fff);color:var(--ink)}
+#category-view .category-search[hidden]{display:none!important}
+#category-view .category-search{position:absolute;right:0;top:52px;width:min(340px,calc(100vw - 40px));z-index:5;display:flex;flex-basis:auto;gap:8px;background:var(--card,#fff)}
+#category-view .category-search input{flex:1;width:0;min-width:0}
+#category-view #category-search-close{flex:0 0 36px;width:36px;height:36px;border:0;background:transparent;color:inherit;font-size:26px}
+#category-view .category-search-toggle:focus-visible,#category-view #category-search-close:focus-visible{outline:3px solid #68a944;outline-offset:3px}

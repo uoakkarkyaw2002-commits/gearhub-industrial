@@ -145,5 +145,10 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)syncAutoDo
 setInterval(()=>syncAutoDownloads(),5*60*1000);
 
 $("category-search")?.addEventListener("input",renderCategoryBrowser);
+function closeCategorySearch(){const input=$("category-search");input.value="";$("category-search-panel").hidden=true;$("category-search-toggle").setAttribute("aria-expanded","false");renderCategoryBrowser();$("category-search-toggle").focus();}
+$("category-search-toggle").addEventListener("click",()=>{const panel=$("category-search-panel");if(!panel.hidden){closeCategorySearch();return;}panel.hidden=false;$("category-search-toggle").setAttribute("aria-expanded","true");$("category-search").focus();});
+$("category-search-close").addEventListener("click",closeCategorySearch);
+$("category-search-panel").addEventListener("keydown",event=>{if(event.key==="Escape"){event.preventDefault();closeCategorySearch();}});
+
 
 $("category-back").addEventListener('click',()=>{const path=currentCategoryView?.path||[];categoryDirectOnly=false;selectedCategory=path.at(-2)?.category_en||'';renderCategoryBrowser();});
