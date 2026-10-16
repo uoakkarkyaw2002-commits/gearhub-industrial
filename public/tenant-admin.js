@@ -25,6 +25,7 @@
   document.title=shop.name+' · Admin';
   const heading=document.querySelector('.admin-head h1');if(heading)heading.textContent=shop.name+' · Admin';
   document.querySelectorAll('a[href="/"]').forEach(a=>a.href='/shops/'+encodeURIComponent(slug));
+  const navActions=document.querySelector('.nav > .nav-actions');if(navActions&&!navActions.querySelector('[data-tenant-home]')){const home=document.createElement('a');home.className='secondary tenant-home-button';home.dataset.tenantHome='';home.href='/shops/'+encodeURIComponent(slug)+'/';home.setAttribute('aria-label','Home');home.title='Home';home.textContent='⌂';navActions.insertBefore(home,navActions.firstChild);}
   // Global backups/reset and destructive trash controls are not merchant APIs.
   document.getElementById('operations-status')?.closest('.panel')?.setAttribute('hidden','');
   document.querySelectorAll('a[href*="/api/admin/"]').forEach(a=>a.hidden=true);
