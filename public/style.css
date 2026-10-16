@@ -600,3 +600,32 @@ footer.gearhub-footer{padding:0;background:radial-gradient(ellipse at 30% 20%,#0
 #category-view.category-products-mode #category-products{grid-row:1;grid-column:1/-1}
 #category-view #category-back[hidden]{display:none}
 #category-view .category-page-top{gap:10px}
+/* Phone category cards: main list left, banner and subcategories right. */
+@media(max-width:850px){
+ #category-view:not(.category-products-mode){background:linear-gradient(135deg,#f4fcf5 0%,#e7f8ec 48%,#f4fcf5 100%);border-radius:20px;padding:12px 10px 24px}
+ #category-view:not(.category-products-mode) .category-browser{grid-template-columns:minmax(0,35%) minmax(0,1fr);gap:10px}
+ #category-view:not(.category-products-mode) .category-page-top{margin-bottom:12px;align-items:center}
+ #category-view:not(.category-products-mode) .category-page-top>div:first-of-type{min-width:0}
+ #category-view:not(.category-products-mode) .category-page-top h2{font-size:18px}
+ #category-view:not(.category-products-mode) .category-page-subtitle{display:none}
+ #category-view:not(.category-products-mode) .category-sidebar{position:static;max-height:none;overflow:visible;background:transparent;padding:0;gap:9px;border-radius:0}
+ #category-view:not(.category-products-mode) .category-main-heading,#category-view:not(.category-products-mode) #category-subcategory-heading,#category-view:not(.category-products-mode) #category-breadcrumb{display:none}
+ #category-view:not(.category-products-mode) .category-choice{align-items:center;min-height:52px;padding:12px 9px;gap:5px;background:#f8fff9;border:1px solid #ffffffb3;border-radius:13px;box-shadow:0 8px 13px #214d3024;font-size:12px;font-weight:600;line-height:1.45}
+ #category-view:not(.category-products-mode) .category-choice.selected{background:linear-gradient(110deg,#087629,#47a55b);color:#fff;border-color:#30994e;box-shadow:0 7px 13px #167c3f38}
+ #category-view:not(.category-products-mode) .category-choice-count{display:grid;place-items:center;min-width:25px;height:25px;padding:0 5px;background:#e4ece8;border-radius:50%;color:#233d31;font-size:11px}
+ #category-view:not(.category-products-mode) .category-choice.selected .category-choice-count{background:#a6d8a8;color:#174f2d}
+ #category-view:not(.category-products-mode) .category-results{background:transparent;padding:0;overflow:visible;border-radius:0}
+ #category-view:not(.category-products-mode) .category-feature-banner{min-height:0;aspect-ratio:1.65;border:3px solid #fff;border-radius:14px;box-shadow:0 8px 16px #214d3026;margin:0 0 16px}
+ #category-view:not(.category-products-mode) .category-feature-banner.has-image .category-banner-copy{display:none}
+ #category-view:not(.category-products-mode) .category-banner-copy{padding:10px}
+ #category-view:not(.category-products-mode) .category-subcategories{display:flex;flex-direction:column;gap:10px}
+ #category-view:not(.category-products-mode) .category-subcategories>.category-direct-products{order:-1}
+ #category-view:not(.category-products-mode) .category-tree-node{border:0}
+ #category-view:not(.category-products-mode) .category-tree-choice,#category-view:not(.category-products-mode) .category-direct-products{display:flex;align-items:center;gap:6px;min-height:54px;margin:0;padding:13px 10px;border:1px solid #ffffffa8;border-radius:13px;background:#f8fff9;box-shadow:0 8px 14px #214d3024;font-size:12px;font-weight:600;line-height:1.5}
+ #category-view:not(.category-products-mode) .category-direct-products{background:#fff;color:#17723b}
+ #category-view:not(.category-products-mode) .category-direct-products::after{content:'›';font-size:24px;color:#78877d;margin-left:auto}
+ #category-view:not(.category-products-mode) .category-tree-children{margin:10px 0 0 4px;padding:0 0 0 7px}
+ #category-view:not(.category-products-mode) .category-tree-children .category-tree-node+.category-tree-node{margin-top:8px}
+ :root[data-theme="dark"] #category-view:not(.category-products-mode){background:linear-gradient(135deg,#182d21,#243c2b)}
+ :root[data-theme="dark"] #category-view:not(.category-products-mode) .category-choice:not(.selected),:root[data-theme="dark"] #category-view:not(.category-products-mode) .category-tree-choice,:root[data-theme="dark"] #category-view:not(.category-products-mode) .category-direct-products{background:#263e2e;color:#e4f4e7;border-color:#3c5744}
+}
