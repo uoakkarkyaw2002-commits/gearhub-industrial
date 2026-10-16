@@ -41,7 +41,7 @@
         if(url==='/api/categories'){
           const s=snapshot||await load();
           const names=[...new Set(s.products.map(p=>p.category).filter(Boolean))];
-          const rows=(s.settings.categories||[]).map(c=>({...c}));for(const name of names)if(!rows.some(c=>c.category_en===name))rows.push({id:Math.max(0,...rows.map(c=>c.id))+1,category_en:name,category_my:name,icon:'⚙'});return json(rows.map(c=>({...c,parent_id:rows.find(p=>p.category_en===c.parent_en)?.id||null,product_count:s.products.filter(p=>p.category===c.category_en).length})));
+          const rows=(s.settings.categories||[]).map(c=>({...c}));for(const name of names)if(!rows.some(c=>c.category_en.toLowerCase()===name.toLowerCase()))rows.push({id:Math.max(0,...rows.map(c=>c.id))+1,category_en:name,category_my:name,icon:'⚙'});return json(rows.map(c=>({...c,parent_id:rows.find(p=>p.category_en===c.parent_en)?.id||null,product_count:s.products.filter(p=>p.category.toLowerCase()===c.category_en.toLowerCase()).length})));
         }
         if(url==='/api/config'){const s=snapshot||await load();prepare(s);return json(configFor(s));}
         if(url==='/api/storage'){

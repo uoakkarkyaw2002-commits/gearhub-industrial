@@ -102,6 +102,7 @@ CREATE INDEX IF NOT EXISTS idx_orders_created ON orders(created_at DESC);
 if (!db.prepare("PRAGMA table_info(categories)").all().some(column => column.name === "parent_id")) {
  db.exec("ALTER TABLE categories ADD COLUMN parent_id INTEGER REFERENCES categories(id) ON DELETE SET NULL");
 }
+require('./lib/product-trash').ensureTrashColumns(db,'products');
 // Safe schema migration for existing deployments.
 if (!db.prepare("PRAGMA table_info(admins)").all().some(c => c.name === "auth_version")) db.exec("ALTER TABLE admins ADD COLUMN auth_version INTEGER NOT NULL DEFAULT 1");
 const orderColumns = db.prepare("PRAGMA table_info(orders)").all().map(c => c.name);
@@ -386,7 +387,7 @@ function getCategories(activeOnly=false) {
  return db.prepare(`SELECT c.id,c.category_en,c.category_my,c.icon,c.parent_id,c.sort_order,
   parent.category_en AS parent_en,parent.category_my AS parent_my,COUNT(p.id) AS product_count
   FROM categories c LEFT JOIN categories parent ON parent.id=c.parent_id
-  LEFT JOIN products p ON p.category_en=c.category_en ${filter}
+  LEFT JOIN products p ON p.category_en=c.category_en COLLATE NOCASE ${filter}
   GROUP BY c.id ORDER BY c.sort_order ASC,c.id ASC`).all();
 }
 function publicProduct(p) {
@@ -795,20 +796,22 @@ app.put("/api/admin/categories", adminOnly, (req,res) => {
  const cleaned=[];const names=new Set();
  for(const row of input){
   if(!row||typeof row!=="object")return res.status(400).json({error:"A category entry is invalid."});
+  if(row.id!=null&&(!Number.isSafeInteger(Number(row.id))||Number(row.id)<1))return res.status(400).json({error:"Invalid category ID. Reload before editing."});
   const category_en=cleanText(row.category_en,100),category_my=cleanText(row.category_my,100),icon=cleanText(row.icon,12),parent_en=cleanText(row.parent_en,100);
   const key=category_en.toLocaleLowerCase();
   if(!category_en||!category_my)return res.status(400).json({error:"Each category needs an English and Myanmar name."});
   if(names.has(key))return res.status(400).json({error:"English category names must be unique."});
-  names.add(key);cleaned.push({id:Number.isInteger(Number(row.id))&&Number(row.id)>0?Number(row.id):null,category_en,category_my,icon,parent_en});
+  names.add(key);cleaned.push({id:Number.isInteger(Number(row.id))&&Number(row.id)>0?Number(row.id):null,category_en,category_my,icon,parent_en,...(row.parent_id!=null?{parent_id:Number(row.parent_id)}:{})});
  }
  const namesByKey=new Map(cleaned.map(row=>[row.category_en.toLocaleLowerCase(),row]));
- for(const row of cleaned)if(row.parent_en){const parent=namesByKey.get(row.parent_en.toLocaleLowerCase());if(!parent||parent.parent_en||parent.category_en.toLocaleLowerCase()===row.category_en.toLocaleLowerCase())return res.status(400).json({error:"Choose an existing main category as the parent. Categories can only be two levels deep."});}
+ try{require('./lib/category-hierarchy').validateHierarchy(cleaned);}catch(err){return res.status(400).json({error:err.message});}
  const save=db.transaction(rows=>{
   const existing=getCategories(false),idsByKey=new Map();
+  if(rows.some(row=>row.id&&!existing.some(c=>c.id===row.id)))throw Error("Unknown category ID. Reload before editing.");
   rows.forEach(row=>{
    let current=(row.id&&db.prepare("SELECT * FROM categories WHERE id=?").get(row.id))||db.prepare("SELECT * FROM categories WHERE category_en=? COLLATE NOCASE").get(row.category_en);
    if(current){
-    if(current.category_en!==row.category_en)db.prepare("UPDATE products SET category_en=?,category_my=? WHERE category_en=?").run(row.category_en,row.category_my,current.category_en);
+    if(current.category_en!==row.category_en)db.prepare("UPDATE products SET category_en=?,category_my=? WHERE category_en=? COLLATE NOCASE").run(row.category_en,row.category_my,current.category_en);
     db.prepare("UPDATE categories SET category_en=?,category_my=?,icon=? WHERE id=?").run(row.category_en,row.category_my,row.icon,current.id);
     idsByKey.set(row.category_en.toLocaleLowerCase(),current.id);
    }else{const result=db.prepare("INSERT INTO categories(category_en,category_my,icon,parent_id,sort_order) VALUES(?,?,?,NULL,0)").run(row.category_en,row.category_my,row.icon);idsByKey.set(row.category_en.toLocaleLowerCase(),Number(result.lastInsertRowid));}
@@ -822,11 +825,12 @@ app.put("/api/admin/categories", adminOnly, (req,res) => {
    if(used)throw Object.assign(new Error('This category still contains products. Edit those products and choose another category before deleting. ပစ္စည်းများကို အခြားအမျိုးအစားသို့ အရင်ပြောင်းပါ။'),{status:409});
   }
   // Remove children first so parent deletion remains valid with foreign keys enabled.
-  removed.sort((left,right)=>Number(Boolean(right.parent_id))-Number(Boolean(left.parent_id)));
+  for(const category of removed)db.prepare("UPDATE categories SET parent_id=NULL WHERE id=?").run(category.id);
   for(const category of removed)db.prepare("DELETE FROM categories WHERE id=?").run(category.id);
  });
  try{save.immediate(cleaned);res.json({ok:true,categories:getCategories(false)});}catch(err){res.status(err.status===409?409:400).json({error:err.message||"Could not save categories. Check for duplicate names."});}
 });
+for(const action of ['trash','restore'])app.post('/api/admin/products/:id/'+action,adminOnly,(req,res)=>{try{res.json(require('./lib/product-trash').changeTrash(db,{table:'products',id:Number(req.params.id),restore:action==='restore'}));}catch(e){res.status(e.status||400).json({error:e.message});}});
 app.post("/api/admin/products", adminOnly, (req,res) => {
  const b=req.body||{};
  const sku=cleanText(b.sku,60), nameEn=cleanText(b.nameEn,160), nameMy=cleanText(b.nameMy,160)||nameEn;
@@ -847,6 +851,7 @@ app.patch("/api/admin/products/:id", adminOnly, (req,res) => {
  const id=Number(req.params.id), b=req.body||{};
  const existing=db.prepare("SELECT * FROM products WHERE id=?").get(id);
  if(!Number.isInteger(id)||!existing) return res.status(404).json({error:"Product not found."});
+ if(existing.trashed_at)return res.status(409).json({error:"Restore the product from Trash before editing."});
  const sku=cleanText(b.sku ?? existing.sku,60), nameEn=cleanText(b.nameEn ?? existing.name_en,160), nameMy=cleanText(b.nameMy ?? existing.name_my,160)||nameEn;
  const categoryEn=cleanText(b.categoryEn ?? existing.category_en,100), categoryMy=cleanText(b.categoryMy ?? existing.category_my,100)||categoryEn;
  const descriptionEn=cleanText(b.descriptionEn ?? existing.description_en,1000), descriptionMy=cleanText(b.descriptionMy ?? existing.description_my,1000);
