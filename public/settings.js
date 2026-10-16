@@ -132,7 +132,10 @@
       message("", words("autoDownloadOff"));
     }
   });
-  byId("notifications-toggle").addEventListener("change", event => enableNotifications(event.currentTarget.checked));
+  byId("notifications-toggle")?.addEventListener("change", event => enableNotifications(event.currentTarget.checked));
+  byId("my-shops-action")?.addEventListener("click", () => {
+    location.href = window.GearHubTenantStore?.adminUrl || "/platform.html";
+  });
   byId("about-app-toggle").addEventListener("click", () => {
     const details = byId("about-app-details");
     details.hidden = !details.hidden;
