@@ -108,6 +108,25 @@
  #dashboard>.admin-grid>div:empty{display:none}
 }
 
+/* Match the desktop inventory reference: compact sidebar, clear row actions,
+   and one consistent icon treatment across every navigation item. */
+@media(min-width:1100px){
+ .admin-sidebar nav>a>span,.admin-sidebar-group>a>span{color:#55647a;font-weight:800}
+ .admin-sidebar nav>a.active>span,.admin-sidebar-group>a.active>span{color:#079536}
+ .admin-sidebar .sidebar-icon{display:grid;place-items:center;width:22px;height:22px;flex:0 0 22px}
+ .admin-sidebar .sidebar-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+ .admin-sidebar .sidebar-icon.sidebar-plus{font-size:30px;line-height:18px;font-weight:500}
+ .admin-page .inventory-table-card .inventory-row-actions{display:flex;align-items:center;gap:16px;white-space:nowrap}
+ .admin-page .inventory-table-card .edit-product-btn{min-width:114px;padding:10px 16px!important;border:1px solid #cdeed9!important;border-radius:8px!important;background:#ecf9f0!important;color:#078c37!important;font-size:14px!important;font-weight:750}
+ .admin-page .inventory-table-card .product-trash-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:120px;padding:10px 16px;border:1px solid #ffd0d0;border-radius:8px;background:#fff2f2;color:#f02828;font-size:14px;font-weight:750;cursor:pointer}
+ .admin-page .inventory-table-card .product-trash-button svg{width:18px;height:18px}
+ .admin-page .inventory-table-card .admin-table th{height:42px;vertical-align:middle}
+ .admin-page .inventory-table-card .admin-table td{height:78px}
+}
+
+.category-banner-editor{grid-column:1/-1;margin-top:14px;padding:13px;border:1px solid #dce9de;border-radius:12px;background:#f7fbf7}
+.category-banner-editor>strong{display:block;font-size:14px}.category-banner-editor>p{margin:4px 0 10px;color:#69766f;font-size:12px}.category-banner-editor-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.category-banner-preview{width:132px;height:66px;object-fit:cover;border:1px solid #d7e2d7;border-radius:8px;background:#fff}.category-banner-empty{padding:13px;color:#718076;font-size:12px;background:#fff;border:1px dashed #cbd8cb;border-radius:8px}.category-banner-upload{position:relative;overflow:hidden}.category-banner-upload input{position:absolute;inset:0;opacity:0;cursor:pointer}
+
 #product-form-content:not(.hidden){padding:18px;background:#fff;border:1px solid #e2ebe2;border-top:0;border-radius:0 0 16px 16px}
 
 /* Product editor */

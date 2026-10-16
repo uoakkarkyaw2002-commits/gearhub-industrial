@@ -253,6 +253,10 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
     const own=(await a.call(endpoint+'/files','POST',file)).data.id;
     const other=new FormData();other.append('file',new Blob([png],{type:'image/png'}),'photo.png');
     const foreign=(await b.call('/shops/'+bid+'/files','POST',other)).data.id;
+    const categoryWithBanner=(await a.call(endpoint+'/categories','PUT',{categories:initialCategoryRows.map(category=>category.category_en==='Tools'?{...category,bannerUrl:'/api/platform/images/'+own}:category)})).data.categories;
+    assert.equal(categoryWithBanner.find(category=>category.category_en==='Tools').bannerUrl,'/api/platform/images/'+own);
+    assert.equal((await a.call(endpoint+'/categories','PUT',{categories:categoryWithBanner.map(category=>category.category_en==='Tools'?{...category,bannerUrl:'/api/platform/images/'+foreign}:category)})).status,400);
+    assert.equal((await a.call(endpoint+'/categories','PUT',{categories:initialCategoryRows})).status,200);
     assert.equal((await a.call(endpoint+'/appearance','PUT',{...appearance,logoUrl:'/api/platform/images/'+foreign})).status,400);
     assert.equal((await a.call(endpoint+'/appearance','PUT',{...appearance,logoUrl:'/api/platform/images/'+own})).status,200);
     const rowsSnapshot=()=>JSON.stringify(['products','orders','platform_products','platform_orders'].map(table=>db.prepare('SELECT * FROM '+table+' ORDER BY id').all()));

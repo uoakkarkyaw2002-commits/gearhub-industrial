@@ -73,7 +73,7 @@ function renderCategoryBrowser(){
  $("category-view").classList.toggle('category-products-mode',categoryProductsOpen);
  document.querySelector("#category-view .category-page-top h2").textContent=current?label(current):tr('categoryPageTitle');
  $("category-back").hidden=!categoryProductsOpen;
- const banner=$("category-banner-image"),rawBanner=String(config.site?.categoryBannerUrl||""),url=rawBanner.startsWith("/")&&!rawBanner.startsWith("//")?rawBanner:checkedImageUrl(rawBanner);banner.hidden=!url;if(url)banner.src=url;else banner.removeAttribute('src');banner.alt='';
+ const banner=$("category-banner-image"),rawBanner=String(rootCategory?.bannerUrl||config.site?.categoryBannerUrl||""),url=rawBanner.startsWith("/")&&!rawBanner.startsWith("//")?rawBanner:checkedImageUrl(rawBanner);banner.hidden=!url;if(url)banner.src=url;else banner.removeAttribute('src');banner.alt='';
  $("category-feature-banner").classList.toggle('has-image',!!url);$("category-banner-empty").hidden=!!url;
  function node(c,depth=0,seen=new Set()){
   if(seen.has(c.id))return '';seen=new Set(seen);seen.add(c.id);const children=kids(c),expanded=expandedCategoryNames.has(c.category_en)||path.slice(0,-1).some(p=>p.id===c.id),own=direct(c).length;
