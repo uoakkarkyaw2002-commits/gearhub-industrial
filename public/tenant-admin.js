@@ -24,8 +24,8 @@
   for(const lang of ['en','my'])for(const key of ['footer','footerLocation','footerHours','footerReliable','footerDelivery','footerSelection','footerSupport','footerTagline','servicesText','promotionText','eyebrow','heroTitle','heroText','highlight1','highlight2','highlight3'])if(window.GEARHUB_DEFAULT_TRANSLATIONS?.[lang]&&key in window.GEARHUB_DEFAULT_TRANSLATIONS[lang])window.GEARHUB_DEFAULT_TRANSLATIONS[lang][key]='';
   document.title=shop.name+' · Admin';
   const heading=document.querySelector('.admin-head h1');if(heading)heading.textContent=shop.name+' · Admin';
-  document.querySelectorAll('a[href="/"]').forEach(a=>a.href='/shops/'+encodeURIComponent(slug));
-  const navActions=document.querySelector('.nav > .nav-actions');if(navActions&&!navActions.querySelector('[data-tenant-home]')){const home=document.createElement('a');home.className='secondary tenant-home-button';home.dataset.tenantHome='';home.href='/shops/'+encodeURIComponent(slug)+'/';home.setAttribute('aria-label','Home');home.title='Home';home.textContent='⌂';navActions.insertBefore(home,navActions.firstChild);}
+  document.querySelectorAll('a[href="/"]').forEach(a=>a.href='/shops/'+encodeURIComponent(slug)+'/');
+  
   // Global backups/reset and destructive trash controls are not merchant APIs.
   document.getElementById('operations-status')?.closest('.panel')?.setAttribute('hidden','');
   document.querySelectorAll('a[href*="/api/admin/"]').forEach(a=>a.hidden=true);
@@ -43,8 +43,7 @@
   const message=document.createElement('p');message.setAttribute('role','status');form.append(message);
   form.onsubmit=async e=>{e.preventDefault();button.disabled=true;window.__gearhubPlatformPending=true;try{const r=await call('',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(new FormData(form)))});const d=await r.json();if(!r.ok)throw Error(d.error);message.textContent='Saved';}catch(e){message.textContent=e.message;}finally{button.disabled=false;window.__gearhubPlatformPending=false;}};
   host.append(form);document.getElementById('dashboard').append(host);
-  const layout=document.createElement('div');layout.id='site-layout-editor';document.getElementById('site-settings-form').append(layout);
-  const active=document.createElement('label');active.textContent='Product visibility';active.innerHTML+=' <select name=active><option value=1>Active</option><option value=0>Hidden</option></select>';document.getElementById('product-form').append(active);
+    const active=document.createElement('label');active.textContent='Product visibility';active.innerHTML+=' <select name=active><option value=1>Active</option><option value=0>Hidden</option></select>';document.getElementById('product-form').append(active);
   const promotion=document.createElement('label');promotion.className='wide promotion-price-field';promotion.textContent='Promotion price (MMK)';promotion.innerHTML+='<span class="product-input-wrap"><input name="promotionPrice" type="number" min="0" step="1" placeholder="Optional sale price"></span><small>Shown in Promotion while the original price stays in the catalogue.</small>';document.querySelector('#product-form .product-entry-card:nth-of-type(2) .product-field-grid')?.append(promotion);
   const exports=document.createElement('a');exports.href=base()+'/export';exports.textContent='Export this shop data (JSON)';exports.download='shop-data.json';host.append(exports);
   const quota=document.createElement('p');quota.textContent=`Storage ${(shop.limits.usedBytes/1048576).toFixed(2)} / ${(shop.limits.storageLimit/1048576).toFixed(0)} MB · ${shop.limits.subscriptionState} · ${shop.starts_at||''} → ${shop.ends_at||'No expiry'}`;host.prepend(quota);
@@ -53,7 +52,6 @@
   nameDraftFields:()=>{
    window.GearHubTenantAdmin.draftReady=true;
    document.querySelectorAll('[data-site-text]').forEach(e=>e.name='text.'+e.dataset.language+'.'+e.dataset.siteText);
-   document.querySelectorAll('[data-layout-area] input,[data-layout-area] select').forEach(e=>e.name='layout.'+e.closest('[data-layout-area]').dataset.layoutArea+'.'+(e.dataset.layoutField||e.dataset.layoutColorEnabled||'enabled')+'.'+e.type);
   },
   receipt:o=>base()+'/receipts/'+encodeURIComponent(o.receipt_id),
   login:error=>{
