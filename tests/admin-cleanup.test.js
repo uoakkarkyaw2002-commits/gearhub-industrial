@@ -18,3 +18,12 @@ test('hero shows only the photo and Promotion tab needs a promoted product',()=>
   assert.match(pub('style.css'),/\.hero\.hero-image-only>\*\{display:none!important\}/);
   assert.match(store,/function updatePromotionVisibility\(\)/);assert.match(store,/function renderProducts\(\)\{\n updatePromotionVisibility\(\);/);
 });
+test('navigation background no longer replaces the page wallpaper',()=>{
+  const store=pub('store.js');
+  assert.match(store,/const wallpaper=checkedImageUrl\(site\.wallpaperUrl\)/);
+  assert.doesNotMatch(store,/wallpaper=navigationBackground\|\|/);
+});
+test('Frontend Text is hidden and bottom nav centres visible tabs',()=>{
+  assert.match(pub('admin.html'),/<details class="appearance-extra" hidden>/);
+  assert.match(pub('style.css'),/\.mobile-bottom-nav\{grid-template-columns:none!important;grid-auto-flow:column;grid-auto-columns:minmax\(0,1fr\)\}/);
+});
