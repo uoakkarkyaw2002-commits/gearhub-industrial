@@ -246,7 +246,22 @@ app.use(express.static(path.join(__dirname, "public"), { setHeaders(res, filePat
   res.setHeader("Expires", "0");
  }
 } }));
-app.use("/uploads", express.static(uploadDir, { fallthrough: false, maxAge: "1d" }));
+// GearHub photos use the same shrinking and caching as seller shop photos.
+const { optimizedImage, IMMUTABLE } = require("./lib/image-variants");
+const uploadMime = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp" };
+app.get("/uploads/:file", async (req, res, next) => {
+ try {
+  const mime = uploadMime[path.extname(req.params.file).toLowerCase()];
+  if (!mime || !/^[a-f0-9]{32}\.(?:jpe?g|png|webp)$/i.test(req.params.file)) return next();
+  const original = path.join(uploadDir, req.params.file);
+  const stat = await fs.promises.stat(original).catch(() => null);
+  if (!stat?.isFile()) return next();
+  const variant = await optimizedImage(original, { bytes: stat.size, mime });
+  if (!variant) return next();
+  res.set("Cache-Control", IMMUTABLE).type("image/webp").sendFile(variant);
+ } catch (err) { next(err); }
+});
+app.use("/uploads", express.static(uploadDir, { fallthrough: false, setHeaders: res => res.setHeader("Cache-Control", IMMUTABLE) }));
 const sessionStore = new SQLiteSessionStore();
 app.use(session({
  store: sessionStore,
