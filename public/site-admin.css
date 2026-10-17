@@ -237,3 +237,5 @@
 .admin-page .nav .nav-actions .nav-logout{color:#b3362f;border-color:#f0d3d0}
 .admin-page .nav .nav-actions .nav-logout:hover{background:#fff3f2}
 @media(max-width:600px){.admin-page .nav{flex-wrap:nowrap;align-items:center}.admin-page .nav .nav-actions .nav-icon-btn{width:42px;padding:0}.admin-page .nav .nav-actions .nav-icon-btn span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
+/* Frontend Text editor is hidden; its fields still save the existing wording. */
+.appearance-extra[hidden]{display:none!important}
