@@ -157,6 +157,38 @@
   byId("my-shops-action")?.addEventListener("click", () => {
     location.href = "/platform.html";
   });
+  // Share My Store: QR code plus a copyable link to this shop's own address.
+  function storeLink() {
+    const path = window.GearHubTenantStore ? location.pathname.replace(/\/?$/, "/") : "/";
+    return location.origin + path;
+  }
+  function openShare() {
+    const modal = byId("share-modal");
+    if (!modal || typeof qrcode !== "function") return;
+    const link = storeLink(), qr = qrcode(0, "M");
+    qr.addData(link);
+    qr.make();
+    byId("share-qr").innerHTML = qr.createSvgTag({ cellSize: 6, margin: 4, scalable: true });
+    byId("share-link").value = link;
+    byId("share-store-name").textContent = document.querySelector(".footer-wordmark")?.textContent.trim() || document.title;
+    byId("share-download").href = qr.createDataURL(10, 4);
+    byId("share-native").hidden = !navigator.share;
+    byId("share-copy").textContent = words("shareCopy");
+    modal.classList.add("open");
+  }
+  async function copyLink() {
+    const input = byId("share-link"), button = byId("share-copy");
+    try { await navigator.clipboard.writeText(input.value); }
+    catch { input.select(); document.execCommand("copy"); }
+    button.textContent = words("shareCopied");
+    clearTimeout(copyLink.timer);
+    copyLink.timer = setTimeout(() => (button.textContent = words("shareCopy")), 2000);
+  }
+  byId("share-store-action")?.addEventListener("click", openShare);
+  byId("share-close")?.addEventListener("click", () => byId("share-modal").classList.remove("open"));
+  byId("share-modal")?.addEventListener("click", event => { if (event.target === event.currentTarget) event.currentTarget.classList.remove("open"); });
+  byId("share-copy")?.addEventListener("click", copyLink);
+  byId("share-native")?.addEventListener("click", () => navigator.share({ title: byId("share-store-name").textContent, url: byId("share-link").value }).catch(() => {}));
   byId("about-app-toggle").addEventListener("click", () => {
     const details = byId("about-app-details");
     details.hidden = !details.hidden;
