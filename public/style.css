@@ -679,3 +679,5 @@ footer.gearhub-footer{padding:0;background:radial-gradient(ellipse at 30% 20%,#0
 /* Hero with a photo shows the photo only; Promotion tab hides until a product has a promotion price. */
 .hero.hero-image-only{background-color:transparent!important;background-repeat:no-repeat}.hero.hero-image-only>*{display:none!important}.hero.hero-image-only::before,.hero.hero-image-only::after{display:none!important}
 [data-store-view="promotion"][hidden]{display:none!important}
+/* Bottom navigation: share the width between the visible tabs so they stay centred when Promotion is hidden. */
+.mobile-bottom-nav{grid-template-columns:none!important;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}
