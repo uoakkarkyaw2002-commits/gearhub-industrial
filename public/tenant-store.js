@@ -7,11 +7,18 @@
   let snapshot;
   const endpoint='/api/platform/store/'+encodeURIComponent(slug);
   const json=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json'}});
-  async function load(){
-    const r=await fetch(endpoint,{cache:'no-store'});
-    const data=await r.json();
-    if(!r.ok)throw Error(data.error||'Shop unavailable.');
-    snapshot=data;return data;
+  // One shop download is shared by products, categories, config and Settings.
+  let loading=null;
+  function load(){
+    if(!loading)loading=(async()=>{
+      try{
+        const r=await fetch(endpoint,{cache:'no-store'});
+        const data=await r.json();
+        if(!r.ok)throw Error(data.error||'Shop unavailable.');
+        snapshot=data;return data;
+      }finally{loading=null;}
+    })();
+    return loading;
   }
   function configFor(s){
     const b=s.settings||{},ready=Boolean(b.bankName&&b.bankAccountName&&b.bankAccountNumber);
