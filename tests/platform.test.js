@@ -269,6 +269,19 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
     assert.equal((await a.call(endpoint+'/appearance','PUT',{...appearance,categoryBannerUrl:'/api/platform/images/'+foreign})).status,400);
     assert.equal((await a.call(endpoint+'/appearance','PUT',{...appearance,categoryBannerUrl:'/api/platform/images/'+own})).status,200);
     assert.equal((await a.call('/store/alice-store')).data.settings.appearance.categoryBannerUrl,'/api/platform/images/'+own);
+    // Large photos are served as a smaller cached WebP copy; small ones as uploaded.
+    const big=await require('sharp')(require('node:crypto').randomBytes(400*400*3),{raw:{width:400,height:400,channels:3}}).png().toBuffer();
+    assert.ok(big.length>200*1024,'fixture is a large photo');
+    const bigForm=new FormData();bigForm.append('file',new Blob([big],{type:'image/png'}),'big.png');
+    const bigId=(await a.call(endpoint+'/files','POST',bigForm)).data.id;
+    const served=await fetch(base+'/api/platform/images/'+bigId);
+    assert.equal(served.headers.get('content-type'),'image/webp');
+    assert.match(served.headers.get('cache-control'),/immutable/);
+    assert.ok((await served.arrayBuffer()).byteLength<big.length,'optimized copy is smaller');
+    const small=await fetch(base+'/api/platform/images/'+own);
+    assert.equal(small.headers.get('content-type'),'image/png');
+    assert.equal((await a.call(endpoint+'/files/'+bigId,'DELETE')).status,200);
+    assert.equal((await fetch(base+'/api/platform/images/'+bigId)).status,404);
     assert.equal((await a.call(endpoint+'/files/'+own,'DELETE')).status,409);
     assert.equal((await a.call(endpoint+'/appearance','PUT',appearance)).status,200); // older form must preserve banner
     assert.equal((await a.call('/store/alice-store')).data.settings.appearance.categoryBannerUrl,'/api/platform/images/'+own);
