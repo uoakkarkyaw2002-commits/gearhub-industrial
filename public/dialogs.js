@@ -1,6 +1,6 @@
 /* Shared keyboard behavior for the existing cart, checkout and gallery. */
 (() => {
- const definitions=[['drawer','cart-close'],['checkout-modal','checkout-close'],['gallery-modal','gallery-close']];
+ const definitions=[['drawer','cart-close'],['checkout-modal','checkout-close'],['gallery-modal','gallery-close'],['share-modal','share-close']];
  const dialogs=definitions.map(([id,close])=>({node:document.getElementById(id),close,open:false,opener:null})).filter(entry=>entry.node);
  const visible=node=>Boolean(node?.isConnected&&node.getClientRects().length);
  const focusable=node=>Array.from(node.querySelectorAll('a[href],button,input,select,textarea,[tabindex]')).filter(el=>!el.disabled&&el.tabIndex>=0&&visible(el));
