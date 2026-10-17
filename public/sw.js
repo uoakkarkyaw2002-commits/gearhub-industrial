@@ -1,4 +1,4 @@
-const CACHE_NAME = "gearhub-shell-v69-1.1.20";
+const CACHE_NAME = "gearhub-shell-v70-1.1.21";
 const SHELL = ["/category-browser.js?v=20261017-speed-1","/tenant-store.js?v=20261017-speed-1","/updates.js?v=20261013-platform-1","/desktop.css?v=20261013-1","/","/style.css?v=20261017-navfix-1","/site-content.js?v=20261017-share-1","/store.js?v=20261017-navfix-1","/app-install.js?v=20261013-platform-1","/settings.js?v=20261017-share-1","/dialogs.js?v=20261017-share-1","/footer.js?v=20261012-1","/images/hero-excavator.jpg","/app.webmanifest","/app-icon.png","/icons/icon.svg","/icons/apple-touch-icon.png","/qrcode.js?v=1.4.4"];
 const shopPath=pathname=>{const m=pathname.match(/^\/shops\/([a-z0-9-]+)(?:\/|$)/);return m?'/shops/'+m[1]+'/':null;};
 const offlineCache=pathname=>'gearhub-offline-v2:'+ (shopPath(pathname)||'root');
