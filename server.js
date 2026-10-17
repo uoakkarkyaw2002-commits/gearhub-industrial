@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
 const helmet = require("helmet");
+const compression = require("compression");
 const rateLimit = require("express-rate-limit");
 const bcrypt = require("bcryptjs");
 const Database = require("better-sqlite3");
@@ -168,6 +169,8 @@ app.use((req,res,next)=>{
  const requestId=crypto.randomUUID(),started=Date.now();res.set("X-Request-ID",requestId);
  res.on("finish",()=>{if(res.statusCode>=400||process.env.REQUEST_LOGS==="true") console.log(JSON.stringify({event:"http_response",requestId,method:req.method,route:req.route?.path||"unmatched",status:res.statusCode,durationMs:Date.now()-started}));});next();
 });
+// Gzip text responses (HTML, JS, CSS, JSON); images are already compressed.
+app.use(compression({ threshold: 1024 }));
 app.use(helmet({contentSecurityPolicy:{directives:{defaultSrc:["'self'"],scriptSrc:["'self'"],styleSrc:["'self'","'unsafe-inline'"],imgSrc:["'self'","data:","blob:","https:"],fontSrc:["'self'","data:","https:"],connectSrc:["'self'"],formAction:["'self'"],baseUri:["'self'"],objectSrc:["'none'"],frameAncestors:["'none'"]}}}));
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: false, limit: "100kb" }));
@@ -194,6 +197,7 @@ CREATE TABLE IF NOT EXISTS site_settings (
  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 `);
+const touchedSessions = new Map();
 class SQLiteSessionStore extends session.Store {
  get(sid, callback) {
   try {
@@ -218,14 +222,31 @@ class SQLiteSessionStore extends session.Store {
   try { db.prepare("DELETE FROM sessions WHERE sid=?").run(sid); callback(null); }
   catch (err) { callback(err); }
  }
+ // Extending a session on every request meant a synced disk write per request,
+ // which stalled the whole shop on slow disks. Refresh at most every 10 minutes.
  touch(sid, sess, callback = () => {}) {
   try {
-   const expires = sess.cookie && sess.cookie.expires ? new Date(sess.cookie.expires).getTime() : Date.now() + 8 * 60 * 60 * 1000;
+   const now = Date.now(), last = touchedSessions.get(sid) || 0;
+   if (now - last < 10 * 60 * 1000) return callback(null);
+   const expires = sess.cookie && sess.cookie.expires ? new Date(sess.cookie.expires).getTime() : now + 8 * 60 * 60 * 1000;
    db.prepare("UPDATE sessions SET expired_at=? WHERE sid=?").run(expires, sid);
+   touchedSessions.set(sid, now);
+   if (touchedSessions.size > 5000) touchedSessions.clear();
    callback(null);
   } catch (err) { callback(err); }
  }
 }
+// Static files never need a session, so serve them before session handling.
+app.use(express.static(path.join(__dirname, "public"), { setHeaders(res, filePath) {
+ // Assets requested with a ?v= build tag never change, so phones can keep them.
+ if (res.req?.query?.v && /\.(?:js|css|png|jpe?g|webp|svg|woff2?)$/i.test(filePath)) res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+ if (["admin.js", "admin.html"].includes(path.basename(filePath))) {
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+ }
+} }));
+app.use("/uploads", express.static(uploadDir, { fallthrough: false, maxAge: "1d" }));
 const sessionStore = new SQLiteSessionStore();
 app.use(session({
  store: sessionStore,
@@ -263,14 +284,7 @@ app.get("/admin.html", (req, res) => {
  res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
  res.sendFile(path.join(__dirname, "public", "admin.html"));
 });
-app.use(express.static(path.join(__dirname, "public"), { setHeaders(res, filePath) {
- if (path.basename(filePath) === "admin.js") {
-  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
-  res.setHeader("Pragma", "no-cache");
-  res.setHeader("Expires", "0");
- }
-} }));
-app.use("/uploads", express.static(uploadDir, { fallthrough: false, maxAge: "1d" }));
+
 // Report storage for the filesystem that actually holds the database and uploads.
 // The API returns byte counts only; it never exposes server paths or file names.
 app.get("/api/storage", async (_req, res) => {

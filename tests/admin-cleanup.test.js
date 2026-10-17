@@ -27,3 +27,17 @@ test('Frontend Text is hidden and bottom nav centres visible tabs',()=>{
   assert.match(pub('admin.html'),/<details class="appearance-extra" hidden>/);
   assert.match(pub('style.css'),/\.mobile-bottom-nav\{grid-template-columns:none!important;grid-auto-flow:column;grid-auto-columns:minmax\(0,1fr\)\}/);
 });
+test('static files skip sessions, are gzip-ready and session expiry writes are throttled',()=>{
+  const server=fs.readFileSync(path.join(__dirname,'..','server.js'),'utf8');
+  assert.ok(server.indexOf('app.use(express.static(path.join(__dirname, "public")')<server.indexOf('app.use(session('),'public files are served before sessions');
+  assert.match(server,/app\.use\(compression\(/);
+  assert.match(server,/now - last < 10 \* 60 \* 1000/);
+  assert.match(server,/\["admin\.js", "admin\.html"\]\.includes/,'admin page stays uncached');
+});
+test('tenant storefront downloads the shop once for concurrent requests',async()=>{
+  const vm=require('node:vm');let calls=0;const window={};
+  const shop={name:'A',settings:{},products:[],service:{usedBytes:0,storageLimit:1,endsAt:null,state:'active'}};
+  vm.runInNewContext(pub('tenant-store.js'),{window,document:{querySelectorAll:()=>[],querySelector:()=>null},location:{pathname:'/shops/a/',origin:'https://x.test'},Response,URL,encodeURIComponent,decodeURIComponent,fetch:async()=>{calls++;await new Promise(r=>setTimeout(r,10));return new Response(JSON.stringify(shop));}});
+  await Promise.all(['/api/products','/api/categories','/api/config','/api/storage'].map(u=>window.GearHubTenantStore.fetch(u)));
+  assert.equal(calls,1);
+});
