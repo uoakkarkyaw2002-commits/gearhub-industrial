@@ -1,7 +1,7 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const vm=require('node:vm');const fs=require('node:fs');
 function adapter(slug='alice',settings={}){
  const calls=[],window={},document={querySelectorAll:()=>[],querySelector:()=>null};
- const shop={name:'Alice',settings,products:[{id:7,name:'Part',sku:'A-7',category:'Tools',price:1000,stock:5}]};
+ const shop={name:'Alice',settings,service:{usedBytes:256,storageLimit:1024,endsAt:'2027-02-14T17:29:59.000Z',state:'active'},products:[{id:7,name:'Part',sku:'A-7',category:'Tools',price:1000,stock:5}]};
  const fetch=async(url,options)=>{calls.push({url,options});if(url==='/api/platform/store/'+slug)return new Response(JSON.stringify(shop));if(url==='/api/platform/me')return new Response(JSON.stringify({csrfToken:'fixture-token'}));if(url.endsWith('/orders'))return new Response(JSON.stringify({code:'TEST-ORDER'}));throw Error('Unexpected root API');};
  vm.runInNewContext(fs.readFileSync(require.resolve('../public/tenant-store'),'utf8'),{window,document,location:{pathname:'/shops/'+slug,origin:'https://fixture.test'},navigator:{storage:{estimate:async()=>({usage:20,quota:100})}},Response,fetch,URL,encodeURIComponent,decodeURIComponent});
  return {api:window.GearHubTenantStore,calls};
@@ -22,4 +22,9 @@ test('tenant checkout adapts shared form, requires own payment setup and retains
  const f=new FormData();f.set('customerName','Test');f.set('receipt',new Blob(['fixture']), 'receipt.png');f.set('items','[{"id":7,"quantity":1}]');
  const result=await(await api.fetch('/api/orders',{method:'POST',headers:{'Idempotency-Key':'fixture-retry'},body:f})).json();assert.equal(result.order.orderCode,'TEST-ORDER');
  const order=calls.at(-1);assert.equal(order.url,'/api/platform/store/alice/orders');assert.equal(order.options.headers['X-CSRF-Token'],'fixture-token');assert.equal(order.options.headers['Idempotency-Key'],'fixture-retry');assert.equal(order.options.body.get('customer'),'Test');assert.ok(order.options.body.get('file'));assert.equal(order.options.body.get('receipt'),null);
+});
+test('tenant Settings report the owner-assigned quota and expiry, not device storage',async()=>{
+ const {api}=adapter();
+ assert.deepEqual(await(await api.fetch('/api/storage')).json(),{quota:true,usedBytes:256,capacityBytes:1024,availableBytes:768});
+ assert.deepEqual(await(await api.fetch('/api/service')).json(),{endsAt:'2027-02-14T17:29:59.000Z',state:'active'});
 });
