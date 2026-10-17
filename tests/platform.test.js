@@ -247,6 +247,11 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
     const appearance={brandName:'Only Alice',siteTitle:'Alice',colors:{brand:'#123456',accent:'#123456',page:'#ffffff',hero:'#123456'},translations:{en:{heroTitle:'Alice only'},my:{}},layout:{hero:{enabled:true,padding:30}}};
     assert.equal((await a.call(endpoint+'/appearance','PUT',appearance)).status,200);
     assert.equal((await a.call('/store/alice-store')).data.settings.appearance.brandName,'Only Alice');
+    const ownerSet={storageBytes:5*1024**3,endsAt:'2027-02-14T23:59:59+06:30'};
+    assert.equal((await owner.call('/owner/shops/'+aid,'PATCH',ownerSet)).status,200);
+    const service=(await a.call('/store/alice-store')).data.service;
+    assert.equal(service.storageLimit,ownerSet.storageBytes,'shop app shows owner-assigned storage');
+    assert.equal(Date.parse(service.endsAt),Date.parse(ownerSet.endsAt),'shop app shows owner-assigned expiry');
     assert.equal((await b.call('/store/bob-store')).data.settings.appearance,undefined);
     assert.equal((await a.call(endpoint+'/appearance','PUT',{...appearance,logoUrl:'/uploads/other.jpg'})).status,400);
     const file=new FormData();file.append('file',new Blob([png],{type:'image/png'}),'photo.png');

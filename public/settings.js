@@ -50,21 +50,56 @@
     return `${(bytes / (1024 ** index)).toFixed(index ? 1 : 0)} ${units[index]}`;
   };
 
-  async function updateStorageUsage() {
+  let storageData = null, serviceData = null;
+  function renderStorageUsage() {
     const label = byId("storage-usage"), meter = byId("storage-meter-fill");
     if (!label || !meter) return;
+    if (!storageData) {
+      label.textContent = words("storageUnavailable");
+      meter.style.width = "0%";
+      return;
+    }
+    const { usedBytes = 0, capacityBytes = 0, availableBytes = 0, quota } = storageData;
+    const used = formatBytes(usedBytes), capacity = formatBytes(capacityBytes), available = formatBytes(availableBytes);
+    // Seller shops show the owner-assigned quota; the main store shows the server disk.
+    label.textContent = words(quota ? "storageQuotaLabel" : "storageUsageLabel").replace("{used}", used).replace("{available}", available).replace("{capacity}", capacity);
+    meter.style.width = `${capacityBytes ? Math.min(100, Math.max(2, usedBytes / capacityBytes * 100)) : 0}%`;
+    meter.parentElement.setAttribute("aria-label", label.textContent);
+  }
+  async function updateStorageUsage() {
     try {
       const response = await (window.GearHubTenantStore ? window.GearHubTenantStore.fetch("/api/storage") : fetch("/api/storage", { cache: "no-store" }));
       if (!response.ok) throw new Error("Storage endpoint unavailable");
-      const { usedBytes = 0, capacityBytes = 0, availableBytes = 0 } = await response.json();
-      const used = formatBytes(usedBytes), capacity = formatBytes(capacityBytes), available = formatBytes(availableBytes);
-      label.textContent = words("storageUsageLabel").replace("{used}", used).replace("{available}", available).replace("{capacity}", capacity);
-      meter.style.width = `${capacityBytes ? Math.min(100, Math.max(2, usedBytes / capacityBytes * 100)) : 0}%`;
-      meter.parentElement.setAttribute("aria-label", label.textContent);
+      storageData = await response.json();
     } catch {
-      label.textContent = words("storageUnavailable");
-      meter.style.width = "0%";
+      storageData = null;
     }
+    renderStorageUsage();
+  }
+
+  // Only seller shops have an owner-managed expiry; the main store keeps its static row.
+  function renderServiceExpiry() {
+    const text = byId("service-expiry"), badge = byId("service-status");
+    if (!serviceData || !text || !badge) return;
+    text.removeAttribute("data-i18n");
+    badge.removeAttribute("data-i18n");
+    const { endsAt, state } = serviceData;
+    const days = endsAt ? Math.ceil((Date.parse(endsAt) - Date.now()) / 864e5) : null;
+    const date = endsAt ? new Date(endsAt).toLocaleDateString(document.documentElement.lang === "my" ? "my-MM" : "en-GB", { timeZone: "Asia/Yangon", day: "numeric", month: "short", year: "numeric" }) : "";
+    if (!endsAt) text.textContent = words("expiryNotSet");
+    else if (days < 0) text.textContent = words("expiryPast").replace("{date}", date);
+    else text.textContent = words("expiryOn").replace("{date}", date).replace("{days}", days === 0 ? words("expiresToday") : words("daysLeft").replace("{n}", days));
+    const status = state === "suspended" ? "serviceSuspended" : ["expired", "inactive"].includes(state) || days < 0 ? "serviceExpired" : state === "scheduled" ? "serviceScheduled" : days !== null && days <= 14 ? "serviceExpiring" : "serviceActive";
+    badge.textContent = words(status);
+    badge.dataset.state = status;
+  }
+  async function updateServiceExpiry() {
+    if (!window.GearHubTenantStore) return;
+    try {
+      const response = await window.GearHubTenantStore.fetch("/api/service");
+      if (response.ok) serviceData = await response.json();
+    } catch {}
+    renderServiceExpiry();
   }
 
   function setLanguage(language) {
@@ -93,6 +128,7 @@
   updateLanguageButtons();
   updateNotificationSetting();
   updateStorageUsage();
+  updateServiceExpiry();
   if (!window.GearHubTenantStore && !byId("my-shops-action")) {
     const button = document.createElement("button");
     button.className = "settings-row settings-row-button";
@@ -113,7 +149,10 @@
   }
   document.querySelectorAll("[data-theme-choice]").forEach(button => button.addEventListener("click", () => animateChoice(button, () => applyTheme(button.dataset.themeChoice))));
   document.querySelectorAll("[data-language-choice]").forEach(button => button.addEventListener("click", () => animateChoice(button, () => setLanguage(button.dataset.languageChoice))));
-  byId("lang").addEventListener("click", updateLanguageButtons);
+  byId("lang").addEventListener("click", () => {
+    updateLanguageButtons();
+    setTimeout(() => { renderStorageUsage(); renderServiceExpiry(); });
+  });
   byId("notifications-toggle")?.addEventListener("change", event => enableNotifications(event.currentTarget.checked));
   byId("my-shops-action")?.addEventListener("click", () => {
     location.href = "/platform.html";
@@ -122,6 +161,6 @@
     const details = byId("about-app-details");
     details.hidden = !details.hidden;
   });
-  window.addEventListener("gearhub:data-ready", updateStorageUsage);
+  window.addEventListener("gearhub:data-ready", () => { updateStorageUsage(); updateServiceExpiry(); });
   window.addEventListener("storage", updateLanguageButtons);
 })();

@@ -672,3 +672,4 @@ footer.gearhub-footer{padding:0;background:radial-gradient(ellipse at 30% 20%,#0
  #profile-view .settings-row{min-height:80px;padding:16px 22px}
  #profile-view .settings-copy{min-width:0}
 }
+.settings-status[data-state="serviceExpiring"]{background:#fff1d6;color:#a35d00}.settings-status[data-state="serviceExpired"],.settings-status[data-state="serviceSuspended"]{background:#ffe4e4;color:#c43b36}
