@@ -46,9 +46,10 @@
         }
         if(url==='/api/config'){const s=snapshot||await load();prepare(s);return json(configFor(s));}
         if(url==='/api/storage'){
-          const local=await navigator.storage?.estimate?.()||{};
-          return json({usedBytes:local.usage||0,capacityBytes:local.quota||0,availableBytes:(local.quota||0)-(local.usage||0)});
+          const v=(snapshot||await load()).service;
+          return json({quota:true,usedBytes:v.usedBytes,capacityBytes:v.storageLimit,availableBytes:Math.max(0,v.storageLimit-v.usedBytes)});
         }
+        if(url==='/api/service'){const v=(snapshot||await load()).service;return json({endsAt:v.endsAt,state:v.state});}
         if(url==='/api/orders'){
           const s=await load();if(!configFor(s).bankName)return json({error:'Payment is not configured for this shop.'},409);
           const r=await fetch('/api/platform/me',{cache:'no-store'});if(!r.ok)return json({error:'Reload before checkout.'},503);
