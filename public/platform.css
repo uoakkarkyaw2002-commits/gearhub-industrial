@@ -284,3 +284,67 @@ body.onboarding{background:radial-gradient(ellipse at top,#f0f9f3 0%,#f7faf7 72%
 /* Phone: stack dialog actions so "Save changes" keeps its full width. */
 .manage-fields input[type="date"]{min-width:0;-webkit-appearance:none;appearance:none;min-height:46px}
 @media(max-width:700px){.manage-dialog-actions{display:grid;grid-template-columns:1fr;gap:8px}.manage-dialog-actions button{width:100%;margin:0;flex:none}.extend-group{display:flex}.extend-group select{flex:1}.extend-group button{flex:1;width:auto}.manage-link{text-align:center;padding:6px}.manage-dialog-actions .danger{margin:0}}
+/* Owner dashboard on phones: compact header, shop rows as cards, no squeezed columns. */
+.site-head{display:flex;align-items:center;gap:12px;flex-wrap:nowrap}
+.site-head h1{margin:0;flex:1;min-width:0}
+.site-brand{font-weight:800;text-decoration:none;color:#16472e}
+.logout-btn{display:inline-flex;align-items:center;gap:6px;background:#fff;color:#b3362f;border:1px solid #f0d3d0;margin:0;padding:8px 14px;font-size:14px;font-weight:700}
+.logout-btn[hidden]{display:none}
+.shop-table th{white-space:nowrap}
+.shop-state,.plan-badge{white-space:nowrap}
+@media(max-width:700px){
+  header.site-head{padding:12px 16px}
+  .site-head h1{font-size:16px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+  .site-brand{font-size:17px}
+  .logout-btn{padding:0;width:40px;height:40px;justify-content:center;border-radius:12px}
+  .logout-btn span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  main{padding:8px 12px 40px}
+  #account{font-size:13px;color:#66756b;margin:0 4px 8px}
+  #account p{margin:0}
+  #owner{padding:0;border:0;background:transparent}
+  .seller-manager-head{padding:12px 14px;gap:10px}
+  .manager-title>span{font-size:20px;padding:5px}
+  .manager-title h2{font-size:17px}
+  .manager-new{padding:9px 12px;font-size:13px}
+  .shop-tabs{gap:6px;margin:12px 0}
+  .shop-tabs button{padding:8px 12px;font-size:12.5px;border-radius:999px}
+  .shop-toolbar{gap:8px;margin:10px 0}
+  .shop-search{font-size:18px}.shop-search input{font-size:15px;padding:9px 8px}
+  .shop-toolbar select{padding:9px;font-size:14px}
+  .shop-table-wrap{overflow:visible;border:0;background:transparent;border-radius:0}
+  .shop-table{min-width:0;display:block;font-size:14px}
+  .shop-table thead{display:none}
+  .shop-table tbody{display:grid;gap:10px}
+  .shop-table tr[data-shop-row]{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"shop status" "owner plan" "storage expiry" "actions actions";gap:12px 14px;padding:14px;background:#fff;border:1px solid #e0e7e2;border-radius:16px;box-shadow:0 1px 3px #1934260a}
+  .shop-table tr[data-shop-row][hidden]{display:none}
+  .shop-table td{padding:0;border:0;min-width:0}
+  .shop-table .td-shop{grid-area:shop}.shop-table .td-shop strong{font-size:16px}
+  .shop-table .td-status{grid-area:status;justify-self:end;align-self:start}
+  .shop-table .td-owner{grid-area:owner;overflow-wrap:anywhere}
+  .shop-table .td-plan{grid-area:plan;justify-self:end;align-self:start}
+  .shop-table .td-storage{grid-area:storage}.shop-table .td-storage .quota{width:100%}
+  .shop-table .td-expiry{grid-area:expiry;text-align:right}
+  .shop-table .td-actions{grid-area:actions;display:grid;grid-template-columns:1fr 1fr;gap:8px;white-space:normal}
+  .shop-table .td-actions button{margin:0;padding:10px;font-size:14px;border-radius:10px}
+  .shop-table tr:not([data-shop-row]){display:block;background:#fff;border:1px dashed #d6e2d9;border-radius:16px}
+  .shop-table tr:not([data-shop-row])[hidden]{display:none}
+  .shop-table tr:not([data-shop-row]) td{display:block;padding:18px!important}
+  .seller-panels{gap:10px;margin:14px 0}
+  .seller-panels article{padding:14px;gap:12px}
+  .seller-panels article>span{font-size:24px;padding:8px}
+  .owner-settings{padding:0 12px}
+  .plan-grid{grid-template-columns:1fr}
+  .plan-card{padding:14px}
+  .plan-card label{margin:8px 0}
+  .user-row{padding:10px 0;border:0;border-top:1px solid #edf1ee;border-radius:0}
+}
+/* Plan cards: storage amount and unit side by side, permission chips, full-width save. */
+.plan-card{display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:0 10px;align-content:start}
+.plan-card>*{grid-column:1/-1}
+.plan-card>label:nth-of-type(2){grid-column:1}
+.plan-card>label:nth-of-type(3){grid-column:2}
+.plan-card h4{margin:0 0 4px;font-size:15px;color:#16733b}
+.plan-card .permission-checks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 12px}
+.plan-card .permission-checks label{display:flex;align-items:center;gap:8px;margin:0;padding:8px 10px;border:1px solid #dce6df;border-radius:10px;background:#f8fbf8;font-weight:600}
+.plan-card>button{width:100%;margin:4px 0 0}
+.manager-new{white-space:nowrap}

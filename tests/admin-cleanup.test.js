@@ -41,3 +41,10 @@ test('tenant storefront downloads the shop once for concurrent requests',async()
   await Promise.all(['/api/products','/api/categories','/api/config','/api/storage'].map(u=>window.GearHubTenantStore.fetch(u)));
   assert.equal(calls,1);
 });
+test('owner dashboard shows seller shops as cards on phones',()=>{
+  const js=pub('platform.js'),css=pub('platform.css');
+  for(const c of ['td-shop','td-owner','td-plan','td-storage','td-expiry','td-status','td-actions'])assert.match(js,new RegExp('class="'+c));
+  assert.match(css,/\.shop-table thead\{display:none\}/);
+  assert.match(css,/grid-template-areas:"shop status" "owner plan" "storage expiry" "actions actions"/);
+  assert.match(pub('platform.html'),/id="logout" class="logout-btn"/);
+});
