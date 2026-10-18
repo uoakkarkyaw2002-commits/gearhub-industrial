@@ -29,6 +29,9 @@
   if(shop.managedByOwner&&!document.getElementById('owner-managing')){const bar=document.createElement('div');bar.id='owner-managing';bar.className='owner-managing';bar.textContent='👑 GearHub owner အနေနဲ့ '+shop.name+' ကို စီမံနေပါတယ် / Managing as GearHub owner';document.getElementById('dashboard')?.prepend(bar);}
   const heading=document.querySelector('.admin-head h1');if(heading)heading.textContent=shop.name+' · Admin';
   const storeTitle=document.getElementById('admin-store-title');if(storeTitle)storeTitle.textContent=shop.name+' · Admin';
+  // Seller admins carry their own shop name and logo, never the GearHub brand.
+  const brandName=document.querySelector('.admin-brand-name');if(brandName){brandName.textContent=shop.name;const small=document.createElement('small');small.textContent='ADMIN CONSOLE';brandName.append(small);brandName.classList.add('shop-brand');}
+  const gear=document.querySelector('.admin-brand-gear'),logoId=shop.settings?.logoId;if(gear&&logoId){const img=document.createElement('img');img.className='admin-brand-logo';img.alt='';img.src='/api/platform/images/'+encodeURIComponent(logoId);img.addEventListener('error',()=>{img.remove();gear.textContent='⚙';});gear.textContent='';gear.append(img);}
   document.querySelectorAll('a[href="/"]').forEach(a=>a.href='/shops/'+encodeURIComponent(slug)+'/');
   
   // Global backups/reset and destructive trash controls are not merchant APIs.

@@ -250,3 +250,7 @@
 .tenant-denied-switch{width:100%;margin-top:10px;padding:14px;border-radius:14px;font-size:16px}
 .tenant-denied-back{color:#16733b;font-weight:700;text-decoration:none;padding:6px}
 .product-field-grid .promotion-price-field{grid-column:1/-1}
+/* Seller admins show their own shop name (and logo) in the header. */
+.admin-brand-name.shop-brand{max-width:min(46vw,260px);color:#183b2a;font-size:clamp(15px,2.2vw,20px);line-height:1.15;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.admin-brand-name.shop-brand small{color:#5b6660}
+.admin-brand-gear .admin-brand-logo{display:block;width:40px;height:40px;border-radius:50%;object-fit:cover;background:#fff;box-shadow:0 0 0 1px #e3e8e4}
