@@ -3,7 +3,9 @@ const pub=f=>fs.readFileSync(path.join(__dirname,'..','public',f),'utf8');
 test('Settings offers Share My Store with a scannable QR and copyable link',()=>{
   const html=pub('index.html');
   for(const id of ['share-store-action','share-modal','share-qr','share-link','share-copy','share-download'])assert.match(html,new RegExp('id="'+id+'"'));
-  assert.ok(html.indexOf('/qrcode.js')<html.indexOf('/settings.js'),'QR library loads before Settings');
+  assert.ok(!html.includes('/qrcode.js'),'QR library is not loaded with every page');
+  const settings=pub('settings.js'),qrSrc=settings.match(/script\.src = "(\/qrcode\.js[^"]*)"/)[1];
+  assert.match(settings,/await loadQr\(\)/);assert.ok(pub('sw.js').includes('"'+qrSrc+'"'),'QR library stays cached for offline Share');
   const qrcode=require('../public/qrcode.js'),qr=qrcode(0,'M');qr.addData('https://shop.test/shops/polestar/');qr.make();
   assert.match(qr.createSvgTag({scalable:true}),/^<svg/);
 });
