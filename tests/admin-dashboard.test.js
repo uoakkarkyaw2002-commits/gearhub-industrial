@@ -50,14 +50,14 @@ test('phone: orders show as cards without sideways scrolling',()=>{
 test('admin header: no gear, store logo on the avatar (GearHub and seller shops)',()=>{
  assert.match(pub('site-admin.css'),/\.admin-page \.admin-brand-gear\{display:none!important\}/);
  assert.match(pub('admin-extras.js'),/function setLogo\(url\)/);
- assert.match(pub('tenant-admin.js'),/window\.__gearhubAdminLogo=logoId\?'\/api\/platform\/images\/'/);
+ assert.match(pub('tenant-admin.js'),/appearance\?\.logoUrl/);
  assert.match(pub('admin.js'),/GearHubAdminExtras\?\.setLogo\(siteSettings\.logoUrl\|\|""\)/);
 });
 
 test('GearHub settings has "Create new shop"; seller shops never show it',()=>{
  const s=pub('settings.js');
  assert.match(s,/if \(!window\.GearHubTenantStore && !byId\("create-shop-action"\)\)/);
- assert.match(s,/link\.href = "\/platform\.html"/);
+ assert.match(s,/openShare\(\{ link: location\.origin \+ "\/platform\.html"/);
  assert.match(pub('site-content.js'),/createShopSetting:"Create new shop"/);
 });
 
