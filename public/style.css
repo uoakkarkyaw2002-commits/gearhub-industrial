@@ -681,3 +681,23 @@ footer.gearhub-footer{padding:0;background:radial-gradient(ellipse at 30% 20%,#0
 [data-store-view="promotion"][hidden]{display:none!important}
 /* Bottom navigation: share the width between the visible tabs so they stay centred when Promotion is hidden. */
 .mobile-bottom-nav{grid-template-columns:none!important;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}
+/* Promotion: badge on the photo, sale price with the old price struck through. */
+.product.has-promo{border-color:#f2b86b}
+.product-art{position:relative}
+.promo-badge{position:absolute;top:10px;right:10px;z-index:2;padding:4px 10px;border-radius:999px;background:#e8572a;color:#fff;font-size:12px;font-weight:800;letter-spacing:.01em;box-shadow:0 3px 10px #e8572a40;white-space:nowrap}
+.sale-price{color:#d1491f;font-weight:800}
+.was-price{margin-left:6px;color:#8a978e;font-size:.82em;font-weight:500}
+.category-product-row .was-price{display:inline-block}
+.promotion-grid{margin-top:20px}
+.promotion-grid:empty{display:none}
+:root[data-theme="dark"] .sale-price{color:#ff9b73}:root[data-theme="dark"] .was-price{color:#9fb0a4}
+.product.has-promo .sku{display:none}
+.product .price{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px;min-width:0;white-space:normal}
+.product .price .was-price{margin-left:0;white-space:nowrap}
+.product .price .sale-price{white-space:nowrap}
+/* Promotion header stays compact so the offers themselves lead the page. */
+.promotion-view .promotion-card{min-height:0;padding:18px 22px;gap:4px}
+.promotion-view .promotion-card h2{font-size:clamp(20px,2.4vw,28px);margin:2px 0}
+.promotion-view .promotion-card p{margin:0}
+.promotion-view .promotion-card .primary{display:none}
+.promotion-view .promotion-icon{display:none}

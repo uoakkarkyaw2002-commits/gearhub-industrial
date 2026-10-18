@@ -239,3 +239,14 @@
 @media(max-width:600px){.admin-page .nav{flex-wrap:nowrap;align-items:center}.admin-page .nav .nav-actions .nav-icon-btn{width:42px;padding:0}.admin-page .nav .nav-actions .nav-icon-btn span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
 /* Frontend Text editor is hidden; its fields still save the existing wording. */
 .appearance-extra[hidden]{display:none!important}
+/* Seller admin: owner banner and a friendly "wrong account" card. */
+.owner-managing{margin:0 0 14px;padding:10px 14px;border-radius:12px;background:#fff6dd;border:1px solid #f1d58c;color:#6b4d00;font-weight:700;font-size:14px}
+#login-view.tenant-denied{max-width:520px;margin:32px auto;padding:0 16px;background:transparent;border:0;box-shadow:none}
+.tenant-denied-card{display:grid;justify-items:center;gap:10px;text-align:center;padding:32px 24px;background:#fff;border:1px solid #e6ede8;border-radius:24px;box-shadow:0 14px 40px #16472e0d}
+.tenant-denied-icon{width:72px;height:72px;display:grid;place-items:center;border-radius:50%;background:#eaf7ee;font-size:32px}
+.tenant-denied-card h2{margin:6px 0 0;font-size:21px;line-height:1.6;color:#172d21}
+.tenant-denied-card p{margin:0;color:#66756b;line-height:1.7}
+.tenant-denied-card .tenant-denied-en{color:#172d21;font-weight:600}
+.tenant-denied-switch{width:100%;margin-top:10px;padding:14px;border-radius:14px;font-size:16px}
+.tenant-denied-back{color:#16733b;font-weight:700;text-decoration:none;padding:6px}
+.product-field-grid .promotion-price-field{grid-column:1/-1}
