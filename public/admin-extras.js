@@ -77,5 +77,10 @@
  // Keep the admin page itself available offline (GearHub and seller admins).
  if("serviceWorker" in navigator&&window.isSecureContext)navigator.serviceWorker.register("/sw.js",{updateViaCache:"none"}).catch(()=>{});
 
- window.GearHubAdminExtras={update(summary,orders,products){renderKpis(summary,orders,products);updateBell(orders);}};
+ // Top-right avatar shows the store's own logo (person icon when there is none).
+ function setLogo(url){const box=document.querySelector(".admin-user-avatar");if(!box)return;box.querySelector("img")?.remove();
+  if(!url||!/^(\/|https:\/\/)/.test(String(url))){box.classList.remove("has-logo");return;}
+  const img=document.createElement("img");img.alt="";img.src=url;img.addEventListener("error",()=>{img.remove();box.classList.remove("has-logo");});box.append(img);box.classList.add("has-logo");}
+ window.GearHubAdminExtras={update(summary,orders,products){renderKpis(summary,orders,products);updateBell(orders);},setLogo};
+ if(window.__gearhubAdminLogo)setLogo(window.__gearhubAdminLogo);
 })();
