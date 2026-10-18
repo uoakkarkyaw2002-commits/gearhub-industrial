@@ -30,3 +30,9 @@ test('a backup never fills the disk: old copies go first, then it is skipped saf
  assert.equal(count(),1,'older local copies were removed, the newest one is kept');
  assert.equal(service.status().lastAttempt.stage,'disk-space');
 });
+test('the admin panel status names the off-site destinations without secrets',t=>{
+ const {service}=setup(t,{BACKUP_S3_BUCKET:'gearhub-backups',BACKUP_S3_ENDPOINT:'https://abc.r2.cloudflarestorage.com',BACKUP_S3_ACCESS_KEY_ID:'key-id-value',BACKUP_EMAIL_ENABLED:'false',BACKUP_RETENTION:'7',BACKUP_LOCAL_KEEP:undefined});
+ const state=service.status();
+ assert.deepEqual(state.offsiteDestinations,['Cloudflare R2 (gearhub-backups)']);assert.equal(state.retainedLocalCopies,3);
+ assert.ok(!JSON.stringify(state).includes('key-id-value'));assert.ok(!JSON.stringify(state).includes('abc.r2'));
+});

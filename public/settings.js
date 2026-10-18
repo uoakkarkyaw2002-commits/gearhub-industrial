@@ -170,9 +170,22 @@
     return location.origin + path;
   }
   // The same sheet also shares GearHub's "Create new shop" page (QR, copy, save image).
-  function openShare(options = {}) {
+  // The QR library (56 KB) loads only when a Share sheet opens, not with every page.
+  let qrLoading;
+  function loadQr() {
+    if (typeof qrcode === "function") return Promise.resolve();
+    return qrLoading ||= new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "/qrcode.js?v=1.4.4";
+      script.onload = resolve;
+      script.onerror = () => { qrLoading = null; script.remove(); reject(new Error("QR unavailable")); };
+      document.head.append(script);
+    });
+  }
+  async function openShare(options = {}) {
     const modal = byId("share-modal");
-    if (!modal || typeof qrcode !== "function") return;
+    if (!modal) return;
+    try { await loadQr(); } catch { return; }
     const link = options.link || storeLink(), qr = qrcode(0, "M");
     qr.addData(link);
     qr.make();

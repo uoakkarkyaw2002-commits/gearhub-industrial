@@ -632,6 +632,25 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
       assert.equal((await b.call("/shops/" + bid)).status, 200);
     },
   );
+  await t.test('owner records shop payments, optionally extends service, and sellers cannot see or add them',async()=>{
+    const before=(await b.me()).shop;
+    assert.equal((await b.call('/owner/shops/'+bid+'/payments','POST',{amount:5000,months:1,method:'KBZPay'})).status,403);
+    assert.equal((await owner.call('/owner/shops/'+bid+'/payments','POST',{amount:5000,months:1,method:'Bitcoin'})).status,400);
+    assert.equal((await owner.call('/owner/shops/'+bid+'/payments','POST',{amount:-1,months:1,method:'Cash'})).status,400);
+    assert.equal((await owner.call('/owner/shops/'+bid+'/payments','POST',{amount:5000,months:30,method:'Cash'})).status,400);
+    assert.equal((await owner.call('/owner/shops/999999/payments','POST',{amount:5000,months:0,method:'Cash'})).status,404);
+    const paid=await owner.call('/owner/shops/'+bid+'/payments','POST',{amount:15000,months:1,method:'KBZPay',note:'Txn 123\nline2'});
+    assert.equal(paid.status,201);assert.equal(paid.data.payment.amount,15000);assert.equal(paid.data.payment.note,'Txn 123 line2');
+    const base=before.ends_at&&Date.parse(before.ends_at)>Date.now()?before.ends_at:null;
+    if(base)assert.equal(paid.data.endsAt,model.addCalendarMonths(base,1));else assert.ok(Date.parse(paid.data.endsAt)>Date.now()+27*86400000);
+    const noExtend=await owner.call('/owner/shops/'+bid+'/payments','POST',{amount:2000,months:0,method:'Cash',paidAt:'2026-01-05T00:00:00+06:30'});
+    assert.equal(noExtend.status,201);assert.equal(noExtend.data.endsAt,undefined);assert.equal((await b.me()).shop.ends_at,paid.data.endsAt);
+    const list=(await owner.call('/owner')).data;assert.deepEqual(list.payments.filter(p=>p.shop_id===bid).map(p=>p.amount),[15000,2000]);assert.ok(list.paymentMethods.includes('WavePay'));
+    assert.ok(!JSON.stringify((await b.me()).shop).includes('15000'));assert.equal((await b.call('/owner')).status,403);
+    assert.equal((await b.call('/owner/payments/'+noExtend.data.payment.id,'DELETE')).status,403);
+    assert.equal((await owner.call('/owner/payments/'+noExtend.data.payment.id,'DELETE')).status,200);
+    assert.equal((await owner.call('/owner/payments/'+noExtend.data.payment.id,'DELETE')).status,404);
+  });
   await t.test('owner extension adds calendar months and cannot be used by sellers',async()=>{await owner.call('/owner/shops/'+bid,'PATCH',{endsAt:'2099-01-31T00:00:00.000Z'});const before=(await b.me()).shop;assert.equal((await b.call('/owner/shops/'+bid+'/extend','POST',{months:2})).status,403);const r=await owner.call('/owner/shops/'+bid+'/extend','POST',{months:2});assert.equal(r.status,200);assert.equal(r.data.startsAt,before.starts_at);assert.equal(r.data.endsAt,model.addCalendarMonths(before.ends_at,2));assert.equal((await owner.call('/owner/shops/'+bid+'/extend','POST',{months:0})).status,400);assert.equal((await owner.call('/owner/shops/'+bid+'/extend','POST',{months:2})).status,200);});
   await t.test(
     "multi-product reopen rollback and shipped/completed cancellation preserve stock",
