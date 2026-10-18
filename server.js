@@ -285,10 +285,6 @@ app.use(session({
 if(process.env.PLATFORM_ENABLED==='true'){
  const {createPlatform}=require('./lib/platform');
  app.use('/api/platform',createPlatform({db,dataDir,publicOrigin}));
- app.get('/shops/:slug/admin', (req,res)=>{
-  res.set({'Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow, noarchive'});
-  res.sendFile(path.join(__dirname,'public','admin.html'));
- });
  require('./lib/tenant-install').installTenantApps(app,{db,dataDir,publicDir:path.join(__dirname,'public'),publicOrigin});
 }
 app.get('/api/app-release', (_req,res)=>{
@@ -562,6 +558,15 @@ app.get("/app.webmanifest", (_req,res) => {
  const manifest=JSON.parse(fs.readFileSync(path.join(__dirname,"public/manifest.webmanifest"),"utf8"));
  manifest.name=site.brandName||manifest.name;
  manifest.short_name=(site.brandName||manifest.short_name).slice(0,30);
+ if(site.appIconUrl)manifest.icons=[{src:site.appIconUrl,sizes:"512x512",purpose:"any"}];
+ res.set("Cache-Control","no-cache").type("application/manifest+json").json(manifest);
+});
+// Admin installed on a Home Screen: its scope is the whole site, so "View store" stays inside the app.
+app.get("/admin.webmanifest", (_req,res) => {
+ const site=getSiteSettings();
+ const manifest=JSON.parse(fs.readFileSync(path.join(__dirname,"public/manifest.webmanifest"),"utf8"));
+ const name=(site.brandName||manifest.short_name)+" Admin";
+ Object.assign(manifest,{id:"/admin.html",name,short_name:name.slice(0,30),start_url:"/admin.html",scope:"/"});
  if(site.appIconUrl)manifest.icons=[{src:site.appIconUrl,sizes:"512x512",purpose:"any"}];
  res.set("Cache-Control","no-cache").type("application/manifest+json").json(manifest);
 });
