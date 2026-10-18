@@ -35,7 +35,7 @@
   const storeTitle=document.getElementById('admin-store-title');if(storeTitle)storeTitle.textContent=shop.name+' · Admin';
   // Seller admins carry their own shop name and logo, never the GearHub brand.
   const brandName=document.querySelector('.admin-brand-name');if(brandName){brandName.textContent=shop.name;const small=document.createElement('small');small.textContent='ADMIN CONSOLE';brandName.append(small);brandName.classList.add('shop-brand');}
-  const logoId=shop.settings?.logoId;window.__gearhubAdminLogo=logoId?'/api/platform/images/'+encodeURIComponent(logoId):'';window.GearHubAdminExtras?.setLogo(window.__gearhubAdminLogo);
+  const logoId=shop.settings?.logoId,appearanceLogo=String(shop.settings?.appearance?.logoUrl||'');window.__gearhubAdminLogo=/^\/api\/platform\/images\/[A-Za-z0-9-]+$/.test(appearanceLogo)?appearanceLogo:logoId?'/api/platform/images/'+encodeURIComponent(logoId):'';window.GearHubAdminExtras?.setLogo(window.__gearhubAdminLogo);
   document.querySelectorAll('a[href="/"]').forEach(a=>a.href='/shops/'+encodeURIComponent(slug)+'/');
   
   // Global backups/reset and destructive trash controls are not merchant APIs.

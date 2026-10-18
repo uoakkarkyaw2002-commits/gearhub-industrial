@@ -137,10 +137,10 @@
     byId("home-screen-action")?.before(button);
   }
   if (!window.GearHubTenantStore && !byId("create-shop-action")) {
-    const link = document.createElement("a");
+    const link = document.createElement("button");
+    link.type = "button";
     link.className = "settings-row settings-row-button create-shop-row";
     link.id = "create-shop-action";
-    link.href = "/platform.html";
     link.innerHTML = '<span class="settings-icon create-shop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 4.6 4h14.8L21 9.5"/><path d="M3 9.5a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/><path d="M5 12.5V20h9"/><path d="M18 15v6M15 18h6"/></svg></span><span class="settings-copy"><strong>'+words("createShopSetting")+'</strong><small>'+words("createShopHelp")+'</small></span><span class="settings-chevron" aria-hidden="true">›</span>';
     byId("share-store-action")?.after(link);
   }
@@ -169,16 +169,21 @@
     const path = window.GearHubTenantStore ? location.pathname.replace(/\/?$/, "/") : "/";
     return location.origin + path;
   }
-  function openShare() {
+  // The same sheet also shares GearHub's "Create new shop" page (QR, copy, save image).
+  function openShare(options = {}) {
     const modal = byId("share-modal");
     if (!modal || typeof qrcode !== "function") return;
-    const link = storeLink(), qr = qrcode(0, "M");
+    const link = options.link || storeLink(), qr = qrcode(0, "M");
     qr.addData(link);
     qr.make();
     byId("share-qr").innerHTML = qr.createSvgTag({ cellSize: 6, margin: 4, scalable: true });
     byId("share-link").value = link;
-    byId("share-store-name").textContent = document.querySelector(".footer-wordmark")?.textContent.trim() || document.title;
+    byId("share-store-name").textContent = options.name || document.querySelector(".footer-wordmark")?.textContent.trim() || document.title;
+    const heading = modal.querySelector("h2"), hint = modal.querySelector(".share-hint");
+    if (heading) heading.textContent = options.title || words("shareStoreSetting");
+    if (hint) hint.textContent = options.hint || words("shareScanHint");
     byId("share-download").href = qr.createDataURL(10, 4);
+    byId("share-download").setAttribute("download", options.file || "store-qr.gif");
     byId("share-native").hidden = !navigator.share;
     byId("share-copy").textContent = words("shareCopy");
     modal.classList.add("open");
@@ -191,7 +196,8 @@
     clearTimeout(copyLink.timer);
     copyLink.timer = setTimeout(() => (button.textContent = words("shareCopy")), 2000);
   }
-  byId("share-store-action")?.addEventListener("click", openShare);
+  byId("share-store-action")?.addEventListener("click", () => openShare());
+  byId("create-shop-action")?.addEventListener("click", () => openShare({ link: location.origin + "/platform.html", title: words("createShopSetting"), name: words("createShopShareName"), hint: words("createShopShareHint"), file: "gearhub-new-shop-qr.gif" }));
   byId("share-close")?.addEventListener("click", () => byId("share-modal").classList.remove("open"));
   byId("share-modal")?.addEventListener("click", event => { if (event.target === event.currentTarget) event.currentTarget.classList.remove("open"); });
   byId("share-copy")?.addEventListener("click", copyLink);
