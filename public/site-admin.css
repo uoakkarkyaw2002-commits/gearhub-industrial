@@ -229,7 +229,7 @@
 @media(max-width:800px){.inventory-desktop-table{display:none}.inventory-mobile-list{display:grid;gap:10px}.inventory-mobile-card{display:flex;align-items:stretch;padding:9px;border:1px solid #e0eadf;border-radius:15px;background:#fff;box-shadow:0 4px 12px #153b1a0a;touch-action:pan-y}.inventory-mobile-open{display:grid;grid-template-columns:60px minmax(0,1fr) auto;align-items:center;gap:10px;flex:1;min-width:0;border:0;background:transparent;color:inherit;text-align:left;padding:0;font:inherit;cursor:pointer}.inventory-mobile-photo{display:grid;place-items:center;width:60px;height:60px;overflow:hidden;border-radius:11px;background:#eef4ea;font-size:28px}.inventory-mobile-photo img{width:100%;height:100%;object-fit:cover}.inventory-mobile-copy{display:grid;gap:2px;min-width:0}.inventory-mobile-copy small{color:#6c786e;font-size:11px}.inventory-mobile-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}.inventory-mobile-copy em{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#607565;font-style:normal;font-size:12px}.inventory-mobile-copy b{font-size:14px;color:#173a25}.inventory-mobile-meta{display:grid;align-items:center;justify-items:end;gap:6px}.inventory-mobile-meta small{color:#718073;font-size:10px}.inventory-mobile-open:focus-visible{outline:3px solid #68a944;outline-offset:3px}.tenant-home-button{display:inline-grid!important;place-items:center;width:42px;min-width:42px;padding:0!important;font-size:25px;line-height:1}}
 /* Header: two matching icon buttons (View store, Log out). */
 .admin-page .nav .nav-actions{display:flex!important;align-items:center;gap:8px;margin-left:auto;width:auto;flex-wrap:nowrap;align-self:center}
-.admin-page .nav .nav-actions .admin-user-menu{display:flex;position:static}
+.admin-page .nav .nav-actions .admin-user-menu{display:flex;position:relative}
 .admin-page .nav .nav-actions .admin-user-menu.hidden,.admin-page .nav .nav-actions .nav-icon-btn.hidden{display:none!important}
 .admin-page .nav .nav-actions .nav-icon-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;flex:none;width:auto;min-height:42px;margin:0;padding:0 14px;border:1px solid #d6e6db;border-radius:12px;background:#fff;color:#16733b;font-size:13px;font-weight:750;line-height:1;text-decoration:none;box-shadow:0 1px 2px #1934260d;cursor:pointer}
 .admin-page .nav .nav-actions .nav-icon-btn svg{flex:none}
@@ -260,3 +260,48 @@
 .admin-sidebar a[aria-expanded="false"]+.admin-sidebar-subnav{display:none}
 .admin-sidebar a[aria-expanded] .sidebar-chevron{transition:transform .2s}
 .admin-sidebar a[aria-expanded="false"] .sidebar-chevron{transform:rotate(-90deg)}
+/* Header: View store · new-order bell · Admin menu (Log out inside). */
+.admin-page .nav .nav-actions .admin-bell{position:relative;width:42px;padding:0;border-color:transparent;background:transparent;color:#253349}
+.admin-page .nav .nav-actions .admin-bell:hover{background:#f2f6f4}
+.admin-bell-count{position:absolute!important;top:3px;right:2px;width:auto!important;height:auto!important;min-width:18px;padding:1px 5px;overflow:visible!important;clip:auto!important;border-radius:999px;background:#e5372b;color:#fff;font-size:11px;font-weight:800;line-height:16px;text-align:center;box-shadow:0 0 0 2px #fff}
+.admin-bell-count[hidden]{display:none}
+.admin-bell.ring svg{animation:admin-bell-ring 1s ease-in-out 2;transform-origin:50% 10%}
+@keyframes admin-bell-ring{0%,100%{transform:rotate(0)}20%{transform:rotate(16deg)}40%{transform:rotate(-14deg)}60%{transform:rotate(10deg)}80%{transform:rotate(-6deg)}}
+.admin-page .nav .admin-user-menu{position:relative}
+.admin-user-toggle .admin-user-chevron{font-size:13px;color:#6b7686}
+.admin-page .nav .admin-user-dropdown{z-index:40;padding:6px}
+.admin-page .nav .admin-user-dropdown .nav-logout{display:flex;width:100%!important;min-height:40px;padding:0 12px!important;justify-content:flex-start}
+.admin-page .nav .admin-user-dropdown .nav-logout span{position:static!important;width:auto!important;height:auto!important;overflow:visible!important;clip:auto!important}
+@media(max-width:600px){.admin-user-name,.admin-user-chevron{display:none}.admin-user-avatar{width:36px;height:36px}.admin-page .nav-actions{gap:8px}}
+/* PC summary cards above the product list. */
+.admin-kpis{display:none}
+@media(min-width:1100px){
+ .admin-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:0 0 18px}
+ .kpi-card{position:relative;display:flex;align-items:flex-start;gap:14px;min-width:0;padding:18px;border:1px solid #e7eef0;border-radius:14px;background:#fff;box-shadow:0 6px 18px #18263c0d;overflow:hidden}
+ .kpi-icon{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:12px}
+ .kpi-icon svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+ .kpi-products{background:linear-gradient(135deg,#fff,#f3fbf5)}.kpi-products .kpi-icon{background:#e3f6e8;color:#16943f}
+ .kpi-orders{background:linear-gradient(135deg,#fff,#f2f7ff)}.kpi-orders .kpi-icon{background:#e5efff;color:#1f6fe5}
+ .kpi-sales{background:linear-gradient(135deg,#fff,#fffaf0)}.kpi-sales .kpi-icon{background:#fff1d6;color:#e08a00}
+ .kpi-customers{background:linear-gradient(135deg,#fff,#f8f4ff)}.kpi-customers .kpi-icon{background:#efe6ff;color:#7a4be0}
+ .kpi-label{display:block;color:#3b4658;font-size:14px;font-weight:600}
+ .kpi-value{display:block;margin:4px 0 6px;color:#121a2b;font-size:clamp(20px,1.7vw,28px);font-weight:850;line-height:1.1;overflow-wrap:anywhere}
+ .kpi-trend{font-size:12.5px;font-weight:750}.kpi-trend small{margin-left:4px;color:#6b7686;font-weight:500;font-size:12px}
+ .kpi-trend.up{color:#16943f}.kpi-trend.down{color:#c2362c}.kpi-trend.flat{color:#6b7686;font-weight:600}
+ .kpi-bars{position:absolute;right:16px;top:18px;display:flex;align-items:flex-end;gap:4px;height:40px;opacity:.28}
+ .kpi-bars i{display:block;width:8px;border-radius:3px;background:currentColor}
+ .kpi-bars i:nth-child(1){height:30%}.kpi-bars i:nth-child(2){height:55%}.kpi-bars i:nth-child(3){height:75%}.kpi-bars i:nth-child(4){height:100%}
+ .kpi-products .kpi-bars{color:#16943f}.kpi-orders .kpi-bars{color:#1f6fe5}.kpi-sales .kpi-bars{color:#e08a00}.kpi-customers .kpi-bars{color:#7a4be0}
+}
+@media(min-width:1100px) and (max-width:1300px){.kpi-bars{display:none}}
+/* Offline notice. */
+.admin-offline-bar{margin:0 0 14px;padding:11px 14px;border:1px solid #f0d9a8;border-radius:12px;background:#fff8e6;color:#6b4d00;font-size:13px;font-weight:600;line-height:1.45}
+.admin-offline-bar[hidden]{display:none}
+/* Admin menu works the same on phone and PC: avatar opens a small menu with Log out. */
+.admin-page .admin-user-toggle{display:flex;align-items:center;gap:8px;min-height:42px;padding:2px 4px;border:0;border-radius:999px;background:transparent;color:#16233a;font:inherit;font-weight:750;font-size:14px;cursor:pointer}
+.admin-page .admin-user-avatar{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:linear-gradient(145deg,#5ca8ff,#1876e8);color:#fff}
+.admin-page .nav .admin-user-dropdown{display:none;position:absolute;top:calc(100% + 6px);right:0;min-width:150px;background:#fff;border:1px solid #e5ece8;border-radius:12px;box-shadow:0 12px 28px #15263c26}
+.admin-page .nav .admin-user-menu.open .admin-user-dropdown{display:block}
+/* Backup buttons sit side by side and never break mid-word. */
+section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledby="operations-heading"] a.secondary{display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin:4px 6px 4px 0;padding:0 16px;border-radius:10px;white-space:nowrap;text-decoration:none;font-size:14px}
+@media(max-width:600px){section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledby="operations-heading"] a.secondary{width:100%;margin:6px 0 0}}
