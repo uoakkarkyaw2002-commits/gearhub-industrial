@@ -365,3 +365,10 @@ body.onboarding{background:radial-gradient(ellipse at top,#f0f9f3 0%,#f7faf7 72%
  .login-application .application-primary{margin-top:auto;min-height:54px;font-size:16px}
  .login-application .application-help{margin-top:12px}
 }
+/* Owner billing: payments recorded by GearHub (manual, no card processing). */
+@media(min-width:1000px){.seller-panels{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.payment-box{margin-top:18px;padding-top:14px;border-top:1px solid #e7ede8}.payment-box h4{margin:0 0 8px;font-size:15px}
+.payment-form{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 10px;align-items:end}.payment-form label{font-size:12px;font-weight:700}.payment-form input,.payment-form select{margin-top:4px;min-width:0}.payment-form input[type="date"]{-webkit-appearance:none;appearance:none;min-height:46px}.payment-form .payment-note{grid-column:1/4}.payment-form button{background:#147b3b;border:0;margin:0 0 10px}
+.payment-list{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:7px}.payment-row{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid #e3eae5;border-radius:12px;background:#fbfdfb}.payment-row>div{flex:1;min-width:0}.payment-row small{display:block;color:#66756b;font-size:12px;overflow-wrap:anywhere}.payment-method,.payment-months{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;background:#e5f4e9;color:#16733b}.payment-months{background:#eef3ff;color:#2f4fa8}.payment-delete{margin:0;padding:2px 9px;background:#fff;color:#b63831;border:1px solid #f0d3d1;font-size:18px;line-height:1}
+.payment-totals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}.payment-totals div{padding:10px 12px;border-radius:12px;background:#ecf8ef}.payment-totals small{display:block;color:#66756b;font-size:12px}.payment-totals strong{font-size:16px;color:#16733b}
+@media(max-width:700px){.payment-form{grid-template-columns:1fr 1fr}.payment-form .payment-note{grid-column:1/-1}.payment-form button{grid-column:1/-1;width:100%}.payment-totals{grid-template-columns:1fr}}
