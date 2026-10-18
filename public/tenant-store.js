@@ -44,7 +44,7 @@
       try{
         if(url==='/api/products'){
           const s=await load();prepare(s);
-          return json(s.products.map(p=>{const d=JSON.parse(p.details||'{}');return {...p,name_en:p.name,name_my:d.nameMy||p.name,category_en:p.category,category_my:d.categoryMy||p.category,description_en:p.description,description_my:d.descriptionMy||p.description,image_emoji:d.imageEmoji||'⚙',promotion_price:d.promotionPrice??null,imageUrls:(d.imageIds||[p.image_id].filter(Boolean)).map(id=>'/api/platform/images/'+encodeURIComponent(id))};}));
+          return json(s.products.map(p=>{const d=JSON.parse(p.details||'{}');return {...p,name_en:p.name,name_my:d.nameMy||p.name,category_en:p.category,category_my:d.categoryMy||p.category,description_en:p.description,description_my:d.descriptionMy||p.description,image_emoji:d.imageEmoji||'⚙',promotion_price:d.promotionPrice??null,part_no:d.partNo||'',imageUrls:(d.imageIds||[p.image_id].filter(Boolean)).map(id=>'/api/platform/images/'+encodeURIComponent(id))};}));
         }
         if(url==='/api/categories'){
           const s=snapshot||await load();
