@@ -2,17 +2,21 @@
 (()=>{
  const match=location.pathname.match(/^\/shops\/([^/]+)\/admin\/?$/);if(!match)return;
  const slug=decodeURIComponent(match[1]),json=(v,status=200)=>new Response(JSON.stringify(v),{status,headers:{'Content-Type':'application/json'}});
- let context,token,loading;
+ let context,token,loading,setupDone=false;
  async function init(){
-  if(context)return context;if(loading)return loading;
+  if(context&&(token||!navigator.onLine))return context;if(loading)return loading;
   loading=(async()=>{
-   const r=await fetch('/api/platform/me',{cache:'no-store'}),me=await r.json();
+   let r;try{r=await fetch('/api/platform/me',{cache:'no-store'});}catch(e){
+    // Offline: reuse the shop this device last opened so saved data can be shown.
+    let saved=null;try{saved=JSON.parse(localStorage.getItem('gh-admin-ctx:'+slug)||'null');}catch{}
+    if(saved){context=saved;token='';if(!setupDone)setup(context);setupDone=true;return context;}throw e;}
+   const me=await r.json();
    if(!r.ok||!me.user)throw Error('Google login required.');
    let shop=me.shop&&me.shop.slug===slug?me.shop:null;
    // GearHub controls every shop: the platform owner may open any seller admin.
    if(!shop&&me.isOwner){const o=await fetch('/api/platform/owner',{cache:'no-store'});const v=await o.json().catch(()=>({}));shop=o.ok&&(v.shops||[]).find(x=>x.slug===slug&&!x.legacy)||null;if(shop)shop.managedByOwner=true;}
    if(!shop)throw Error('This Google account does not own this shop.');
-   context=shop;token=me.csrfToken;setup(context);return context;
+   context=shop;token=me.csrfToken;try{localStorage.setItem('gh-admin-ctx:'+slug,JSON.stringify(shop));}catch{}if(!setupDone)setup(context);setupDone=true;return context;
   })();try{return await loading;}finally{loading=null;}
  }
  const base=()=>'/api/platform/shops/'+context.id;
