@@ -40,3 +40,9 @@ test('admin keeps last data for offline use and clears it on log out',()=>{
  assert.match(pub('tenant-admin.js'),/gh-admin-ctx:/);
  assert.match(pub('sw.js'),/const copy = response\.clone\(\); caches\.open\(CACHE_NAME\)\.then\(cache => cache\.put\(request, copy\)\)/);
 });
+
+test('phone: orders show as cards without sideways scrolling',()=>{
+ const css=pub('site-admin.css');
+ assert.match(css,/@media\(max-width:760px\)\{\n :is\(#orders-table,#confirmed-orders-table,#trash-orders-table\) \.admin-table\{display:block;width:100%;min-width:0!important/);
+ assert.match(css,/\.admin-table thead\{display:none\}/);
+});
