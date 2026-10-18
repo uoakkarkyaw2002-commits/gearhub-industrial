@@ -757,3 +757,14 @@ footer.gearhub-footer{padding:0;background:radial-gradient(ellipse at 30% 20%,#0
 @container (min-width:300px){.products .product .product-actions,.products .product .product-actions:not(:has(.view-photos)){grid-template-columns:minmax(0,120px) minmax(96px,1fr) 52px;gap:8px}.products .product .product-actions:not(:has(.view-photos)){grid-template-columns:minmax(96px,1fr) 52px}.products .product .view-photos{font-size:13px}}
 @media(max-width:850px){.products .product .product-identifiers{font-size:11px;margin-top:9px;padding-bottom:8px}.products .product h3{font-size:16px;margin-top:8px}.products .product .desc{font-size:12.5px}.products .product .price{font-size:19px}}
 @media(max-width:420px){.products .product .price{font-size:clamp(15px,4.6vw,19px)}}
+
+/* The top announcement strip is not used (GearHub and every shop). */
+.announcement{display:none!important}
+/* Home banner: a fixed wide shape on every screen; the photo fills it. */
+main>.hero.hero-image-only,.hero.hero-image-only{min-height:0!important;height:auto!important;aspect-ratio:2/1;background-size:cover!important;background-position:center!important}
+@media(min-width:768px){main>.hero.hero-image-only,.hero.hero-image-only{aspect-ratio:3/1}}
+@media(min-width:1280px){main>.hero.hero-image-only,.hero.hero-image-only{aspect-ratio:4/1}}
+/* Category page: no forced empty height; banner sides filled with a soft copy of the photo. */
+@media(min-width:851px){#category-view.category-view{min-height:0}}
+#category-view .category-feature-banner.has-image{position:relative;isolation:isolate;background:#eaf1ec}
+#category-view .category-feature-banner.has-image::before{content:"";position:absolute;inset:-24px;z-index:-1;background:var(--banner-fill) center/cover no-repeat;filter:blur(22px) saturate(1.1);opacity:.55}

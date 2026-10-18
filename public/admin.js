@@ -207,6 +207,8 @@ function initAdminNavigation(){
  document.addEventListener("click",event=>{if(userMenu&&!userMenu.contains(event.target)){userMenu.classList.remove("open");userToggle?.setAttribute("aria-expanded","false")}});
  sidebar?.addEventListener("click",event=>{const link=event.target.closest("a[href^='#']");if(!link)return;event.preventDefault();const id=decodeURIComponent(link.getAttribute("href").slice(1));const target=$(id);if(!target)return;const toggle=document.querySelector('[data-content-id="'+id+'"]');if(toggle&&target.classList.contains("hidden"))toggle.click();if(id==="confirmed-toggle")target.click();if(id==="cancelled-toggle")target.click();document.querySelectorAll(".admin-sidebar nav a").forEach(item=>item.classList.toggle("active",item===link));requestAnimationFrame(()=>target.scrollIntoView({behavior:"smooth",block:"start"}))});
 }
+// Sidebar groups with a submenu (Orders & Payments) open and close from their own row.
+document.querySelectorAll(".admin-sidebar a+.admin-sidebar-subnav").forEach(sub=>{const link=sub.previousElementSibling,key="gh-admin-subnav:"+link.textContent.trim();let open=true;try{open=localStorage.getItem(key)!=="closed"}catch{}link.setAttribute("aria-expanded",String(open));link.addEventListener("click",()=>{const next=link.getAttribute("aria-expanded")!=="true";link.setAttribute("aria-expanded",String(next));try{localStorage.setItem(key,next?"open":"closed")}catch{}})});
 initAdminNavigation();
 checkSession();
 
