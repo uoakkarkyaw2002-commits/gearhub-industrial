@@ -701,3 +701,8 @@ footer.gearhub-footer{padding:0;background:radial-gradient(ellipse at 30% 20%,#0
 .promotion-view .promotion-card p{margin:0}
 .promotion-view .promotion-card .primary{display:none}
 .promotion-view .promotion-icon{display:none}
+/* Category banner: always show the whole picture (phones cropped its sides before). */
+#category-view .category-feature-banner.has-image{aspect-ratio:auto!important;min-height:0!important;max-height:none!important;height:auto}
+#category-view .category-feature-banner.has-image>img:not([hidden]){position:static;display:block;width:100%;height:auto;object-fit:contain}
+#category-view .category-feature-banner.has-image .category-banner-copy{display:none}
+@media(min-width:851px){#category-view .category-feature-banner.has-image>img:not([hidden]){max-height:340px;object-fit:contain}}

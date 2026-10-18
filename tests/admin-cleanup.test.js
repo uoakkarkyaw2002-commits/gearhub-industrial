@@ -63,3 +63,8 @@ test('GearHub owner can open any seller admin; others see a friendly switch-acco
   assert.match(t,/if\(!shop&&me\.isOwner\)/);assert.match(t,/tenant-denied-switch/);
   assert.match(pub('admin.js'),/name="promotionPrice"/);assert.doesNotMatch(t,/name="promotionPrice"/);
 });
+test('category banner shows the whole picture on phones',()=>{
+  const css=pub('style.css');
+  assert.match(css,/#category-view \.category-feature-banner\.has-image\{aspect-ratio:auto!important/);
+  assert.match(css,/#category-view \.category-feature-banner\.has-image>img:not\(\[hidden\]\)\{position:static;display:block;width:100%;height:auto;object-fit:contain\}/);
+});
