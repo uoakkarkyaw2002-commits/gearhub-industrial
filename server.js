@@ -18,6 +18,7 @@ const nodemailer = require("nodemailer");
 const {passwordError, csrfToken, validToken, originGuard} = require("./lib/security");
 const {createBackupService} = require("./lib/backups");
 const {createNotifications} = require("./lib/notifications");
+const {createLoginGuard} = require("./lib/login-guard");
 const {runtimeConfig,validateStorage}=require("./lib/config");
 const {logError}=require("./lib/logging");
 const {writeBackupManifest}=require("./lib/backup-manifest");
@@ -335,7 +336,10 @@ app.get("/api/storage", async (_req, res) => {
   res.status(503).json({ error: "Storage information is temporarily unavailable." });
  }
 });
-app.use("/api/admin/login", rateLimit({ windowMs: 15 * 60 * 1000, limit: 5, skipSuccessfulRequests: true, standardHeaders: true, legacyHeaders: false }));
+app.use("/api/admin/login", rateLimit({ windowMs: 15 * 60 * 1000, limit: 5, skipSuccessfulRequests: true, standardHeaders: true, legacyHeaders: false, message: {error:"Too many wrong passwords. Wait 15 minutes. / Password မှားတာ များလို့ မိနစ် ၁၅ စောင့်ပါ။"} }));
+// Wrong passwords from every address count together and survive restarts (lib/login-guard.js).
+const loginGuard=createLoginGuard({db,onLock:({ms,failures})=>notifications.alert("admin-login-locked","GearHub admin password login was locked for "+Math.round(ms/60000)+" minutes after "+failures+" wrong passwords in a row. If this was not you, change the admin password with the reset code.").catch(()=>{})});
+const lockedReply=(res,lock)=>{res.setHeader("Retry-After",String(lock.retryAfter));return res.status(429).json({error:"Admin login is locked for "+Math.ceil(lock.retryAfter/60)+" min after too many wrong passwords. Wait, or reset the password by email. / Password မှားတာ များလို့ "+Math.ceil(lock.retryAfter/60)+" မိနစ် ပိတ်ထားပါတယ်။ စောင့်ပါ (သို့) email နဲ့ password ပြန်သတ်မှတ်ပါ။",code:"LOGIN_LOCKED"});};
 app.use("/api/orders", rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: true, legacyHeaders: false }));
 // Keep private admin responses out of browser and intermediary caches, and
 // reject mutations unless they came from this exact site origin.
@@ -736,6 +740,7 @@ app.post("/api/admin/password-reset/verify", resetVerifyLimit, async (req,res) =
    db.prepare("DELETE FROM password_reset_codes WHERE id=1").run();
    db.prepare("DELETE FROM sessions").run();
   }).immediate();
+  loginGuard.clear();
   req.session.destroy(err => {
    if (err) logError("reset_session_destroy_failure",err);
    res.clearCookie(sessionCookieName,{path:"/",secure:production,httpOnly:true,sameSite:"lax"});
@@ -746,14 +751,18 @@ app.post("/api/admin/password-reset/verify", resetVerifyLimit, async (req,res) =
 app.post("/api/admin/login", async (req,res) => {
  const username = (process.env.ADMIN_USERNAME||"admin").trim();
  const password = String(req.body?.password || "");
- if (!password || Buffer.byteLength(password,"utf8") > 72 || password.includes("\0")) return res.status(401).json({error:"Invalid password."});
+ const lock=loginGuard.status();
+ if (lock.locked) return lockedReply(res,lock);
+ const wrong=()=>{const after=loginGuard.failure();return after.locked?lockedReply(res,after):res.status(401).json({error:"Invalid password."});};
+ if (!password || Buffer.byteLength(password,"utf8") > 72 || password.includes("\0")) return wrong();
  const user = db.prepare("SELECT * FROM admins WHERE username=?").get(username);
- if (!user || !(await bcrypt.compare(password,user.password_hash))) return res.status(401).json({error:"Invalid password."});
+ if (!user || !(await bcrypt.compare(password,user.password_hash))) return wrong();
  req.session.regenerate(err => {
   if (err) return res.status(500).json({error:"Could not create session."});
   const current=db.prepare("SELECT password_hash,auth_version FROM admins WHERE id=?").get(user.id);
   if (!current || current.password_hash!==user.password_hash) return req.session.destroy(() => res.status(401).json({error:"Password changed. Sign in again."}));
   req.session.admin = {id:user.id,username:user.username,authVersion:current.auth_version};
+  loginGuard.success();
   const token=csrfToken(req);
   req.session.save(saveErr => {
    if (saveErr) {
