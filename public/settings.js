@@ -136,6 +136,14 @@
     button.innerHTML = '<span class="settings-icon" aria-hidden="true">🏪</span><span class="settings-copy"><strong>'+words("myShopsSetting")+'</strong><small>'+words("myShopsHelp")+'</small></span><span class="settings-chevron" aria-hidden="true">›</span>';
     byId("home-screen-action")?.before(button);
   }
+  if (!window.GearHubTenantStore && !byId("create-shop-action")) {
+    const link = document.createElement("a");
+    link.className = "settings-row settings-row-button create-shop-row";
+    link.id = "create-shop-action";
+    link.href = "/platform.html";
+    link.innerHTML = '<span class="settings-icon create-shop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 4.6 4h14.8L21 9.5"/><path d="M3 9.5a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/><path d="M5 12.5V20h9"/><path d="M18 15v6M15 18h6"/></svg></span><span class="settings-copy"><strong>'+words("createShopSetting")+'</strong><small>'+words("createShopHelp")+'</small></span><span class="settings-chevron" aria-hidden="true">›</span>';
+    byId("share-store-action")?.after(link);
+  }
 
   const choiceTimers = new WeakMap();
   function animateChoice(button, apply) {

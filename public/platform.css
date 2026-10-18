@@ -348,3 +348,20 @@ body.onboarding{background:radial-gradient(ellipse at top,#f0f9f3 0%,#f7faf7 72%
 .plan-card .permission-checks label{display:flex;align-items:center;gap:8px;margin:0;padding:8px 10px;border:1px solid #dce6df;border-radius:10px;background:#f8fbf8;font-weight:600}
 .plan-card>button{width:100%;margin:4px 0 0}
 .manager-new{white-space:nowrap}
+/* Apply page: what you get, then the Google button. Phone: one clean full-screen card. */
+.login-benefits{display:grid;gap:10px;margin:22px 0 20px;padding:0;list-style:none;text-align:left}
+.login-benefits li{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:#f3f9f5}
+.login-benefits .app-icon{width:22px;height:22px;padding:8px;border-radius:10px;background:#fff;color:#178142;box-sizing:content-box}
+.login-benefits b{display:block;color:#183626;font-size:15px}.login-benefits small{display:block;color:#6f7d74;font-size:12.5px}
+@media(max-width:600px){
+ .onboarding main{max-width:none;padding:0}
+ .onboarding #application{margin:0}
+ .onboarding #account:has(.login-application){margin:0}
+ .login-application{display:flex;flex-direction:column;min-height:calc(100dvh - 54px);box-sizing:border-box;margin:0;padding:22px 18px calc(22px + env(safe-area-inset-bottom));border:0;border-radius:0;box-shadow:none}
+ .login-application .application-progress{margin-bottom:18px}
+ .login-application>.heading-icon{width:56px;height:56px;margin:0 auto 12px}
+ .login-application h2{margin-bottom:6px}
+ .login-application .login-benefits{margin-top:18px}
+ .login-application .application-primary{margin-top:auto;min-height:54px;font-size:16px}
+ .login-application .application-help{margin-top:12px}
+}
