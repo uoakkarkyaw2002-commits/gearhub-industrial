@@ -284,7 +284,7 @@ app.use(session({
 // Opt-in additive platform migration; legacy tables/routes remain unchanged.
 if(process.env.PLATFORM_ENABLED==='true'){
  const {createPlatform}=require('./lib/platform');
- app.use('/api/platform',createPlatform({db,dataDir,publicOrigin}));
+ app.use('/api/platform',createPlatform({db,dataDir,publicOrigin,notifyApplication:details=>notifications.application(details)}));
  require('./lib/tenant-install').installTenantApps(app,{db,dataDir,publicDir:path.join(__dirname,'public'),publicOrigin});
 }
 app.get('/api/app-release', (_req,res)=>{

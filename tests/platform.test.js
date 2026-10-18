@@ -33,6 +33,7 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
   const server = app.listen(0, "127.0.0.1");
   await once(server, "listening");
   const base = "http://127.0.0.1:" + server.address().port;
+  const appliedNotices = [];
   app.use("/api", originGuard(base));
   app.use(
     "/api/platform",
@@ -40,6 +41,7 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
       db,
       dataDir: root,
       publicOrigin: base,
+      notifyApplication: (details) => appliedNotices.push(details),
       env: {
         PLATFORM_OWNER_EMAIL: "owner@gmail.com",
         GOOGLE_CLIENT_ID: "fixture",
@@ -168,6 +170,8 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
         ).status,
         201,
       );
+      await new Promise((r) => setTimeout(r, 20));
+      assert.ok(appliedNotices.some((n) => n.name === "Alice store" && n.email === "alice@gmail.com" && /\/platform\.html$/.test(n.origin + "/platform.html")), "GearHub is told about the new application");
       const list = (await owner.call("/owner")).data;
       const ar = list.applications.find((x) => x.name === "Alice store"),
         br = list.applications.find((x) => x.name === "Bob store");
