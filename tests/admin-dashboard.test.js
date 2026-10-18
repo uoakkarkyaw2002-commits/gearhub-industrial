@@ -46,3 +46,22 @@ test('phone: orders show as cards without sideways scrolling',()=>{
  assert.match(css,/@media\(max-width:760px\)\{\n :is\(#orders-table,#confirmed-orders-table,#trash-orders-table\) \.admin-table\{display:block;width:100%;min-width:0!important/);
  assert.match(css,/\.admin-table thead\{display:none\}/);
 });
+
+test('admin header: no gear, store logo on the avatar (GearHub and seller shops)',()=>{
+ assert.match(pub('site-admin.css'),/\.admin-page \.admin-brand-gear\{display:none!important\}/);
+ assert.match(pub('admin-extras.js'),/function setLogo\(url\)/);
+ assert.match(pub('tenant-admin.js'),/window\.__gearhubAdminLogo=logoId\?'\/api\/platform\/images\/'/);
+ assert.match(pub('admin.js'),/GearHubAdminExtras\?\.setLogo\(siteSettings\.logoUrl\|\|""\)/);
+});
+
+test('GearHub settings has "Create new shop"; seller shops never show it',()=>{
+ const s=pub('settings.js');
+ assert.match(s,/if \(!window\.GearHubTenantStore && !byId\("create-shop-action"\)\)/);
+ assert.match(s,/link\.href = "\/platform\.html"/);
+ assert.match(pub('site-content.js'),/createShopSetting:"Create new shop"/);
+});
+
+test('apply page lists what a shop gets and fills the phone screen',()=>{
+ assert.match(pub('shop-application.js'),/class="login-benefits"/);
+ assert.match(pub('platform.css'),/\.login-application\{display:flex;flex-direction:column;min-height:calc\(100dvh - 54px\)/);
+});
