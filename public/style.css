@@ -297,6 +297,9 @@ body:not(.non-home-view)>.home-navigation{background:transparent;border:0;box-sh
  html{scroll-padding-top:env(safe-area-inset-top,0px)}
 }
 
+#home-screen-action[hidden],#app-install-card[hidden]{display:none!important}
+/* Card price row wraps so a full-width Add to cart button never hides the price. */
+.products .product .product-bottom{flex-wrap:wrap}.products .product .price{flex:1 1 auto;min-width:max-content}
 /* Border-free empty Cart with soft green artwork. */
 #drawer{border:0!important}.cart-line{border:0}
 #drawer:has(.cart-empty-design){padding:0;border:0!important;background:#f8fcf7;border-radius:22px;overflow:hidden}

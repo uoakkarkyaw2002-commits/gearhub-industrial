@@ -17,9 +17,9 @@
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   function refresh() {
     if(action&&standalone())action.hidden=true;
-    if (title) title.textContent = standalone() ? 'Update app' : 'Add to Home Screen';
-    const icon=document.getElementById('home-screen-icon');if(icon)icon.textContent=standalone()?'🔄':'📲';
-    if (help) help.textContent = standalone() ? 'နောက်ဆုံး app update ကို စစ်ရန်' : appName+' ကို ဖုန်း app အဖြစ် တင်ရန်';
+    // Installed apps update by themselves, so this row only offers installing.
+    if (title) title.textContent = 'Add to Home Screen';
+    if (help) help.textContent = appName+' ကို ဖုန်း app အဖြစ် တင်ရန်';
   }
   function message(text) {
     if (!card || !instructions) return;
