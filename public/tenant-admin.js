@@ -8,8 +8,11 @@
   loading=(async()=>{
    const r=await fetch('/api/platform/me',{cache:'no-store'}),me=await r.json();
    if(!r.ok||!me.user)throw Error('Google login required.');
-   if(!me.shop||me.shop.slug!==slug)throw Error('This Google account does not own this shop.');
-   context=me.shop;token=me.csrfToken;setup(context);return context;
+   let shop=me.shop&&me.shop.slug===slug?me.shop:null;
+   // GearHub controls every shop: the platform owner may open any seller admin.
+   if(!shop&&me.isOwner){const o=await fetch('/api/platform/owner',{cache:'no-store'});const v=await o.json().catch(()=>({}));shop=o.ok&&(v.shops||[]).find(x=>x.slug===slug&&!x.legacy)||null;if(shop)shop.managedByOwner=true;}
+   if(!shop)throw Error('This Google account does not own this shop.');
+   context=shop;token=me.csrfToken;setup(context);return context;
   })();try{return await loading;}finally{loading=null;}
  }
  const base=()=>'/api/platform/shops/'+context.id;
@@ -23,7 +26,9 @@
  function setup(shop){
   for(const lang of ['en','my'])for(const key of ['footer','footerLocation','footerHours','footerReliable','footerDelivery','footerSelection','footerSupport','footerTagline','servicesText','promotionText','eyebrow','heroTitle','heroText','highlight1','highlight2','highlight3'])if(window.GEARHUB_DEFAULT_TRANSLATIONS?.[lang]&&key in window.GEARHUB_DEFAULT_TRANSLATIONS[lang])window.GEARHUB_DEFAULT_TRANSLATIONS[lang][key]='';
   document.title=shop.name+' · Admin';
+  if(shop.managedByOwner&&!document.getElementById('owner-managing')){const bar=document.createElement('div');bar.id='owner-managing';bar.className='owner-managing';bar.textContent='👑 GearHub owner အနေနဲ့ '+shop.name+' ကို စီမံနေပါတယ် / Managing as GearHub owner';document.getElementById('dashboard')?.prepend(bar);}
   const heading=document.querySelector('.admin-head h1');if(heading)heading.textContent=shop.name+' · Admin';
+  const storeTitle=document.getElementById('admin-store-title');if(storeTitle)storeTitle.textContent=shop.name+' · Admin';
   document.querySelectorAll('a[href="/"]').forEach(a=>a.href='/shops/'+encodeURIComponent(slug)+'/');
   
   // Global backups/reset and destructive trash controls are not merchant APIs.
@@ -44,7 +49,6 @@
   form.onsubmit=async e=>{e.preventDefault();button.disabled=true;window.__gearhubPlatformPending=true;try{const r=await call('',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(new FormData(form)))});const d=await r.json();if(!r.ok)throw Error(d.error);message.textContent='Saved';}catch(e){message.textContent=e.message;}finally{button.disabled=false;window.__gearhubPlatformPending=false;}};
   host.append(form);document.getElementById('dashboard').append(host);
     const active=document.createElement('label');active.textContent='Product visibility';active.innerHTML+=' <select name=active><option value=1>Active</option><option value=0>Hidden</option></select>';document.getElementById('product-form').append(active);
-  const promotion=document.createElement('label');promotion.className='wide promotion-price-field';promotion.textContent='Promotion price (MMK)';promotion.innerHTML+='<span class="product-input-wrap"><input name="promotionPrice" type="number" min="0" step="1" placeholder="Optional sale price"></span><small>Shown in Promotion while the original price stays in the catalogue.</small>';document.querySelector('#product-form .product-entry-card:nth-of-type(2) .product-field-grid')?.append(promotion);
   const exports=document.createElement('a');exports.href=base()+'/export';exports.textContent='Export this shop data (JSON)';exports.download='shop-data.json';host.append(exports);
   const quota=document.createElement('p');quota.textContent=`Storage ${(shop.limits.usedBytes/1048576).toFixed(2)} / ${(shop.limits.storageLimit/1048576).toFixed(0)} MB · ${shop.limits.subscriptionState} · ${shop.starts_at||''} → ${shop.ends_at||'No expiry'}`;host.prepend(quota);
  }
@@ -56,8 +60,17 @@
   receipt:o=>base()+'/receipts/'+encodeURIComponent(o.receipt_id),
   login:error=>{
    if(/google login required/i.test(error?.message||'')){location.replace('/platform.html');return;}
-   document.getElementById('dashboard').classList.add('hidden');document.getElementById('login-view').classList.remove('hidden');
-   const box=document.getElementById('login-view');box.replaceChildren();const p=document.createElement('p');p.textContent=error.message;const a=document.createElement('a');a.href='/platform.html';a.textContent='Continue with Google / Google ဖြင့်ဝင်ရန်';box.append(p,a);
+   document.getElementById('dashboard').classList.add('hidden');
+   const box=document.getElementById('login-view');box.classList.remove('hidden');box.classList.add('tenant-denied');box.replaceChildren();
+   const card=document.createElement('div');card.className='tenant-denied-card';
+   const icon=document.createElement('div');icon.className='tenant-denied-icon';icon.textContent='🔒';
+   const h=document.createElement('h2');h.textContent='ဒီဆိုင်ကို ဒီ Google account နဲ့ စီမံခွင့် မရှိပါ';
+   const en=document.createElement('p');en.className='tenant-denied-en';en.textContent='This Google account cannot manage this shop.';
+   const help=document.createElement('p');help.textContent='ဆိုင်ပိုင်ရှင်ရဲ့ Google account နဲ့ ပြန်ဝင်ပါ။ / Sign in with the shop owner\'s Google account.';
+   const sw=document.createElement('button');sw.type='button';sw.className='primary tenant-denied-switch';sw.textContent='Google account ပြောင်းဝင်ရန် / Switch account';
+   sw.onclick=async()=>{sw.disabled=true;try{const me=await (await fetch('/api/platform/me',{cache:'no-store'})).json();await fetch('/api/platform/logout',{method:'POST',headers:{'X-CSRF-Token':me.csrfToken||''}});}catch{}location.replace('/platform.html');};
+   const back=document.createElement('a');back.className='tenant-denied-back';back.href='/shops/'+encodeURIComponent(slug)+'/';back.textContent='ဆိုင်ကို ကြည့်ရန် / View shop';
+   card.append(icon,h,en,help,sw,back);box.append(card);
   },
   enhanceOrders:orders=>{for(const o of orders){const select=document.getElementById('status-'+o.id);if(!select)continue;select.replaceChildren(...['pending','confirmed','processing','shipped','completed','cancelled'].map(v=>{const option=document.createElement('option');option.value=v;option.textContent=v;option.selected=v===o.status;return option;}));}},
   async fetch(url,options={}){

@@ -80,11 +80,12 @@
  .products{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
 @media (min-width:1440px){
- body{--desktop-width:1320px}
+ body{--desktop-width:min(1600px,calc(100vw - 96px))}
+ .products{grid-template-columns:repeat(5,minmax(0,1fr))}
  .home-navigation .home-profile-banner{flex-basis:310px}
  .hero h1{font-size:46px}
 }
 @media (min-width:1920px){
- body{--desktop-width:1440px}
- .products{grid-template-columns:repeat(5,minmax(0,1fr))}
+ body{--desktop-width:min(1840px,calc(100vw - 128px))}
+ .products{grid-template-columns:repeat(6,minmax(0,1fr))}
 }

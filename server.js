@@ -121,6 +121,16 @@ const nextInvoiceNumber = () => {
 for (const row of confirmedWithoutInvoice) db.prepare("UPDATE orders SET invoice_no=? WHERE id=?").run("INV-"+nextInvoiceNumber(),row.id);
 const productColumns = db.prepare("PRAGMA table_info(products)").all().map(c => c.name);
 if (!productColumns.includes("image_urls")) db.exec("ALTER TABLE products ADD COLUMN image_urls TEXT NOT NULL DEFAULT '[]'");
+if (!productColumns.includes("promotion_price")) db.exec("ALTER TABLE products ADD COLUMN promotion_price INTEGER");
+const { promotionPrice, salePrice } = require("./lib/promotion");
+// "" or missing clears the promotion; anything else must be 1 .. price-1.
+function cleanPromotion(value, price) {
+ if (value === undefined) return undefined;
+ if (value === null || String(value).trim() === "") return null;
+ const promo = promotionPrice(price, String(value).trim());
+ if (promo === null) throw Object.assign(new Error("Promotion price must be a whole number above 0 and lower than the price."), { status: 400 });
+ return promo;
+}
 const count = db.prepare("SELECT COUNT(*) AS n FROM products").get().n;
 if (!count && (!production || process.env.SEED_DEMO === "true")) {
  const seed = [
@@ -422,7 +432,7 @@ function getCategories(activeOnly=false) {
 function publicProduct(p) {
  let imageUrls = [];
  try { imageUrls = JSON.parse(p.image_urls || "[]"); } catch {}
- return { ...p, imageUrls: Array.isArray(imageUrls) ? imageUrls.slice(0,10) : [], active: Boolean(p.active) };
+ return { ...p, promotion_price: promotionPrice(p.price, p.promotion_price), imageUrls: Array.isArray(imageUrls) ? imageUrls.slice(0,10) : [], active: Boolean(p.active) };
 }
 function cleanImageUrls(value) {
  const input = Array.isArray(value) ? value : String(value || "").split(/\r?\n/);
@@ -657,10 +667,11 @@ app.post("/api/orders", (req,res) => receiptUpload.single("receipt")(req,res,asy
     const p = db.prepare("SELECT * FROM products WHERE id=? AND active=1").get(id);
     if (!p) throw new Error("A product is unavailable. Please refresh your cart.");
     if (p.stock < quantity) throw new Error(`Not enough stock for ${p.name_en}. Available: ${p.stock}`);
-    const lineTotal = p.price * quantity;
+    // Customers pay the promotion price shown in the store, if any.
+    const unitPrice = salePrice(p.price, p.promotion_price), lineTotal = unitPrice * quantity;
     if (!Number.isSafeInteger(lineTotal) || !Number.isSafeInteger(subtotal + lineTotal)) throw new Error("Order total is too large.");
     subtotal += lineTotal;
-    lineItems.push({ productId:p.id, sku:p.sku, nameEn:p.name_en, nameMy:p.name_my, unitPrice:p.price, quantity, lineTotal });
+    lineItems.push({ productId:p.id, sku:p.sku, nameEn:p.name_en, nameMy:p.name_my, unitPrice, ...(unitPrice!==p.price?{originalPrice:p.price}:{}), quantity, lineTotal });
    }
    const code = "GH-" + Date.now().toString(36).toUpperCase() + "-" + crypto.randomBytes(2).toString("hex").toUpperCase();
    const info = db.prepare(`INSERT INTO orders
@@ -870,9 +881,10 @@ app.post("/api/admin/products", adminOnly, (req,res) => {
  const imageUrls=orderProductCover(cleanImageUrls(b.imageUrls),b.coverIndex);
  if(!sku||!nameEn||!categoryEn||!Number.isSafeInteger(price)||price<0||!Number.isSafeInteger(stock)||stock<0||stock>1000000000)
   return res.status(400).json({error:"Fill required fields; price and stock must be valid non-negative integers."});
+ let promo;try{promo=cleanPromotion(b.promotionPrice,price)??null}catch(e){return res.status(400).json({error:e.message})}
  try {
-  const r=db.prepare(`INSERT INTO products(sku,name_en,name_my,category_en,category_my,description_en,description_my,price,stock,image_emoji,image_urls)
-   VALUES(?,?,?,?,?,?,?,?,?,?,?)`).run(sku,nameEn,nameMy,categoryEn,categoryMy,descriptionEn,descriptionMy,price,stock,emoji,JSON.stringify(imageUrls));
+  const r=db.prepare(`INSERT INTO products(sku,name_en,name_my,category_en,category_my,description_en,description_my,price,stock,image_emoji,image_urls,promotion_price)
+   VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`).run(sku,nameEn,nameMy,categoryEn,categoryMy,descriptionEn,descriptionMy,price,stock,emoji,JSON.stringify(imageUrls),promo);
   ensureProductCategory(categoryEn,categoryMy);
   res.status(201).json({id:r.lastInsertRowid});
  } catch(e) { res.status(400).json({error:"Could not add product. SKU may already exist."}); }
@@ -892,7 +904,8 @@ app.patch("/api/admin/products/:id", adminOnly, (req,res) => {
  const imageUrls=orderProductCover(b.imageUrls===undefined?cleanImageUrls(oldImages):cleanImageUrls(b.imageUrls),b.coverIndex);
  const active=b.active===undefined?existing.active:(b.active===false||b.active===0||b.active==="0"?0:1);
  if(!sku||!nameEn||!categoryEn||!Number.isSafeInteger(price)||price<0||!Number.isSafeInteger(stock)||stock<0||stock>1000000000) return res.status(400).json({error:"Fill required fields; price and stock must be valid non-negative integers."});
- try { db.prepare("UPDATE products SET sku=?,name_en=?,name_my=?,category_en=?,category_my=?,description_en=?,description_my=?,price=?,stock=?,image_emoji=?,image_urls=?,active=? WHERE id=?").run(sku,nameEn,nameMy,categoryEn,categoryMy,descriptionEn,descriptionMy,price,stock,emoji,JSON.stringify(imageUrls),active,id); ensureProductCategory(categoryEn,categoryMy); res.json({ok:true}); }
+ let promo;try{promo=cleanPromotion(b.promotionPrice,price);if(promo===undefined)promo=promotionPrice(price,existing.promotion_price)}catch(e){return res.status(400).json({error:e.message})}
+ try { db.prepare("UPDATE products SET sku=?,name_en=?,name_my=?,category_en=?,category_my=?,description_en=?,description_my=?,price=?,stock=?,image_emoji=?,image_urls=?,active=?,promotion_price=? WHERE id=?").run(sku,nameEn,nameMy,categoryEn,categoryMy,descriptionEn,descriptionMy,price,stock,emoji,JSON.stringify(imageUrls),active,promo,id); ensureProductCategory(categoryEn,categoryMy); res.json({ok:true}); }
  catch(e){res.status(400).json({error:"Could not update product. SKU may already exist."});}
 });
 

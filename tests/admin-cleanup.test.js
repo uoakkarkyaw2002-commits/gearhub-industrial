@@ -48,3 +48,18 @@ test('owner dashboard shows seller shops as cards on phones',()=>{
   assert.match(css,/grid-template-areas:"shop status" "owner plan" "storage expiry" "actions actions"/);
   assert.match(pub('platform.html'),/id="logout" class="logout-btn"/);
 });
+test('one promotion rule: only a whole price above 0 and below the normal price counts',()=>{
+  const {promotionPrice,salePrice}=require('../lib/promotion');
+  assert.equal(promotionPrice(1000000,800000),800000);
+  for(const bad of [null,undefined,'',0,'0',-5,1000000,1200000,'abc',12.5])assert.equal(promotionPrice(1000000,bad),null,String(bad));
+  assert.equal(salePrice(1000000,null),1000000);assert.equal(salePrice(1000000,'800000'),800000);
+  const store=pub('store.js');
+  assert.match(store,/function promoPrice\(p\)/);assert.match(store,/total\+=salePrice\(p\)\*n/);
+  assert.match(store,/const promoted=products\.filter\(p=>promoPrice\(p\)!==null\)/);
+  assert.match(store,/promo-badge/);
+});
+test('GearHub owner can open any seller admin; others see a friendly switch-account card',()=>{
+  const t=pub('tenant-admin.js');
+  assert.match(t,/if\(!shop&&me\.isOwner\)/);assert.match(t,/tenant-denied-switch/);
+  assert.match(pub('admin.js'),/name="promotionPrice"/);assert.doesNotMatch(t,/name="promotionPrice"/);
+});
