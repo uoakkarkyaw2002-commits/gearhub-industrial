@@ -122,6 +122,7 @@ for (const row of confirmedWithoutInvoice) db.prepare("UPDATE orders SET invoice
 const productColumns = db.prepare("PRAGMA table_info(products)").all().map(c => c.name);
 if (!productColumns.includes("image_urls")) db.exec("ALTER TABLE products ADD COLUMN image_urls TEXT NOT NULL DEFAULT '[]'");
 if (!productColumns.includes("promotion_price")) db.exec("ALTER TABLE products ADD COLUMN promotion_price INTEGER");
+if (!productColumns.includes("part_no")) db.exec("ALTER TABLE products ADD COLUMN part_no TEXT NOT NULL DEFAULT ''");
 const { promotionPrice, salePrice } = require("./lib/promotion");
 // "" or missing clears the promotion; anything else must be 1 .. price-1.
 function cleanPromotion(value, price) {
@@ -883,8 +884,8 @@ app.post("/api/admin/products", adminOnly, (req,res) => {
   return res.status(400).json({error:"Fill required fields; price and stock must be valid non-negative integers."});
  let promo;try{promo=cleanPromotion(b.promotionPrice,price)??null}catch(e){return res.status(400).json({error:e.message})}
  try {
-  const r=db.prepare(`INSERT INTO products(sku,name_en,name_my,category_en,category_my,description_en,description_my,price,stock,image_emoji,image_urls,promotion_price)
-   VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`).run(sku,nameEn,nameMy,categoryEn,categoryMy,descriptionEn,descriptionMy,price,stock,emoji,JSON.stringify(imageUrls),promo);
+  const r=db.prepare(`INSERT INTO products(sku,name_en,name_my,category_en,category_my,description_en,description_my,price,stock,image_emoji,image_urls,promotion_price,part_no)
+   VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(sku,nameEn,nameMy,categoryEn,categoryMy,descriptionEn,descriptionMy,price,stock,emoji,JSON.stringify(imageUrls),promo,cleanText(b.partNo,60));
   ensureProductCategory(categoryEn,categoryMy);
   res.status(201).json({id:r.lastInsertRowid});
  } catch(e) { res.status(400).json({error:"Could not add product. SKU may already exist."}); }
@@ -905,7 +906,7 @@ app.patch("/api/admin/products/:id", adminOnly, (req,res) => {
  const active=b.active===undefined?existing.active:(b.active===false||b.active===0||b.active==="0"?0:1);
  if(!sku||!nameEn||!categoryEn||!Number.isSafeInteger(price)||price<0||!Number.isSafeInteger(stock)||stock<0||stock>1000000000) return res.status(400).json({error:"Fill required fields; price and stock must be valid non-negative integers."});
  let promo;try{promo=cleanPromotion(b.promotionPrice,price);if(promo===undefined)promo=promotionPrice(price,existing.promotion_price)}catch(e){return res.status(400).json({error:e.message})}
- try { db.prepare("UPDATE products SET sku=?,name_en=?,name_my=?,category_en=?,category_my=?,description_en=?,description_my=?,price=?,stock=?,image_emoji=?,image_urls=?,active=?,promotion_price=? WHERE id=?").run(sku,nameEn,nameMy,categoryEn,categoryMy,descriptionEn,descriptionMy,price,stock,emoji,JSON.stringify(imageUrls),active,promo,id); ensureProductCategory(categoryEn,categoryMy); res.json({ok:true}); }
+ try { db.prepare("UPDATE products SET sku=?,name_en=?,name_my=?,category_en=?,category_my=?,description_en=?,description_my=?,price=?,stock=?,image_emoji=?,image_urls=?,active=?,promotion_price=?,part_no=? WHERE id=?").run(sku,nameEn,nameMy,categoryEn,categoryMy,descriptionEn,descriptionMy,price,stock,emoji,JSON.stringify(imageUrls),active,promo,b.partNo===undefined?(existing.part_no||""):cleanText(b.partNo,60),id); ensureProductCategory(categoryEn,categoryMy); res.json({ok:true}); }
  catch(e){res.status(400).json({error:"Could not update product. SKU may already exist."});}
 });
 
