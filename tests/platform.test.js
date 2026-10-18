@@ -486,6 +486,16 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
         ).status,
         409,
       );
+      // A valid promotion price is what the customer pays; 0 or missing is ignored.
+      db.prepare("UPDATE platform_products SET details=json_set(COALESCE(details,'{}'),'$.promotionPrice',0) WHERE id=?").run(pb);
+      db.prepare("UPDATE platform_products SET stock=stock+2 WHERE id=?").run(pb);
+      const noPromo = await buyer.call("/store/bob-store/orders", "POST", orderForm(pb, 1), { "Idempotency-Key": cryptoKey() });
+      assert.equal(noPromo.data.total, 100);
+      db.prepare("UPDATE platform_products SET details=json_set(details,'$.promotionPrice',60) WHERE id=?").run(pb);
+      const promo = await buyer.call("/store/bob-store/orders", "POST", orderForm(pb, 1), { "Idempotency-Key": cryptoKey() });
+      assert.equal(promo.data.total, 60);
+      db.prepare("UPDATE platform_products SET details=json_remove(details,'$.promotionPrice') WHERE id=?").run(pb);
+      db.prepare("DELETE FROM platform_orders WHERE id IN (?,?)").run(noPromo.data.id, promo.data.id);
       const s = (await b.call("/shops/" + bid)).data;
       receipt = s.orders[0].receipt_id;
       assert.equal(
