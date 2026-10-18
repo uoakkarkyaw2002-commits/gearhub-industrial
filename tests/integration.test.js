@@ -118,5 +118,14 @@ test('stock transactions, CSRF, idempotency, reset races, backups and restart pe
  for(let i=0;i<3;i++)assert.equal((await anonymous.request('/api/admin/password-reset/request','POST',{})).status,503);
  assert.equal((await anonymous.request('/api/admin/password-reset/request','POST',{})).status,429);
  });
+ await t.test('wrong passwords spread over many addresses lock the admin login and survive a restart',async()=>{
+ db.prepare('UPDATE admin_login_guard SET failures=0,window_start=0,locked_until=0,lock_count=0').run();
+ const from=i=>({'X-Forwarded-For':'198.51.100.'+(i+10)});const client=new Client(origin);await client.csrf();
+ for(let i=0;i<9;i++)assert.equal((await client.request('/api/admin/login','POST',{password:'wrong-'+i},from(i))).status,401);
+ const locked=await client.json('/api/admin/login','POST',{password:'wrong-9'},from(9));assert.equal(locked.status,429);assert.equal(locked.data.code,'LOGIN_LOCKED');assert.ok(Number(locked.res.headers.get('retry-after'))>800);
+ db.close();db=null;await stop();await start();db=new Database(path.join(temp,'gearhub.sqlite'));
+ const later=new Client(origin);await later.csrf();assert.equal((await later.json('/api/admin/login','POST',{password:'anything'},from(40))).data.code,'LOGIN_LOCKED');
+ db.prepare('UPDATE admin_login_guard SET locked_until=0').run();assert.equal((await later.request('/api/admin/login','POST',{password:'wrong'},from(41))).status,401);
+ });
 
 });
