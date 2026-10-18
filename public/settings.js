@@ -113,7 +113,6 @@
   async function enableNotifications(enabled) {
     if (!enabled) {
       localStorage.removeItem("gh-notifications");
-      document.getElementById("app-update-toast")?.remove();
       updateNotificationSetting();
       return;
     }
@@ -189,6 +188,11 @@
   byId("share-modal")?.addEventListener("click", event => { if (event.target === event.currentTarget) event.currentTarget.classList.remove("open"); });
   byId("share-copy")?.addEventListener("click", copyLink);
   byId("share-native")?.addEventListener("click", () => navigator.share({ title: byId("share-store-name").textContent, url: byId("share-link").value }).catch(() => {}));
+  // Refresh works like the browser's reload button; unsaved form drafts are kept.
+  byId("app-refresh-action")?.addEventListener("click", () => {
+    window.GearHubUpdates?.saveDraft?.();
+    location.reload();
+  });
   byId("about-app-toggle").addEventListener("click", () => {
     const details = byId("about-app-details");
     details.hidden = !details.hidden;

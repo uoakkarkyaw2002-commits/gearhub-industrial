@@ -706,3 +706,4 @@ footer.gearhub-footer{padding:0;background:radial-gradient(ellipse at 30% 20%,#0
 #category-view .category-feature-banner.has-image>img:not([hidden]){position:static;display:block;width:100%;height:auto;object-fit:contain}
 #category-view .category-feature-banner.has-image .category-banner-copy{display:none}
 @media(min-width:851px){#category-view .category-feature-banner.has-image>img:not([hidden]){max-height:340px;object-fit:contain}}
+#home-screen-action[hidden],#app-install-card[hidden]{display:none!important}

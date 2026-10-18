@@ -63,22 +63,12 @@
   const scope=shop?'/shops/'+shop[1]+'/':location.pathname==='/platform.html'?'/platform.html':'/';
   const versionKey='gh-app-version:'+scope,notifiedKey='gh-update-notified:'+scope;
   const buildVersion=document.querySelector?.('meta[name="gearhub-build-version"]')?.content;
-  let available=false,audio,toastTimer;
+  let available=false,audio;
   const notificationsOn=()=>localStorage.getItem('gh-notifications')==='on';
   function feedback(text){const node=document.getElementById('app-update-feedback');if(node)node.textContent=text;}
   async function enableSound(){
     if(!notificationsOn())return false;
     try{const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return false;audio=audio||new Audio();if(audio.state==='suspended')await audio.resume();return audio.state==='running';}catch{return false;}
-  }
-  function sound(){
-    if(!notificationsOn()||audio?.state!=='running')return;
-    try{const tone=audio.createOscillator(),volume=audio.createGain();tone.type='sine';tone.frequency.value=640;volume.gain.setValueAtTime(.08,audio.currentTime);volume.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.16);tone.connect(volume);volume.connect(audio.destination);tone.start();tone.stop(audio.currentTime+.16);}catch{}
-  }
-  function review(){
-    document.querySelector?.('[data-store-view="profile"]')?.click();
-    const centre=document.getElementById('app-update-notification');if(centre)centre.hidden=false;
-    document.getElementById('app-update-action')?.scrollIntoView?.({block:'center',behavior:'smooth'});
-    document.getElementById('app-update-action')?.focus?.();
   }
   function renderUpdate(){
     document.getElementById('gearhub-update-banner')?.remove?.();
@@ -92,14 +82,17 @@
     const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent||'');
     if(isIOS&&navigator.standalone===true){document.getElementById('home-screen-action')?.setAttribute('hidden','');}
   }
-  function notifyOnce(){
-    if(!available||!notificationsOn()||document.visibilityState==='hidden')return;
-    let seen;try{seen=JSON.parse(localStorage.getItem(notifiedKey)||'[]');if(!Array.isArray(seen))seen=[];if(seen.includes(release.version))return;localStorage.setItem(notifiedKey,JSON.stringify([...seen,release.version]));}catch{return;}
-    const toast=document.createElement('aside');toast.className='app-update-toast';toast.id='app-update-toast';toast.setAttribute('role','status');
-    const text=document.createElement('p');text.textContent='Update available · '+release.version+' / App အသစ် ရပါပြီ။';
-    const open=document.createElement('button');open.type='button';open.textContent='Settings / ဆက်တင်';open.addEventListener('click',()=>{review();toast.remove();});
-    const close=document.createElement('button');close.type='button';close.textContent='Dismiss / ပိတ်ရန်';close.addEventListener('click',()=>toast.remove());
-    toast.append(text,open,close);document.getElementById('app-update-toast')?.remove?.();document.body.append(toast);sound();clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.remove(),7000);
+  // New versions install by themselves (no pop-up): once per version per visit,
+  // only while the page is in front and nothing is being typed, uploaded or paid.
+  let autoTimer;
+  function autoApply(){
+    clearTimeout(autoTimer);
+    if(!available||!release||document.visibilityState==='hidden')return;
+    const key='gh-auto-update:'+scope+':'+release.version;
+    try{if(sessionStorage.getItem(key))return;}catch{}
+    if(blocked()||document.activeElement?.matches?.('input,textarea,select')){autoTimer=setTimeout(autoApply,5000);return;}
+    try{sessionStorage.setItem(key,'1');}catch{}
+    apply();
   }
   async function check() {
     try {
@@ -109,16 +102,17 @@
       let seen=localStorage.getItem(versionKey)||buildVersion||localStorage.getItem('gh-app-version');
       if(!seen){seen=release.version;localStorage.setItem(versionKey,seen);}
       available=Boolean((buildVersion||seen)!==release.version||registration?.waiting);
-      renderUpdate();notifyOnce();
+      renderUpdate();autoApply();
     }catch{const status=document.getElementById('app-update-status');if(status)status.textContent='Cannot check updates. Reconnect and try again. / အင်တာနက် စစ်ပေးပါ။';}
   }
   async function apply() {
     if(blocked()){
       feedback('Finish the active action or selected file before updating. လုပ်ဆောင်နေမှု/ရွေးထားသောဖိုင်ကို အရင်ပြီးစီးပါ။');return false;
     }
-    try {
-      saveDraft();
-      if (registration) {
+    try{saveDraft();}catch{}
+    // A failed worker download must never stop the update: fall back to a plain reload.
+    if (registration) {
+      try {
         await registration.update();
         const installing = registration.installing;
         if (
@@ -141,25 +135,21 @@
               }
             });
           });
-      }
+      } catch {}
+    }
+    try {
       localStorage.setItem(versionKey, release?.version || buildVersion || "1.0.0");
       localStorage.setItem("gh-app-version", release?.version || buildVersion || "1.0.0");
-      requested = true;
-      if (registration?.waiting) {
-        registration.waiting.postMessage({ type: "APPLY_UPDATE" });
-        return true;
-      }
-      location.reload();
+    } catch {}
+    requested = true;
+    if (registration?.waiting) {
+      registration.waiting.postMessage({ type: "APPLY_UPDATE" });
       return true;
-    } catch {
-      requested = false;
-      feedback("Update failed. Check internet/storage and try again. / Update မရသေးပါ။");
-      return false;
     }
+    location.reload();
+    return true;
   }
   window.GearHubUpdates = { apply, restore, blocked, saveDraft, check, enableSound, state:()=>({available,version:release?.version}) };
-  document.getElementById('app-update-action')?.addEventListener('click',async()=>{await check();review();if(available)await apply();else feedback('You are up to date. / နောက်ဆုံးဗားရှင်း ဖြစ်ပါသည်။');});
-  document.getElementById('app-update-review')?.addEventListener('click',()=>apply());
   document.addEventListener?.('pointerdown',()=>{if(notificationsOn())enableSound();},{passive:true});
   document.addEventListener?.('keydown',()=>{if(notificationsOn())enableSound();});
   document.addEventListener?.('visibilitychange',()=>{if(document.visibilityState!=='hidden')check();});
