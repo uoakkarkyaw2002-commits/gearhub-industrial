@@ -251,6 +251,12 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
     const appearance={brandName:'Only Alice',siteTitle:'Alice',colors:{brand:'#123456',accent:'#123456',page:'#ffffff',hero:'#123456'},translations:{en:{heroTitle:'Alice only'},my:{}},layout:{hero:{enabled:true,padding:30}}};
     assert.equal((await a.call(endpoint+'/appearance','PUT',appearance)).status,200);
     assert.equal((await a.call('/store/alice-store')).data.settings.appearance.brandName,'Only Alice');
+    // A blank name/title/logo must never be stored, so the shop never falls back to GearHub's brand.
+    assert.equal((await a.call(endpoint+'/appearance','PUT',{...appearance,brandName:'  ',siteTitle:'',logoUrl:''})).status,200);
+    const blankSaved=(await a.call('/store/alice-store')).data.settings.appearance;
+    assert.equal('brandName' in blankSaved,false);assert.equal('siteTitle' in blankSaved,false);assert.equal('logoUrl' in blankSaved,false);
+    const shown=(await a.call(endpoint+'/appearance')).data;assert.equal(shown.brandName,'Alice store');assert.equal(shown.siteTitle,'Alice store');
+    assert.equal((await a.call(endpoint+'/appearance','PUT',appearance)).status,200);
     const ownerSet={storageBytes:5*1024**3,endsAt:'2027-02-14T23:59:59+06:30'};
     assert.equal((await owner.call('/owner/shops/'+aid,'PATCH',ownerSet)).status,200);
     const service=(await a.call('/store/alice-store')).data.service;
