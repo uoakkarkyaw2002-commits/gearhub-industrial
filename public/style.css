@@ -802,3 +802,6 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
 #category-view:not(.category-products-mode) .category-subcategories .category-tree-choice[data-store-action="select-category"]::after{content:'›';font-size:24px;line-height:1;color:#78877d;margin-left:10px}
 @media(max-width:850px){#category-view>.category-feature-banner.has-image{width:100%!important;margin:0 0 12px!important}#category-view.category-products-mode>.category-feature-banner,#category-view>.category-feature-banner:not(.has-image){display:none!important}}
 @media(min-width:851px){#category-view:not(.category-products-mode) .category-feature-banner:not(.has-image){display:flex!important;align-items:center;width:100%!important;aspect-ratio:4/1!important;min-height:0!important;max-height:none!important;height:auto!important;margin-inline:0!important;padding:0 26px}#category-view .category-feature-banner:not(.has-image) #category-banner-empty{display:none}}
+/* Category banner fills its 4:1 frame; a square or tall photo stays whole (see fitCategoryBanner). */
+#category-view .category-feature-banner.has-image>img:not([hidden]){object-fit:cover!important}
+#category-view .category-feature-banner.has-image.banner-fit-whole>img:not([hidden]){object-fit:contain!important}
