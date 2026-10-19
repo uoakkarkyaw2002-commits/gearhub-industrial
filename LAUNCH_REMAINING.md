@@ -58,7 +58,7 @@ Sources: [UptimeRobot setup](https://help.uptimerobot.com/en/articles/11358364-h
 
 ## Policy structures and backup metadata
 
-`/policies/` links five public placeholder pages; each states **Owner review required**, has bilingual status text and no invented legal terms. They are noindex and linked from the storefront. They must be replaced with approved content before launch; placeholder presence is not policy approval.
+Owner-approved policies are live at `/policies.html` (Terms, Privacy, Delivery & returns, Seller rules; Myanmar + English; GearHub free for now). The old `/policies/*.html` placeholder URLs now redirect there. Delivery, returns and warranty are set by each shop.
 
 Both scheduled and admin-download archives now use a shared manifest writer. Version 2 includes createdAt, components, database filename, uploads/receipts directory names and SHA-256 of the completed database snapshot. It does not list customer data or receipt filenames. Restore verification checks v2 database checksum, accepts old v1 metadata and accepts manifest-less archives after existing integrity/media validation. Checksum is corruption detection, not a signature or proof of trust. Media is still checked for presence; not all media has cryptographic hashes.
 
