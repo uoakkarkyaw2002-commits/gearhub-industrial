@@ -24,7 +24,11 @@
     const b=s.settings||{},ready=Boolean(b.bankName&&b.bankAccountName&&b.bankAccountNumber);
     const image=b.logoId?location.origin+'/api/platform/images/'+encodeURIComponent(b.logoId):'';
     const result={bankName:ready?b.bankName:'',bankAccountName:ready?b.bankAccountName:'',bankAccountNumber:ready?b.bankAccountNumber:'',paymentInstructions:ready?b.paymentInstructions:'',site:{brandName:s.name,brandTagline:b.description||'',siteTitle:s.name,logoUrl:image,supportEmail:b.email||'',translations:{en:{heroTitle:s.name,heroText:b.description||'Browse our products.',footer:b.description||'Contact this shop for product information.',footerLocation:b.address||'Address not configured',footerHours:'',promotionText:'Contact this shop for current offers.'},my:{heroTitle:s.name,heroText:b.description||'ပစ္စည်းများ ကြည့်ရှုပါ။',footer:b.description||'ပစ္စည်းအကြောင်း ဆိုင်ကို ဆက်သွယ်ပါ။',footerLocation:b.address||'လိပ်စာ မသတ်မှတ်ရသေးပါ။',footerHours:'',promotionText:'လက်ရှိကမ်းလှမ်းချက်များအတွက် ဆိုင်ကို ဆက်သွယ်ပါ။'}}}};
-    const a=b.appearance||{};result.site={...result.site,...a,translations:{en:{...result.site.translations.en,...a.translations?.en},my:{...result.site.translations.my,...a.translations?.my}}};for(const language of ['en','my'])if(/^GEARHUB APP$/i.test(result.site.translations[language].settingsEyebrow||''))result.site.translations[language].settingsEyebrow=s.name+' APP';return result;
+    // Blank appearance fields (from an old save) must not replace the shop's own name/logo.
+    const a=Object.fromEntries(Object.entries(b.appearance||{}).filter(([,v])=>!(typeof v==='string'&&!v.trim())));
+    // Text copied from GearHub's own defaults is rewritten to this shop's name.
+    for(const language of ['en','my'])for(const [k,v] of Object.entries(a.translations?.[language]||{}))if(typeof v==='string'&&/gear\s*hub/i.test(v))a.translations[language][k]=v.replace(/gear\s*hub/gi,s.name);
+    result.site={...result.site,...a,translations:{en:{...result.site.translations.en,...a.translations?.en},my:{...result.site.translations.my,...a.translations?.my}}};for(const language of ['en','my'])if(/^GEARHUB APP$/i.test(result.site.translations[language].settingsEyebrow||''))result.site.translations[language].settingsEyebrow=s.name+' APP';return result;
   }
   function prepare(s){
     document.querySelectorAll('a[href^="/admin.html"]').forEach(a=>a.href='/shops/'+encodeURIComponent(slug)+'/admin');
