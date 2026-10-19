@@ -41,3 +41,10 @@ test('phones show the category banner across the full width; empty banner is a n
  assert.match(css,/#category-view\.category-products-mode>\.category-feature-banner/);
  assert.match(css,/\.category-feature-banner:not\(\.has-image\)\{display:flex!important;align-items:center;width:100%!important;aspect-ratio:4\/1!important/);
 });
+
+test('wide category banners fill the 4:1 frame; square or tall ones stay whole',()=>{
+ const store=pub('store.js'),css=pub('style.css');
+ assert.match(store,/banner\.onload=banner\.onerror=\(\)=>\{banner\.style\.visibility="";fitCategoryBanner\(\)\}/);assert.match(store,/banner\.style\.visibility="hidden";banner\.src=url/);
+ assert.match(store,/frame\.classList\.toggle\("banner-fit-whole",!banner\.hidden&&!!ratio&&\(ratio<2\|\|ratio>6\)\)/);
+ assert.match(css,/\.category-feature-banner\.has-image>img:not\(\[hidden\]\)\{object-fit:cover!important\}\n#category-view \.category-feature-banner\.has-image\.banner-fit-whole>img:not\(\[hidden\]\)\{object-fit:contain!important\}/);
+});
