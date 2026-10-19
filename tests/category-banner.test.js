@@ -37,3 +37,11 @@ test('switching tabs fades in place and jumps to the top at once (no slide that 
  assert.ok(!/store-view-arrive\{[^}]*translate/.test(css));
  assert.match(store,/window\.scrollTo\(\{top:0,behavior:"instant"\}\)\}/);
 });
+
+test('the page wallpaper is a fixed screen-size layer, not a stretched body background (iPhone ignores fixed backgrounds)',()=>{
+ const store=fs.readFileSync(path.join(__dirname,'..','public','store.js'),'utf8');
+ assert.match(store,/document\.body\.style\.backgroundImage="";root\.style\.setProperty\("--app-page-background",pageBackground\|\|"none"\)/);
+ assert.match(store,/wallpaperLayer\.id="app-wallpaper"/);
+ assert.ok(!/backgroundAttachment=wallpaper\?"fixed"/.test(store));
+ assert.match(css,/#app-wallpaper\{position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:var\(--app-page-background,none\);background-size:cover/);
+});
