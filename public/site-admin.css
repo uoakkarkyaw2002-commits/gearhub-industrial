@@ -334,3 +334,21 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
 .admin-page .admin-user-avatar>img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .appearance-caption-note{font-weight:500;color:#6b7a70;font-size:12px}
 .appearance-ratio{display:block;margin-top:3px;font-weight:600;font-size:12px;color:#1f7a45;background:#e9f6ee;border-radius:8px;padding:3px 8px;width:fit-content;max-width:100%}
+/* Photo fit dialog (hero, banners, logo, wallpaper). */
+.image-fit-dialog{width:min(760px,calc(100vw - 24px));max-height:calc(100dvh - 24px);padding:0;border:0;border-radius:18px;box-shadow:0 24px 60px #0b1f1440;overflow:auto}
+.image-fit-dialog::backdrop{background:#07120cb0}
+.image-fit-dialog form{display:grid;gap:12px;padding:16px}
+.image-fit-head{display:grid;gap:2px}.image-fit-head small{color:#5d6c62}
+.image-fit-modes{display:flex;flex-wrap:wrap;gap:8px}
+.image-fit-modes button{flex:1 1 140px;min-height:42px;border:1px solid #cfdcd2;border-radius:11px;background:#fff;color:#183426;font-weight:700;cursor:pointer}
+.image-fit-modes button small{font-weight:500;color:#5d6c62}
+.image-fit-modes button[aria-pressed="true"]{border-color:#1f7a3d;background:#e8f5ec;box-shadow:inset 0 0 0 1px #1f7a3d}
+.image-fit-stage{display:grid;place-items:center;max-height:56dvh;padding:8px;border-radius:12px;background:repeating-conic-gradient(#eef1ee 0 25%,#fff 0 50%) 0 0/18px 18px}
+.image-fit-stage canvas{display:block;width:auto;max-width:100%;height:auto;max-height:calc(56dvh - 16px);border-radius:8px;box-shadow:0 0 0 2px #1f7a3d;touch-action:none}
+.image-fit-stage canvas.draggable{cursor:grab}
+.image-fit-hint{margin:0;color:#3d5145;font-size:13px}
+.image-fit-zoom{display:flex;align-items:center;gap:10px;font-size:13px}.image-fit-zoom input{flex:1}
+.image-fit-zoom[hidden]{display:none}
+.image-fit-actions{display:flex;justify-content:flex-end;gap:10px}
+.image-fit-actions button{min-height:44px;padding:0 18px;white-space:nowrap}
+@media(max-width:600px){.image-fit-dialog form{padding:12px;gap:10px}.image-fit-modes{flex-wrap:nowrap;gap:6px}.image-fit-modes button{flex:1 1 0;min-width:0;padding:6px 4px;font-size:13px}.image-fit-modes button small{display:none}.image-fit-actions button{flex:1;padding:0 10px}}

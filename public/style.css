@@ -790,3 +790,15 @@ a.settings-row.create-shop-row{color:inherit;text-decoration:none}
 /* Page wallpaper: a fixed layer the size of the screen, so it never stretches or jumps when the page length changes (iPhone ignores background-attachment:fixed). */
 #app-wallpaper{position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:var(--app-page-background,none);background-size:cover;background-position:center;background-repeat:no-repeat}
 #app-wallpaper[hidden]{display:none}
+/* Hero: one 5:2 shape on phone and PC, and the whole picture always shows — nothing is cut.
+   A picture of another shape sits in the middle over a soft blurred copy of itself. */
+main>.hero.hero-image-only,.hero.hero-image-only{position:relative;isolation:isolate;aspect-ratio:5/2!important;background-image:none!important;background-color:#e9efe9!important}
+body .hero.hero-image-only::before,body .hero.hero-image-only::after{content:""!important;display:block!important;position:absolute;z-index:-1;pointer-events:none}
+body .hero.hero-image-only::before{inset:-30px;background:var(--hero-fill,none) center/cover no-repeat;filter:blur(26px) saturate(1.1);opacity:.6}
+body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) center/contain no-repeat}
+/* Category banner: 4:1 and as wide as its column, so the page has no empty sides. */
+#category-view .category-feature-banner.has-image{aspect-ratio:4/1!important}
+@media(min-width:851px){#category-view .category-feature-banner.has-image{width:100%!important;margin-inline:0!important}}
+#category-view:not(.category-products-mode) .category-subcategories .category-tree-choice[data-store-action="select-category"]::after{content:'›';font-size:24px;line-height:1;color:#78877d;margin-left:10px}
+@media(max-width:850px){#category-view>.category-feature-banner.has-image{width:100%!important;margin:0 0 12px!important}#category-view.category-products-mode>.category-feature-banner,#category-view>.category-feature-banner:not(.has-image){display:none!important}}
+@media(min-width:851px){#category-view:not(.category-products-mode) .category-feature-banner:not(.has-image){display:flex!important;align-items:center;width:100%!important;aspect-ratio:4/1!important;min-height:0!important;max-height:none!important;height:auto!important;margin-inline:0!important;padding:0 26px}#category-view .category-feature-banner:not(.has-image) #category-banner-empty{display:none}}
