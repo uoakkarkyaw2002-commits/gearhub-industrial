@@ -15,6 +15,9 @@
         })[c],
     );
   const dateLabel=v=>v?new Date(v).toLocaleString('en-GB',{timeZone:'Asia/Yangon'})+' (Myanmar UTC+06:30)':'Not set';
+  // Owner editor for the public policies page (/policies.html).
+  const POLICY_SECTIONS = [["intro", "Introduction / မိတ်ဆက်"], ["terms", "Terms / အသုံးပြုမှု စည်းကမ်း"], ["privacy", "Privacy / ကိုယ်ရေးအချက်အလက်"], ["delivery", "Delivery & returns / ပို့ဆောင်ခြင်း၊ ပြန်လဲခြင်း"], ["seller", "Seller rules / ဆိုင်ရှင် စည်းကမ်း"], ["contact", "Contact / ဆက်သွယ်ရန်"]];
+  const policyEditor = (p) => !p ? "" : `<details class="owner-settings policy-editor"><summary>Policies / စည်းကမ်းချက်များ <small>${p.custom ? "edited " + esc(p.updated) : "original text"}</small></summary><form id="policies-form"><p class="muted">ဒီမှာ ပြင်ပြီး Save နှိပ်ရင် <a href="/policies.html" target="_blank" rel="noopener">/policies.html</a> ချက်ချင်း ပြောင်းပါမယ်။ ဆိုင်တိုင်း footer က ဒီစာမျက်နှာကို ညွှန်ပါတယ်။<br><b>## </b>ခေါင်းစဉ်ငယ် · <b>- </b>စာရင်း · <b>&gt; </b>အရောင်ခံ မှတ်ချက် · <b>**စာ**</b> စာလုံးထူ · စာကြောင်းလွတ် = စာပိုဒ်အသစ် · စာအလွတ်ထားရင် အဲ့အပိုင်း မပြပါ။</p><div class="policy-contact">${field("phone", "Phone / ဖုန်း", p.phone, "tel")}${field("email", "Email (optional)", p.email, "email")}</div>${POLICY_SECTIONS.map(([id, label]) => `<fieldset class="policy-section"><legend>${esc(label)}</legend><div class="policy-titles">${field("t_" + id, "Title / ခေါင်းစဉ်", p.sections[id].title)}${field("s_" + id, "Subtitle (English)", p.sections[id].subtitle)}</div><label>Text / စာ<textarea name="b_${id}" rows="${id === "contact" ? 3 : 12}" maxlength="20000" spellcheck="false">${esc(p.sections[id].body)}</textarea></label></fieldset>`).join("")}<div class="policy-actions"><button>Save / သိမ်းမည်</button><a class="policy-preview" href="/policies.html" target="_blank" rel="noopener">Preview ↗</a><button type="submit" name="reset" value="1" class="policy-reset">Restore original</button></div></form></details>`;
   const field = (name, label, value = "", type = "text") =>
     `<label>${esc(label)}<input name="${name}" type="${type}" value="${esc(value)}"></label>`;
   const select = (name, label, values, current) =>
@@ -210,6 +213,7 @@
       <div id="shop-management-panel" class="shop-management-panel" hidden></div>
       <details class="owner-settings"><summary>Plans <small>manual, no automatic billing</small></summary><div class="plan-grid">${[...v.plans, { id: "new", permissions: {}, storage_bytes: 52428800, product_limit: 100 }].map(planForm).join("")}</div></details>
       <details class="owner-settings"><summary>Users <small>${v.users.length}</small></summary>${v.users.map((u) => `<form id="u-${u.id}" class="user-row"><div><strong>${esc(u.name || u.email)}</strong><small>${esc(u.email)}</small></div>${select("status", "Status", ["active", "suspended"], u.status)}<button>Save</button></form>`).join("")}</details>
+      ${policyEditor(v.policies)}
       <details class="owner-settings"><summary>In-app update announcement</summary><form id="release">${field("version", "Deployed version", v.release.version).replace("<input ", "<input readonly ")}${field("notes", "Update notes", v.release.notes)}<p class="muted">Updates install automatically when no checkout or file upload is in progress.</p><button>Publish</button></form></details>
     </section>`;
 
@@ -338,6 +342,15 @@
         }),
       );
     form("release", (d) => api("/owner/release", "POST", d));
+    form("policies-form", (d) => {
+      if (d.reset) {
+        if (!confirm("Restore the original policy text? Your edits will be replaced.")) return Promise.resolve();
+        return api("/owner/policies", "PUT", { reset: true });
+      }
+      const sections = {};
+      for (const [id] of POLICY_SECTIONS) sections[id] = { title: d["t_" + id] || "", subtitle: d["s_" + id] || "", body: d["b_" + id] || "" };
+      return api("/owner/policies", "PUT", { phone: d.phone, email: d.email, sections });
+    });
   }
   $("logout").onclick = async () => {
     await api("/logout", "POST", {});
