@@ -25,7 +25,7 @@ test('one logo: the app icon is made from the logo and the hidden app icon field
 test('admin shows the recommended size beside every image, hides Colors, and a category tap keeps the page still',()=>{
  const html=fs.readFileSync(path.join(__dirname,'..','public','admin.html'),'utf8'),admin=fs.readFileSync(path.join(__dirname,'..','public','admin.js'),'utf8'),store=fs.readFileSync(path.join(__dirname,'..','public','store.js'),'utf8');
  for(const cap of ['Logo image','Hero background image','Navigation background image','Page wallpaper image'])assert.match(html,new RegExp('appearance-image-caption">'+cap+'<small class="appearance-ratio">'),cap);
- assert.match(admin,/appearance-ratio">5:2 · 1600 × 640/);
+ assert.match(admin,/appearance-ratio">4:1 · 1600 × 400/);
  assert.match(html,/id="site-colors-card" hidden/);assert.match(html,/id="site-brand-color"|name="brand"|data-color/,'colour inputs stay in the form so saving keeps them');
  assert.match(store,/if\(top>=0&&top<innerHeight\*0\.6\)return;/);
  assert.match(css,/#category-products,#category-view\{scroll-margin-top:calc\(env\(safe-area-inset-top,0px\) \+ 12px\)\}/);
