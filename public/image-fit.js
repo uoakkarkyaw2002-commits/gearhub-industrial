@@ -2,6 +2,8 @@
 // there is no automatic or "whole image" mode.
 (function(){
  const MAX_PREVIEW=720,MIN_ZOOM=.25,MAX_ZOOM=3;
+ // Retained for compatibility with older callers; the UI never exposes Auto mode.
+ function autoMode(image,width,height){const diff=Math.abs((image.width/image.height)/(width/height)-1);return diff<=0.15?"fill":"whole"}
  const clamp=value=>Math.min(1,Math.max(0,value));
  function draw(ctx,image,width,height,state,pad){
   ctx.clearRect(0,0,width,height);
@@ -58,5 +60,5 @@
   });
  }
  // Kept for callers that imported the old helper; every upload now starts in Crop mode.
- window.GearHubImageFit={open,autoMode:()=> "fill"};
+ window.GearHubImageFit={open,autoMode};
 })();
