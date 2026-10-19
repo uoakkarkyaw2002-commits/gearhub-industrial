@@ -773,3 +773,10 @@ a.settings-row.create-shop-row{color:inherit;text-decoration:none}
 .create-shop-icon{color:#16943f;background:#e6f6ea!important}
 .footer-legal{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:center}.footer-legal a{color:#dce7e2;font-size:14px;text-decoration:underline;text-underline-offset:3px}.footer-legal a:hover{color:#fff}
 @media(max-width:700px){.footer-legal{justify-content:flex-start}}
+/* Category banners: every banner has the same shape (2:1 on phones, 3:1 on PC). The whole
+   photo fits inside and the empty sides show a soft blur of the same photo. */
+#category-view .category-feature-banner.has-image{aspect-ratio:2/1!important;height:auto!important;min-height:0!important;max-height:none!important}
+#category-view .category-feature-banner.has-image>img:not([hidden]){position:absolute!important;inset:0;width:100%!important;height:100%!important;max-height:none!important;object-fit:contain!important;object-position:center}
+@media(min-width:851px){#category-view .category-feature-banner.has-image{aspect-ratio:3/1!important}}
+/* Policies link stays readable in dark mode. */
+:root[data-theme="dark"] nav[aria-label="Policies"] a{color:#cfe3d6}
