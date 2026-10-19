@@ -568,7 +568,7 @@ app.get("/app.webmanifest", (_req,res) => {
  const manifest=JSON.parse(fs.readFileSync(path.join(__dirname,"public/manifest.webmanifest"),"utf8"));
  manifest.name=site.brandName||manifest.name;
  manifest.short_name=(site.brandName||manifest.short_name).slice(0,30);
- if(site.appIconUrl)manifest.icons=[{src:site.appIconUrl,sizes:"512x512",purpose:"any"}];
+ if(site.appIconUrl||site.logoUrl)manifest.icons=[{src:site.appIconUrl||site.logoUrl,sizes:"512x512",purpose:"any"}];
  res.set("Cache-Control","no-cache").type("application/manifest+json").json(manifest);
 });
 // Admin installed on a Home Screen: its scope is the whole site, so "View store" stays inside the app.
@@ -577,11 +577,12 @@ app.get("/admin.webmanifest", (_req,res) => {
  const manifest=JSON.parse(fs.readFileSync(path.join(__dirname,"public/manifest.webmanifest"),"utf8"));
  const name=(site.brandName||manifest.short_name)+" Admin";
  Object.assign(manifest,{id:"/admin.html",name,short_name:name.slice(0,30),start_url:"/admin.html",scope:"/"});
- if(site.appIconUrl)manifest.icons=[{src:site.appIconUrl,sizes:"512x512",purpose:"any"}];
+ if(site.appIconUrl||site.logoUrl)manifest.icons=[{src:site.appIconUrl||site.logoUrl,sizes:"512x512",purpose:"any"}];
  res.set("Cache-Control","no-cache").type("application/manifest+json").json(manifest);
 });
 app.get("/app-icon.png", (_req,res) => {
- const icon=getSiteSettings().appIconUrl;
+ // The app icon is made from the logo; an older store without one still uses its logo.
+ const icon=getSiteSettings().appIconUrl||getSiteSettings().logoUrl;
  res.set("Cache-Control","no-cache");
  if(icon)return res.redirect(302,icon);
  res.sendFile(path.join(__dirname,"public/icons/apple-touch-icon.png"));

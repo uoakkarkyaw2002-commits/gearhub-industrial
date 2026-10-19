@@ -3,8 +3,21 @@ const css=fs.readFileSync(path.join(__dirname,'..','public','style.css'),'utf8')
 // Category banners must all have the same shape whatever photo the shop uploads.
 test('every category banner has one fixed shape and the whole photo fits inside',()=>{
  const tail=css.slice(css.lastIndexOf('/* Category banners: every banner has the same shape'));
- assert.match(tail,/#category-view \.category-feature-banner\.has-image\{aspect-ratio:2\/1!important;height:auto!important/);
+ assert.match(tail,/#category-view \.category-feature-banner\.has-image\{aspect-ratio:12\/5!important;height:auto!important/);
  assert.match(tail,/\.has-image>img:not\(\[hidden\]\)\{position:absolute!important;inset:0;width:100%!important;height:100%!important;max-height:none!important;object-fit:contain!important/);
  assert.match(tail,/@media\(min-width:851px\)\{#category-view \.category-feature-banner\.has-image\{aspect-ratio:3\/1!important\}\}/);
  assert.match(css,/\.has-image::before\{[^}]*background:var\(--banner-fill\)/,'empty sides show a blur of the same photo');
+});
+
+test('a dark page colour keeps on-page headings readable',()=>{
+ const store=fs.readFileSync(path.join(__dirname,'..','public','store.js'),'utf8');
+ assert.match(store,/root\.classList\.toggle\("page-dark",0\.2126\*r\+0\.7152\*g\+0\.0722\*b<0\.5\)/);
+ assert.match(css,/\.page-dark \.section-head h2,[^{]*\.page-dark \.settings-header h2[^{]*\{color:#eef5f0\}/);
+});
+test('one logo: the app icon is made from the logo and the hidden app icon field is filled automatically',()=>{
+ const html=fs.readFileSync(path.join(__dirname,'..','public','admin.html'),'utf8'),admin=fs.readFileSync(path.join(__dirname,'..','public','admin.js'),'utf8'),server=fs.readFileSync(path.join(__dirname,'..','server.js'),'utf8');
+ assert.match(html,/id="site-app-icon-field" hidden/);
+ assert.match(admin,/if\(target\.id==="site-logo-url"&&\$\("site-app-icon-url"\)\)\{[^}]*makeAppIcon\(file\)/);
+ assert.match(server,/const icon=getSiteSettings\(\)\.appIconUrl\|\|getSiteSettings\(\)\.logoUrl;/);
+ assert.equal((server.match(/if\(site\.appIconUrl\|\|site\.logoUrl\)/g)||[]).length,2,'both manifests fall back to the logo');
 });

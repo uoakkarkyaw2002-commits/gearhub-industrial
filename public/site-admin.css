@@ -332,3 +332,4 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
 .admin-page .admin-user-avatar.has-logo{overflow:hidden;background:#fff;box-shadow:0 0 0 1px #dfe7e2}
 .admin-page .admin-user-avatar.has-logo>svg{display:none}
 .admin-page .admin-user-avatar>img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.appearance-caption-note{font-weight:500;color:#6b7a70;font-size:12px}
