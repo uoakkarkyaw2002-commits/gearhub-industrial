@@ -27,18 +27,17 @@
  }
  let inFlight=false;
  async function render(){
-  const host=document.getElementById("orders-table");if(!host||inFlight||host.dataset.unifiedOrderDetails==="1")return;
+  const host=document.getElementById("orders-table");if(!host||inFlight||host.querySelector(".order-detail-list"))return;
   inFlight=true;
   try{
    const response=await request("/api/admin/orders");if(!response.ok)return;
    const orders=await response.json();
-   host.dataset.unifiedOrderDetails="1";
    host.innerHTML='<div class="order-detail-list">'+(orders.length?orders.map(card).join(""):'<p class="order-detail-empty">No orders yet.</p>')+'</div>';
   }catch{}finally{inFlight=false}
  }
  function observe(){
   const host=document.getElementById("orders-table");if(!host)return;
-  new MutationObserver(()=>{if(host.dataset.unifiedOrderDetails!=="1")queueMicrotask(render)}).observe(host,{childList:true});
+  new MutationObserver(()=>{if(!host.querySelector(".order-detail-list"))queueMicrotask(render)}).observe(host,{childList:true});
   render();
   host.addEventListener("submit",async event=>{
    const form=event.target.closest(".order-detail-update");if(!form)return;
@@ -49,7 +48,7 @@
     const payload=Object.fromEntries(new FormData(form));
     const response=await request("/api/admin/orders/"+id,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
     const data=await response.json().catch(()=>({}));if(!response.ok)throw Error(data.error||"Could not save this order.");
-    message.textContent="Saved.";host.dataset.unifiedOrderDetails="";await render();
+    message.textContent="Saved.";await render();
     window.refreshAll?.();
    }catch(error){message.textContent=error.message||"Could not save this order."}finally{button.disabled=false}
   });
