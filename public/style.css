@@ -783,3 +783,7 @@ a.settings-row.create-shop-row{color:inherit;text-decoration:none}
 /* A dark page colour or wallpaper keeps the headings that sit directly on the page readable. */
 .page-dark .section-head h2,.page-dark .section-head p,.page-dark #product-total,.page-dark .settings-header h2,.page-dark .settings-header p,.page-dark nav[aria-label="Policies"] a{color:#eef5f0}
 .page-dark .section-head .eyebrow.dark,.page-dark .settings-header .eyebrow.dark{color:#b7f36b}
+/* Scrolling to a category's products stops below the phone status bar and top bar. */
+#category-products,#category-view{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 12px)}
+/* Phones: Category and Promotion start a little below the status bar instead of touching it. */
+@media(max-width:850px){body.non-home-view #category-view,body.non-home-view #promotion-view{margin-top:14px}}
