@@ -81,7 +81,7 @@ function renderCategoryBrowser(){
  $("category-view").classList.toggle('category-products-mode',categoryProductsOpen);
  document.querySelector("#category-view .category-page-top h2").textContent=current?label(current):tr('categoryPageTitle');
  $("category-back").hidden=!categoryProductsOpen;
- const banner=$("category-banner-image"),rawBanner=String(rootCategory?.bannerUrl||config.site?.categoryBannerUrl||""),url=rawBanner.startsWith("/")&&!rawBanner.startsWith("//")?rawBanner:checkedImageUrl(rawBanner);banner.hidden=!url;if(url)banner.src=url;else banner.removeAttribute('src');banner.alt='';
+ const banner=$("category-banner-image"),rawBanner=String(rootCategory?.bannerUrl||config.site?.categoryBannerUrl||""),url=rawBanner.startsWith("/")&&!rawBanner.startsWith("//")?rawBanner:checkedImageUrl(rawBanner);banner.hidden=!url;banner.onload=banner.onerror=()=>{banner.style.visibility="";fitCategoryBanner()};if(url){if(banner.getAttribute('src')!==url){/* Never show the previous category's banner while the new one loads. */banner.style.visibility="hidden";banner.src=url}else fitCategoryBanner()}else{banner.removeAttribute('src');banner.style.visibility=""}banner.alt='';
  $("category-feature-banner").classList.toggle('has-image',!!url);if(url)$("category-feature-banner").style.setProperty("--banner-fill","url("+JSON.stringify(url)+")");else $("category-feature-banner").style.removeProperty("--banner-fill");$("category-banner-empty").hidden=!!url;
  function node(c,depth=0,seen=new Set()){
   if(seen.has(c.id))return '';seen=new Set(seen);seen.add(c.id);const children=kids(c),expanded=expandedCategoryNames.has(c.category_en)||path.slice(0,-1).some(p=>p.id===c.id),own=direct(c).length;
@@ -189,3 +189,7 @@ $("category-products").addEventListener('touchend',event=>{const start=categoryS
 const phoneCategoryBanner=matchMedia("(max-width:850px)");
 function placeCategoryBanner(){const banner=$("category-feature-banner"),browser=$("category-browser"),results=browser?.querySelector(".category-results");if(!banner||!browser||!results)return;if(phoneCategoryBanner.matches){if(banner.nextElementSibling!==browser)browser.before(banner)}else if(banner.parentElement!==results)results.prepend(banner)}
 placeCategoryBanner();phoneCategoryBanner.addEventListener?.("change",placeCategoryBanner);
+
+// Wide banners (2:1 to 6:1, e.g. older 5:2 ones) fill the 4:1 frame edge to edge; only a
+// very different shape (square, tall) is shown whole on a blurred copy of itself.
+function fitCategoryBanner(){const banner=$("category-banner-image"),frame=$("category-feature-banner");if(!banner||!frame)return;const ratio=banner.naturalWidth/banner.naturalHeight;frame.classList.toggle("banner-fit-whole",!banner.hidden&&!!ratio&&(ratio<2||ratio>6))}
