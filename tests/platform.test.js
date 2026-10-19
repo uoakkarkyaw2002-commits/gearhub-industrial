@@ -651,6 +651,14 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
     assert.equal((await owner.call('/owner/payments/'+noExtend.data.payment.id,'DELETE')).status,200);
     assert.equal((await owner.call('/owner/payments/'+noExtend.data.payment.id,'DELETE')).status,404);
   });
+  await t.test('only the GearHub owner can edit the policies page text',async()=>{
+    const current=(await owner.call('/owner')).data.policies;assert.equal(current.custom,false);assert.ok(current.sections.terms.body.length>100);
+    assert.equal((await b.call('/owner/policies','PUT',{reset:true})).status,403);
+    const r=await owner.call('/owner/policies','PUT',{phone:'09-123456',email:'',sections:{...current.sections,intro:{...current.sections.intro,title:'GearHub rules'}}});
+    assert.equal(r.status,200);assert.equal(r.data.custom,true);assert.equal(r.data.sections.intro.title,'GearHub rules');
+    assert.equal((await owner.call('/owner/policies','PUT',{email:'bad',sections:current.sections})).status,400);
+    assert.equal((await owner.call('/owner/policies','PUT',{reset:true})).data.custom,false);
+  });
   await t.test('owner extension adds calendar months and cannot be used by sellers',async()=>{await owner.call('/owner/shops/'+bid,'PATCH',{endsAt:'2099-01-31T00:00:00.000Z'});const before=(await b.me()).shop;assert.equal((await b.call('/owner/shops/'+bid+'/extend','POST',{months:2})).status,403);const r=await owner.call('/owner/shops/'+bid+'/extend','POST',{months:2});assert.equal(r.status,200);assert.equal(r.data.startsAt,before.starts_at);assert.equal(r.data.endsAt,model.addCalendarMonths(before.ends_at,2));assert.equal((await owner.call('/owner/shops/'+bid+'/extend','POST',{months:0})).status,400);assert.equal((await owner.call('/owner/shops/'+bid+'/extend','POST',{months:2})).status,200);});
   await t.test(
     "multi-product reopen rollback and shipped/completed cancellation preserve stock",
