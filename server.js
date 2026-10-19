@@ -251,6 +251,9 @@ class SQLiteSessionStore extends session.Store {
   } catch (err) { callback(err); }
  }
 }
+// Policies page text is edited by the GearHub owner (lib/policies.js); always serve the latest.
+const policies = require("./lib/policies");
+app.get("/policies.html", (_req, res) => { res.set("Cache-Control", "no-cache"); res.type("html").send(policies.render(policies.load(db))); });
 // Static files never need a session, so serve them before session handling.
 app.use(express.static(path.join(__dirname, "public"), { setHeaders(res, filePath) {
  // Assets requested with a ?v= build tag never change, so phones can keep them.
