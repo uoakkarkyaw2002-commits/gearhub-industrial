@@ -126,8 +126,8 @@
  async function pushApi(path,body){const r=await adminFetch("/api/admin/push"+path,body?{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}:{});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Request failed");return d;}
  async function pushRegistration(){await navigator.serviceWorker.register(SW_URL,{updateViaCache:"none"}).catch(()=>{});return navigator.serviceWorker.ready;}
  function alertsCard(){
-  let card=$("order-alerts-card");if(card)return card;const kpis=$("admin-kpis");if(!kpis)return null;
-  card=document.createElement("section");card.id="order-alerts-card";card.className="order-alerts-card";card.setAttribute("aria-live","polite");kpis.after(card);
+  let card=$("order-alerts-card");if(card)return card;const settings=$("site-settings-content");if(!settings)return null;
+  card=document.createElement("section");card.id="order-alerts-card";card.className="order-alerts-card";card.setAttribute("aria-live","polite");settings.prepend(card);
   card.addEventListener("click",e=>{const b=e.target.closest("[data-alerts]");if(b)alertsAction(b.dataset.alerts,b);});return card;
  }
  function renderAlerts(state,note=""){
