@@ -19,11 +19,11 @@
 .od>*,.od-card>*,.od-items ol>*{min-width:0;box-sizing:border-box}
 .od .od-icon{width:22px;height:22px;flex:0 0 auto;display:block}
 .od p{margin:0}
-.od-head{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px}
+.od-head{display:flex;align-items:center;gap:8px}
 .od-back{display:grid;place-items:center;width:34px;height:34px;padding:0;border:0;background:none;color:#14231b;cursor:pointer}
 .od-back .od-icon{width:24px;height:24px}
-.od-head h2{margin:0 auto 0 0;font-size:26px;line-height:1.1;font-weight:800;letter-spacing:-.4px;color:#122319}
-.od-code{order:3;flex:1 1 100%;min-width:0;padding:8px 12px;border-radius:9px;background:#e4f3e8;color:#14231b;font-size:12px;font-weight:700;overflow-wrap:anywhere}
+.od-head h2{flex:0 0 auto;margin:0;font-size:26px;line-height:1.1;font-weight:800;letter-spacing:-.4px;color:#122319}
+.od-code{flex:1 1 0;min-width:0;padding:7px 10px;border-radius:9px;background:#e4f3e8;color:#14231b;font-size:12px;font-weight:700}
 .od-pill{display:inline-flex;white-space:nowrap;justify-self:start;align-items:center;padding:4px 11px;border-radius:9px;background:#ffe6c7;color:#e2750e;font-size:14px;font-weight:700;line-height:1.3;text-transform:lowercase}
 .od-head>.od-pill{font-size:18px;padding:6px 14px}
 .od-pill.od-confirmed,.od-pill.od-paid,.od-pill.od-completed{background:#dcf4e3;color:#13803b}
@@ -92,7 +92,7 @@
 .od-receipt.is-empty{color:#7b8780}.od-receipt.is-empty b{color:#7b8780}.od-receipt.is-empty .od-icon{color:#9aa59f;background:#eaeeeb}
 /* Wider screens: code sits in the header row like the design, more room for photos. */
 @media(min-width:560px){
- .od-code{order:0;flex:0 1 auto;font-size:13px}
+ .od-code{flex:0 1 auto;font-size:13px}
  .od-head h2{margin-right:4px}.od-head>.od-pill{margin-left:auto}
  .od-card{padding:18px}
  .od-item{grid-template-columns:120px minmax(0,1fr) 1px 120px 150px;gap:14px;padding:10px}
@@ -102,16 +102,59 @@
  .od-facts p,.od-pay-facts p{font-size:14px}
  .od-receipt b{font-size:16px}.od-receipt small{font-size:14px}
 }
-/* Phones (up to 559px): amount sits under Qty so every column stays readable. */
+/* One line per value everywhere: a long value ends with … and opens in full when tapped. */
+.od-clip{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.od{position:relative}
+.od-pop{position:absolute;z-index:30;max-width:min(320px,90%);padding:7px 11px;border-radius:9px;background:#14231b;color:#fff;font-size:13px;font-weight:600;line-height:1.35;box-shadow:0 8px 22px #0b1f1440;overflow-wrap:anywhere;pointer-events:auto}
+.od-facts .od-clip,.od-info .od-clip,.od-qty .od-clip{font-weight:500;color:#1d2a35}
+.od-facts .od-clip:has(.od-pill){overflow:visible}
+.od-name.od-clip{font-weight:800;color:#122319}
+.od-person p>.od-clip{flex:1 1 auto}
+.od-who .od-clip{font-size:19px;font-weight:800;line-height:1.2;color:#14231b}
+.od-amount .od-clip,.od-qty .od-unit-price .od-clip{font-weight:800;color:#122319}
+.od-amount .od-clip{overflow:visible;text-overflow:clip}
+.od-qty .od-unit-price{display:grid;grid-template-columns:minmax(0,1fr)}
+/* Edit: a panel at the top of the invoice — Confirm or Cancel the order, adjust, then Save. */
+.od-edit{display:none;gap:12px;border-color:#9fd3ae;background:#f6fbf7}
+.od.is-editing .od-edit{display:grid}
+.od-quick{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.od-quick button{min-height:46px;border-radius:10px;border:1.5px solid #11893a;background:#fff;color:#11893a;font:inherit;font-size:15px;font-weight:800;cursor:pointer}
+.od-quick .od-quick-cancel{border-color:#e14444;color:#d42424}
+.od-quick .od-quick-confirm.is-picked{background:#11893a;color:#fff}
+.od-quick .od-quick-cancel.is-picked{background:#e14444;color:#fff}
+.od-edit-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.od-edit-fields label{display:grid;gap:4px;font-size:12px;color:#5f6b78;min-width:0}
+.od-edit-fields select,.od-edit-fields input{width:100%;min-height:40px;box-sizing:border-box;border:1px solid #cfdad3;border-radius:8px;padding:0 10px;font:inherit;font-size:14px;color:#14231b;background:#fff}
+.od-edit-actions{display:grid;grid-template-columns:1fr 1.4fr;gap:8px}
+.od-edit .order-page-message{margin:0}
+/* Phones: the same layout as the design, just smaller. */
 @media(max-width:559px){
- .od-item{grid-template-columns:52px minmax(0,1fr) 1px 96px;grid-template-areas:"photo info rule qty" "photo info rule amount"}
- .od-photo{grid-area:photo;width:52px;height:52px;font-size:24px}.od-info{grid-area:info}.od-item>.od-rule{grid-area:rule}.od-qty{grid-area:qty}.od-amount{grid-area:amount;padding:6px 8px}
- .od-amount b{font-size:13px}
- .od-customer{grid-template-columns:minmax(0,1fr) 1px minmax(0,1.2fr);gap:9px}
- .od-who strong{font-size:16px}.od-person p{font-size:13px}
- .od-facts p{grid-template-columns:auto 6px minmax(0,1fr);font-size:12px}
- .od-payment{grid-template-columns:minmax(0,1fr)}.od-payment>.od-rule{display:none}
- .od-total-amount b{font-size:19px}
- .od-total{gap:8px;padding:10px}.od-total p{font-size:15px;gap:5px}.od-total-amount{padding:8px 10px}
- .od-actions{gap:6px}.od-btn{gap:4px;padding:0 5px;font-size:12.5px;white-space:normal;line-height:1.15;text-align:left}.od-btn .od-icon{width:17px;height:17px}
+ .od{gap:10px;font-size:12px}
+ .od .od-icon{width:18px;height:18px}
+ .od-head{gap:6px}.od-back{width:26px;height:30px}.od-back .od-icon{width:20px;height:20px}
+ .od-head h2{font-size:19px}
+ .od-code{font-size:10.5px;padding:6px 8px}
+ .od-head>.od-pill{font-size:13px;padding:5px 9px}
+ .od-card{padding:10px;border-radius:13px}
+ .od-customer{grid-template-columns:minmax(0,1fr) 1px minmax(0,1.25fr);gap:9px}
+ .od-person{gap:9px}.od-person p{font-size:12.5px;gap:6px}.od-who .od-clip{font-size:15px}
+ .od-facts{gap:6px}.od-facts p{grid-template-columns:auto 6px minmax(0,1fr);font-size:11px;column-gap:4px}
+ .od-pill{font-size:11px;padding:2px 7px;border-radius:7px}
+ .od-items-head h3{font-size:16px}.od-count{font-size:14px;padding:4px 9px;gap:5px}.od-count .od-icon{width:17px;height:17px}
+ .od-items{gap:8px}.od-items ol{gap:7px}
+ .od-item{grid-template-columns:50px minmax(0,1.4fr) 1px minmax(0,1fr) auto;gap:5px;padding:5px;border-radius:10px}
+ .od-photo{width:50px;height:50px;font-size:22px;border-radius:7px}
+ .od-info,.od-qty{gap:2px}
+ .od-name.od-clip{font-size:11px;margin-bottom:1px}
+ .od-info p,.od-qty p{font-size:10px;grid-template-columns:auto 4px minmax(0,1fr);column-gap:2px}
+ .od-amount{padding:5px 6px;border-radius:7px;gap:1px}.od-amount small{font-size:9.5px}.od-amount .od-clip{font-size:11px}
+ .od-total{gap:8px;padding:8px 10px}.od-total p{font-size:13px;gap:4px}
+ .od-total-amount{padding:6px 10px}.od-total-amount small{font-size:11px}.od-total-amount b{font-size:17px}
+ .od-actions{grid-template-columns:auto repeat(3,minmax(0,1fr));gap:5px}
+ .od-btn{min-height:42px;gap:2px;padding:0 3px;font-size:10.5px;overflow:hidden}
+ .od-btn span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+ .od-received{padding:0 6px}.od-received span{overflow:visible}
+ .od-btn .od-icon{width:14px;height:14px}
+ .od-edit-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .od-quick button{font-size:13px;min-height:42px}
 }
