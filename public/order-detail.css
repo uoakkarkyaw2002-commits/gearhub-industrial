@@ -13,3 +13,105 @@
 .order-detail-payment{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,.75fr);gap:16px;align-items:start;padding:18px 20px;border-bottom:1px solid #edf1ed}.order-detail-payment h4{grid-column:1/-1}.order-detail-payment dl{display:grid;gap:8px;margin:0}.order-detail-receipt{display:flex;align-items:center;justify-content:center;min-height:70px;padding:10px;border-radius:12px;background:#eaf7ee;color:#16733b;text-decoration:none;font-weight:800;text-align:center}.order-detail-no-receipt{display:grid;place-items:center;min-height:70px;padding:10px;border-radius:12px;background:#f5f7f5;color:#718176;text-align:center;font-size:13px}
 .order-detail-update{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:18px 20px;background:#fbfdfb}.order-detail-update h4{grid-column:1/-1}.order-detail-update label{display:grid;gap:6px;color:#5c6c60;font-size:12px;font-weight:750}.order-detail-update :is(input,select){min-width:0;box-sizing:border-box;width:100%;min-height:42px;border:1px solid #d7e3da;border-radius:9px;padding:0 11px;background:#fff;color:#1a3022;font:inherit}.order-detail-update .order-detail-note{grid-column:1/-1}.order-detail-update button{grid-column:1/-1;min-height:44px;border-radius:10px}.order-detail-message{grid-column:1/-1;min-height:1.2em;margin:0;color:#16733b;font-weight:700}.order-detail-empty{padding:18px;border-radius:12px;background:#f4f8f5;color:#65756a;text-align:center}
 @media(max-width:720px){.order-detail-header,.order-detail-customer,.order-detail-items,.order-detail-payment,.order-detail-update{padding:15px}.order-detail-customer{grid-template-columns:1fr}.order-detail-customer>dl{grid-column:auto;grid-row:auto;padding:14px 0 0;border-left:0;border-top:1px solid #e4ece6}.order-detail-item{grid-template-columns:55px minmax(0,1fr) auto;gap:9px;padding:9px}.order-detail-item-icon{width:50px;height:50px;font-size:22px}.order-detail-item-copy{grid-column:2}.order-detail-quantity{grid-column:3;grid-row:1 / span 2;padding-left:8px;border-left:0;text-align:right}.order-detail-line-total{grid-column:2/-1;grid-row:2;padding:7px 0 0;border-left:0;border-top:1px solid #eef2ef;display:flex;align-items:center;justify-content:space-between}.order-detail-total{align-items:stretch;flex-direction:column;gap:10px}.order-detail-total span b{float:right}.order-detail-total strong{display:flex;align-items:center;justify-content:space-between}.order-detail-payment{grid-template-columns:1fr}.order-detail-update{grid-template-columns:1fr}.order-detail-update .order-detail-note{grid-column:auto}}
+
+/* ---- Order detail (owner's design): header, customer|facts, item cards, actions, payment ---- */
+.od{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;width:100%;max-width:100%;box-sizing:border-box;color:#14231b;font-size:14px;padding:0!important;border:0!important;background:none!important;box-shadow:none!important}
+.od>*,.od-card>*,.od-items ol>*{min-width:0;box-sizing:border-box}
+.od .od-icon{width:22px;height:22px;flex:0 0 auto;display:block}
+.od p{margin:0}
+.od-head{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px}
+.od-back{display:grid;place-items:center;width:34px;height:34px;padding:0;border:0;background:none;color:#14231b;cursor:pointer}
+.od-back .od-icon{width:24px;height:24px}
+.od-head h2{margin:0 auto 0 0;font-size:26px;line-height:1.1;font-weight:800;letter-spacing:-.4px;color:#122319}
+.od-code{order:3;flex:1 1 100%;min-width:0;padding:8px 12px;border-radius:9px;background:#e4f3e8;color:#14231b;font-size:12px;font-weight:700;overflow-wrap:anywhere}
+.od-pill{display:inline-flex;white-space:nowrap;justify-self:start;align-items:center;padding:4px 11px;border-radius:9px;background:#ffe6c7;color:#e2750e;font-size:14px;font-weight:700;line-height:1.3;text-transform:lowercase}
+.od-head>.od-pill{font-size:18px;padding:6px 14px}
+.od-pill.od-confirmed,.od-pill.od-paid,.od-pill.od-completed{background:#dcf4e3;color:#13803b}
+.od-pill.od-processing,.od-pill.od-shipped{background:#e3edff;color:#2d62c4}
+.od-pill.od-cancelled,.od-pill.od-rejected{background:#ffe1e1;color:#c63434}
+.od-card{background:#fff;border-radius:16px;padding:14px;box-shadow:0 2px 10px #12301f12;border:1px solid #edf1ee}
+.od-rule{display:block;align-self:stretch;width:1px;background:#e2e8e4}
+.od-customer{display:grid;grid-template-columns:minmax(0,.95fr) 1px minmax(0,1.25fr);gap:12px;align-items:start}
+.od-person{display:grid;gap:12px;min-width:0}
+.od-person p{display:flex;align-items:center;gap:9px;min-width:0;font-size:15px;color:#14231b;overflow-wrap:anywhere}
+.od-person .od-icon{color:#24323f;width:22px;height:22px}
+.od-who strong{font-size:19px;font-weight:800;line-height:1.2}
+.od-facts{display:grid;gap:9px;min-width:0}
+.od-facts p,.od-info p,.od-qty p,.od-pay-facts p{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;column-gap:6px;min-width:0}
+.od-facts p{grid-template-columns:auto 8px minmax(0,1fr);font-size:13px}
+.od-facts span,.od-info span,.od-qty span,.od-pay-facts span{color:#5f6b78}
+.od-facts i,.od-info i,.od-qty i,.od-pay-facts i{font-style:normal;color:#5f6b78}
+.od-facts b{font-weight:600;color:#1d2a35;overflow-wrap:anywhere}
+.od-items{display:grid;gap:10px}
+.od-items-head{display:flex;align-items:center;justify-content:space-between}
+.od-items-head h3,.od-pay-facts h3{margin:0;font-size:20px;font-weight:800;color:#122319}
+.od-count{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:9px;background:#eef3f9;font-size:18px}
+.od-count .od-icon{width:22px;height:22px;color:#14231b}
+.od-items ol{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.od-item{display:grid;grid-template-columns:62px minmax(0,1fr) 1px 92px 96px;align-items:center;gap:8px;padding:8px;border:1px solid #e3e8e5;border-radius:12px;background:#fff}
+.od-photo{display:grid;place-items:center;width:62px;height:62px;border:1px solid #e8ece9;border-radius:9px;background:#fff;overflow:hidden;font-size:30px}
+.od-photo img{width:100%;height:100%;object-fit:contain}
+.od-info{display:grid;gap:3px;min-width:0}
+.od-name{font-size:13px;font-weight:800;line-height:1.2;color:#122319;text-transform:uppercase;overflow-wrap:anywhere;margin-bottom:2px}
+.od-info p,.od-qty p{font-size:11.5px;grid-template-columns:auto 6px minmax(0,1fr)}
+.od-info b,.od-qty b{font-weight:500;color:#1d2a35;overflow-wrap:anywhere}
+.od-qty{display:grid;gap:3px;min-width:0}
+.od-qty .od-unit-price{display:grid;grid-template-columns:1fr;row-gap:1px}
+.od-qty .od-unit-price b{font-weight:800;color:#122319;white-space:nowrap}
+.od-amount{display:grid;gap:3px;align-self:center;padding:9px 10px;border-radius:9px;background:#eef3f9;min-width:0}
+.od-amount small{font-size:11.5px;color:#4b5866}
+.od-amount b{font-size:14px;font-weight:800;color:#122319;white-space:nowrap}
+.od-total{display:grid;grid-template-columns:minmax(0,1fr) 1px auto;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;background:#eef3f9}
+.od-total p{display:flex;gap:8px;font-size:17px;font-weight:700;color:#3b4652;white-space:nowrap}
+.od-total p i{font-style:normal}.od-total p b{color:#122319}
+.od-total-amount{display:grid;gap:2px;padding:8px 14px;border:1px solid #a8dbb7;border-radius:10px;background:#e4f5e9}
+.od-total-amount small{font-size:13px;color:#2f3a35}
+.od-total-amount b{font-size:22px;font-weight:800;color:#122319;white-space:nowrap}
+.od-form .order-page-form-fields{display:none}
+.od-form.is-editing .order-page-form-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 10px}
+.od-actions{display:grid;grid-template-columns:minmax(0,1.35fr) repeat(3,minmax(0,1fr));gap:8px}
+.od-btn{display:flex;align-items:center;justify-content:center;gap:6px;min-height:48px;padding:0 6px;border-radius:9px;border:1.5px solid #14231b;background:#fff;color:#14231b;font:inherit;font-size:clamp(12px,3.3vw,16px);font-weight:700;text-decoration:none;cursor:pointer;white-space:nowrap}
+.od-btn .od-icon{width:20px;height:20px}
+.od-received{background:#11893a;border-color:#11893a;color:#fff;--od-doc-line:#11893a}
+.od-received[aria-disabled="true"]{opacity:.5;pointer-events:none}
+.od-save{background:#e6f0fc;border-color:#9cc3ee;color:#1d63c8}
+.od-delete{border-color:#e14444;color:#e02020}
+.od .order-page-message{margin:8px 0 0;font-size:13px;color:#47524c}
+.od .order-page-message:empty{display:none}
+.od-form{margin:0!important;padding:0!important;border:0!important;background:none!important}
+.od-payment{display:grid;grid-template-columns:minmax(0,1fr) 1px minmax(0,auto);gap:12px;align-items:center}
+.od-pay-facts{display:grid;gap:9px;min-width:0}
+.od-pay-facts h3{font-size:18px;margin-bottom:2px}
+.od-pay-facts p{grid-template-columns:minmax(96px,auto) 8px minmax(0,1fr);font-size:13px}
+.od-pay-facts b{font-weight:500;color:#1d2a35;overflow-wrap:anywhere}
+.od-receipt{display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:#f2f6f3;color:#11893a;text-decoration:none;min-width:0}
+.od-receipt .od-icon{width:34px;height:34px;padding:7px;border-radius:9px;background:#dff1e4;box-sizing:content-box;color:#11893a}
+.od-receipt span{display:grid;gap:3px;min-width:0}
+.od-receipt b{font-size:14px;font-weight:800;color:#11893a}
+.od-receipt small{font-size:12px;color:#5f6b78}
+.od-receipt.is-empty{color:#7b8780}.od-receipt.is-empty b{color:#7b8780}.od-receipt.is-empty .od-icon{color:#9aa59f;background:#eaeeeb}
+/* Wider screens: code sits in the header row like the design, more room for photos. */
+@media(min-width:560px){
+ .od-code{order:0;flex:0 1 auto;font-size:13px}
+ .od-head h2{margin-right:4px}.od-head>.od-pill{margin-left:auto}
+ .od-card{padding:18px}
+ .od-item{grid-template-columns:120px minmax(0,1fr) 1px 120px 150px;gap:14px;padding:10px}
+ .od-photo{width:120px;height:110px}
+ .od-name{font-size:15px}.od-info p,.od-qty p{font-size:13px}
+ .od-amount{padding:12px 14px}.od-amount small{font-size:13px}.od-amount b{font-size:18px}
+ .od-facts p,.od-pay-facts p{font-size:14px}
+ .od-receipt b{font-size:16px}.od-receipt small{font-size:14px}
+}
+/* Phones (up to 559px): amount sits under Qty so every column stays readable. */
+@media(max-width:559px){
+ .od-item{grid-template-columns:52px minmax(0,1fr) 1px 96px;grid-template-areas:"photo info rule qty" "photo info rule amount"}
+ .od-photo{grid-area:photo;width:52px;height:52px;font-size:24px}.od-info{grid-area:info}.od-item>.od-rule{grid-area:rule}.od-qty{grid-area:qty}.od-amount{grid-area:amount;padding:6px 8px}
+ .od-amount b{font-size:13px}
+ .od-customer{grid-template-columns:minmax(0,1fr) 1px minmax(0,1.2fr);gap:9px}
+ .od-who strong{font-size:16px}.od-person p{font-size:13px}
+ .od-facts p{grid-template-columns:auto 6px minmax(0,1fr);font-size:12px}
+ .od-payment{grid-template-columns:minmax(0,1fr)}.od-payment>.od-rule{display:none}
+ .od-total-amount b{font-size:19px}
+ .od-total{gap:8px;padding:10px}.od-total p{font-size:15px;gap:5px}.od-total-amount{padding:8px 10px}
+ .od-actions{gap:6px}.od-btn{gap:4px;padding:0 5px;font-size:12.5px;white-space:normal;line-height:1.15;text-align:left}.od-btn .od-icon{width:17px;height:17px}
+}
