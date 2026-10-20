@@ -33,12 +33,33 @@
  }
 
  // ---- New-order bell: badge = orders waiting (pending); a chime plays when a new order arrives.
- let audio,known=null;
- function unlockAudio(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;audio=audio||new A();if(audio.state==="suspended")audio.resume();}catch{}}
- function chime(){try{unlockAudio();if(!audio)return;const t=audio.currentTime;[[880,0],[1175,.18],[1568,.36]].forEach(([f,d])=>{const o=audio.createOscillator(),g=audio.createGain();o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(.0001,t+d);g.gain.exponentialRampToValueAtTime(.35,t+d+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d+.45);o.connect(g).connect(audio.destination);o.start(t+d);o.stop(t+d+.5);});}catch{}
-  try{navigator.vibrate?.([120,60,120])}catch{}}
- document.addEventListener("pointerdown",unlockAudio,{passive:true});
+ let audio,known=null,bellSound,soundReady=false;
+ // iPhone mutes Web Audio when the ringer switch is on silent, so the chime is a short
+ // sound file played by an <audio> element (media plays even on silent). It must be
+ // "unlocked" once by a tap; Web Audio stays as a fallback.
+ function chimeWav(){
+  const rate=22050,notes=[[880,0],[1175,.18],[1568,.36]],length=Math.round(rate*.9),data=new Int16Array(length);
+  for(const [f,d] of notes){const from=Math.round(d*rate),to=Math.min(length,from+Math.round(.5*rate));for(let i=from;i<to;i++){const t=(i-from)/rate,env=Math.min(1,t/.02)*Math.exp(-t*7);data[i]=Math.max(-32767,Math.min(32767,data[i]+Math.sin(2*Math.PI*f*t)*env*12000));}}
+  const buffer=new ArrayBuffer(44+length*2),v=new DataView(buffer),text=(o,s)=>[...s].forEach((c,i)=>v.setUint8(o+i,c.charCodeAt(0)));
+  text(0,"RIFF");v.setUint32(4,36+length*2,true);text(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,rate,true);v.setUint32(28,rate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);text(36,"data");v.setUint32(40,length*2,true);
+  new Int16Array(buffer,44).set(data);return URL.createObjectURL(new Blob([buffer],{type:"audio/wav"}));
+ }
+ function unlockAudio(){
+  try{if(navigator.audioSession)navigator.audioSession.type="playback";}catch{}
+  try{if(!bellSound){bellSound=new Audio(chimeWav());bellSound.preload="auto";}
+   if(!soundReady){bellSound.muted=true;const p=bellSound.play();if(p&&p.then)p.then(()=>{bellSound.pause();bellSound.currentTime=0;bellSound.muted=false;soundReady=true;}).catch(()=>{bellSound.muted=false;});}}catch{}
+  try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;audio=audio||new A();if(audio.state!=="running")audio.resume();}catch{}
+ }
+ function webAudioChime(){try{if(!audio)return;const t=audio.currentTime;[[880,0],[1175,.18],[1568,.36]].forEach(([f,d])=>{const o=audio.createOscillator(),g=audio.createGain();o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(.0001,t+d);g.gain.exponentialRampToValueAtTime(.35,t+d+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d+.45);o.connect(g).connect(audio.destination);o.start(t+d);o.stop(t+d+.5);});}catch{}}
+ function chime(){
+  unlockAudio();
+  try{if(bellSound&&soundReady){bellSound.muted=false;bellSound.currentTime=0;const p=bellSound.play();if(p&&p.catch)p.catch(webAudioChime);}else webAudioChime();}catch{webAudioChime();}
+  try{navigator.vibrate?.([120,60,120])}catch{}
+ }
+ for(const type of ["pointerdown","touchend","click"])document.addEventListener(type,unlockAudio,{passive:true});
  document.addEventListener("keydown",unlockAudio);
+ // Coming back to the app: iPhone suspends Web Audio in the background; wake it again.
+ document.addEventListener("visibilitychange",()=>{if(!document.hidden)try{if(audio&&audio.state!=="running")audio.resume();}catch{}});
  function updateBell(orders){
   const bell=$("admin-bell"),count=$("admin-bell-count");if(!bell||!count)return;
   bell.classList.remove("hidden");
@@ -52,6 +73,8 @@
    const toast=$("toast");if(toast){toast.textContent="🔔 "+fresh.length+" new order"+(fresh.length>1?"s":"")+" / အော်ဒါအသစ် "+fresh.length+" ခု";toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),4000);}}
  }
  $("admin-bell")?.addEventListener("click",()=>{
+  // Tapping the bell plays the order sound once, so the volume can be checked.
+  unlockAudio();setTimeout(chime,soundReady?0:250);
   const link=document.querySelector('.admin-sidebar a[href="#orders-content"]');
   if(link&&window.matchMedia("(min-width:1100px)").matches){link.click();}
   const content=$("orders-content"),toggle=document.querySelector('[data-content-id="orders-content"]');
@@ -65,7 +88,7 @@
   if(polling||document.hidden||!navigator.onLine||document.getElementById("dashboard")?.classList.contains("hidden"))return;
   polling=true;try{if(typeof refreshAll==="function")await refreshAll();}catch{}finally{polling=false;}
  }
- setInterval(poll,45000);
+ setInterval(poll,20000);
  document.addEventListener("visibilitychange",()=>{if(!document.hidden)poll();});
  window.addEventListener("online",()=>poll());
  window.addEventListener("offline",()=>document.body.classList.add("admin-offline"));
@@ -81,6 +104,6 @@
  function setLogo(url){const box=document.querySelector(".admin-user-avatar");if(!box)return;box.querySelector("img")?.remove();
   if(!url||!/^(\/|https:\/\/)/.test(String(url))){box.classList.remove("has-logo");return;}
   const img=document.createElement("img");img.alt="";img.src=url;img.addEventListener("error",()=>{img.remove();box.classList.remove("has-logo");});box.append(img);box.classList.add("has-logo");}
- window.GearHubAdminExtras={update(summary,orders,products){renderKpis(summary,orders,products);updateBell(orders);},setLogo};
+ window.GearHubAdminExtras={update(summary,orders,products){renderKpis(summary,orders,products);updateBell(orders);},setLogo,chime};
  if(window.__gearhubAdminLogo)setLogo(window.__gearhubAdminLogo);
 })();
