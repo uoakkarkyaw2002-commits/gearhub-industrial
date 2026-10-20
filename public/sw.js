@@ -1,4 +1,4 @@
-const CACHE_NAME = "gearhub-shell-v85-1.1.54";
+const CACHE_NAME = "gearhub-shell-v85-1.1.55";
 const SHELL = ["/category-browser.js?v=20261017-speed-1","/tenant-store.js?v=20261019-brand-1","/updates.js?v=20261018-refresh-1","/desktop.css?v=20261018-promo-2","/","/style.css?v=20261020-phonenav-1","/site-content.js?v=20261018-share-2","/store.js?v=20261020-phonenav-1","/app-install.js?v=20261018-refresh-1","/settings.js?v=20261018-qrlazy-1","/back-nav.js?v=20261020-back-1","/dialogs.js?v=20261017-share-1","/footer.js?v=20261012-1","/images/hero-excavator.jpg","/app.webmanifest","/app-icon.png","/icons/icon.svg","/icons/apple-touch-icon.png","/qrcode.js?v=1.4.4"];
 const ADMIN_CACHE="gearhub-admin-v1",IMAGE_CACHE="gearhub-img-v1";
 const shopPath=pathname=>{const m=pathname.match(/^\/shops\/([a-z0-9-]+)(?:\/|$)/);return m?'/shops/'+m[1]+'/':null;};
@@ -73,22 +73,29 @@ self.addEventListener("message", event => {
  })());
 });
 
-// New-order alerts from the server (GearHub or a seller shop admin). Shown even when
-// the phone is locked; tapping it opens that store's orders.
+// New-order alerts from the server (GearHub or a seller shop admin). Every order is its
+// own notification with sound, shown even when the phone is locked or the app is closed.
+// If that admin is open on screen, the page also plays its order sound right away.
 self.addEventListener("push", event => {
   let data = {};
   try { data = event.data ? event.data.json() : {}; } catch { data = { body: event.data && event.data.text() }; }
   const title = data.title || "🔔 New order";
-  event.waitUntil(self.registration.showNotification(title, {
-    body: data.body || "",
-    icon: data.icon || "/app-icon.png",
-    badge: data.icon || "/app-icon.png",
-    tag: data.tag || "gearhub-order",
-    renotify: true,
-    requireInteraction: false,
-    vibrate: [200, 100, 200],
-    data: { url: data.url || "/admin.html#orders-content" }
-  }));
+  const url = data.url || "/admin.html#orders-content";
+  event.waitUntil((async () => {
+    const path = new URL(url, self.location.origin).pathname;
+    const open = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    for (const client of open) if (new URL(client.url).pathname === path) client.postMessage({ type: "gearhub-order-alert", orderId: data.orderId ?? null, kind: data.kind || "order" });
+    await self.registration.showNotification(title, {
+      body: data.body || "",
+      icon: data.icon || "/app-icon.png",
+      badge: data.icon || "/app-icon.png",
+      tag: data.tag || "gearhub-order-" + Date.now(),
+      renotify: true,
+      requireInteraction: false,
+      vibrate: [200, 100, 200, 100, 200],
+      data: { url }
+    });
+  })());
 });
 self.addEventListener("notificationclick", event => {
   event.notification.close();
