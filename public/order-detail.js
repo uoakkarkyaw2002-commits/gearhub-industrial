@@ -11,7 +11,7 @@
  const icon={receipt:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18H6z" fill="currentColor"/><path d="M9 8h6M9 12h6M9 16h4" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg>',save:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h12l3 3v15H4V3z" fill="currentColor"/><path d="M8 3v6h8V3M8 15h8v5H8z" fill="none" stroke="#fff" stroke-width="1.7"/></svg>',edit:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 17 1 3 3-1L19 8l-4-4zM14 5l4 4" fill="currentColor"/></svg>',delete:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7h8l-1 13H9L8 7Zm-2-3h12m-8 0V2h4v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'};
  const count=order=>(order.items||[]).reduce((total,item)=>total+(Number(item.quantity)||0),0);
  function listCard(order){
-  const headline=order.invoice_no?"Invoice No":"Order No",number=order.invoice_no||order.order_code;
+  const headline="Invoice No",number=order.invoice_no||order.order_code;
   return '<button type="button" class="order-invoice-card status-'+esc(order.status)+'" data-order-open="'+Number(order.id)+'">'
    +'<span class="order-invoice-photos">'+(order.items||[]).slice(0,3).map(item=>'<i>'+photo(item)+"</i>").join("")+"</span>"
    +'<span class="order-invoice-meta"><small>'+headline+'</small><strong>'+esc(number)+'</strong><small>▣ &nbsp;'+stamp(order.created_at)+"</small></span>"
