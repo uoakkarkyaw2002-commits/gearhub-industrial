@@ -30,7 +30,7 @@
   }
   async function register() {
     if (!('serviceWorker' in navigator) || !window.isSecureContext) return null;
-    return navigator.serviceWorker.register('/sw.js', {updateViaCache: 'none'});
+    return navigator.serviceWorker.register((location.pathname.match(/^\/shops\/[a-z0-9-]+\//)||["/"])[0]+"sw.js", {updateViaCache: 'none'});
   }
   window.addEventListener('load', () => { registrationPromise = register(); registrationPromise.catch(() => {}); }, {once:true});
   window.addEventListener('beforeinstallprompt', event => {
