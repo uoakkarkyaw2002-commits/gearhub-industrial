@@ -442,3 +442,22 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
  .inventory-panel{padding:12px}.inventory-header{padding:11px 9px}.inventory-title>span{width:48px;height:48px;font-size:26px}.inventory-header h2{font-size:17px}.inventory-title small{font-size:10px}.inventory-total-card{min-width:91px;padding:10px 7px;font-size:21px}.inventory-total-card::before{font-size:26px}.inventory-total-card::after{font-size:9px}
  .inventory-search-label{gap:7px}.inventory-search-label select{font-size:11px;padding-left:8px}.inventory-mobile-open{grid-template-columns:92px minmax(0,1fr) auto;gap:9px}.inventory-mobile-photo{width:92px;height:92px}.inventory-mobile-copy small{font-size:11px}.inventory-mobile-copy strong{font-size:16px}.inventory-mobile-copy em{font-size:13px}.inventory-mobile-copy b{font-size:18px}.inventory-mobile-meta .inventory-stock{font-size:14px;padding:6px}.inventory-mobile-meta small{font-size:10px}
 }
+
+/* Inventory reference icons and total card */
+@media(max-width:800px){
+ .inventory-total-card{display:grid;grid-template-columns:38px minmax(0,1fr);grid-template-rows:auto auto;align-items:center;column-gap:7px;min-width:126px;padding:10px 12px;border:0;border-radius:15px;background:#eef9f0;color:#148538}
+ .inventory-total-card::before,.inventory-total-card::after{content:none}
+ .inventory-total-icon{grid-row:1/3;width:36px;height:36px;fill:none;stroke:#168b3e;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+ .inventory-total-card .inventory-count{display:block;color:#148538;font-size:29px;line-height:1;font-weight:850;letter-spacing:-.04em}
+ .inventory-total-card small{display:block;color:#5b7460;font-size:10px;line-height:1.2;font-weight:600;white-space:nowrap}
+ .inventory-search-icon{flex:0 0 26px;width:26px;height:26px;fill:none;stroke:#10233b;stroke-width:2;stroke-linecap:round}
+ .inventory-filter-wrap{position:relative;display:block;min-width:0}
+ .inventory-filter-wrap>svg{position:absolute;z-index:1;left:12px;top:50%;width:25px;height:25px;transform:translateY(-50%);fill:none;stroke:#10233b;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+ .inventory-search-label .inventory-filter-wrap select{width:100%;padding-left:43px}
+ #inventory-add-product{color:#fff!important}
+}
+@media(max-width:420px){
+ .inventory-total-card{grid-template-columns:31px minmax(0,1fr);min-width:107px;padding:9px 8px;column-gap:5px}
+ .inventory-total-icon{width:29px;height:29px}.inventory-total-card .inventory-count{font-size:23px}.inventory-total-card small{font-size:8px}
+ .inventory-filter-wrap>svg{left:8px;width:19px;height:19px}.inventory-search-label .inventory-filter-wrap select{padding-left:31px}
+}
