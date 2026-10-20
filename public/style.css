@@ -805,3 +805,6 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
 /* Category banner fills its 4:1 frame; a square or tall photo stays whole (see fitCategoryBanner). */
 #category-view .category-feature-banner.has-image>img:not([hidden]){object-fit:cover!important}
 #category-view .category-feature-banner.has-image.banner-fit-whole>img:not([hidden]){object-fit:contain!important}
+
+/* Cart uses each product's cover photo, with the existing emoji as a safe fallback. */
+.cart-emoji{display:grid;place-items:center;flex:0 0 66px;width:66px;height:66px;box-sizing:border-box;padding:4px;overflow:hidden}.cart-emoji .cart-product-photo{display:block;width:100%;height:100%;object-fit:contain;border-radius:7px}.cart-emoji .product-fallback{font-size:30px;line-height:1}
