@@ -805,7 +805,18 @@ app.get("/api/admin/summary", adminOnly, (req,res) => {
 });
 app.get("/api/admin/orders", adminOnly, (req,res) => {
  const rows = db.prepare("SELECT * FROM orders ORDER BY id DESC LIMIT 200").all();
- res.json(rows.map(o=>{const {receipt_path,...safe}=o;return {...safe,hasReceipt:Boolean(receipt_path),items:JSON.parse(o.items_json)}}));
+ const products = new Map(db.prepare("SELECT id,image_urls,image_emoji,part_no FROM products").all().map(product => {
+  let imageUrls=[];try{imageUrls=JSON.parse(product.image_urls||"[]")}catch{}
+  return [product.id,{imageUrls:Array.isArray(imageUrls)?imageUrls:[],imageEmoji:product.image_emoji||"⚙️",partNo:product.part_no||""}];
+ }));
+ res.json(rows.map(o=>{
+  const {receipt_path,...safe}=o;
+  let items=[];try{items=JSON.parse(o.items_json)||[]}catch{}
+  return {...safe,hasReceipt:Boolean(receipt_path),items:items.map(item=>{
+   const product=products.get(Number(item.productId));
+   return {...item,imageUrls:product?.imageUrls||[],imageEmoji:product?.imageEmoji||"⚙️",partNo:item.partNo||product?.partNo||item.sku||""};
+  })};
+ }));
 });
 app.get("/api/admin/orders/:id/receipt", adminOnly, (req,res) => {
  const order = db.prepare("SELECT receipt_path FROM orders WHERE id=?").get(Number(req.params.id));
