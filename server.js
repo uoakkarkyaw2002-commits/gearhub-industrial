@@ -21,6 +21,7 @@ const {createNotifications} = require("./lib/notifications");
 const {createLoginGuard} = require("./lib/login-guard");
 const {runtimeConfig,validateStorage}=require("./lib/config");
 const {logError}=require("./lib/logging");
+const {createOrderPush,orderMessage}=require("./lib/order-push");
 const {writeBackupManifest}=require("./lib/backup-manifest");
 
 const app = express();
@@ -290,10 +291,13 @@ app.use(session({
  resave: false, saveUninitialized: false,
  cookie: { httpOnly: true, sameSite: "lax", secure: production, path: "/", maxAge: 1000 * 60 * 60 * 8 }
 }));
+// New-order alerts on the owner's phone (GearHub = scope "main", each shop = "shop:<id>").
+const orderPush=createOrderPush({db,subject:publicOrigin,log:logError});
+app.locals.orderPush=orderPush;
 // Opt-in additive platform migration; legacy tables/routes remain unchanged.
 if(process.env.PLATFORM_ENABLED==='true'){
  const {createPlatform}=require('./lib/platform');
- app.use('/api/platform',createPlatform({db,dataDir,publicOrigin,notifyApplication:details=>notifications.application(details)}));
+ app.use('/api/platform',createPlatform({db,dataDir,publicOrigin,orderPush,notifyApplication:details=>notifications.application(details)}));
  require('./lib/tenant-install').installTenantApps(app,{db,dataDir,publicDir:path.join(__dirname,'public'),publicOrigin});
 }
 app.get('/api/app-release', (_req,res)=>{
@@ -701,8 +705,14 @@ app.post("/api/orders", (req,res) => receiptUpload.single("receipt")(req,res,asy
   }).immediate();
   if (result.replayed) await fs.promises.unlink(req.file.path).catch(()=>{});
   res.status(result.replayed ? 200 : 201).json({ message:"Order created. Transfer payment and wait for admin confirmation.", order:result });
+  if (!result.replayed) orderPush.notify("main",{...orderMessage({code:result.orderCode,total:result.total,customer:name,url:"/admin.html#orders-content"}),icon:"/app-icon.png"}).catch(()=>{});
  } catch (e) { if (req.file) fs.promises.unlink(req.file.path).catch(() => {}); res.status(e.status||400).json({error:e.message || "Could not create order."}); }
 }));
+// Order alerts: this phone subscribes to new-order push notifications for the GearHub store.
+app.get("/api/admin/push", adminOnly, (req,res) => res.json({publicKey:orderPush.publicKey(),count:orderPush.count("main"),subscribed:orderPush.has("main",req.query.endpoint)}));
+app.post("/api/admin/push/subscribe", adminOnly, (req,res) => { try { orderPush.subscribe("main",req.body?.subscription); res.json({ok:true,count:orderPush.count("main")}); } catch(e) { res.status(e.status||400).json({error:e.message}); } });
+app.post("/api/admin/push/unsubscribe", adminOnly, (req,res) => { orderPush.unsubscribe("main",req.body?.endpoint); res.json({ok:true,count:orderPush.count("main")}); });
+app.post("/api/admin/push/test", adminOnly, async (req,res) => res.json({sent:await orderPush.notify("main",{title:"🔔 Test · GearHub",body:"Order alerts work on this phone / ဒီဖုန်းမှာ အော်ဒါသတိပေးချက် ရပါပြီ",url:"/admin.html#orders-content",tag:"order-test",icon:"/app-icon.png"})}));
 const resetRequestLimit = rateLimit({windowMs: 15 * 60 * 1000, limit: 3, standardHeaders: true, legacyHeaders: false});
 const resetVerifyLimit = rateLimit({windowMs: 15 * 60 * 1000, limit: 8, standardHeaders: true, legacyHeaders: false});
 function mailTransport() {
