@@ -193,3 +193,8 @@ placeCategoryBanner();phoneCategoryBanner.addEventListener?.("change",placeCateg
 // Wide banners (2:1 to 6:1, e.g. older 5:2 ones) fill the 4:1 frame edge to edge; only a
 // very different shape (square, tall) is shown whole on a blurred copy of itself.
 function fitCategoryBanner(){const banner=$("category-banner-image"),frame=$("category-feature-banner");if(!banner||!frame)return;const ratio=banner.naturalWidth/banner.naturalHeight;frame.classList.toggle("banner-fit-whole",!banner.hidden&&!!ratio&&(ratio<2||ratio>6))}
+
+// Phones: Category and Promotion fill the screen above the bottom bar (no white gap,
+// and the page height no longer changes with how many items there are).
+function measureBottomNav(){const nav=document.querySelector(".mobile-bottom-nav");if(nav&&nav.offsetHeight)document.documentElement.style.setProperty("--bottom-nav-h",nav.offsetHeight+"px")}
+measureBottomNav();addEventListener("resize",measureBottomNav);
