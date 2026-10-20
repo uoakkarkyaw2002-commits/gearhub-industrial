@@ -41,6 +41,8 @@ const imageStorage = multer.diskStorage({
   cb(null, crypto.randomBytes(16).toString("hex") + ext);
  }
 });
+// Products may have many photos (uploaded ten per request); this only guards against abuse.
+const MAX_PRODUCT_PHOTOS = 200;
 const imageUpload = multer({
  storage: imageStorage,
  limits: { fileSize: 5 * 1024 * 1024, files: 10, fields: 20, parts: 30, fieldSize: 16 * 1024 },
@@ -439,11 +441,11 @@ function getCategories(activeOnly=false) {
 function publicProduct(p) {
  let imageUrls = [];
  try { imageUrls = JSON.parse(p.image_urls || "[]"); } catch {}
- return { ...p, promotion_price: promotionPrice(p.price, p.promotion_price), imageUrls: Array.isArray(imageUrls) ? imageUrls.slice(0,10) : [], active: Boolean(p.active) };
+ return { ...p, promotion_price: promotionPrice(p.price, p.promotion_price), imageUrls: Array.isArray(imageUrls) ? imageUrls.slice(0,MAX_PRODUCT_PHOTOS) : [], active: Boolean(p.active) };
 }
 function cleanImageUrls(value) {
  const input = Array.isArray(value) ? value : String(value || "").split(/\r?\n/);
- return [...new Set(input.map(v => cleanText(v, 1000)).filter(v => /^\/(?:demo|sample)-images\/[a-z-]+\.svg$/i.test(v) || /^https:\/\//i.test(v) || /^\/uploads\/[a-f0-9]+\.(jpg|png|webp|gif|avif)$/i.test(v)))].slice(0,10);
+ return [...new Set(input.map(v => cleanText(v, 1000)).filter(v => /^\/(?:demo|sample)-images\/[a-z-]+\.svg$/i.test(v) || /^https:\/\//i.test(v) || /^\/uploads\/[a-f0-9]+\.(jpg|png|webp|gif|avif)$/i.test(v)))].slice(0,MAX_PRODUCT_PHOTOS);
 }
 
 
