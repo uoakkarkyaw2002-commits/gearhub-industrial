@@ -60,16 +60,25 @@
  document.addEventListener("keydown",unlockAudio);
  // Coming back to the app: iPhone suspends Web Audio in the background; wake it again.
  document.addEventListener("visibilitychange",()=>{if(!document.hidden)try{if(audio&&audio.state!=="running")audio.resume();}catch{}});
+ const announced=new Set();
+ function chimeTimes(n){if(n>0)chime();for(let i=1;i<Math.min(n,10);i++)setTimeout(chime,i*1400);}
+ // A push alert arrived while this admin is open: the phone's notification already made the
+ // sound, so just remember the order and refresh the list.
+ if("serviceWorker" in navigator)navigator.serviceWorker.addEventListener?.("message",e=>{const d=e.data||{};if(d.type!=="gearhub-order-alert")return;if(d.orderId!=null)announced.add(String(d.orderId));if(d.kind==="order"&&typeof refreshAll==="function")refreshAll().catch?.(()=>{});});
  function updateBell(orders){
   const bell=$("admin-bell"),count=$("admin-bell-count");if(!bell||!count)return;
   bell.classList.remove("hidden");
   const pending=(orders||[]).filter(o=>o.status==="pending");
   count.textContent=pending.length>99?"99+":String(pending.length);count.hidden=!pending.length;
   const ids=new Set((orders||[]).map(o=>String(o.id)));
-  let seen=known;if(!seen){try{seen=new Set(JSON.parse(localStorage.getItem(scope)||"null")||[])}catch{seen=new Set()}if(!seen.size)seen=new Set(ids);}
+  const firstLoad=!known;let seen=known;if(!seen){try{seen=new Set(JSON.parse(localStorage.getItem(scope)||"null")||[])}catch{seen=new Set()}if(!seen.size)seen=new Set(ids);}
   const fresh=[...ids].filter(id=>!seen.has(id));
   known=ids;try{localStorage.setItem(scope,JSON.stringify([...ids]))}catch{}
-  if(fresh.length){chime();bell.classList.remove("ring");void bell.offsetWidth;bell.classList.add("ring");
+  // One sound per new order (5 orders = 5 sounds); orders this phone already got as a push alert are not repeated.
+  // Orders that came while the app was closed already rang as phone alerts when alerts are on.
+  const alertsOn=firstLoad&&window.Notification&&Notification.permission==="granted";
+  const unheard=fresh.filter(id=>!announced.has(id));unheard.forEach(id=>announced.add(id));if(!alertsOn)chimeTimes(unheard.length);
+  if(fresh.length){bell.classList.remove("ring");void bell.offsetWidth;bell.classList.add("ring");
    const toast=$("toast");if(toast){toast.textContent="🔔 "+fresh.length+" new order"+(fresh.length>1?"s":"")+" / အော်ဒါအသစ် "+fresh.length+" ခု";toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),4000);}}
  }
  $("admin-bell")?.addEventListener("click",()=>{
@@ -106,7 +115,8 @@
   const img=document.createElement("img");img.alt="";img.src=url;img.addEventListener("error",()=>{img.remove();box.classList.remove("has-logo");});box.append(img);box.classList.add("has-logo");}
  // ---- Order alerts on this phone: push notifications, heard even when the phone is
  // locked or the admin app is closed. Each store (GearHub or a seller shop) has its own.
- let alertsReady=false;
+ let alertsReady=false,alertsInfo=null;
+ const escapeHtml=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent||"")||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
  const standalone=()=>window.matchMedia?.("(display-mode: standalone)").matches||navigator.standalone===true;
  function keyBytes(key){const raw=atob((key+"=".repeat((4-key.length%4)%4)).replace(/-/g,"+").replace(/_/g,"/"));return Uint8Array.from(raw,c=>c.charCodeAt(0));}
@@ -124,14 +134,16 @@
    :state==="off"?'<button type="button" class="primary" data-alerts="on">ဖွင့်မယ် / Turn on</button>':"";
   const status={on:"✅ ဖွင့်ထားပါတယ် / On",off:"ပိတ်ထားပါတယ် / Off",ios:"iPhone: Safari ရဲ့ Share ⬆︎ → Add to Home Screen လုပ်ပြီး Home Screen က icon ကနေ ဖွင့်မှ ရပါမယ်။ / Add this admin to the Home Screen first, then open it from the icon.",unsupported:"ဒီ browser မှာ မရပါ။ Chrome (Android) သို့မဟုတ် Home Screen app (iPhone) ကို သုံးပါ။ / Not supported in this browser.",denied:"Notification ခွင့်ပိတ်ထားပါတယ်။ ဖုန်း Settings → Notifications မှာ ခွင့်ပြုပြီး ပြန်နှိပ်ပါ။ / Notifications are blocked in phone settings.",busy:"…"}[state]||"";
   card.className="order-alerts-card"+(on?" is-on":"");
-  card.innerHTML='<div class="order-alerts-text">'+title+'<span class="order-alerts-status">'+status+'</span>'+(note?'<span class="order-alerts-note">'+note+'</span>':"")+'</div><div class="order-alerts-actions">'+buttons+'</div>';
+  const store=String($("admin-store-title")?.textContent||"").replace(/\s*·\s*Admin\s*$/i,"").trim();
+  const info=alertsInfo?'<span class="order-alerts-diag">'+(store?"🏪 "+escapeHtml(store)+" · ":"")+"ဖုန်း "+Number(alertsInfo.count||0)+" လုံး / "+Number(alertsInfo.count||0)+" phone(s)"+(alertsInfo.last?" · နောက်ဆုံး / last: "+new Date(alertsInfo.last.at).toLocaleString()+" — ✅ "+alertsInfo.last.sent+(alertsInfo.last.failed?" ❌ "+alertsInfo.last.failed+(alertsInfo.last.error?" ("+escapeHtml(alertsInfo.last.error)+")":""):""):"")+'</span>':"";
+  card.innerHTML='<div class="order-alerts-text">'+title+'<span class="order-alerts-status">'+status+'</span>'+(note?'<span class="order-alerts-note">'+note+'</span>':"")+info+'</div><div class="order-alerts-actions">'+buttons+'</div>';
  }
  async function currentSubscription(){const reg=await pushRegistration();return reg.pushManager.getSubscription();}
  async function refreshAlerts(){
   if(!("serviceWorker" in navigator)||!("PushManager" in window)||!window.Notification||!window.isSecureContext)return renderAlerts(isIOS&&!standalone()?"ios":"unsupported");
   if(isIOS&&!standalone())return renderAlerts("ios");
   if(Notification.permission==="denied")return renderAlerts("denied");
-  try{const sub=await currentSubscription();if(!sub)return renderAlerts("off");const s=await pushApi("?endpoint="+encodeURIComponent(sub.endpoint));renderAlerts(s.subscribed?"on":"off");}catch{renderAlerts("off");}
+  try{const sub=await currentSubscription();const s=await pushApi(sub?"?endpoint="+encodeURIComponent(sub.endpoint):"");alertsInfo=s;renderAlerts(sub&&s.subscribed?"on":"off");}catch{renderAlerts("off");}
  }
  async function alertsAction(action,button){
   button.disabled=true;
@@ -141,11 +153,11 @@
     const {publicKey}=await pushApi("");const reg=await pushRegistration();let sub=await reg.pushManager.getSubscription();
     const key=keyBytes(publicKey);if(sub&&sub.options?.applicationServerKey){const old=new Uint8Array(sub.options.applicationServerKey);if(old.length!==key.length||old.some((v,i)=>v!==key[i])){await sub.unsubscribe();sub=null;}}
     sub=sub||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:key});
-    await pushApi("/subscribe",{subscription:sub.toJSON()});renderAlerts("on","အော်ဒါအသစ်ဝင်ရင် ဒီဖုန်းကို အသိပေးပါမယ်။ 🔔 စမ်းပို့မယ် ကိုနှိပ်ပြီး စမ်းကြည့်ပါ။ / Tap Test to try it.");
+    alertsInfo={...(alertsInfo||{}),...(await pushApi("/subscribe",{subscription:sub.toJSON()}))};renderAlerts("on","အော်ဒါအသစ်ဝင်ရင် ဒီဖုန်းကို အသိပေးပါမယ်။ 🔔 စမ်းပို့မယ် ကိုနှိပ်ပြီး စမ်းကြည့်ပါ။ / Tap Test to try it.");
    }else if(action==="off"){
     const sub=await currentSubscription();if(sub){await pushApi("/unsubscribe",{endpoint:sub.endpoint}).catch(()=>{});await sub.unsubscribe().catch(()=>{});}renderAlerts("off");
    }else if(action==="test"){
-    const {sent}=await pushApi("/test",{});renderAlerts("on",sent?"စမ်းသတိပေးချက် ပို့ပြီးပါပြီ — ဖုန်းကို စစ်ကြည့်ပါ / Test sent to "+sent+" phone(s).":"ပို့လို့မရပါ — ပိတ်ပြီး ပြန်ဖွင့်ကြည့်ပါ / Could not reach this phone; turn alerts off and on again.");
+    const {sent}=await pushApi("/test",{});try{const sub=await currentSubscription();alertsInfo=await pushApi(sub?"?endpoint="+encodeURIComponent(sub.endpoint):"");}catch{}renderAlerts("on",sent?"စမ်းသတိပေးချက် ပို့ပြီးပါပြီ — ဖုန်းကို စစ်ကြည့်ပါ / Test sent to "+sent+" phone(s).":"ပို့လို့မရပါ — ပိတ်ပြီး ပြန်ဖွင့်ကြည့်ပါ / Could not reach this phone; turn alerts off and on again.");
    }
   }catch(e){renderAlerts("off","မအောင်မြင်ပါ / "+(e.message||"Failed"));}
   finally{button.disabled=false;}
