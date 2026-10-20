@@ -8,6 +8,7 @@ const os = require("node:os");
 const path = require("node:path");
 const { once } = require("node:events");
 const { createPlatform } = require("../lib/platform");
+const { createOrderPush } = require("../lib/order-push");
 const { originGuard } = require("../lib/security");
 const model = require("../lib/platform-model");
 const png = Buffer.from(
@@ -34,6 +35,8 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
   await once(server, "listening");
   const base = "http://127.0.0.1:" + server.address().port;
   const appliedNotices = [];
+  const pushed = [];
+  const orderPush = createOrderPush({ db, subject: "https://shop.test", sender: { generateVAPIDKeys: () => ({ publicKey: "BPub" + "x".repeat(80), privateKey: "priv" }), sendNotification: async (sub, payload) => { pushed.push({ endpoint: sub.endpoint, ...JSON.parse(payload) }); } } });
   app.use("/api", originGuard(base));
   app.use(
     "/api/platform",
@@ -41,6 +44,7 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
       db,
       dataDir: root,
       publicOrigin: base,
+      orderPush,
       notifyApplication: (details) => appliedNotices.push(details),
       env: {
         PLATFORM_OWNER_EMAIL: "owner@gmail.com",
@@ -499,11 +503,30 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
       // A valid promotion price is what the customer pays; 0 or missing is ignored.
       db.prepare("UPDATE platform_products SET details=json_set(COALESCE(details,'{}'),'$.promotionPrice',0) WHERE id=?").run(pb);
       db.prepare("UPDATE platform_products SET stock=stock+2 WHERE id=?").run(pb);
+      // Order alerts: Bob's phone subscribes for Bob's shop only; Alice cannot touch it.
+      const phone = { endpoint: "https://push.example.test/bob-phone-1", keys: { p256dh: "B".repeat(87), auth: "a".repeat(22) } };
+      assert.equal((await a.call("/shops/" + bid + "/push/subscribe", "POST", { subscription: phone })).status, 404);
+      assert.equal((await b.call("/shops/" + bid + "/push/subscribe", "POST", { subscription: { endpoint: "http://insecure" } })).status, 400);
+      const sub = await b.call("/shops/" + bid + "/push/subscribe", "POST", { subscription: phone });
+      assert.equal(sub.status, 200);assert.equal(sub.data.count, 1);
+      assert.equal((await b.call("/shops/" + bid + "/push?endpoint=" + encodeURIComponent(phone.endpoint))).data.subscribed, true);
+      assert.equal((await a.call("/shops/" + aid + "/push?endpoint=" + encodeURIComponent(phone.endpoint))).data.subscribed, false);
+      pushed.length = 0;
       const noPromo = await buyer.call("/store/bob-store/orders", "POST", orderForm(pb, 1), { "Idempotency-Key": cryptoKey() });
       assert.equal(noPromo.data.total, 100);
       db.prepare("UPDATE platform_products SET details=json_set(details,'$.promotionPrice',60) WHERE id=?").run(pb);
       const promo = await buyer.call("/store/bob-store/orders", "POST", orderForm(pb, 1), { "Idempotency-Key": cryptoKey() });
       assert.equal(promo.data.total, 60);
+      // Each new order reached Bob's phone, with Bob's shop link and icon (never GearHub's).
+      await new Promise((r) => setTimeout(r, 20));
+      assert.equal(pushed.length, 2);
+      assert.equal(pushed[0].endpoint, phone.endpoint);
+      assert.match(pushed[0].title, /အော်ဒါအသစ်/);assert.match(pushed[0].body, /100 Ks/);assert.match(pushed[1].body, /60 Ks/);
+      assert.equal(pushed[0].url, "/shops/bob-store/admin#orders-content");
+      assert.equal(pushed[0].icon, "/shops/bob-store/app-icon-192.png");
+      const test = await b.call("/shops/" + bid + "/push/test", "POST", {});
+      assert.equal(test.data.sent, 1);
+      assert.equal((await b.call("/shops/" + bid + "/push/unsubscribe", "POST", { endpoint: phone.endpoint })).data.count, 0);
       db.prepare("UPDATE platform_products SET details=json_remove(details,'$.promotionPrice') WHERE id=?").run(pb);
       db.prepare("DELETE FROM platform_orders WHERE id IN (?,?)").run(noPromo.data.id, promo.data.id);
       const s = (await b.call("/shops/" + bid)).data;
