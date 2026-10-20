@@ -14,7 +14,7 @@ async function downloadOfflineCatalog(){
  if(!catalogLoaded)throw new Error("ပစ္စည်းစာရင်း မရသေးပါ။ Internet ချိတ်ပြီး ပြန်ဖွင့်ပေးပါ။");
  localStorage.setItem(storefrontKey("gh-offline-catalog"),JSON.stringify({products,categories,config}));
  if(!("serviceWorker" in navigator))throw new Error("ဒီ browser မှာ offline မရနိုင်ပါ။");
- const registration=await navigator.serviceWorker.register("/sw.js",{updateViaCache:"none"});
+ const registration=await navigator.serviceWorker.register((location.pathname.match(/^\/shops\/[a-z0-9-]+\//)||["/"])[0]+"sw.js",{updateViaCache:"none"});
  await registration.update();
  const pending=registration.installing||registration.waiting;
  if(pending&&pending.state!=="activated")await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error("App update မပြီးသေးပါ။ ပြန်ကြိုးစားပါ။")),30000);pending.addEventListener("statechange",()=>{if(pending.state==="activated"){clearTimeout(timer);resolve()}else if(pending.state==="redundant"){clearTimeout(timer);reject(new Error("App update မအောင်မြင်ပါ။"))}})});

@@ -2,6 +2,9 @@
    bell (badge + sound), the offline notice and offline page caching. */
 (()=>{
  const $=id=>document.getElementById(id);
+ // Each seller shop has its own service worker (/shops/<slug>/sw.js), so Android shows
+ // its alerts as that shop's app (name + icon), not as Chrome or GearHub.
+ const SW_URL=(location.pathname.match(/^\/shops\/[a-z0-9-]+\//)||["/"])[0]+"sw.js",SHOP_SCOPE=SW_URL!=="/sw.js";
  const scope="gh-admin-bell:"+location.pathname;
  const money=n=>new Intl.NumberFormat("en-US").format(Math.round(Number(n)||0))+" Ks";
  const monthOf=v=>String(v||"").slice(0,7);
@@ -107,7 +110,7 @@
  document.getElementById("dashboard")?.prepend(bar);
 
  // Keep the admin page itself available offline (GearHub and seller admins).
- if("serviceWorker" in navigator&&window.isSecureContext)navigator.serviceWorker.register("/sw.js",{updateViaCache:"none"}).catch(()=>{});
+ if("serviceWorker" in navigator&&window.isSecureContext)navigator.serviceWorker.register(SW_URL,{updateViaCache:"none"}).catch(()=>{});
 
  // Top-right avatar shows the store's own logo (person icon when there is none).
  function setLogo(url){const box=document.querySelector(".admin-user-avatar");if(!box)return;box.querySelector("img")?.remove();
@@ -121,7 +124,7 @@
  const standalone=()=>window.matchMedia?.("(display-mode: standalone)").matches||navigator.standalone===true;
  function keyBytes(key){const raw=atob((key+"=".repeat((4-key.length%4)%4)).replace(/-/g,"+").replace(/_/g,"/"));return Uint8Array.from(raw,c=>c.charCodeAt(0));}
  async function pushApi(path,body){const r=await adminFetch("/api/admin/push"+path,body?{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}:{});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Request failed");return d;}
- async function pushRegistration(){await navigator.serviceWorker.register("/sw.js",{updateViaCache:"none"}).catch(()=>{});return navigator.serviceWorker.ready;}
+ async function pushRegistration(){await navigator.serviceWorker.register(SW_URL,{updateViaCache:"none"}).catch(()=>{});return navigator.serviceWorker.ready;}
  function alertsCard(){
   let card=$("order-alerts-card");if(card)return card;const kpis=$("admin-kpis");if(!kpis)return null;
   card=document.createElement("section");card.id="order-alerts-card";card.className="order-alerts-card";card.setAttribute("aria-live","polite");kpis.after(card);
@@ -139,10 +142,24 @@
   card.innerHTML='<div class="order-alerts-text">'+title+'<span class="order-alerts-status">'+status+'</span>'+(note?'<span class="order-alerts-note">'+note+'</span>':"")+info+'</div><div class="order-alerts-actions">'+buttons+'</div>';
  }
  async function currentSubscription(){const reg=await pushRegistration();return reg.pushManager.getSubscription();}
+ // Phones that turned alerts on before shops had their own service worker: move this shop's
+ // alert to the shop's own worker (new one first, then drop the old), no tap needed.
+ async function moveOldShopAlert(){
+  if(!SHOP_SCOPE||Notification.permission!=="granted")return;
+  const old=await navigator.serviceWorker.getRegistration("/");if(!old||new URL(old.scope).pathname!=="/")return;
+  const oldSub=await old.pushManager?.getSubscription();if(!oldSub)return;
+  const mine=await pushApi("?endpoint="+encodeURIComponent(oldSub.endpoint)).catch(()=>null);if(!mine?.subscribed)return;
+  const reg=await pushRegistration();if(!reg||reg.scope===old.scope)return;
+  let sub=await reg.pushManager.getSubscription();
+  if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:keyBytes(mine.publicKey)});
+  await pushApi("/subscribe",{subscription:sub.toJSON()});
+  await pushApi("/unsubscribe",{endpoint:oldSub.endpoint}).catch(()=>{});await oldSub.unsubscribe().catch(()=>{});
+ }
  async function refreshAlerts(){
   if(!("serviceWorker" in navigator)||!("PushManager" in window)||!window.Notification||!window.isSecureContext)return renderAlerts(isIOS&&!standalone()?"ios":"unsupported");
   if(isIOS&&!standalone())return renderAlerts("ios");
   if(Notification.permission==="denied")return renderAlerts("denied");
+  try{await moveOldShopAlert();}catch{}
   try{const sub=await currentSubscription();const s=await pushApi(sub?"?endpoint="+encodeURIComponent(sub.endpoint):"");alertsInfo=s;renderAlerts(sub&&s.subscribed?"on":"off");}catch{renderAlerts("off");}
  }
  async function alertsAction(action,button){

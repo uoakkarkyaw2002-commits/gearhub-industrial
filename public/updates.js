@@ -163,7 +163,7 @@
     restore();
     if ("serviceWorker" in navigator && isSecureContext) {
       try {
-        registration = await navigator.serviceWorker.register("/sw.js", {
+        registration = await navigator.serviceWorker.register((location.pathname.match(/^\/shops\/[a-z0-9-]+\//)||["/"])[0]+"sw.js", {
           updateViaCache: "none",
         });
         registration.addEventListener("updatefound", () => {
