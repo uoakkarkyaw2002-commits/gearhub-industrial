@@ -1,57 +1,41 @@
-/* One order card combines customer, products, payment, status and notes. */
+/* Orders are shown first as compact invoice cards; selecting one opens its full detail. */
 (function(){
- const esc=value=>String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&quot;","'":"&#39;"}[char]));
+ const esc=value=>String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
  const money=value=>new Intl.NumberFormat("en-US").format(Number(value)||0)+" Ks";
  const stamp=value=>{if(!value)return"—";const date=new Date(value);return Number.isNaN(date.getTime())?esc(value):date.toLocaleString("en-GB",{year:"numeric",month:"short",day:"2-digit",hour:"2-digit",minute:"2-digit"})};
- const statusLabel=value=>({pending:"Pending",confirmed:"Confirmed",processing:"Processing",shipped:"Shipped",completed:"Completed",cancelled:"Cancelled",paid:"Paid",rejected:"Rejected"})[value]||String(value||"—");
+ const label=value=>({pending:"Pending",confirmed:"Confirmed",processing:"Processing",shipped:"Shipped",completed:"Completed",cancelled:"Cancelled",paid:"Paid",rejected:"Rejected"})[value]||String(value||"—");
  const receiptFor=order=>window.GearHubTenantAdmin?.receipt(order)||"/api/admin/orders/"+encodeURIComponent(order.id)+"/receipt";
- async function request(url,options={}) {
-  if(typeof window.adminFetch==="function")return window.adminFetch(url,options);
-  return fetch(url,{...options,credentials:"same-origin"});
+ const request=(url,options={})=>typeof window.adminFetch==="function"?window.adminFetch(url,options):fetch(url,{...options,credentials:"same-origin"});
+ const statusOptions=(values,current)=>values.map(value=>'<option value="'+value+'" '+(value===current?"selected":"")+">"+label(value)+"</option>").join("");
+ const photo=item=>{const urls=Array.isArray(item.imageUrls)?item.imageUrls:[];const src=urls.find(value=>typeof value==="string"&&value.trim());return src?'<img src="'+esc(src)+'" alt="" loading="lazy">':'<span aria-hidden="true">'+esc(item.imageEmoji||"⚙️")+"</span>"};
+ const calendar='<svg class="order-invoice-calendar" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7.5 3.5v4M16.5 3.5v4M3.5 10h17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+ const icon={receipt:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18H6z" fill="currentColor"/><path d="M9 8h6M9 12h6M9 16h4" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg>',save:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h12l3 3v15H4V3z" fill="currentColor"/><path d="M8 3v6h8V3M8 15h8v5H8z" fill="none" stroke="#fff" stroke-width="1.7"/></svg>',edit:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 17 1 3 3-1L19 8l-4-4zM14 5l4 4" fill="currentColor"/></svg>',delete:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7h8l-1 13H9L8 7Zm-2-3h12m-8 0V2h4v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'};
+ const count=order=>(order.items||[]).reduce((total,item)=>total+(Number(item.quantity)||0),0);
+ function listCard(order){
+  const headline="Invoice No",number=order.invoice_no||order.order_code;
+  return '<button type="button" class="order-invoice-card status-'+esc(order.status)+'" data-order-open="'+Number(order.id)+'">'
+   +'<span class="order-invoice-photos">'+(order.items||[]).slice(0,3).map(item=>'<i>'+photo(item)+"</i>").join("")+"</span>"
+   +'<span class="order-invoice-meta"><small>'+headline+'</small><strong>'+esc(number)+'</strong><small>▣ &nbsp;'+stamp(order.created_at)+"</small></span>"
+   +'<i class="order-invoice-rule" aria-hidden="true"></i><span class="order-invoice-total"><small>Total amount</small><strong>'+money(order.total)+'</strong><em>'+esc(label(order.status))+" · "+esc(label(order.payment_status))+"</em></span></button>";
  }
- function options(values,current){return values.map(value=>'<option value="'+value+'" '+(value===current?"selected":"")+">"+statusLabel(value)+"</option>").join("")}
  function itemMarkup(item,index){
   const quantity=Number(item.quantity)||0,unit=Number(item.unitPrice)||0,total=Number(item.lineTotal)||unit*quantity;
-  return '<li class="order-detail-item"><div class="order-detail-item-icon" aria-hidden="true">⚙</div><div class="order-detail-item-copy"><b>'+esc((index+1)+". "+(item.nameEn||item.name_en||"Product"))+'</b><small>SKU: '+esc(item.sku||"—")+'</small><small>Part No: '+esc(item.partNo||item.sku||"—")+'</small></div><div class="order-detail-quantity"><small>Qty</small><b>'+quantity+'</b><small>Unit: '+money(unit)+'</small></div><div class="order-detail-line-total"><small>Amount</small><b>'+money(total)+'</b></div></li>';
+  return '<li class="order-page-item"><span class="order-page-photo">'+photo(item)+'</span><span class="order-page-copy"><b>'+esc((index+1)+". "+(item.nameEn||item.name_en||"Product"))+'</b><small>Part No : '+esc(item.partNo||item.sku||"—")+'</small><small>SKU : '+esc(item.sku||"—")+'</small></span><span class="order-page-quantity"><small>Qty : <b>'+quantity+'</b></small><small>Unit : PC</small><small>Unit price : '+money(unit)+'</small></span><span class="order-page-amount"><small>Amount</small><b>'+money(total)+'</b></span></li>';
  }
- function card(order){
-  const receipt=order.hasReceipt?'<a class="order-detail-receipt" href="'+esc(receiptFor(order))+'" target="_blank" rel="noopener">▤ View payment receipt</a>':'<span class="order-detail-no-receipt">No payment receipt uploaded</span>';
-  const itemCount=(order.items||[]).reduce((sum,item)=>sum+(Number(item.quantity)||0),0);
-  return '<article class="order-detail-card" data-order-detail-id="'+Number(order.id)+'">'
-   +'<header class="order-detail-header"><div><small>Order detail</small><h3>'+esc(order.order_code||("Order #"+order.id))+'</h3></div><span class="order-detail-badge status-'+esc(order.status)+'">'+esc(statusLabel(order.status))+'</span></header>'
-   +'<section class="order-detail-customer"><div><span aria-hidden="true">●</span><b>'+esc(order.customer_name||"—")+'</b></div><div><span aria-hidden="true">☎</span><a href="tel:'+esc(order.phone||"")+'">'+esc(order.phone||"—")+'</a></div><div><span aria-hidden="true">⌖</span><p>'+esc(order.address||"—")+'</p></div><dl><div><dt>Order date</dt><dd>'+stamp(order.created_at)+'</dd></div><div><dt>Order status</dt><dd><span class="order-detail-inline-badge">'+esc(statusLabel(order.status))+'</span></dd></div><div><dt>Payment</dt><dd><span class="order-detail-inline-badge">'+esc(statusLabel(order.payment_status))+'</span></dd></div><div><dt>Confirm date</dt><dd>'+esc(order.confirmation_date||"—")+'</dd></div></dl></section>'
-   +'<section class="order-detail-items"><div class="order-detail-section-title"><h4>Items <span>('+itemCount+')</span></h4><span>🛒 '+itemCount+'</span></div><ol>'+((order.items||[]).map(itemMarkup).join("")||'<li class="order-detail-empty">No items found.</li>')+'</ol><div class="order-detail-total"><span>Total items <b>'+itemCount+'</b></span><strong>Total amount <b>'+money(order.total)+'</b></strong></div></section>'
-   +'<section class="order-detail-payment"><h4>Payment information</h4><dl><div><dt>Payment method</dt><dd>'+esc(order.payment_method||"—")+'</dd></div><div><dt>Reference</dt><dd>'+esc(order.payment_reference||"—")+'</dd></div><div><dt>Payment date</dt><dd>'+stamp(order.created_at)+'</dd></div></dl>'+receipt+'</section>'
-   +'<form class="order-detail-update"><h4>Order & payment status</h4><label>Order status<select name="status">'+options(["pending","confirmed","processing","shipped","completed","cancelled"],order.status)+'</select></label><label>Payment<select name="paymentStatus">'+options(["pending","paid","rejected"],order.payment_status)+'</select></label><label>Confirm date<input name="confirmationDate" type="date" value="'+esc(order.confirmation_date||"")+'"></label><label class="order-detail-note">Admin note<input name="adminNote" maxlength="500" value="'+esc(order.admin_note||"")+'" placeholder="Admin note"></label><button type="submit" class="primary">Save changes</button><p class="order-detail-message" role="status"></p></form>'
-   +'</article>';
+ function detail(order){
+  const qty=count(order),receipt=order.hasReceipt?'<a class="order-page-receipt" href="'+esc(receiptFor(order))+'" target="_blank" rel="noopener">▤ &nbsp;View payment receipt</a>':'<span class="order-page-no-receipt">No payment receipt uploaded</span>';
+  return '<section class="order-page" data-order-id="'+Number(order.id)+'"><header class="order-page-head"><button type="button" data-order-back aria-label="Back to orders">‹</button><h2>Order Detail</h2><span class="order-page-status status-'+esc(order.status)+'">'+esc(label(order.status))+'</span></header>'
+   +'<p class="order-page-code">'+esc(order.invoice_no||order.order_code)+'</p>'
+   +'<section class="order-page-customer"><div class="order-page-person"><strong>● &nbsp;'+esc(order.customer_name||"—")+'</strong><span>☎ &nbsp;'+esc(order.phone||"—")+'</span><span>⌖ &nbsp;'+esc(order.address||"—")+'</span></div><div class="order-page-facts"><p><span>Order date</span><i>:</i><b>'+stamp(order.created_at)+'</b></p><p><span>Order status</span><i>:</i><b>'+esc(label(order.status))+'</b></p><p><span>Payment</span><i>:</i><b>'+esc(label(order.payment_status))+'</b></p><p><span>Confirm date</span><i>:</i><b>'+esc(order.confirmation_date||"—")+'</b></p></div></section>'
+   +'<section class="order-page-items"><div class="order-page-section-head"><h3>Items ('+qty+')</h3><span>🛒 '+qty+'</span></div><ol>'+((order.items||[]).map(itemMarkup).join("")||'<li class="order-page-empty">No items found.</li>')+'</ol><div class="order-page-total"><span>Total items : <b>'+qty+'</b></span><span>Total Amount <b>'+money(order.total)+'</b></span></div></section>'
+   +'<form class="order-page-form"><div class="order-page-form-fields"><label>Order status<select name="status">'+statusOptions(["pending","confirmed","processing","shipped","completed","cancelled"],order.status)+'</select></label><label>Payment<select name="paymentStatus">'+statusOptions(["pending","paid","rejected"],order.payment_status)+'</select></label><label>Confirm date<input type="date" name="confirmationDate" value="'+esc(order.confirmation_date||"")+'"></label><label>Admin note<input name="adminNote" maxlength="500" value="'+esc(order.admin_note||"")+'" placeholder="Admin note"></label></div><div class="order-page-actions"><a class="order-page-action receipt" '+(order.hasReceipt?'href="'+esc(receiptFor(order))+'" target="_blank" rel="noopener"':'aria-disabled="true"')+' >'+icon.receipt+'<span>View Received</span></a><button type="submit">'+icon.save+'<span>Save</span></button><button type="button" data-order-edit>'+icon.edit+'<span>Edit</span></button><button type="button" class="order-page-delete" data-order-delete>'+icon.delete+'<span>Delete</span></button></div><p class="order-page-message" role="status"></p></form>'
+   +'<section class="order-page-payment"><div><h3>Payment Information</h3><p>Payment method : '+esc(order.payment_method||"—")+'</p><p>Payment date : '+stamp(order.created_at)+'</p><p>Ref : '+esc(order.payment_reference||"—")+'</p></div>'+receipt+'</section></section>';
  }
- let inFlight=false;
+ let selected=null,orders=[],loading=false;
  async function render(){
-  const host=document.getElementById("orders-table");if(!host||inFlight||host.querySelector(".order-detail-list"))return;
-  inFlight=true;
-  try{
-   const response=await request("/api/admin/orders");if(!response.ok)return;
-   const orders=await response.json();
-   host.innerHTML='<div class="order-detail-list">'+(orders.length?orders.map(card).join(""):'<p class="order-detail-empty">No orders yet.</p>')+'</div>';
-  }catch{}finally{inFlight=false}
+  const host=document.getElementById("orders-table");if(!host||loading)return;loading=true;
+  try{const response=await request("/api/admin/orders");if(!response.ok)throw Error();orders=await response.json();const active=orders.find(order=>Number(order.id)===Number(selected));if(selected&&!active)selected=null;host.innerHTML=selected&&active?detail(active):'<div class="order-invoice-list">'+(orders.length?orders.map(listCard).join(""):'<p class="order-page-empty">No orders yet.</p>')+'</div>'}catch{host.innerHTML='<p class="order-page-empty">Could not load orders.</p>'}finally{loading=false}
  }
- function observe(){
-  const host=document.getElementById("orders-table");if(!host)return;
-  new MutationObserver(()=>{if(!host.querySelector(".order-detail-list"))queueMicrotask(render)}).observe(host,{childList:true});
-  render();
-  host.addEventListener("submit",async event=>{
-   const form=event.target.closest(".order-detail-update");if(!form)return;
-   event.preventDefault();const card=form.closest("[data-order-detail-id]"),id=Number(card?.dataset.orderDetailId);if(!id)return;
-   const button=form.querySelector("button[type=submit]"),message=form.querySelector(".order-detail-message");
-   button.disabled=true;message.textContent="";
-   try{
-    const payload=Object.fromEntries(new FormData(form));
-    const response=await request("/api/admin/orders/"+id,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
-    const data=await response.json().catch(()=>({}));if(!response.ok)throw Error(data.error||"Could not save this order.");
-    message.textContent="Saved.";await render();
-    window.refreshAll?.();
-   }catch(error){message.textContent=error.message||"Could not save this order."}finally{button.disabled=false}
-  });
- }
+ function observe(){const host=document.getElementById("orders-table");if(!host)return;render();host.addEventListener("click",event=>{const open=event.target.closest("[data-order-open]");if(open){selected=Number(open.dataset.orderOpen);render();return}if(event.target.closest("[data-order-back]")){selected=null;render();return}const edit=event.target.closest("[data-order-edit]");if(edit){const form=edit.closest(".order-page-form");form.classList.toggle("is-editing");form.querySelector("select")?.focus();return}const remove=event.target.closest("[data-order-delete]");if(remove){const message=remove.closest(".order-page-form").querySelector(".order-page-message");message.textContent="Cancel the order first before deleting it.";}});host.addEventListener("submit",async event=>{const form=event.target.closest(".order-page-form");if(!form)return;event.preventDefault();const card=form.closest("[data-order-id]"),id=Number(card?.dataset.orderId),button=form.querySelector("button[type=submit]"),message=form.querySelector(".order-page-message");if(!id)return;button.disabled=true;message.textContent="";try{const response=await request("/api/admin/orders/"+id,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.fromEntries(new FormData(form)))}),data=await response.json().catch(()=>({}));if(!response.ok)throw Error(data.error||"Could not save this order.");message.textContent="Saved.";await render();window.refreshAll?.()}catch(error){message.textContent=error.message||"Could not save this order."}finally{button.disabled=false}});new MutationObserver(()=>{if(!loading&&!host.querySelector(".order-invoice-list,.order-page"))queueMicrotask(render)}).observe(host,{childList:true});}
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",observe);else observe();
 })();
