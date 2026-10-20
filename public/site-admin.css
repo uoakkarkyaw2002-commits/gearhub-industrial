@@ -480,3 +480,11 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
  .inventory-total-card small{font-size:7.5px}
  .inventory-search-label .inventory-filter-wrap select{font-size:10px!important;padding-left:29px!important;padding-right:14px!important}
 }
+
+/* Let the mobile inventory area use the available screen width */
+@media(max-width:800px){
+ .admin-page .inventory-panel{box-sizing:border-box;width:calc(100% + 16px);margin-left:-8px;margin-right:-8px;padding:14px}
+}
+@media(max-width:600px){
+ .admin-page .inventory-panel{width:calc(100% + 20px);margin-left:-10px;margin-right:-10px;padding:10px}
+}
