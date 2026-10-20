@@ -375,3 +375,24 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
 
 /* Desktop invoice list: mirror the three-photo, centred metadata and total columns. */
 @media(min-width:701px){.order-invoice-list{gap:12px}.order-invoice-card{grid-template-columns:282px 400px 1px minmax(245px,1fr);gap:22px;min-height:114px;padding:16px 30px;border-radius:15px}.order-invoice-photos{gap:12px}.order-invoice-photos i{width:76px;height:76px;border-radius:8px;font-size:38px}.order-invoice-meta strong{font-size:25px;line-height:1.03}.order-invoice-meta small,.order-invoice-total small{font-size:16px}.order-invoice-rule{height:64px}.order-invoice-total strong{font-size:32px}.order-invoice-total em{display:none}}
+
+/* Phone order detail: keep all four item columns readable without overlap. */
+@media(max-width:700px){
+ .order-page-item{grid-template-columns:84px minmax(0,1fr) 72px 104px;gap:6px;min-height:108px;padding:9px}
+ .order-page-photo{width:78px;height:78px;font-size:36px}
+ .order-page-copy{min-width:0}
+ .order-page-copy b{font-size:14px;line-height:1.22;overflow-wrap:anywhere}
+ .order-page-copy small{font-size:11px;line-height:1.25;overflow-wrap:anywhere}
+ .order-page-quantity{min-width:0;padding-left:6px}
+ .order-page-quantity small{font-size:11px;line-height:1.25;margin:4px 0;overflow-wrap:anywhere}
+ .order-page-amount{min-width:0;padding:9px 6px;font-size:11px}
+ .order-page-amount b{font-size:14px;line-height:1.2;white-space:normal;overflow-wrap:anywhere}
+}
+@media(max-width:420px){
+ .order-page-item{grid-template-columns:72px minmax(0,1fr) 62px 88px;gap:4px;padding:7px}
+ .order-page-photo{width:66px;height:66px;font-size:30px}
+ .order-page-copy b{font-size:13px}
+ .order-page-copy small,.order-page-quantity small{font-size:10px}
+ .order-page-amount{padding:7px 5px}
+ .order-page-amount b{font-size:13px}
+}
