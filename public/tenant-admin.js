@@ -101,6 +101,8 @@
     if(suffix==='/uploads'&&method==='POST'){
      const urls=[];for(const f of options.body.getAll('images')){const form=new FormData();form.append('file',f);const r=await call('/files',{method:'POST',body:form});const d=await r.json();if(!r.ok)return json(d,r.status);urls.push('/api/platform/images/'+d.id);}return json({imageUrls:urls});
     }
+    // Order alerts on this phone go to this shop only.
+    if(/^\/push(?:\/(?:subscribe|unsubscribe|test))?(?:\?.*)?$/.test(suffix))return await call(suffix,options);
     return json({error:'This operation is reserved for the platform administrator.'},403);
    }catch(e){return json({error:e.message},/failed to fetch|network|load failed/i.test(e.message)?503:401);}finally{if(method!=='GET')window.__gearhubPlatformPending=false;}
   }

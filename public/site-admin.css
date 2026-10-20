@@ -352,3 +352,12 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
 .image-fit-actions{display:flex;justify-content:flex-end;gap:10px}
 .image-fit-actions button{min-height:44px;padding:0 18px;white-space:nowrap}
 @media(max-width:600px){.image-fit-dialog form{padding:12px;gap:10px}.image-fit-modes{flex-wrap:nowrap;gap:6px}.image-fit-modes button{flex:1 1 0;min-width:0;padding:6px 4px;font-size:13px}.image-fit-modes button small{display:none}.image-fit-actions button{flex:1;padding:0 10px}}
+/* Order alerts on this phone (push notifications). */
+.order-alerts-card{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:14px 0;padding:14px 16px;border:1px solid #d9e6dc;border-radius:16px;background:linear-gradient(120deg,#f6fbf7,#eef6ff)}
+.order-alerts-card.is-on{border-color:#9fd3ae;background:linear-gradient(120deg,#effaf2,#f3fbf5)}
+.order-alerts-text{display:grid;gap:3px;min-width:0;flex:1 1 260px}
+.order-alerts-text strong{font-size:15px;color:#183426}.order-alerts-text small{color:#5d6c62}
+.order-alerts-status{font-size:13px;font-weight:600;color:#245a35}.order-alerts-note{font-size:13px;color:#3d5145}
+.order-alerts-actions{display:flex;gap:8px;flex-wrap:wrap}
+.order-alerts-actions button{min-height:42px;padding:0 16px;white-space:nowrap}
+@media(max-width:600px){.order-alerts-actions{width:100%}.order-alerts-actions button{flex:1}}

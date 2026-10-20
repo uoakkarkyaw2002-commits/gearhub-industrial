@@ -104,6 +104,54 @@
  function setLogo(url){const box=document.querySelector(".admin-user-avatar");if(!box)return;box.querySelector("img")?.remove();
   if(!url||!/^(\/|https:\/\/)/.test(String(url))){box.classList.remove("has-logo");return;}
   const img=document.createElement("img");img.alt="";img.src=url;img.addEventListener("error",()=>{img.remove();box.classList.remove("has-logo");});box.append(img);box.classList.add("has-logo");}
- window.GearHubAdminExtras={update(summary,orders,products){renderKpis(summary,orders,products);updateBell(orders);},setLogo,chime};
+ // ---- Order alerts on this phone: push notifications, heard even when the phone is
+ // locked or the admin app is closed. Each store (GearHub or a seller shop) has its own.
+ let alertsReady=false;
+ const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent||"")||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+ const standalone=()=>window.matchMedia?.("(display-mode: standalone)").matches||navigator.standalone===true;
+ function keyBytes(key){const raw=atob((key+"=".repeat((4-key.length%4)%4)).replace(/-/g,"+").replace(/_/g,"/"));return Uint8Array.from(raw,c=>c.charCodeAt(0));}
+ async function pushApi(path,body){const r=await adminFetch("/api/admin/push"+path,body?{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}:{});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Request failed");return d;}
+ async function pushRegistration(){await navigator.serviceWorker.register("/sw.js",{updateViaCache:"none"}).catch(()=>{});return navigator.serviceWorker.ready;}
+ function alertsCard(){
+  let card=$("order-alerts-card");if(card)return card;const kpis=$("admin-kpis");if(!kpis)return null;
+  card=document.createElement("section");card.id="order-alerts-card";card.className="order-alerts-card";card.setAttribute("aria-live","polite");kpis.after(card);
+  card.addEventListener("click",e=>{const b=e.target.closest("[data-alerts]");if(b)alertsAction(b.dataset.alerts,b);});return card;
+ }
+ function renderAlerts(state,note=""){
+  const card=alertsCard();if(!card)return;
+  const on=state==="on",title='<strong>📲 ဖုန်း lock ထားလည်း အော်ဒါအသစ် သတိပေးမယ်</strong><small>Order alerts on this phone — even when it is locked</small>';
+  const buttons=state==="on"?'<button type="button" class="secondary" data-alerts="test">🔔 စမ်းပို့မယ် / Test</button><button type="button" class="secondary" data-alerts="off">ပိတ်မယ် / Turn off</button>'
+   :state==="off"?'<button type="button" class="primary" data-alerts="on">ဖွင့်မယ် / Turn on</button>':"";
+  const status={on:"✅ ဖွင့်ထားပါတယ် / On",off:"ပိတ်ထားပါတယ် / Off",ios:"iPhone: Safari ရဲ့ Share ⬆︎ → Add to Home Screen လုပ်ပြီး Home Screen က icon ကနေ ဖွင့်မှ ရပါမယ်။ / Add this admin to the Home Screen first, then open it from the icon.",unsupported:"ဒီ browser မှာ မရပါ။ Chrome (Android) သို့မဟုတ် Home Screen app (iPhone) ကို သုံးပါ။ / Not supported in this browser.",denied:"Notification ခွင့်ပိတ်ထားပါတယ်။ ဖုန်း Settings → Notifications မှာ ခွင့်ပြုပြီး ပြန်နှိပ်ပါ။ / Notifications are blocked in phone settings.",busy:"…"}[state]||"";
+  card.className="order-alerts-card"+(on?" is-on":"");
+  card.innerHTML='<div class="order-alerts-text">'+title+'<span class="order-alerts-status">'+status+'</span>'+(note?'<span class="order-alerts-note">'+note+'</span>':"")+'</div><div class="order-alerts-actions">'+buttons+'</div>';
+ }
+ async function currentSubscription(){const reg=await pushRegistration();return reg.pushManager.getSubscription();}
+ async function refreshAlerts(){
+  if(!("serviceWorker" in navigator)||!("PushManager" in window)||!window.Notification||!window.isSecureContext)return renderAlerts(isIOS&&!standalone()?"ios":"unsupported");
+  if(isIOS&&!standalone())return renderAlerts("ios");
+  if(Notification.permission==="denied")return renderAlerts("denied");
+  try{const sub=await currentSubscription();if(!sub)return renderAlerts("off");const s=await pushApi("?endpoint="+encodeURIComponent(sub.endpoint));renderAlerts(s.subscribed?"on":"off");}catch{renderAlerts("off");}
+ }
+ async function alertsAction(action,button){
+  button.disabled=true;
+  try{
+   if(action==="on"){
+    const permission=await Notification.requestPermission();if(permission!=="granted")return renderAlerts(permission==="denied"?"denied":"off","ခွင့်မပြုရသေးပါ / Permission not given.");
+    const {publicKey}=await pushApi("");const reg=await pushRegistration();let sub=await reg.pushManager.getSubscription();
+    const key=keyBytes(publicKey);if(sub&&sub.options?.applicationServerKey){const old=new Uint8Array(sub.options.applicationServerKey);if(old.length!==key.length||old.some((v,i)=>v!==key[i])){await sub.unsubscribe();sub=null;}}
+    sub=sub||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:key});
+    await pushApi("/subscribe",{subscription:sub.toJSON()});renderAlerts("on","အော်ဒါအသစ်ဝင်ရင် ဒီဖုန်းကို အသိပေးပါမယ်။ 🔔 စမ်းပို့မယ် ကိုနှိပ်ပြီး စမ်းကြည့်ပါ။ / Tap Test to try it.");
+   }else if(action==="off"){
+    const sub=await currentSubscription();if(sub){await pushApi("/unsubscribe",{endpoint:sub.endpoint}).catch(()=>{});await sub.unsubscribe().catch(()=>{});}renderAlerts("off");
+   }else if(action==="test"){
+    const {sent}=await pushApi("/test",{});renderAlerts("on",sent?"စမ်းသတိပေးချက် ပို့ပြီးပါပြီ — ဖုန်းကို စစ်ကြည့်ပါ / Test sent to "+sent+" phone(s).":"ပို့လို့မရပါ — ပိတ်ပြီး ပြန်ဖွင့်ကြည့်ပါ / Could not reach this phone; turn alerts off and on again.");
+   }
+  }catch(e){renderAlerts("off","မအောင်မြင်ပါ / "+(e.message||"Failed"));}
+  finally{button.disabled=false;}
+ }
+ function initAlerts(){if(alertsReady)return;alertsReady=true;if(typeof adminFetch!=="function")return;renderAlerts("busy");refreshAlerts();}
+
+ window.GearHubAdminExtras={update(summary,orders,products){renderKpis(summary,orders,products);updateBell(orders);initAlerts();},setLogo,chime};
  if(window.__gearhubAdminLogo)setLogo(window.__gearhubAdminLogo);
 })();

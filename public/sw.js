@@ -1,4 +1,4 @@
-const CACHE_NAME = "gearhub-shell-v85-1.1.53";
+const CACHE_NAME = "gearhub-shell-v85-1.1.54";
 const SHELL = ["/category-browser.js?v=20261017-speed-1","/tenant-store.js?v=20261019-brand-1","/updates.js?v=20261018-refresh-1","/desktop.css?v=20261018-promo-2","/","/style.css?v=20261020-phonenav-1","/site-content.js?v=20261018-share-2","/store.js?v=20261020-phonenav-1","/app-install.js?v=20261018-refresh-1","/settings.js?v=20261018-qrlazy-1","/back-nav.js?v=20261020-back-1","/dialogs.js?v=20261017-share-1","/footer.js?v=20261012-1","/images/hero-excavator.jpg","/app.webmanifest","/app-icon.png","/icons/icon.svg","/icons/apple-touch-icon.png","/qrcode.js?v=1.4.4"];
 const ADMIN_CACHE="gearhub-admin-v1",IMAGE_CACHE="gearhub-img-v1";
 const shopPath=pathname=>{const m=pathname.match(/^\/shops\/([a-z0-9-]+)(?:\/|$)/);return m?'/shops/'+m[1]+'/':null;};
@@ -71,4 +71,32 @@ self.addEventListener("message", event => {
    event.ports[0]?.postMessage({ok:failures===0,error:failures?"ပုံအချို့ သိမ်းမရသေးပါ။ Internet ချိတ်ပြီး Offline mode ကို ပြန်ဖွင့်ပေးပါ။":null});
   }catch(_){event.ports[0]?.postMessage({ok:false,error:"Offline သိမ်းမရပါ။ ဖုန်း storage နဲ့ internet ကို စစ်ပေးပါ။"});}
  })());
+});
+
+// New-order alerts from the server (GearHub or a seller shop admin). Shown even when
+// the phone is locked; tapping it opens that store's orders.
+self.addEventListener("push", event => {
+  let data = {};
+  try { data = event.data ? event.data.json() : {}; } catch { data = { body: event.data && event.data.text() }; }
+  const title = data.title || "🔔 New order";
+  event.waitUntil(self.registration.showNotification(title, {
+    body: data.body || "",
+    icon: data.icon || "/app-icon.png",
+    badge: data.icon || "/app-icon.png",
+    tag: data.tag || "gearhub-order",
+    renotify: true,
+    requireInteraction: false,
+    vibrate: [200, 100, 200],
+    data: { url: data.url || "/admin.html#orders-content" }
+  }));
+});
+self.addEventListener("notificationclick", event => {
+  event.notification.close();
+  const target = new URL(event.notification.data?.url || "/admin.html", self.location.origin);
+  if (target.origin !== self.location.origin) return;
+  event.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
+    const same = list.find(c => new URL(c.url).pathname === target.pathname);
+    if (same) return same.focus().then(c => (c && "navigate" in c ? c.navigate(target.href) : c)).catch(() => same.focus());
+    return self.clients.openWindow(target.href);
+  }));
 });
