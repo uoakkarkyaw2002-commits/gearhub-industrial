@@ -1,5 +1,5 @@
-const CACHE_NAME = "gearhub-shell-v85-1.1.51";
-const SHELL = ["/category-browser.js?v=20261017-speed-1","/tenant-store.js?v=20261019-brand-1","/updates.js?v=20261018-refresh-1","/desktop.css?v=20261018-promo-2","/","/style.css?v=20261020-cartimages-1","/site-content.js?v=20261018-share-2","/store.js?v=20261020-photos-1","/app-install.js?v=20261018-refresh-1","/settings.js?v=20261018-qrlazy-1","/dialogs.js?v=20261017-share-1","/footer.js?v=20261012-1","/images/hero-excavator.jpg","/app.webmanifest","/app-icon.png","/icons/icon.svg","/icons/apple-touch-icon.png","/qrcode.js?v=1.4.4"];
+const CACHE_NAME = "gearhub-shell-v85-1.1.52";
+const SHELL = ["/category-browser.js?v=20261017-speed-1","/tenant-store.js?v=20261019-brand-1","/updates.js?v=20261018-refresh-1","/desktop.css?v=20261018-promo-2","/","/style.css?v=20261020-phonenav-1","/site-content.js?v=20261018-share-2","/store.js?v=20261020-phonenav-1","/app-install.js?v=20261018-refresh-1","/settings.js?v=20261018-qrlazy-1","/back-nav.js?v=20261020-back-1","/dialogs.js?v=20261017-share-1","/footer.js?v=20261012-1","/images/hero-excavator.jpg","/app.webmanifest","/app-icon.png","/icons/icon.svg","/icons/apple-touch-icon.png","/qrcode.js?v=1.4.4"];
 const ADMIN_CACHE="gearhub-admin-v1",IMAGE_CACHE="gearhub-img-v1";
 const shopPath=pathname=>{const m=pathname.match(/^\/shops\/([a-z0-9-]+)(?:\/|$)/);return m?'/shops/'+m[1]+'/':null;};
 const offlineCache=pathname=>'gearhub-offline-v2:'+ (shopPath(pathname)||'root');
