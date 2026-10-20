@@ -461,3 +461,22 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
  .inventory-total-icon{width:29px;height:29px}.inventory-total-card .inventory-count{font-size:23px}.inventory-total-card small{font-size:8px}
  .inventory-filter-wrap>svg{left:8px;width:19px;height:19px}.inventory-search-label .inventory-filter-wrap select{padding-left:31px}
 }
+
+/* Keep inventory filter labels and total label within narrow mobile cards */
+@media(max-width:800px){
+ .inventory-total-card{min-width:118px;padding:9px 10px;column-gap:6px}
+ .inventory-total-card .inventory-count{font-size:27px}
+ .inventory-total-card small{font-size:9px;letter-spacing:-.01em}
+ .inventory-search-label .inventory-filter-wrap select{min-width:0;font-size:12px!important;letter-spacing:-.02em;text-overflow:ellipsis}
+}
+@media(max-width:600px){
+ .inventory-search-label{gap:8px}
+ .inventory-filter-wrap>svg{left:9px;width:21px;height:21px}
+ .inventory-search-label .inventory-filter-wrap select{padding-left:36px!important;padding-right:17px!important;font-size:11px!important}
+}
+@media(max-width:420px){
+ .inventory-total-card{min-width:101px;padding:8px 7px}
+ .inventory-total-card .inventory-count{font-size:21px}
+ .inventory-total-card small{font-size:7.5px}
+ .inventory-search-label .inventory-filter-wrap select{font-size:10px!important;padding-left:29px!important;padding-right:14px!important}
+}
