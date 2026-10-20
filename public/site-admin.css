@@ -396,3 +396,18 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
  .order-page-amount{padding:7px 5px}
  .order-page-amount b{font-size:13px}
 }
+
+/* Very small phones: combine quantity and amount into one readable right column. */
+@media(max-width:480px){
+ .order-page-item{grid-template-columns:84px minmax(0,1fr) 106px;gap:8px;min-height:112px;padding:9px}
+ .order-page-photo{width:78px;height:78px}
+ .order-page-copy{grid-column:2;grid-row:1;min-width:0}
+ .order-page-copy b{font-size:15px;line-height:1.22;overflow-wrap:break-word}
+ .order-page-copy small{font-size:11px;line-height:1.35}
+ .order-page-quantity{grid-column:3;grid-row:1;align-self:start;min-width:0;border:0;padding:0}
+ .order-page-quantity small{font-size:11px;margin:0 0 4px;line-height:1.2}
+ .order-page-quantity small:last-child{display:none}
+ .order-page-amount{grid-column:3;grid-row:1;align-self:end;min-width:0;padding:8px 7px}
+ .order-page-amount small{font-size:10px}
+ .order-page-amount b{font-size:15px;white-space:nowrap}
+}
