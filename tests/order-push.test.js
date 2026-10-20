@@ -39,3 +39,32 @@ test('service worker shows the alert and tapping it opens that store\'s orders',
  assert.match(extras,/Add to Home Screen/);
  assert.match(fs.readFileSync(path.join(__dirname,'..','public','tenant-admin.js'),'utf8'),/\/push\(\?:\\\/\(\?:subscribe\|unsubscribe\|test\)\)\?/);
 });
+
+test('every order is its own alert (no shared topic), the contact is https, and the last result is kept',async()=>{
+ const db=new Database(':memory:'),calls=[];
+ const sender={generateVAPIDKeys:()=>({publicKey:'P'+'x'.repeat(86),privateKey:'k'}),sendNotification:async(sub,payload,opts)=>{calls.push(opts);if(sub.endpoint.endsWith('/down')){const e=new Error('boom');e.statusCode=403;e.body='BadJwtToken';throw e}}};
+ const push=createOrderPush({db,sender,subject:'http://127.0.0.1:8899',log:()=>{}});
+ push.subscribe('main',phone('ok'));push.subscribe('main',phone('down'));
+ for(let i=1;i<=5;i++)await push.notify('main',orderMessage({id:i,code:'GH-'+i,total:1000,customer:'B'+i,url:'/admin.html'}));
+ assert.equal(calls.length,10,'5 orders x 2 phones');
+ assert.ok(calls.every(o=>!('topic' in o)),'no topic: alerts are never merged');
+ assert.ok(calls.every(o=>/^https:\/\//.test(o.vapidDetails.subject)),'an http origin is never used as the contact');
+ const last=push.lastResult('main');assert.equal(last.sent,1);assert.equal(last.failed,1);assert.match(last.error,/403 BadJwtToken/);assert.equal(last.phones,2);
+ assert.equal(orderMessage({id:7,code:'GH-7',total:1}).orderId,7);
+});
+
+test('an open admin is told about the alert; the phone notification always shows',()=>{
+ const sw=fs.readFileSync(path.join(__dirname,'..','public','sw.js'),'utf8');
+ assert.match(sw,/client\.postMessage\(\{ type: "gearhub-order-alert", orderId: data\.orderId \?\? null/);
+ assert.match(sw,/await self\.registration\.showNotification\(title/);
+ const extras=fs.readFileSync(path.join(__dirname,'..','public','admin-extras.js'),'utf8');
+ assert.match(extras,/d\.type!=="gearhub-order-alert"/);assert.match(extras,/function chimeTimes\(n\)/);
+ assert.match(extras,/ဖုန်း "\+Number\(alertsInfo\.count\|\|0\)/,'card shows how many phones and the last result');
+});
+
+test('a phone key that is not a real P-256 public key is refused at subscribe',()=>{
+ const db=new Database(':memory:'),push=createOrderPush({db,sender:fake()});
+ assert.throws(()=>push.subscribe('main',{endpoint:'https://push.example.test/x',keys:{p256dh:'A'.repeat(87),auth:'a'.repeat(22)}}),/not valid/);
+ assert.throws(()=>push.subscribe('main',{endpoint:'https://push.example.test/x',keys:{p256dh:'B'.repeat(87),auth:'a'.repeat(8)}}),/not valid/);
+ assert.deepEqual(push.subscribe('main',phone('ok')),{ok:true});
+});

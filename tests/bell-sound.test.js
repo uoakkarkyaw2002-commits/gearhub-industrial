@@ -12,7 +12,7 @@ function load(){
  const ctx={Audio,Blob:class{constructor(parts,o){this.parts=parts;this.type=o.type}},URL:{createObjectURL:b=>'blob:'+b.type+':'+b.parts[0].byteLength},
   document:{getElementById:el,addEventListener:(t,f)=>(handlers[t]=handlers[t]||[]).push(f),createElement:()=>el('x'+Math.random()),querySelector:()=>null,hidden:false},
   navigator:{onLine:true,audioSession:session,vibrate(){}},localStorage:{getItem:k=>store[k]??null,setItem:(k,v)=>store[k]=String(v)},
-  location:{pathname:'/admin.html'},addEventListener(){},setInterval:(f,ms)=>{ctx.pollEvery=ms},setTimeout:f=>f(),requestAnimationFrame(){},Intl,Date,Map,Set,JSON,Math,Number,String,Promise,ArrayBuffer,DataView,Int16Array,Uint8Array};
+  location:{pathname:'/admin.html'},addEventListener(){},setInterval:(f,ms)=>{ctx.pollEvery=ms},setTimeout:(f)=>{f();return 1},requestAnimationFrame(){},Intl,Date,Map,Set,JSON,Math,Number,String,Promise,ArrayBuffer,DataView,Int16Array,Uint8Array};
  ctx.window=ctx;vm.runInNewContext(src,ctx);
  return {ctx,handlers,plays,session,api:ctx.GearHubAdminExtras,tap:()=>handlers.touchend.forEach(f=>f()),bell:()=>bellClick()};
 }
@@ -38,4 +38,11 @@ test('unlock listens to touchend and click (iPhone) and new orders are checked e
  const t=load();
  for(const type of ['pointerdown','touchend','click','keydown'])assert.ok(t.handlers[type]?.length,type);
  assert.equal(t.ctx.pollEvery,20000);
+});
+
+test('five new orders ring five times; orders already rung as phone alerts are not repeated',async()=>{
+ const t=load();t.tap();await flush();const base=[{id:1,status:'pending'}];
+ t.api.update({},base,[]);const before=t.plays.length;
+ t.api.update({},[...base,...[2,3,4,5,6].map(id=>({id,status:'pending'}))],[]);await flush();
+ assert.equal(t.plays.length-before,5,'one sound per new order');
 });
