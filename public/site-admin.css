@@ -366,3 +366,5 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
 +/* Desktop invoice list: mirror the three-photo, centred metadata and total columns. */
 +@media(min-width:701px){.order-invoice-list{gap:12px}.order-invoice-card{grid-template-columns:282px 400px 1px minmax(245px,1fr);gap:22px;min-height:114px;padding:16px 30px;border-radius:15px}.order-invoice-photos{gap:12px}.order-invoice-photos i{width:76px;height:76px;border-radius:8px;font-size:38px}.order-invoice-meta strong{font-size:25px;line-height:1.03}.order-invoice-meta small,.order-invoice-total small{font-size:16px}.order-invoice-rule{height:64px}.order-invoice-total strong{font-size:32px}.order-invoice-total em{display:none}}
 +
+/* Calendar icon used next to each invoice date. */
+.order-invoice-calendar{width:18px;height:18px;vertical-align:-4px;margin-right:7px;color:#17352a}
