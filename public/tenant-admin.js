@@ -54,7 +54,7 @@
   const button=document.createElement('button');button.textContent='Save contact & payment';form.append(button);
   const message=document.createElement('p');message.setAttribute('role','status');form.append(message);
   form.onsubmit=async e=>{e.preventDefault();button.disabled=true;window.__gearhubPlatformPending=true;try{const r=await call('',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(new FormData(form)))});const d=await r.json();if(!r.ok)throw Error(d.error);message.textContent='Saved';}catch(e){message.textContent=e.message;}finally{button.disabled=false;window.__gearhubPlatformPending=false;}};
-  host.append(form);document.getElementById('dashboard').append(host);
+  host.append(form);(document.getElementById('site-settings-content')||document.getElementById('dashboard')).append(host);
     const active=document.createElement('label');active.textContent='Product visibility';active.innerHTML+=' <select name=active><option value=1>Active</option><option value=0>Hidden</option></select>';document.getElementById('product-form').append(active);
   const exports=document.createElement('a');exports.href=base()+'/export';exports.textContent='Export this shop data (JSON)';exports.download='shop-data.json';host.append(exports);
   const quota=document.createElement('p');quota.textContent=`Storage ${(shop.limits.usedBytes/1048576).toFixed(2)} / ${(shop.limits.storageLimit/1048576).toFixed(0)} MB · ${shop.limits.subscriptionState} · ${shop.starts_at||''} → ${shop.ends_at||'No expiry'}`;host.prepend(quota);
