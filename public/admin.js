@@ -2,6 +2,17 @@ const $=id=>document.getElementById(id),money=n=>new Intl.NumberFormat("en-US").
 let products=[];let inventoryQuery="";let editingProductId=null;let editingStock=null;
 document.addEventListener("click",e=>{const button=e.target.closest("[data-admin-action]");if(!button)return;const id=Number(button.dataset.orderId);if(button.dataset.adminAction==="restore-order")restoreOrder(id);if(button.dataset.adminAction==="delete-order")deleteOrderFromList(id,button.dataset.forever==="1");if(button.dataset.adminAction==="save-order")saveOrder(id);});
 document.addEventListener("click",e=>{const toggle=e.target.closest(".admin-section-toggle, #product-form-toggle");if(!toggle)return;e.preventDefault();const contentId=toggle.dataset.contentId||"product-form-content";const iconId=toggle.dataset.iconId||"product-form-toggle-icon";const content=$(contentId);const open=content.classList.contains("hidden");content.classList.toggle("hidden",!open);toggle.setAttribute("aria-expanded",String(open));$(iconId).textContent=open?"−":"＋";});
+const mobileDashboardDetailIds=new Set(["orders-content","low-stock-content","product-form-content","category-manager-content","site-settings-content","inventory-content","confirmed-panel","trash-panel","deleted-panel"]),mobileDashboardDetailHomes=new Map();
+function positionMobileDashboardDetail(id){
+ if(!mobileDashboardDetailIds.has(id)||!window.matchMedia("(max-width:800px)").matches)return;
+ const content=$(id),dashboard=$("dashboard");if(!content||!dashboard)return;
+ if(!mobileDashboardDetailHomes.has(id))mobileDashboardDetailHomes.set(id,content.parentElement);
+ let host=$("mobile-dashboard-detail-host");if(!host){host=document.createElement("div");host.id="mobile-dashboard-detail-host";dashboard.append(host);}
+ if(content.classList.contains("hidden")){const home=mobileDashboardDetailHomes.get(id);if(home&&content.parentElement===host)home.append(content);}
+ else if(content.parentElement!==host)host.append(content);
+}
+document.addEventListener("click",e=>{const button=e.target.closest(".admin-section-toggle,#product-form-toggle,#confirmed-toggle,#cancelled-toggle,#deleted-toggle");if(!button)return;const id=button.dataset.contentId||({ "confirmed-toggle":"confirmed-panel","cancelled-toggle":"trash-panel","deleted-toggle":"deleted-panel"}[button.id]);if(id)requestAnimationFrame(()=>positionMobileDashboardDetail(id));});
+window.addEventListener("resize",()=>{if(window.matchMedia("(max-width:800px)").matches)return;const host=$("mobile-dashboard-detail-host");if(!host)return;mobileDashboardDetailIds.forEach(id=>{const content=$(id),home=mobileDashboardDetailHomes.get(id);if(content&&home&&content.parentElement===host)home.append(content);});});
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 let adminCsrfPromise;
 async function adminFetch(url,opts={}) {
