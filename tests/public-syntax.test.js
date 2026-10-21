@@ -5,3 +5,10 @@ test('every public/*.js file parses',()=>{
  const dir=path.join(__dirname,'..','public');
  for(const name of fs.readdirSync(dir).filter(n=>n.endsWith('.js')))assert.doesNotThrow(()=>new vm.Script(fs.readFileSync(path.join(dir,name),'utf8'),{filename:name}),name);
 });
+
+test('category rows have no trash button; a left swipe asks and then deletes',()=>{
+ const js=fs.readFileSync(path.join(__dirname,'..','public','admin.js'),'utf8');
+ assert.doesNotMatch(js,/class="category-delete"/,'no visible trash button on a category row');
+ assert.match(js,/data-category-command="remove"[^>]*hidden|hidden[^>]*data-category-command="remove"/,'the removal command stays for the swipe');
+ assert.match(js,/dx>-70[\s\S]*confirm\("ဒီ category ကို ဖျက်မှာ[\s\S]*requestSubmit\(\)/,'swipe left: ask, remove, save');
+});
