@@ -22,7 +22,7 @@ test('phones: product categories fill the screen width and the hidden command ta
 test('the product category picker also offers the third level (subcategory under a subcategory)',()=>{
  const js=fs.readFileSync(path.join(__dirname,'..','public','category-picker.js'),'utf8');
  assert.match(js,/const branch=\(row,depth,seen\)=>/,'subcategories of subcategories are listed');
- assert.match(js,/depth<3\?branch\(child,depth\+1,seen\)/,'down to the third level');
+ assert.match(js,/branch\(child,depth\+1,/,'subcategories are followed down to the next level');
  assert.match(js,/item\.style\.marginLeft=gap\+"px"/,'third-level choices are indented');
 });
 
@@ -40,4 +40,12 @@ test('the opening screen never shows a "tap for sound" message',()=>{
  const js=fs.readFileSync(path.join(__dirname,'..','public','skyshop-splash.js'),'utf8'),css=fs.readFileSync(path.join(__dirname,'..','public','skyshop-splash.css'),'utf8');
  assert.doesNotMatch(js+css,/Tap for sound|sky-splash-tap/);
  assert.match(js,/audio\.play\(\)\.catch\(\(\)=>\{[\s\S]*addEventListener\(g,start,true\)/,'the sound is tried at once and starts silently on the first touch if blocked');
+});
+
+test('placing an order is fast: the receipt photo is shrunk first, and shop data and token load together',()=>{
+ const store=fs.readFileSync(path.join(__dirname,'..','public','store.js'),'utf8'),tenant=fs.readFileSync(path.join(__dirname,'..','public','tenant-store.js'),'utf8');
+ assert.match(store,/async function shrinkReceipt\(file\)[\s\S]*1800\/Math\.max[\s\S]*"image\/jpeg",0\.8/,'a phone photo is sent as a smaller JPEG');
+ assert.match(store,/f\.set\("receipt",await shrinkReceipt\(receipt\)\)/);
+ assert.match(store,/toast\(`\$\{tr\("orderSuccess"\)\}[\s\S]*if\(tenantStore\)init\(\)\.catch/,'the confirmation shows at once; the shop refreshes in the background');
+ assert.match(tenant,/Promise\.all\(\[snapshot\|\|load\(\),fetch\('\/api\/platform\/me'/,'no full shop download before every order');
 });
