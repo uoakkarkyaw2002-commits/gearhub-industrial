@@ -25,3 +25,8 @@ test('the product category picker also offers the third level (subcategory under
  assert.match(js,/depth<3\?branch\(child,depth\+1,seen\)/,'down to the third level');
  assert.match(js,/item\.style\.marginLeft=gap\+"px"/,'third-level choices are indented');
 });
+
+test('phones: the category picker fills the whole screen height (no empty strip above it)',()=>{
+ const css=fs.readFileSync(path.join(__dirname,'..','public','category-picker.css'),'utf8');
+ assert.match(css,/@media\(max-width:680px\)\{\.category-picker-modal\{height:100dvh;max-height:100dvh;border-radius:0\}/);
+});
