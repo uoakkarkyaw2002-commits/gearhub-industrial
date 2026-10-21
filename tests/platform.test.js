@@ -713,6 +713,25 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
     assert.equal((await owner.call('/owner/policies','PUT',{email:'bad',sections:current.sections})).status,400);
     assert.equal((await owner.call('/owner/policies','PUT',{reset:true})).data.custom,false);
   });
+  await t.test('only the GearHub owner sets the opening screen (seconds, pictures, sound) every shop shows',async()=>{
+    const goodPng=await require('sharp')({create:{width:8,height:8,channels:3,background:'#3366ff'}}).png().toBuffer();
+    const first=(await owner.call('/owner')).data.splash;assert.equal(first.seconds,3);assert.equal(first.pc,false);assert.equal(first.sound,'');
+    assert.equal((await b.call('/owner/splash','PUT',{seconds:5})).status,403);
+    const pic=new FormData();pic.append('file',new Blob([goodPng],{type:'image/png'}),'a.png');assert.equal((await b.call('/owner/splash/pc','POST',pic)).status,403);
+    assert.equal((await b.call('/owner/splash/pc','DELETE')).status,403);
+    for(const bad of [-1,11,'x',''])assert.equal((await owner.call('/owner/splash','PUT',{seconds:bad})).status,400,'seconds '+bad);
+    assert.equal((await owner.call('/owner/splash','PUT',{seconds:5})).data.seconds,5);
+    const up=new FormData();up.append('file',new Blob([goodPng],{type:'image/png'}),'mine.png');
+    const saved=await owner.call('/owner/splash/pc','POST',up);assert.equal(saved.status,200,JSON.stringify(saved.data));assert.equal(saved.data.pc,true);assert.equal(saved.data.phone,false);
+    const notPicture=new FormData();notPicture.append('file',new Blob([Buffer.from('this is not a picture at all')],{type:'image/png'}),'x.png');assert.equal((await owner.call('/owner/splash/phone','POST',notPicture)).status,400);
+    const notSound=new FormData();notSound.append('file',new Blob([Buffer.from('this is not a sound file at all')],{type:'audio/mpeg'}),'x.mp3');assert.equal((await owner.call('/owner/splash/sound','POST',notSound)).status,400);
+    const wav=Buffer.concat([Buffer.from('RIFF'),Buffer.from([36,0,0,0]),Buffer.from('WAVEfmt '),Buffer.alloc(24)]);const snd=new FormData();snd.append('file',new Blob([wav],{type:'audio/wav'}),'ding.wav');
+    const withSound=await owner.call('/owner/splash/sound','POST',snd);assert.equal(withSound.status,200,JSON.stringify(withSound.data));assert.equal(withSound.data.sound,'wav');
+    // 0 seconds = no opening screen at all.
+    assert.equal((await owner.call('/owner/splash','PUT',{seconds:0})).data.seconds,0,'0 = no opening screen');
+    await owner.call('/owner/splash','PUT',{seconds:3});
+    assert.equal((await owner.call('/owner/splash/pc','DELETE')).data.pc,false);assert.equal((await owner.call('/owner/splash/sound','DELETE')).data.sound,'');assert.equal((await owner.call('/owner')).data.splash.seconds,3);
+  });
   await t.test('owner extension adds calendar months and cannot be used by sellers',async()=>{await owner.call('/owner/shops/'+bid,'PATCH',{endsAt:'2099-01-31T00:00:00.000Z'});const before=(await b.me()).shop;assert.equal((await b.call('/owner/shops/'+bid+'/extend','POST',{months:2})).status,403);const r=await owner.call('/owner/shops/'+bid+'/extend','POST',{months:2});assert.equal(r.status,200);assert.equal(r.data.startsAt,before.starts_at);assert.equal(r.data.endsAt,model.addCalendarMonths(before.ends_at,2));assert.equal((await owner.call('/owner/shops/'+bid+'/extend','POST',{months:0})).status,400);assert.equal((await owner.call('/owner/shops/'+bid+'/extend','POST',{months:2})).status,200);});
   await t.test(
     "multi-product reopen rollback and shipped/completed cancellation preserve stock",
