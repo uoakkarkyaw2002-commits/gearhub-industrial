@@ -26,7 +26,7 @@ async function open(input){
  const search=document.createElement("input");search.className="category-picker-search";search.type="search";search.placeholder="Search category or subcategory…";search.setAttribute("aria-label","Search category or subcategory");
  const body=document.createElement("div");body.className="category-picker-body";const mainPane=document.createElement("div");mainPane.className="category-picker-main";const subPane=document.createElement("div");subPane.className="category-picker-sub";body.append(mainPane,subPane);
  const footer=document.createElement("div");footer.className="category-picker-footer";const cancel=button("Cancel","category-picker-cancel",dismiss);const confirm=button("Confirm Category","category-picker-confirm",()=>{if(!selected)return;input.value=escText(selected.category_en);input.dispatchEvent(new Event("input",{bubbles:true}));input.dispatchEvent(new Event("change",{bubbles:true}));const form=input.form;const my=form?.elements?.namedItem("categoryMy");if(my)my.value=escText(selected.category_my);dismiss();});footer.append(cancel,confirm);
- modal.append(head,search,body,footer);backdrop.append(modal);document.body.append(backdrop);search.focus();
+ modal.append(head,search,body,footer);backdrop.append(modal);document.body.append(backdrop);
  function dismiss(){document.removeEventListener("keydown",onKey);backdrop.remove();}
  function onKey(event){if(event.key==="Escape")dismiss();}
  document.addEventListener("keydown",onKey);backdrop.addEventListener("click",event=>{if(event.target===backdrop)dismiss();});

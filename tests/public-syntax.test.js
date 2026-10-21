@@ -30,3 +30,8 @@ test('phones: the category picker fills the whole screen height (no empty strip 
  const css=fs.readFileSync(path.join(__dirname,'..','public','category-picker.css'),'utf8');
  assert.match(css,/@media\(max-width:680px\)\{\.category-picker-modal\{height:100dvh;max-height:100dvh;border-radius:0\}/);
 });
+
+test('the category picker does not focus the search box on open (no keyboard until it is tapped)',()=>{
+ const js=fs.readFileSync(path.join(__dirname,'..','public','category-picker.js'),'utf8');
+ assert.doesNotMatch(js,/search\.focus\(\)/);
+});
