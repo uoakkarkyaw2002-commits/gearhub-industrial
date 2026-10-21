@@ -187,6 +187,7 @@ app.use((req,res,next)=>{
 });
 // Gzip text responses (HTML, JS, CSS, JSON); images are already compressed.
 app.use(compression({ threshold: 1024 }));
+app.use(require('./lib/canonical-host').canonicalRedirect(publicOrigin));
 app.use(helmet({contentSecurityPolicy:{directives:{defaultSrc:["'self'"],scriptSrc:["'self'"],styleSrc:["'self'","'unsafe-inline'"],imgSrc:["'self'","data:","blob:","https:"],fontSrc:["'self'","data:","https:"],connectSrc:["'self'"],formAction:["'self'"],baseUri:["'self'"],objectSrc:["'none'"],frameAncestors:["'none'"]}},frameguard:{action:"deny"}}));
 // Turn off browser features the shops never use, so injected code cannot ask for them.
 const permissionsPolicy="camera=(), microphone=(), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), hid=(), midi=(), magnetometer=(), gyroscope=(), accelerometer=(), display-capture=(), browsing-topics=()";
