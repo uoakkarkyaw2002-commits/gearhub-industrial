@@ -192,7 +192,9 @@ $("add-main-category").addEventListener("click",()=>addCategory());
 $("category-manager-rows").addEventListener("input",event=>{const input=event.target;if(!input.dataset.categoryValue)return;const c=categoryRows.find(row=>row._key===input.dataset.categoryKey);if(!c)return;const field=input.dataset.categoryValue,previous=c[field];c[field]=input.value;if(field==="category_en"&&previous)categoryRows.filter(row=>row!==c&&row.parent_en===previous).forEach(row=>row.parent_en=c.category_en);});
 $("category-manager-rows").addEventListener("change",event=>{if(event.target.dataset.categoryValue){expandCategoryParents(categoryRows.find(row=>row._key===event.target.dataset.categoryKey));renderCategoryManager();}});
 $("category-manager-rows").addEventListener("click",event=>{
- const button=event.target.closest("[data-category-command]");if(!button||categorySaving)return;const c=categoryRows.find(row=>row._key===button.dataset.categoryKey);if(!c)return;const action=button.dataset.categoryCommand;
+ // Tapping the category name opens its editor (phones have no pencil button).
+ const heading=!event.target.closest("[data-category-command]")&&event.target.closest(".category-design-heading");
+ const button=heading?heading.querySelector('[data-category-command="edit"]'):event.target.closest("[data-category-command]");if(!button||categorySaving)return;const c=categoryRows.find(row=>row._key===button.dataset.categoryKey);if(!c)return;const action=button.dataset.categoryCommand;
  if(action==="expand"){categoryExpanded.has(c._key)?categoryExpanded.delete(c._key):categoryExpanded.add(c._key);}
  if(action==="edit"){categoryEditing.has(c._key)?categoryEditing.delete(c._key):categoryEditing.add(c._key);}
  if(action==="done"){if(!c.category_en.trim()){msg("category-manager-message","Enter an English category name.","error");return;}categoryEditing.delete(c._key);}
