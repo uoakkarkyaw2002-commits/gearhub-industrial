@@ -581,3 +581,14 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
   .inventory-filter-wrap>svg{position:absolute;z-index:1;left:12px;top:50%;width:22px;height:22px;transform:translateY(-50%);fill:none;stroke:#10233b;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
   .inventory-search-label .inventory-filter-wrap select{width:100%;padding-left:42px}
 }
+
+
+/* Phone order details open below the dashboard cards. */
+@media(max-width:800px){
+  #dashboard>#confirmed-panel:not(.hidden),
+  #dashboard>#trash-panel:not(.hidden),
+  #dashboard>#deleted-panel:not(.hidden){display:block!important;order:10;flex:0 0 100%;width:100%;box-sizing:border-box}
+  #dashboard>#confirmed-panel.hidden,
+  #dashboard>#trash-panel.hidden,
+  #dashboard>#deleted-panel.hidden{display:none!important}
+}
