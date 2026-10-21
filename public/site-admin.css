@@ -555,3 +555,20 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
  .order-list-controls{gap:7px}.order-list-controls button{min-height:122px;padding:9px 4px}.order-summary-icon{width:43px;height:43px;border-radius:13px;font-size:26px}.order-list-controls button>span:nth-child(2){font-size:12px}.order-list-controls strong{font-size:25px}
  #dashboard{gap:8px}#dashboard .admin-grid .panel,#dashboard>.category-manager-panel,#dashboard>.site-settings-panel,#dashboard>.inventory-panel{flex-basis:calc((100% - 16px)/3)}#dashboard .admin-section-toggle{min-height:174px;gap:10px;padding:15px 6px 10px;border-radius:13px}#dashboard .admin-section-toggle .section-icon{flex-basis:48px;width:48px;height:48px;border-radius:15px;font-size:30px}.admin-menu-copy h2{font-size:14px!important;margin-bottom:5px!important}.admin-menu-copy small{font-size:10px!important;line-height:1.25!important}
 }
+
+
+/* Phone dashboard: compact sales amount and the colored card base from the approved layout. */
+@media(max-width:800px){
+  #dashboard .stat{position:relative;overflow:hidden}
+  #dashboard .stat::after{display:block;content:"";position:absolute;z-index:0;left:-8%;bottom:-18px;width:116%;height:47px;border-top:3px solid var(--stat-color);background:linear-gradient(to bottom,transparent,color-mix(in srgb,var(--stat-color) 20%,transparent));border-radius:55% 55% 0 0;opacity:.82;pointer-events:none}
+  #dashboard .stat>*{position:relative;z-index:1}
+  #dashboard .stat h2{white-space:nowrap}
+  #dashboard .stat-0 h2{font-size:0;line-height:1}
+  #dashboard .stat-0 h2::before{content:attr(data-mobile-value);display:block;font-size:31px;line-height:1;font-weight:850}
+  #dashboard .stat-0 h2::after{content:"Ks";display:block;margin-top:4px;font-size:15px;line-height:1;font-weight:750}
+}
+@media(max-width:480px){
+  #dashboard .stat::after{bottom:-12px;height:37px}
+  #dashboard .stat-0 h2::before{font-size:25px}
+  #dashboard .stat-0 h2::after{font-size:12px}
+}
