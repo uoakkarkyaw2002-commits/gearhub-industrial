@@ -42,7 +42,7 @@ test('phones: the order detail fills the screen width (6px edge), nothing clippe
 test('Delete removes any order after one confirm (no need to cancel first)',()=>{
  const js=fs.readFileSync(path.join(__dirname,'..','public','order-detail.js'),'utf8'),tenant=fs.readFileSync(path.join(__dirname,'..','public','tenant-admin.js'),'utf8');
  assert.doesNotMatch(js,/if\(order\.status!=="cancelled"\)/,'no "cancel first" step');
- assert.match(js,/if\(!confirm\("ဒီအော်ဒါ \("\+code\+"\) ကို အပြီးဖျက်မှာ/);
+ assert.match(js,/if\(!confirm\("ဒီအော်ဒါ \("\+code\+"\) ကို Deleted orders ထဲ ရွှေ့မှာ/);
  assert.match(js,/request\("\/api\/admin\/orders\/"\+id,\{method:"DELETE"/);
  assert.match(tenant,/\['PATCH','DELETE'\]\.includes\(method\)/,'seller shops send the delete to their own shop');
 });
