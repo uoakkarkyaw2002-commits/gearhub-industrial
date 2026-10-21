@@ -63,3 +63,9 @@ test('the 20-second refresh never brings back the old table or redraws an unchan
  const admin=fs.readFileSync(path.join(__dirname,'..','public','admin.js'),'utf8');
  assert.match(admin,/if\(window\.GearHubOrderDetail\?\.refresh\)window\.GearHubOrderDetail\.refresh\(orders\);else \$\("orders-table"\)\.innerHTML=/,'admin.js hands its orders over instead of drawing the old table');
 });
+
+test('the order list shows a calendar icon beside the date',()=>{
+ const js=fs.readFileSync(path.join(__dirname,'..','public','order-detail.js'),'utf8'),css=fs.readFileSync(path.join(__dirname,'..','public','order-detail.css'),'utf8');
+ assert.match(js,/class="order-invoice-date">'\+calendar\+'<span>'\+stamp\(order\.created_at\)/);assert.doesNotMatch(js,/▣/,'the square placeholder is gone');
+ assert.match(css,/\.order-invoice-calendar\{width:15px;height:15px/);
+});
