@@ -10,3 +10,4 @@
 @keyframes sky-splash-fill{to{width:100%}}
 @keyframes sky-splash-dots{0%{content:""}25%{content:"."}50%{content:".."}75%,100%{content:"..."}}
 @media(prefers-reduced-motion:reduce){.sky-splash-dots::after{animation:none;content:"..."}}
+.sky-splash-tap{position:absolute;left:50%;top:calc(18px + env(safe-area-inset-top,0px));transform:translateX(-50%);max-width:88vw;padding:8px 14px;border-radius:99px;background:rgba(16,52,120,.55);color:#fff;font:600 13px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif;text-align:center}

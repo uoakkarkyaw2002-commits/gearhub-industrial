@@ -379,3 +379,10 @@ body.onboarding{background:radial-gradient(ellipse at top,#f0f9f3 0%,#f7faf7 72%
 .policy-section label{font-size:12px;font-weight:700}.policy-section textarea{display:block;width:100%;margin-top:4px;font:14px/1.6 system-ui,-apple-system,"Noto Sans Myanmar",sans-serif;resize:vertical;min-height:90px;box-sizing:border-box}
 .policy-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px}.policy-actions button{background:#147b3b;border:0;margin:0}.policy-actions .policy-reset{background:#fff;color:#b63831;border:1px solid #f0d3d1;margin-left:auto}.policy-preview{font-weight:700;font-size:14px}
 @media(max-width:700px){.policy-contact,.policy-titles{grid-template-columns:1fr}.policy-actions{display:grid;grid-template-columns:1fr}.policy-actions button,.policy-actions .policy-reset{width:100%;margin:0}.policy-preview{text-align:center;padding:6px}}
+
+.splash-editor .splash-body{display:grid;gap:14px;padding-top:8px}
+.splash-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px;border:1px solid #d6e1d6;border-radius:14px;background:#fff}
+.splash-row>div{flex:1 1 200px;min-width:0}.splash-row small{display:block;color:#5f7568}
+.splash-row label{display:grid;gap:6px;font-weight:600}.splash-row input[type=number]{max-width:140px}
+.splash-preview{width:96px;max-height:120px;object-fit:cover;border-radius:10px;border:1px solid #d6e1d6}
+.splash-file input{font-weight:400}.splash-row audio{max-width:100%}
