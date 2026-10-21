@@ -68,3 +68,12 @@ test('a phone key that is not a real P-256 public key is refused at subscribe',(
  assert.throws(()=>push.subscribe('main',{endpoint:'https://push.example.test/x',keys:{p256dh:'B'.repeat(87),auth:'a'.repeat(8)}}),/not valid/);
  assert.deepEqual(push.subscribe('main',phone('ok')),{ok:true});
 });
+
+test('a device that allowed alerts but is no longer known to the server is connected again by itself (unless turned Off on purpose)',()=>{
+ const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+ const js=fs.readFileSync(path.join(__dirname,'..','public','admin-extras.js'),'utf8');
+ assert.match(js,/async function ensureSubscribed\(\)/,'one shared way to subscribe');
+ assert.match(js,/Notification\.permission==="granted"&&!healed&&!turnedOffOnPurpose\(\)/,'repair only when allowed, once per page, and not after an Off on purpose');
+ assert.match(js,/rememberWanted\(false\)[\s\S]*unsubscribe/,'turning Off is remembered');
+ assert.match(js,/rememberWanted\(true\);alertsInfo=\{\.\.\.\(alertsInfo\|\|\{\}\),\.\.\.\(await ensureSubscribed\(\)\)\}/,'turning On forgets it');
+});
