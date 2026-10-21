@@ -113,6 +113,7 @@ if (!db.prepare("PRAGMA table_info(admins)").all().some(c => c.name === "auth_ve
 const orderColumns = db.prepare("PRAGMA table_info(orders)").all().map(c => c.name);
 if (!orderColumns.includes("receipt_path")) db.exec("ALTER TABLE orders ADD COLUMN receipt_path TEXT NOT NULL DEFAULT ''");
 if (!orderColumns.includes("confirmation_date")) db.exec("ALTER TABLE orders ADD COLUMN confirmation_date TEXT NOT NULL DEFAULT ''");
+if (!orderColumns.includes("deleted_from")) db.exec("ALTER TABLE orders ADD COLUMN deleted_from TEXT NOT NULL DEFAULT ''");
 if (!orderColumns.includes("invoice_no")) db.exec("ALTER TABLE orders ADD COLUMN invoice_no TEXT NOT NULL DEFAULT ''");
 if (!orderColumns.includes("request_key")) db.exec("ALTER TABLE orders ADD COLUMN request_key TEXT");
 if (!orderColumns.includes("request_hash")) db.exec("ALTER TABLE orders ADD COLUMN request_hash TEXT");
@@ -796,8 +797,8 @@ app.post("/api/admin/login", async (req,res) => {
 app.get("/api/admin/me", adminOnly, (req,res) => res.json({authenticated:true,username:req.session.admin.username}));
 app.post("/api/admin/logout", (req,res) => req.session.destroy(() => { res.clearCookie(sessionCookieName,{path:"/",secure:production,httpOnly:true,sameSite:"lax"}); res.json({ok:true}); }));
 app.get("/api/admin/summary", adminOnly, (req,res) => {
- const sales = db.prepare("SELECT COALESCE(SUM(total),0) AS value FROM orders WHERE payment_status='paid' AND status!='cancelled'").get().value;
- const orders = db.prepare("SELECT COUNT(*) AS value FROM orders").get().value;
+ const sales = db.prepare("SELECT COALESCE(SUM(total),0) AS value FROM orders WHERE payment_status='paid' AND status NOT IN ('cancelled','deleted')").get().value;
+ const orders = db.prepare("SELECT COUNT(*) AS value FROM orders WHERE status!='deleted'").get().value;
  const pending = db.prepare("SELECT COUNT(*) AS value FROM orders WHERE status='pending'").get().value;
  const products = db.prepare("SELECT COUNT(*) AS value FROM products WHERE active=1").get().value;
  const lowStock = db.prepare("SELECT id,sku,name_en,name_my,stock FROM products WHERE active=1 AND stock<=5 ORDER BY stock ASC").all();
@@ -833,6 +834,23 @@ app.patch("/api/admin/orders/:id", adminOnly, (req,res) => {
  const note = cleanText(req.body?.adminNote,500);
  const confirmationDate = cleanText(req.body?.confirmationDate,10);
  if (confirmationDate && (!/^\d{4}-\d{2}-\d{2}$/.test(confirmationDate)||Number.isNaN(Date.parse(confirmationDate))||new Date(confirmationDate).toISOString().slice(0,10)!==confirmationDate)) return res.status(400).json({error:"Invalid confirmation date."});
+ if (req.body?.restore===true) {
+  try {
+   db.transaction(() => {
+    const order = db.prepare("SELECT * FROM orders WHERE id=?").get(id);
+    if (!order) { const error=new Error("Order not found.");error.status=404;throw error; }
+    if (order.status!=="deleted") throw new Error("Only a deleted order can be restored.");
+    const back = order.deleted_from || "pending";
+    // An order that gave its stock back when it was deleted takes it again.
+    if (!["cancelled","shipped","completed"].includes(back)) for (const item of JSON.parse(order.items_json||"[]")) {
+     const result=db.prepare("UPDATE products SET stock=stock-? WHERE id=? AND stock>=? AND active=1").run(item.quantity,item.productId,item.quantity);
+     if (result.changes!==1) throw new Error("Not enough available stock to restore this order.");
+    }
+    db.prepare("UPDATE orders SET status=?,deleted_from='' WHERE id=?").run(back,id);
+   }).immediate();
+   return res.json({ok:true});
+  } catch(e) { return res.status(e.status||400).json({error:e.message||"Could not restore order."}); }
+ }
  const allowedStatus = ["pending","confirmed","processing","shipped","completed","cancelled"];
  const allowedPayment = ["pending","paid","rejected"];
  if (!Number.isInteger(id) || !allowedStatus.includes(status) || !allowedPayment.includes(paymentStatus))
@@ -841,6 +859,7 @@ app.patch("/api/admin/orders/:id", adminOnly, (req,res) => {
   db.transaction(() => {
    const order = db.prepare("SELECT * FROM orders WHERE id=?").get(id);
    if (!order) { const error=new Error("Order not found.");error.status=404;throw error; }
+   if (order.status==="deleted") throw new Error("Restore this order first.");
    if (["processing","shipped","completed"].includes(status) && paymentStatus!=="paid") throw new Error("Verify payment before fulfilling an order.");
    if (order.status==="completed" && status!=="completed") throw new Error("Completed orders cannot be reopened. Handle returns separately.");
    if (order.status==="shipped" && !["shipped","completed"].includes(status)) throw new Error("Shipped stock cannot be returned through cancellation. Handle returns separately.");
@@ -863,23 +882,27 @@ app.patch("/api/admin/orders/:id", adminOnly, (req,res) => {
   res.json({ok:true});
  } catch(e) { res.status(e.status||400).json({error:e.message||"Could not update order."}); }
 });
-// Delete any order for good. An order that still holds stock (not cancelled, not yet
-// shipped or completed) gives its items back to the shelf first, like a cancel would.
+// Delete moves an order to "Deleted orders" (it can be restored). Deleting it again from
+// there removes it for good. An order that still holds stock (not cancelled, shipped or
+// completed) gives its items back to the shelf when it is deleted.
+function removeReceiptFile(order){if(order.receipt_path)fs.promises.unlink(path.join(receiptDir,path.basename(order.receipt_path))).catch(()=>{});}
 app.delete("/api/admin/orders/:id", adminOnly, (req,res) => {
  const id=Number(req.params.id); if(!Number.isInteger(id)) return res.status(400).json({error:"Invalid order."});
  const order=db.prepare("SELECT id,status,items_json,receipt_path FROM orders WHERE id=?").get(id);
  if(!order) return res.status(404).json({error:"Order not found."});
+ if(order.status==="deleted"){db.prepare("DELETE FROM orders WHERE id=?").run(id);removeReceiptFile(order);return res.json({ok:true,permanent:true});}
  db.transaction(() => {
   if (!["cancelled","shipped","completed"].includes(order.status)) {
    for (const item of JSON.parse(order.items_json||"[]")) db.prepare("UPDATE products SET stock=stock+? WHERE id=? AND stock+?<=1000000000").run(item.quantity,item.productId,item.quantity);
   }
-  db.prepare("DELETE FROM orders WHERE id=?").run(id);
+  db.prepare("UPDATE orders SET status='deleted',deleted_from=? WHERE id=?").run(order.status,id);
  }).immediate();
- if (order.receipt_path) fs.promises.unlink(path.join(receiptDir, path.basename(order.receipt_path))).catch(()=>{});
  res.json({ok:true});
 });
 app.delete("/api/admin/trash", adminOnly, (req,res) => {
- const result=db.prepare("DELETE FROM orders WHERE status='cancelled'").run(); res.json({ok:true,deleted:result.changes});
+ const rows=db.prepare("SELECT receipt_path FROM orders WHERE status='deleted'").all();
+ const result=db.prepare("DELETE FROM orders WHERE status='deleted'").run();
+ rows.forEach(removeReceiptFile);res.json({ok:true,deleted:result.changes});
 });
 app.get("/api/admin/products", adminOnly, (req,res) => res.json(db.prepare("SELECT * FROM products ORDER BY id DESC").all().map(publicProduct)));
 app.get("/api/admin/categories", adminOnly, (_req,res) => res.json(getCategories(false)));
