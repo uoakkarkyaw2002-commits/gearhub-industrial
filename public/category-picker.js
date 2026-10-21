@@ -17,7 +17,7 @@ async function open(input){
  const mainRows=rows.filter(row=>!escText(row.parent_en)&&escText(row.category_en));
  if(!mainRows.length){alert("Create a product category first.");return;}
  const existing=rows.find(row=>escText(row.category_en)===escText(input.value));
- let selectedMain=existing?mainFor(rows,existing):mainRows[0],selected=existing||null,query="";
+ let selectedMain=existing?mainFor(rows,existing):null,selected=existing||null,query="";
  const backdrop=document.createElement("div");backdrop.className="category-picker-backdrop";backdrop.setAttribute("role","presentation");
  const modal=document.createElement("section");modal.className="category-picker-modal";modal.setAttribute("role","dialog");modal.setAttribute("aria-modal","true");modal.setAttribute("aria-label","Select Product Category");
  const head=document.createElement("div");head.className="category-picker-head";
@@ -35,13 +35,13 @@ async function open(input){
  function render(){
   clear(mainPane);const mainHeading=document.createElement("h3");mainHeading.textContent="Main Categories";const mainList=document.createElement("div");mainList.className="category-picker-main-list";mainPane.append(mainHeading,mainList);
   mainRows.filter(matching).forEach(row=>{const item=button(escText(row.category_en),"",()=>{selectedMain=row;selected=null;render();});if(escText(row.category_en)===escText(selectedMain?.category_en))item.classList.add("active");const arrow=document.createElement("span");arrow.textContent="›";arrow.setAttribute("aria-hidden","true");item.append(arrow);mainList.append(item);});
-  clear(subPane);const subHeading=document.createElement("h3");subHeading.textContent=escText(selectedMain?.category_en)||"Categories";const hint=document.createElement("p");hint.textContent=query?"Matching categories":"Select a subcategory";const grid=document.createElement("div");grid.className="category-picker-grid";subPane.append(subHeading,hint,grid);
+  clear(subPane);const subHeading=document.createElement("h3");subHeading.textContent=escText(selectedMain?.category_en)||"Categories";const hint=document.createElement("p");hint.textContent=query?"Matching categories":selectedMain?"Select a subcategory":"Select a main category first";const grid=document.createElement("div");grid.className="category-picker-grid";subPane.append(subHeading,hint,grid);
   // Main category, its subcategories, and the subcategories under those (up to the third level), each one selectable.
   const same=(a,b)=>escText(a).toLocaleLowerCase()===escText(b).toLocaleLowerCase();
   const branch=(row,depth,seen)=>rows.filter(child=>escText(child.category_en)&&same(child.parent_en,row.category_en)&&!seen.has(escText(child.category_en).toLocaleLowerCase())).flatMap(child=>{seen.add(escText(child.category_en).toLocaleLowerCase());return [{row:child,depth},...(depth<3?branch(child,depth+1,seen):[])];});
   const choices=query?rows.filter(matching).map(row=>({row,depth:1})):(selectedMain?[{row:selectedMain,depth:0},...branch(selectedMain,1,new Set([escText(selectedMain.category_en).toLocaleLowerCase()]))]:[]);
   const unique=[...new Map(choices.filter(entry=>escText(entry.row.category_en)).map(entry=>[escText(entry.row.category_en).toLocaleLowerCase(),entry])).values()];
-  if(!unique.length){const empty=document.createElement("p");empty.className="category-picker-empty";empty.textContent="No category found.";grid.append(empty);}
+  if(!unique.length){const empty=document.createElement("p");empty.className="category-picker-empty";empty.textContent=selectedMain?"No category found.":"Choose a main category to see its subcategories.";grid.append(empty);}
   unique.forEach(({row,depth})=>{const item=button(escText(row.category_en),"category-picker-choice",()=>choose(row));if(depth>1){const gap=(depth-1)*18;item.style.marginLeft=gap+"px";item.style.width="calc(100% - "+gap+"px)";item.style.gridColumn="1 / -1"}if(escText(row.category_en)===escText(selected?.category_en))item.classList.add("selected");const radio=document.createElement("span");radio.className="category-picker-radio";radio.setAttribute("aria-hidden","true");item.append(radio);grid.append(item);});
   confirm.disabled=!selected;
  }
