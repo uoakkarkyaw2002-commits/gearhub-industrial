@@ -46,3 +46,20 @@ test('Delete removes a cancelled order after a confirm; other orders must be can
  assert.match(js,/request\("\/api\/admin\/orders\/"\+id,\{method:"DELETE"/);
  assert.match(tenant,/\['PATCH','DELETE'\]\.includes\(method\)/,'seller shops send the delete to their own shop');
 });
+
+test('the 20-second refresh never brings back the old table or redraws an unchanged page',async()=>{
+ // A small stand-in for #orders-table that counts every redraw.
+ let writes=0,html='';
+ const host={addEventListener(){},contains:()=>false,get innerHTML(){return html},set innerHTML(v){html=v;writes++},
+  querySelector:sel=>sel==='.order-page.is-editing'?(html.includes('order-page is-editing')?{}:null):(/order-invoice-list|order-page/.test(html)?{}:null)};
+ const ctx={document:{readyState:'complete',activeElement:null,getElementById:id=>id==='orders-table'?host:null,addEventListener(){}},Intl,Date,Map,Set,JSON,Number,String,Math,Array,Promise,queueMicrotask,
+  fetch:async()=>({ok:true,json:async()=>[]}),MutationObserver:class{observe(){}}};
+ ctx.window=ctx;vm.runInNewContext(fs.readFileSync(path.join(__dirname,'..','public','order-detail.js'),'utf8'),ctx);
+ const api=ctx.GearHubOrderDetail;assert.equal(typeof api.refresh,'function');
+ await new Promise(r=>setTimeout(r,20));writes=0;
+ api.refresh([order]);assert.equal(writes,1);assert.match(html,/order-invoice-list/);
+ api.refresh([order]);assert.equal(writes,1,'same orders: nothing is redrawn, so nothing flickers');
+ api.refresh([order,{...order,id:8,order_code:'GH-new'}]);assert.equal(writes,2,'a new order is drawn');
+ const admin=fs.readFileSync(path.join(__dirname,'..','public','admin.js'),'utf8');
+ assert.match(admin,/if\(window\.GearHubOrderDetail\?\.refresh\)window\.GearHubOrderDetail\.refresh\(orders\);else \$\("orders-table"\)\.innerHTML=/,'admin.js hands its orders over instead of drawing the old table');
+});
