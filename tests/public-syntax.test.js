@@ -12,3 +12,9 @@ test('category rows have no trash button; a left swipe asks and then deletes',()
  assert.match(js,/data-category-command="remove"[^>]*hidden|hidden[^>]*data-category-command="remove"/,'the removal command stays for the swipe');
  assert.match(js,/dx>-70[\s\S]*confirm\("ဒီ category ကို ဖျက်မှာ[\s\S]*requestSubmit\(\)/,'swipe left: ask, remove, save');
 });
+
+test('phones: product categories fill the screen width and the hidden command takes no space',()=>{
+ const css=fs.readFileSync(path.join(__dirname,'..','public','site-admin.css'),'utf8');
+ assert.match(css,/@media\(max-width:600px\)\{#category-manager-content\{padding:14px 0!important\}#category-manager-form\{margin:0 -4px\}/);
+ assert.match(css,/\.category-design-actions button\[hidden\]\{display:none!important\}/);
+});
