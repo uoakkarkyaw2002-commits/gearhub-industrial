@@ -211,19 +211,27 @@ $("category-manager-rows").addEventListener("click",event=>{
 // subcategories, no products) and save.
 let categorySwipe;
 const endCategorySwipe=()=>{if(categorySwipe)categorySwipe.row.style.transform="";categorySwipe=null};
-document.addEventListener("pointerdown",e=>{const row=e.target.closest?.(".category-design-row");if(!row||e.target.closest("input,textarea,select,button,label,a")||(e.pointerType==="mouse"&&e.button!==0))return;categorySwipe={row,x:e.clientX,y:e.clientY,id:e.pointerId}});
-document.addEventListener("pointermove",e=>{if(!categorySwipe||e.pointerId!==categorySwipe.id)return;const dx=e.clientX-categorySwipe.x,dy=e.clientY-categorySwipe.y;if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>12){endCategorySwipe();return}if(dx<0&&Math.abs(dx)>Math.abs(dy))categorySwipe.row.style.transform="translateX("+Math.max(dx,-90)+"px)"});
-document.addEventListener("pointercancel",endCategorySwipe);
-document.addEventListener("pointerup",e=>{
- if(!categorySwipe||e.pointerId!==categorySwipe.id)return;
- const {row}=categorySwipe,dx=e.clientX-categorySwipe.x,dy=e.clientY-categorySwipe.y;endCategorySwipe();
- if(dx>-70||Math.abs(dy)>40)return;
+const startCategorySwipe=(target,x,y)=>{const row=target.closest?.(".category-design-row");if(!row||target.closest("input,textarea,select,button,label,a"))return;categorySwipe={row,x,y}};
+const moveCategorySwipe=(x,y)=>{if(!categorySwipe)return;const dx=x-categorySwipe.x,dy=y-categorySwipe.y;if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>12){endCategorySwipe();return}if(dx<0&&Math.abs(dx)>Math.abs(dy))categorySwipe.row.style.transform="translateX("+Math.max(dx,-90)+"px)"};
+const finishCategorySwipe=(x,y)=>{
+ if(!categorySwipe)return;
+ const {row}=categorySwipe,dx=x-categorySwipe.x,dy=y-categorySwipe.y;endCategorySwipe();
+ if(dx>-60||Math.abs(dy)>Math.abs(dx)/1.5)return;
  const key=row.dataset.categoryKey,name=row.querySelector("h3")?.textContent||"";
  if(!confirm("ဒီ category ကို ဖျက်မှာ သေချာပါသလား?\nDelete \""+name+"\"?"))return;
  document.querySelector('[data-category-command="remove"][data-category-key="'+CSS.escape(key)+'"]')?.click();
  // The removal rules refuse a category that still has products or subcategories.
  if(!categoryRows.some(r=>r._key===key))$("category-manager-form").requestSubmit();
-});
+};
+// A finger uses touch events (the same way the inventory swipe does, which iPhones deliver
+// reliably); a mouse drag uses pointer events.
+document.addEventListener("touchstart",e=>{if(e.touches.length===1)startCategorySwipe(e.target,e.touches[0].clientX,e.touches[0].clientY);else endCategorySwipe()},{passive:true});
+document.addEventListener("touchmove",e=>{if(e.touches.length===1)moveCategorySwipe(e.touches[0].clientX,e.touches[0].clientY)},{passive:true});
+document.addEventListener("touchend",e=>{const t=e.changedTouches[0];if(t)finishCategorySwipe(t.clientX,t.clientY);else endCategorySwipe()});
+document.addEventListener("touchcancel",endCategorySwipe);
+document.addEventListener("pointerdown",e=>{if(e.pointerType==="mouse"&&e.button===0)startCategorySwipe(e.target,e.clientX,e.clientY)});
+document.addEventListener("pointermove",e=>{if(e.pointerType==="mouse")moveCategorySwipe(e.clientX,e.clientY)});
+document.addEventListener("pointerup",e=>{if(e.pointerType==="mouse")finishCategorySwipe(e.clientX,e.clientY)});
 $("category-editor-back").addEventListener("click",()=>{const toggle=document.querySelector('[data-content-id="category-manager-content"]');$("category-manager-content").classList.add("hidden");toggle.setAttribute("aria-expanded","false");$("category-manager-icon").textContent="＋";toggle.scrollIntoView({behavior:"smooth",block:"center"});});
 $("category-manager-form").addEventListener("submit",async e=>{
  e.preventDefault();if(categorySaving)return;
