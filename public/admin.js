@@ -11,7 +11,15 @@ function positionMobileDashboardDetail(id){
  if(content.classList.contains("hidden")){const home=mobileDashboardDetailHomes.get(id);if(home&&content.parentElement===host)home.append(content);}
  else if(content.parentElement!==host)host.append(content);
 }
-document.addEventListener("click",e=>{const button=e.target.closest(".admin-section-toggle,#product-form-toggle,#confirmed-toggle,#cancelled-toggle,#deleted-toggle");if(!button)return;const id=button.dataset.contentId||({ "confirmed-toggle":"confirmed-panel","cancelled-toggle":"trash-panel","deleted-toggle":"deleted-panel"}[button.id]);if(id)requestAnimationFrame(()=>positionMobileDashboardDetail(id));});
+document.addEventListener("click",e=>{const button=e.target.closest(".admin-section-toggle,#product-form-toggle,#confirmed-toggle,#cancelled-toggle,#deleted-toggle");if(!button)return;const id=button.dataset.contentId||({ "confirmed-toggle":"confirmed-panel","cancelled-toggle":"trash-panel","deleted-toggle":"deleted-panel"}[button.id]);if(id)requestAnimationFrame(()=>{positionMobileDashboardDetail(id);updateMobileDashboardOpenState(id);});});
+function updateMobileDashboardOpenState(id){
+ if(!window.matchMedia("(max-width:800px)").matches)return;
+ const content=$(id),buttons=[...document.querySelectorAll("#dashboard .admin-section-toggle,#confirmed-toggle,#cancelled-toggle,#deleted-toggle")];
+ buttons.forEach(button=>{button.classList.remove("mobile-dashboard-open");button.removeAttribute("data-dashboard-open");});
+ if(!content||content.classList.contains("hidden"))return;
+ const button=document.querySelector('[data-content-id="'+id+'"]')||document.getElementById(({ "confirmed-panel":"confirmed-toggle","trash-panel":"cancelled-toggle","deleted-panel":"deleted-toggle"}[id]||""));
+ if(button){button.classList.add("mobile-dashboard-open");button.dataset.dashboardOpen="true";}
+}
 window.addEventListener("resize",()=>{if(window.matchMedia("(max-width:800px)").matches)return;const host=$("mobile-dashboard-detail-host");if(!host)return;mobileDashboardDetailIds.forEach(id=>{const content=$(id),home=mobileDashboardDetailHomes.get(id);if(content&&home&&content.parentElement===host)home.append(content);});});
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 let adminCsrfPromise;
