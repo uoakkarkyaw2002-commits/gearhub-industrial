@@ -528,14 +528,22 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
       assert.equal(test.data.sent, 1);
       assert.equal((await b.call("/shops/" + bid + "/push/unsubscribe", "POST", { endpoint: phone.endpoint })).data.count, 0);
       db.prepare("UPDATE platform_products SET details=json_remove(details,'$.promotionPrice') WHERE id=?").run(pb);
-      // Delete: only a cancelled order, only by its own shop; the receipt photo goes too.
-      assert.equal((await b.call("/shops/" + bid + "/orders/" + promo.data.id, "DELETE")).status, 409);
-      db.prepare("UPDATE platform_orders SET status='cancelled' WHERE id=?").run(promo.data.id);
-      const promoReceipt = db.prepare("SELECT receipt_id FROM platform_orders WHERE id=?").get(promo.data.id).receipt_id;
+      // Delete: any order, only by its own shop; the receipt photo goes too, and an order
+      // that was not cancelled gives its items back to the shelf.
+      const promoRow = db.prepare("SELECT items,receipt_id FROM platform_orders WHERE id=?").get(promo.data.id);
+      const promoItem = JSON.parse(promoRow.items)[0];
+      const stockBefore = db.prepare("SELECT stock FROM platform_products WHERE id=?").get(promoItem.productId).stock;
       assert.equal((await a.call("/shops/" + bid + "/orders/" + promo.data.id, "DELETE")).status, 404);
       assert.equal((await b.call("/shops/" + bid + "/orders/" + promo.data.id, "DELETE")).status, 200);
       assert.equal(db.prepare("SELECT COUNT(*) n FROM platform_orders WHERE id=?").get(promo.data.id).n, 0);
-      assert.equal(db.prepare("SELECT COUNT(*) n FROM platform_files WHERE id=?").get(promoReceipt).n, 0);
+      assert.equal(db.prepare("SELECT COUNT(*) n FROM platform_files WHERE id=?").get(promoRow.receipt_id).n, 0);
+      assert.equal(db.prepare("SELECT stock FROM platform_products WHERE id=?").get(promoItem.productId).stock, stockBefore + promoItem.quantity, "a pending order's stock comes back");
+      db.prepare("UPDATE platform_products SET stock=? WHERE id=?").run(stockBefore, promoItem.productId); // later checks expect the old stock
+      db.prepare("UPDATE platform_orders SET status='cancelled' WHERE id=?").run(noPromo.data.id);
+      const noPromoItem = JSON.parse(db.prepare("SELECT items FROM platform_orders WHERE id=?").get(noPromo.data.id).items)[0];
+      const cancelledStock = db.prepare("SELECT stock FROM platform_products WHERE id=?").get(noPromoItem.productId).stock;
+      assert.equal((await b.call("/shops/" + bid + "/orders/" + noPromo.data.id, "DELETE")).status, 200);
+      assert.equal(db.prepare("SELECT stock FROM platform_products WHERE id=?").get(noPromoItem.productId).stock, cancelledStock, "a cancelled order already returned its stock");
       db.prepare("DELETE FROM platform_orders WHERE id IN (?,?)").run(noPromo.data.id, promo.data.id);
       const s = (await b.call("/shops/" + bid)).data;
       receipt = s.orders[0].receipt_id;

@@ -105,13 +105,13 @@
  // admin.js hands over the orders it just loaded instead of drawing its old table.
  function refresh(list){if(!Array.isArray(list))return;orders=list;if(!loading)paint(false)}
  window.GearHubOrderDetail.refresh=refresh;
- // Delete: a cancelled order is deleted for good after a confirm; any other order must be
- // cancelled first (the edit panel opens with "Cancel order" ready).
+ // Delete: any order is deleted for good after one confirm. An order that was not
+ // cancelled gives its items back to stock on the server.
  async function deleteOrder(button){
   const page=button.closest(".order-page"),id=Number(page?.dataset.orderId),order=orders.find(o=>Number(o.id)===id),message=page.querySelector(".order-page-message");
   if(!order)return;
-  if(order.status!=="cancelled"){page.classList.add("is-editing");message.textContent="ဖျက်ဖို့ အရင် Cancel order လုပ်ပြီး Save ပါ။ / Cancel the order first, then delete it.";page.querySelector(".od-edit")?.scrollIntoView({behavior:"smooth",block:"start"});return}
-  if(!confirm("ဒီအော်ဒါကို အပြီးဖျက်မှာ သေချာပါသလား? ပြန်ယူလို့ မရတော့ပါ။\nDelete this order permanently?"))return;
+  const code=order.order_code||order.invoice_no||("#"+id);
+  if(!confirm("ဒီအော်ဒါ ("+code+") ကို အပြီးဖျက်မှာ သေချာပါသလား? ပြန်ယူလို့ မရတော့ပါ။\nDelete this order permanently?"))return;
   button.disabled=true;
   try{const response=await request("/api/admin/orders/"+id,{method:"DELETE",headers:{"Content-Type":"application/json"},body:"{}"}),data=await response.json().catch(()=>({}));if(!response.ok)throw Error(data.error||"Could not delete this order.");selected=null;await render();window.refreshAll?.()}
   catch(error){page.classList.add("is-editing");message.textContent=error.message||"Could not delete this order.";button.disabled=false}
