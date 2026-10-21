@@ -12,6 +12,7 @@ function positionMobileDashboardDetail(id){
  else if(content.parentElement!==host)host.append(content);
 }
 document.addEventListener("click",e=>{const button=e.target.closest(".admin-section-toggle,#product-form-toggle,#confirmed-toggle,#cancelled-toggle,#deleted-toggle");if(!button)return;const id=button.dataset.contentId||({ "confirmed-toggle":"confirmed-panel","cancelled-toggle":"trash-panel","deleted-toggle":"deleted-panel"}[button.id]);if(id)requestAnimationFrame(()=>positionMobileDashboardDetail(id));});
+window.addEventListener("resize",()=>{if(window.matchMedia("(max-width:800px)").matches)return;const host=$("mobile-dashboard-detail-host");if(!host)return;mobileDashboardDetailIds.forEach(id=>{const content=$(id),home=mobileDashboardDetailHomes.get(id);if(content&&home&&content.parentElement===host)home.append(content);});});
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 let adminCsrfPromise;
 async function adminFetch(url,opts={}) {
