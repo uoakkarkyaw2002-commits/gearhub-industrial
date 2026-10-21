@@ -92,7 +92,8 @@
     if(suffix==='/orders'&&method==='GET')return json((await snapshot()).orders.map(order));
     if(suffix==='/categories')return await call('/categories',options);
     if(suffix==='/site-settings')return await call('/appearance',options);
-    if(/^\/orders\/\d+$/.test(suffix)&&method==='PATCH')return await call(suffix,options);
+    if(/^\/orders\/\d+$/.test(suffix)&&['PATCH','DELETE'].includes(method))return await call(suffix,options);
+    if(suffix==='/trash'&&method==='DELETE')return await call('/trash',options);
     if(/^\/products(?:\/\d+)?$/.test(suffix)&&['POST','PATCH'].includes(method)){
      const b=JSON.parse(options.body),ids=[];
      const photos=[...(b.imageUrls||[])];if(Number.isInteger(Number(b.coverIndex))&&photos[Number(b.coverIndex)])photos.unshift(...photos.splice(Number(b.coverIndex),1));for(const url of photos){const m=url.match(/^\/api\/platform\/images\/([^/?#]+)$/);if(!m)return json({error:'Upload images to this shop first.'},400);ids.push(m[1]);}
