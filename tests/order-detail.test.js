@@ -31,3 +31,10 @@ test('styles keep the order detail inside a phone screen',()=>{
  assert.match(css,/\.od\{display:grid;grid-template-columns:minmax\(0,1fr\)/);assert.match(css,/\.od>\*,\.od-card>\*,\.od-items ol>\*\{min-width:0/);
  assert.match(css,/\.od-received\{background:#11893a/);assert.match(css,/@media\(max-width:559px\)/);assert.match(css,/\.od-clip\{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap/);assert.match(css,/\.od\.is-editing \.od-edit\{display:grid\}/);
 });
+
+test('phones: the order detail fills the screen width (6px edge), nothing clipped',()=>{
+ const css=fs.readFileSync(path.join(__dirname,'..','public','order-detail.css'),'utf8');
+ assert.match(css,/#orders-content:has\(\.od\)\{padding-left:0!important;padding-right:0!important/);
+ assert.match(css,/\.od\{width:calc\(100% \+ 12px\)!important;max-width:none!important;margin-left:-6px!important;margin-right:-6px!important\}/);
+ assert.match(css,/\.panel:has\(\.od\),\.admin-grid:has\(\.od\),#orders-content:has\(\.od\),#orders-table:has\(\.od\)\{overflow:visible!important\}/);
+});
