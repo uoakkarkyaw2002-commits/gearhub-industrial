@@ -86,7 +86,7 @@
     await init();const suffix=url.replace(/^\/api\/admin/,'');
     if(suffix==='/me')return json({ok:true});
     if(suffix==='/logout'){const r=await fetch('/api/platform/logout',{...options,headers:{...options.headers,'X-CSRF-Token':token}});if(r.ok){context=null;location.replace('/platform.html');}return r;}
-    if(suffix==='/summary'){const s=await snapshot();return json({sales:s.orders.filter(o=>o.payment_status==='paid'&&o.status!=='cancelled').reduce((a,o)=>a+o.total,0),orders:s.orders.length,pending:s.orders.filter(o=>o.status==='pending').length,products:s.products.length,lowStock:s.products.filter(p=>p.active&&p.stock<5).map(product)});}
+    if(suffix==='/summary'){const s=await snapshot();return json({sales:s.orders.filter(o=>o.payment_status==='paid'&&!['cancelled','deleted'].includes(o.status)).reduce((a,o)=>a+o.total,0),orders:s.orders.filter(o=>o.status!=='deleted').length,pending:s.orders.filter(o=>o.status==='pending').length,products:s.products.length,lowStock:s.products.filter(p=>p.active&&p.stock<5).map(product)});}
     if(suffix==='/products'&&method==='GET')return json((await snapshot()).products.map(product));
     if(/^\/products\/\d+\/(?:trash|restore|delete-permanently)$/.test(suffix)&&method==='POST')return await call(suffix,options);
     if(suffix==='/orders'&&method==='GET')return json((await snapshot()).orders.map(order));
