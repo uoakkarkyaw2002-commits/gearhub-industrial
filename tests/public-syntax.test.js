@@ -18,3 +18,10 @@ test('phones: product categories fill the screen width and the hidden command ta
  assert.match(css,/@media\(max-width:600px\)\{#category-manager-content\{padding:14px 0!important\}#category-manager-form\{margin:0 -4px\}/);
  assert.match(css,/\.category-design-actions button\[hidden\]\{display:none!important\}/);
 });
+
+test('the product category picker also offers the third level (subcategory under a subcategory)',()=>{
+ const js=fs.readFileSync(path.join(__dirname,'..','public','category-picker.js'),'utf8');
+ assert.match(js,/const branch=\(row,depth,seen\)=>/,'subcategories of subcategories are listed');
+ assert.match(js,/depth<3\?branch\(child,depth\+1,seen\)/,'down to the third level');
+ assert.match(js,/item\.style\.marginLeft=gap\+"px"/,'third-level choices are indented');
+});
