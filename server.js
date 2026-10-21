@@ -863,12 +863,20 @@ app.patch("/api/admin/orders/:id", adminOnly, (req,res) => {
   res.json({ok:true});
  } catch(e) { res.status(e.status||400).json({error:e.message||"Could not update order."}); }
 });
+// Delete any order for good. An order that still holds stock (not cancelled, not yet
+// shipped or completed) gives its items back to the shelf first, like a cancel would.
 app.delete("/api/admin/orders/:id", adminOnly, (req,res) => {
  const id=Number(req.params.id); if(!Number.isInteger(id)) return res.status(400).json({error:"Invalid order."});
- const order=db.prepare("SELECT id,status FROM orders WHERE id=?").get(id);
+ const order=db.prepare("SELECT id,status,items_json,receipt_path FROM orders WHERE id=?").get(id);
  if(!order) return res.status(404).json({error:"Order not found."});
- if(order.status!=="cancelled") return res.status(400).json({error:"Only cancelled orders can be permanently deleted."});
- db.prepare("DELETE FROM orders WHERE id=?").run(id); res.json({ok:true});
+ db.transaction(() => {
+  if (!["cancelled","shipped","completed"].includes(order.status)) {
+   for (const item of JSON.parse(order.items_json||"[]")) db.prepare("UPDATE products SET stock=stock+? WHERE id=? AND stock+?<=1000000000").run(item.quantity,item.productId,item.quantity);
+  }
+  db.prepare("DELETE FROM orders WHERE id=?").run(id);
+ }).immediate();
+ if (order.receipt_path) fs.promises.unlink(path.join(receiptDir, path.basename(order.receipt_path))).catch(()=>{});
+ res.json({ok:true});
 });
 app.delete("/api/admin/trash", adminOnly, (req,res) => {
  const result=db.prepare("DELETE FROM orders WHERE status='cancelled'").run(); res.json({ok:true,deleted:result.changes});
