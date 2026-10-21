@@ -528,6 +528,14 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
       assert.equal(test.data.sent, 1);
       assert.equal((await b.call("/shops/" + bid + "/push/unsubscribe", "POST", { endpoint: phone.endpoint })).data.count, 0);
       db.prepare("UPDATE platform_products SET details=json_remove(details,'$.promotionPrice') WHERE id=?").run(pb);
+      // Delete: only a cancelled order, only by its own shop; the receipt photo goes too.
+      assert.equal((await b.call("/shops/" + bid + "/orders/" + promo.data.id, "DELETE")).status, 409);
+      db.prepare("UPDATE platform_orders SET status='cancelled' WHERE id=?").run(promo.data.id);
+      const promoReceipt = db.prepare("SELECT receipt_id FROM platform_orders WHERE id=?").get(promo.data.id).receipt_id;
+      assert.equal((await a.call("/shops/" + bid + "/orders/" + promo.data.id, "DELETE")).status, 404);
+      assert.equal((await b.call("/shops/" + bid + "/orders/" + promo.data.id, "DELETE")).status, 200);
+      assert.equal(db.prepare("SELECT COUNT(*) n FROM platform_orders WHERE id=?").get(promo.data.id).n, 0);
+      assert.equal(db.prepare("SELECT COUNT(*) n FROM platform_files WHERE id=?").get(promoReceipt).n, 0);
       db.prepare("DELETE FROM platform_orders WHERE id IN (?,?)").run(noPromo.data.id, promo.data.id);
       const s = (await b.call("/shops/" + bid)).data;
       receipt = s.orders[0].receipt_id;

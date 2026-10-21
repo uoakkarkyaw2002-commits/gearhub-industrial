@@ -38,3 +38,11 @@ test('phones: the order detail fills the screen width (6px edge), nothing clippe
  assert.match(css,/\.od\{width:calc\(100% \+ 12px\)!important;max-width:none!important;margin-left:-6px!important;margin-right:-6px!important\}/);
  assert.match(css,/\.panel:has\(\.od\),\.admin-grid:has\(\.od\),#orders-content:has\(\.od\),#orders-table:has\(\.od\)\{overflow:visible!important\}/);
 });
+
+test('Delete removes a cancelled order after a confirm; other orders must be cancelled first',()=>{
+ const js=fs.readFileSync(path.join(__dirname,'..','public','order-detail.js'),'utf8'),tenant=fs.readFileSync(path.join(__dirname,'..','public','tenant-admin.js'),'utf8');
+ assert.match(js,/if\(order\.status!=="cancelled"\)\{page\.classList\.add\("is-editing"\)/);
+ assert.match(js,/if\(!confirm\("ဒီအော်ဒါကို အပြီးဖျက်မှာ/);
+ assert.match(js,/request\("\/api\/admin\/orders\/"\+id,\{method:"DELETE"/);
+ assert.match(tenant,/\['PATCH','DELETE'\]\.includes\(method\)/,'seller shops send the delete to their own shop');
+});
