@@ -621,3 +621,6 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
 @media(min-width:1100px){
  .admin-page .inventory-panel .inventory-search-label .inventory-filter-wrap select{padding-left:42px!important;padding-right:32px!important}
 }
+
+/* Phones: no pencil; tap the category to edit it. */
+.category-design-heading{cursor:pointer}@media(max-width:600px){.category-design-actions [data-category-command="edit"]{display:none!important}}
