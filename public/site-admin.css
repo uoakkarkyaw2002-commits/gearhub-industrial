@@ -603,3 +603,10 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
 
 /* Navigation image visibility control. */
 .appearance-opacity-control{display:grid;grid-template-columns:auto minmax(120px,1fr) auto;align-items:center;gap:10px;margin-top:12px;font-size:13px;font-weight:700}.appearance-opacity-control input{width:100%;accent-color:#15923a}.appearance-opacity-control output{min-width:40px;text-align:right;color:#158d2b}
+
+
+/* The selected phone dashboard card clearly shows that its detail is open. */
+@media(max-width:800px){
+  #dashboard .admin-section-toggle.mobile-dashboard-open,#dashboard .order-list-controls button.mobile-dashboard-open{position:relative;border:3px solid #08a64c!important;box-shadow:0 0 0 3px #08a64c1f,0 8px 18px #0b9d4424!important}
+  #dashboard .admin-section-toggle.mobile-dashboard-open::after,#dashboard .order-list-controls button.mobile-dashboard-open::after{content:"●  Open";position:absolute;z-index:3;top:10px;right:10px;border-radius:999px;background:#08a64c;color:#fff;padding:5px 10px;font-size:12px;font-weight:800;line-height:1;box-shadow:0 2px 6px #087b3b44}
+}
