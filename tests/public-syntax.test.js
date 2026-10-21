@@ -35,3 +35,9 @@ test('the category picker does not focus the search box on open (no keyboard unt
  const js=fs.readFileSync(path.join(__dirname,'..','public','category-picker.js'),'utf8');
  assert.doesNotMatch(js,/search\.focus\(\)/);
 });
+
+test('the opening screen never shows a "tap for sound" message',()=>{
+ const js=fs.readFileSync(path.join(__dirname,'..','public','skyshop-splash.js'),'utf8'),css=fs.readFileSync(path.join(__dirname,'..','public','skyshop-splash.css'),'utf8');
+ assert.doesNotMatch(js+css,/Tap for sound|sky-splash-tap/);
+ assert.match(js,/audio\.play\(\)\.catch\(\(\)=>\{[\s\S]*addEventListener\(g,start,true\)/,'the sound is tried at once and starts silently on the first touch if blocked');
+});
