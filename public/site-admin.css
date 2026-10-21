@@ -572,3 +572,12 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
   #dashboard .stat-0 h2::before{font-size:25px}
   #dashboard .stat-0 h2::after{font-size:12px}
 }
+
+
+/* Desktop inventory controls always keep their SVGs inside their fields. */
+@media(min-width:801px){
+  .inventory-search-box .inventory-search-icon{flex:0 0 22px;width:22px;height:22px;fill:none;stroke:#10233b;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .inventory-filter-wrap{position:relative;display:block;min-width:0}
+  .inventory-filter-wrap>svg{position:absolute;z-index:1;left:12px;top:50%;width:22px;height:22px;transform:translateY(-50%);fill:none;stroke:#10233b;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+  .inventory-search-label .inventory-filter-wrap select{width:100%;padding-left:42px}
+}
