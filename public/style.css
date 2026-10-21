@@ -818,3 +818,8 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
    instead of white on white; the shop colour may be dark, so it is not used here. */
 #category-view:not(.category-products-mode) .category-subcategories .category-tree-choice.selected{background:linear-gradient(110deg,#087629,#47a55b)!important;color:#fff!important;border-color:#30994e!important}
 #category-view:not(.category-products-mode) .category-subcategories .category-tree-choice.selected small,#category-view:not(.category-products-mode) .category-subcategories .category-tree-choice.selected .category-tree-chevron,#category-view:not(.category-products-mode) .category-subcategories .category-tree-choice.selected::after{color:#e3f3e7!important}
+
+/* Settings starts directly below the phone safe area. */
+@media(max-width:850px){
+ body.non-home-view #profile-view:not(.store-view-hidden){margin-top:0}
+}

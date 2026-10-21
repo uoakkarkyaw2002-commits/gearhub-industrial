@@ -158,3 +158,10 @@
  .od-edit-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
  .od-quick button{font-size:13px;min-height:42px}
 }
+/* Phones: the order detail uses the full screen width (6px edge) instead of sitting
+   inside the orders box's padding and the page padding. */
+@media(max-width:559px){
+ .panel:has(.od),.admin-grid:has(.od),#orders-content:has(.od),#orders-table:has(.od){overflow:visible!important}
+ #orders-content:has(.od){padding-left:0!important;padding-right:0!important;border-left:0!important;border-right:0!important;background:none!important;box-shadow:none!important}
+ .od{width:calc(100% + 12px)!important;max-width:none!important;margin-left:-6px!important;margin-right:-6px!important}
+}

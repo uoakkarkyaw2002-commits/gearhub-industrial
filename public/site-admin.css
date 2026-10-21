@@ -411,3 +411,112 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
  .order-page-amount small{font-size:10px}
  .order-page-amount b{font-size:15px;white-space:nowrap}
 }
+
+/* Product Inventory reference layout: mobile only. */
+@media(max-width:800px){
+ .inventory-panel{padding:14px;background:linear-gradient(150deg,#f9fffa,#f4f7fc);border:0;overflow:visible}
+ .inventory-hero,.inventory-panel>.admin-kpis{display:none}
+ .inventory-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 12px;margin:0 0 16px;border:1px solid #e5eee6;border-radius:18px;background:#fff;box-shadow:0 5px 16px #183d2110}
+ .inventory-title{gap:11px}.inventory-title>span{width:58px;height:58px;border-radius:13px;background:#e8f5e9;font-size:31px}
+ .inventory-header h2{font-size:20px;line-height:1.15;margin:0}.inventory-title small{font-size:12px;line-height:1.35;margin-top:4px}
+ .inventory-total-card{display:grid;grid-template-columns:auto auto;grid-template-rows:auto auto;column-gap:7px;align-items:center;min-width:112px;padding:12px 10px;border-radius:13px;background:#edfaef;color:#147632;font-size:13px;font-weight:700}
+ .inventory-total-card::before{content:"▱";grid-row:1/3;font-size:33px;line-height:1;color:#15923c}
+ .inventory-total-card::after{content:attr(data-label);font-size:10px;color:#677469;font-weight:500;white-space:nowrap}
+ .inventory-total-card{font-size:25px;line-height:1.05}.inventory-total-card:not(:empty){font-weight:800}
+ .inventory-search-label{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0}
+ .inventory-search-box{grid-column:1/-1;min-height:56px;border:1px solid #dce7df;border-radius:12px;background:#fff;padding:0 14px}
+ .inventory-search-box input{font-size:15px}
+ .inventory-search-label select{min-width:0;height:52px;padding:0 8px 0 11px;border:1px solid #dce7df;border-radius:11px;background:#fff;font-size:13px;font-weight:700}
+ #inventory-add-product{grid-column:1/-1;min-height:57px;margin:5px 0 8px;border-radius:12px;font-size:18px;background:linear-gradient(105deg,#09963b,#10a542);box-shadow:0 7px 15px #13873c24}
+ #inventory-table{margin-top:4px}
+ .inventory-mobile-list{gap:10px}
+ .inventory-mobile-card{padding:10px 12px;border-radius:16px;background:#fff;box-shadow:0 3px 13px #183d210c}
+ .inventory-mobile-open{grid-template-columns:112px minmax(0,1fr) auto;gap:12px}
+ .inventory-mobile-photo{width:112px;height:112px;border-radius:12px;background:#f7f8f6}
+ .inventory-mobile-photo img{object-fit:contain}
+ .inventory-mobile-copy{align-self:stretch;align-content:center;gap:4px}
+ .inventory-mobile-copy small{font-size:13px;color:#7b8580}.inventory-mobile-copy strong{white-space:normal;font-size:19px;line-height:1.15}.inventory-mobile-copy em{font-size:16px;white-space:normal}.inventory-mobile-copy b{font-size:22px;color:#087837}
+ .inventory-mobile-meta{align-self:stretch;align-content:center;gap:7px}.inventory-mobile-meta .inventory-stock{min-width:37px;padding:7px 9px;border-radius:9px;font-size:16px}.inventory-mobile-meta small{font-size:12px;white-space:nowrap}
+}
+@media(max-width:420px){
+ .inventory-panel{padding:12px}.inventory-header{padding:11px 9px}.inventory-title>span{width:48px;height:48px;font-size:26px}.inventory-header h2{font-size:17px}.inventory-title small{font-size:10px}.inventory-total-card{min-width:91px;padding:10px 7px;font-size:21px}.inventory-total-card::before{font-size:26px}.inventory-total-card::after{font-size:9px}
+ .inventory-search-label{gap:7px}.inventory-search-label select{font-size:11px;padding-left:8px}.inventory-mobile-open{grid-template-columns:92px minmax(0,1fr) auto;gap:9px}.inventory-mobile-photo{width:92px;height:92px}.inventory-mobile-copy small{font-size:11px}.inventory-mobile-copy strong{font-size:16px}.inventory-mobile-copy em{font-size:13px}.inventory-mobile-copy b{font-size:18px}.inventory-mobile-meta .inventory-stock{font-size:14px;padding:6px}.inventory-mobile-meta small{font-size:10px}
+}
+
+/* Inventory reference icons and total card */
+@media(max-width:800px){
+ .inventory-total-card{display:grid;grid-template-columns:38px minmax(0,1fr);grid-template-rows:auto auto;align-items:center;column-gap:7px;min-width:126px;padding:10px 12px;border:0;border-radius:15px;background:#eef9f0;color:#148538}
+ .inventory-total-card::before,.inventory-total-card::after{content:none}
+ .inventory-total-icon{grid-row:1/3;width:36px;height:36px;fill:none;stroke:#168b3e;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+ .inventory-total-card .inventory-count{display:block;color:#148538;font-size:29px;line-height:1;font-weight:850;letter-spacing:-.04em}
+ .inventory-total-card small{display:block;color:#5b7460;font-size:10px;line-height:1.2;font-weight:600;white-space:nowrap}
+ .inventory-search-icon{flex:0 0 26px;width:26px;height:26px;fill:none;stroke:#10233b;stroke-width:2;stroke-linecap:round}
+ .inventory-filter-wrap{position:relative;display:block;min-width:0}
+ .inventory-filter-wrap>svg{position:absolute;z-index:1;left:12px;top:50%;width:25px;height:25px;transform:translateY(-50%);fill:none;stroke:#10233b;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+ .inventory-search-label .inventory-filter-wrap select{width:100%;padding-left:43px}
+ #inventory-add-product{color:#fff!important}
+}
+@media(max-width:420px){
+ .inventory-total-card{grid-template-columns:31px minmax(0,1fr);min-width:107px;padding:9px 8px;column-gap:5px}
+ .inventory-total-icon{width:29px;height:29px}.inventory-total-card .inventory-count{font-size:23px}.inventory-total-card small{font-size:8px}
+ .inventory-filter-wrap>svg{left:8px;width:19px;height:19px}.inventory-search-label .inventory-filter-wrap select{padding-left:31px}
+}
+
+/* Keep inventory filter labels and total label within narrow mobile cards */
+@media(max-width:800px){
+ .inventory-total-card{min-width:118px;padding:9px 10px;column-gap:6px}
+ .inventory-total-card .inventory-count{font-size:27px}
+ .inventory-total-card small{font-size:9px;letter-spacing:-.01em}
+ .inventory-search-label .inventory-filter-wrap select{min-width:0;font-size:12px!important;letter-spacing:-.02em;text-overflow:ellipsis}
+}
+@media(max-width:600px){
+ .inventory-search-label{gap:8px}
+ .inventory-filter-wrap>svg{left:9px;width:21px;height:21px}
+ .inventory-search-label .inventory-filter-wrap select{padding-left:36px!important;padding-right:17px!important;font-size:11px!important}
+}
+@media(max-width:420px){
+ .inventory-total-card{min-width:101px;padding:8px 7px}
+ .inventory-total-card .inventory-count{font-size:21px}
+ .inventory-total-card small{font-size:7.5px}
+ .inventory-search-label .inventory-filter-wrap select{font-size:10px!important;padding-left:29px!important;padding-right:14px!important}
+}
+
+/* Let the mobile inventory area use the available screen width */
+@media(max-width:800px){
+ .admin-page .inventory-panel{box-sizing:border-box;width:calc(100% + 16px);margin-left:-8px;margin-right:-8px;padding:14px}
+}
+@media(max-width:600px){
+ .admin-page .inventory-panel{width:calc(100% + 20px);margin-left:-10px;margin-right:-10px;padding:10px}
+}
+
+/* Balance the mobile total card and give the category label room */
+@media(max-width:800px){
+ .inventory-total-card{grid-template-columns:36px max-content;grid-template-rows:auto auto;justify-content:center;column-gap:8px}
+ .inventory-total-card .inventory-count,.inventory-total-card small{justify-self:center;text-align:center}
+}
+@media(max-width:600px){
+ .inventory-search-label{grid-template-columns:1.45fr .8fr .8fr}
+ .inventory-search-label #inventory-category-filter{font-size:13px!important;font-weight:800;letter-spacing:-.015em}
+ .inventory-search-label #inventory-stock-filter,.inventory-search-label #inventory-sort{font-size:11.5px!important}
+}
+@media(max-width:420px){
+ .inventory-search-label{grid-template-columns:1.32fr .84fr .84fr}
+ .inventory-search-label #inventory-category-filter{font-size:11px!important}
+ .inventory-search-label #inventory-stock-filter,.inventory-search-label #inventory-sort{font-size:10px!important}
+}
+
+/* Keep every mobile filter label readable */
+@media(max-width:600px){
+ .inventory-search-label{grid-template-columns:1.35fr .95fr .95fr}
+ .inventory-filter-wrap>svg{left:7px;width:19px;height:19px}
+ .inventory-search-label .inventory-filter-wrap select{padding-left:31px!important;padding-right:7px!important;letter-spacing:-.04em}
+ .inventory-search-label #inventory-category-filter{font-size:12.5px!important}
+ .inventory-search-label #inventory-stock-filter,.inventory-search-label #inventory-sort{font-size:10.5px!important}
+}
+@media(max-width:420px){
+ .inventory-search-label{grid-template-columns:1.24fr .88fr .88fr}
+ .inventory-filter-wrap>svg{left:6px;width:17px;height:17px}
+ .inventory-search-label .inventory-filter-wrap select{padding-left:26px!important;padding-right:5px!important}
+ .inventory-search-label #inventory-category-filter{font-size:10.5px!important}
+ .inventory-search-label #inventory-stock-filter,.inventory-search-label #inventory-sort{font-size:9px!important}
+}
