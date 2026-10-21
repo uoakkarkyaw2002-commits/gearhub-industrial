@@ -592,3 +592,10 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
   #dashboard>#trash-panel.hidden,
   #dashboard>#deleted-panel.hidden{display:none!important}
 }
+
+
+/* On phones every dashboard card opens its detail section after the full card grid. */
+@media(max-width:800px){
+  #mobile-dashboard-detail-host{order:20;flex:0 0 100%;width:100%;box-sizing:border-box}
+  #mobile-dashboard-detail-host>:not(.hidden){display:block!important;width:100%;box-sizing:border-box;margin-top:0}
+}
