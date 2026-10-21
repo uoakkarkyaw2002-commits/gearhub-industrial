@@ -155,24 +155,35 @@
   await pushApi("/subscribe",{subscription:sub.toJSON()});
   await pushApi("/unsubscribe",{endpoint:oldSub.endpoint}).catch(()=>{});await oldSub.unsubscribe().catch(()=>{});
  }
+ // Subscribe this device (used by "Turn on" and by the silent repair below).
+ async function ensureSubscribed(){
+  const {publicKey}=await pushApi("");const reg=await pushRegistration();let sub=await reg.pushManager.getSubscription();
+  const key=keyBytes(publicKey);if(sub&&sub.options?.applicationServerKey){const old=new Uint8Array(sub.options.applicationServerKey);if(old.length!==key.length||old.some((v,i)=>v!==key[i])){await sub.unsubscribe();sub=null;}}
+  sub=sub||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:key});
+  return pushApi("/subscribe",{subscription:sub.toJSON()});
+ }
+ // Alerts were allowed on this device but the server no longer has it (a new domain, a cleared browser, an expired
+ // subscription): quietly connect it again, once per page, unless the owner turned alerts Off on purpose.
+ const alertsOffKey="gh-alerts-off:"+(SHOP_SCOPE||"main");let healed=false;
+ const turnedOffOnPurpose=()=>{try{return localStorage.getItem(alertsOffKey)==="1"}catch{return false}};
+ const rememberWanted=on=>{try{on?localStorage.removeItem(alertsOffKey):localStorage.setItem(alertsOffKey,"1")}catch{}};
  async function refreshAlerts(){
   if(!("serviceWorker" in navigator)||!("PushManager" in window)||!window.Notification||!window.isSecureContext)return renderAlerts(isIOS&&!standalone()?"ios":"unsupported");
   if(isIOS&&!standalone())return renderAlerts("ios");
   if(Notification.permission==="denied")return renderAlerts("denied");
   try{await moveOldShopAlert();}catch{}
-  try{const sub=await currentSubscription();const s=await pushApi(sub?"?endpoint="+encodeURIComponent(sub.endpoint):"");alertsInfo=s;renderAlerts(sub&&s.subscribed?"on":"off");}catch{renderAlerts("off");}
+  try{const sub=await currentSubscription();const s=await pushApi(sub?"?endpoint="+encodeURIComponent(sub.endpoint):"");alertsInfo=s;
+   if(!(sub&&s.subscribed)&&Notification.permission==="granted"&&!healed&&!turnedOffOnPurpose()){healed=true;try{alertsInfo={...s,...(await ensureSubscribed())};return renderAlerts("on","ဒီဖုန်းကို အော်ဒါသတိပေးချက်နဲ့ ပြန်ချိတ်ပေးပြီးပါပြီ။ / This phone was connected again.");}catch{}}
+   renderAlerts(sub&&s.subscribed?"on":"off");}catch{renderAlerts("off");}
  }
  async function alertsAction(action,button){
   button.disabled=true;
   try{
    if(action==="on"){
     const permission=await Notification.requestPermission();if(permission!=="granted")return renderAlerts(permission==="denied"?"denied":"off","ခွင့်မပြုရသေးပါ / Permission not given.");
-    const {publicKey}=await pushApi("");const reg=await pushRegistration();let sub=await reg.pushManager.getSubscription();
-    const key=keyBytes(publicKey);if(sub&&sub.options?.applicationServerKey){const old=new Uint8Array(sub.options.applicationServerKey);if(old.length!==key.length||old.some((v,i)=>v!==key[i])){await sub.unsubscribe();sub=null;}}
-    sub=sub||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:key});
-    alertsInfo={...(alertsInfo||{}),...(await pushApi("/subscribe",{subscription:sub.toJSON()}))};renderAlerts("on","အော်ဒါအသစ်ဝင်ရင် ဒီဖုန်းကို အသိပေးပါမယ်။ 🔔 စမ်းပို့မယ် ကိုနှိပ်ပြီး စမ်းကြည့်ပါ။ / Tap Test to try it.");
+    rememberWanted(true);alertsInfo={...(alertsInfo||{}),...(await ensureSubscribed())};renderAlerts("on","အော်ဒါအသစ်ဝင်ရင် ဒီဖုန်းကို အသိပေးပါမယ်။ 🔔 စမ်းပို့မယ် ကိုနှိပ်ပြီး စမ်းကြည့်ပါ။ / Tap Test to try it.");
    }else if(action==="off"){
-    const sub=await currentSubscription();if(sub){await pushApi("/unsubscribe",{endpoint:sub.endpoint}).catch(()=>{});await sub.unsubscribe().catch(()=>{});}renderAlerts("off");
+    const sub=await currentSubscription();rememberWanted(false);if(sub){await pushApi("/unsubscribe",{endpoint:sub.endpoint}).catch(()=>{});await sub.unsubscribe().catch(()=>{});}renderAlerts("off");
    }else if(action==="test"){
     const {sent}=await pushApi("/test",{});try{const sub=await currentSubscription();alertsInfo=await pushApi(sub?"?endpoint="+encodeURIComponent(sub.endpoint):"");}catch{}renderAlerts("on",sent?"စမ်းသတိပေးချက် ပို့ပြီးပါပြီ — ဖုန်းကို စစ်ကြည့်ပါ / Test sent to "+sent+" phone(s).":"ပို့လို့မရပါ — ပိတ်ပြီး ပြန်ဖွင့်ကြည့်ပါ / Could not reach this phone; turn alerts off and on again.");
    }
