@@ -260,6 +260,11 @@ class SQLiteSessionStore extends session.Store {
 const policies = require("./lib/policies");
 app.get("/policies.html", (_req, res) => { res.set("Cache-Control", "no-cache"); res.type("html").send(policies.render(policies.load(db))); });
 // Static files never need a session, so serve them before session handling.
+// GearHub's own store opens with the same opening screen (picture, sound, seconds) as every seller shop.
+{
+ const storeHtml=fs.readFileSync(path.join(__dirname,"public","index.html"),"utf8"),{withSplash}=require("./lib/tenant-install"),splashSettings=require("./lib/splash");
+ app.get(["/","/index.html"],(req,res)=>res.set("Cache-Control","no-cache").type("html").send(withSplash(storeHtml,splashSettings.load(db))));
+}
 app.use(express.static(path.join(__dirname, "public"), { setHeaders(res, filePath) {
  // Assets requested with a ?v= build tag never change, so phones can keep them.
  if (res.req?.query?.v && /\.(?:js|css|png|jpe?g|webp|svg|woff2?)$/i.test(filePath)) res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
