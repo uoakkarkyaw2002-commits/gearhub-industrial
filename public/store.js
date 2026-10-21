@@ -124,11 +124,23 @@ $("checkout-form").addEventListener("submit",async e=>{
   const receipt=f.get("receipt"),signature=JSON.stringify({fields:[...f.entries()].filter(([key])=>key!=="receipt"),receipt:receipt?{name:receipt.name,size:receipt.size,lastModified:receipt.lastModified}:null});
   let request;try{request=JSON.parse(sessionStorage.getItem(storefrontKey("gh-order-request"))||"null")}catch{}
   if(!request||request.signature!==signature){request={signature,key:crypto.randomUUID()};try{sessionStorage.setItem(storefrontKey("gh-order-request"),JSON.stringify(request))}catch{throw new Error(tr("checkoutStorageUnavailable"));}}
+  // A phone photo is 3–8 MB; the receipt only has to be readable, so send a smaller copy (much faster on mobile data).
+  if(receipt)f.set("receipt",await shrinkReceipt(receipt));
   const r=await storefrontFetch("/api/orders",{method:"POST",headers:{"Idempotency-Key":request.key},body:f});const data=await r.json();if(!r.ok)throw new Error(data.error||"Order failed");
   try{sessionStorage.removeItem(storefrontKey("gh-order-request"))}catch{}
-  cart={};saveCart();form.reset();$("checkout-modal").classList.remove("open");notifyOrderPlaced(data.order.orderCode);if(tenantStore)await init();toast(`${tr("orderSuccess")} · ${tr("orderId")}: ${data.order.orderCode}`);
+  cart={};saveCart();form.reset();$("checkout-modal").classList.remove("open");notifyOrderPlaced(data.order.orderCode);toast(`${tr("orderSuccess")} · ${tr("orderId")}: ${data.order.orderCode}`);if(tenantStore)init().catch(()=>{});
  }catch(err){$("checkout-message").className="error";$("checkout-message").textContent=err.message}finally{button.disabled=false;window.__gearhubCheckoutPending=false}
 });
+async function shrinkReceipt(file){
+ if(!file||!/^image\/(jpeg|png|webp)$/.test(file.type)||file.size<400*1024)return file;
+ try{
+  const bitmap=await createImageBitmap(file),scale=Math.min(1,1800/Math.max(bitmap.width,bitmap.height)),w=Math.round(bitmap.width*scale),h=Math.round(bitmap.height*scale);
+  const canvas=document.createElement("canvas");canvas.width=w;canvas.height=h;canvas.getContext("2d").drawImage(bitmap,0,0,w,h);bitmap.close?.();
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",0.8));
+  if(!blob||blob.size>=file.size)return file;
+  return new File([blob],(file.name||"receipt").replace(/\.[^.]+$/,"")+".jpg",{type:"image/jpeg",lastModified:file.lastModified});
+ }catch{return file}
+}
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),2500)}
 function notifyOrderPlaced(orderCode){if(localStorage.getItem("gh-notifications")!=="on"||!window.Notification||Notification.permission!=="granted")return;const title=tr("orderSuccess"),body=`${tr("orderId")}: ${orderCode}`;if("serviceWorker"in navigator)navigator.serviceWorker.ready.then(registration=>registration.showNotification(title,{body,icon:"/icons/apple-touch-icon.png",badge:"/icons/apple-touch-icon.png"})).catch(()=>new Notification(title,{body}));else new Notification(title,{body})}
 let galleryProduct=null,galleryIndex=0;

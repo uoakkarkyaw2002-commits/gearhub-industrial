@@ -62,8 +62,9 @@
         }
         if(url==='/api/service'){const v=(snapshot||await load()).service;return json({endsAt:v.endsAt,state:v.state});}
         if(url==='/api/orders'){
-          const s=await load();if(!configFor(s).bankName)return json({error:'Payment is not configured for this shop.'},409);
-          const r=await fetch('/api/platform/me',{cache:'no-store'});if(!r.ok)return json({error:'Reload before checkout.'},503);
+          // The shop data (already downloaded) and the security token are fetched together, not one after the other.
+          const [s,r]=await Promise.all([snapshot||load(),fetch('/api/platform/me',{cache:'no-store'})]);if(!configFor(s).bankName)return json({error:'Payment is not configured for this shop.'},409);
+          if(!r.ok)return json({error:'Reload before checkout.'},503);
           const me=await r.json(),f=options.body;
           f.set('customer',f.get('customerName'));f.set('file',f.get('receipt'));f.delete('receipt');f.delete('customerName');f.delete('email');f.delete('language');
           const response=await fetch(endpoint+'/orders',{...options,headers:{...options.headers,'X-CSRF-Token':me.csrfToken},body:f});
