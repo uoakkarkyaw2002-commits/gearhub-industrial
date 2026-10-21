@@ -15,7 +15,7 @@
   const headline="Invoice No",number=order.invoice_no||order.order_code;
   return '<button type="button" class="order-invoice-card status-'+esc(order.status)+'" data-order-open="'+Number(order.id)+'">'
    +'<span class="order-invoice-photos">'+(order.items||[]).slice(0,3).map(item=>'<i>'+photo(item)+"</i>").join("")+"</span>"
-   +'<span class="order-invoice-meta"><small>'+headline+'</small><strong>'+esc(number)+'</strong><small>▣ &nbsp;'+stamp(order.created_at)+"</small></span>"
+   +'<span class="order-invoice-meta"><small>'+headline+'</small><strong>'+esc(number)+'</strong><small class="order-invoice-date">'+calendar+'<span>'+stamp(order.created_at)+"</span></small></span>"
    +'<i class="order-invoice-rule" aria-hidden="true"></i><span class="order-invoice-total"><small>Total amount</small><strong>'+money(order.total)+'</strong><em>'+esc(label(order.status))+" · "+esc(label(order.payment_status))+"</em></span></button>";
  }
  // ---- Order detail, laid out like the owner's design: customer + facts side by side,

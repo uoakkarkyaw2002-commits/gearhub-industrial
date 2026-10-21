@@ -165,3 +165,5 @@
  #orders-content:has(.od){padding-left:0!important;padding-right:0!important;border-left:0!important;border-right:0!important;background:none!important;box-shadow:none!important}
  .od{width:calc(100% + 12px)!important;max-width:none!important;margin-left:-6px!important;margin-right:-6px!important}
 }
+
+.order-invoice-date{display:flex!important;align-items:center;gap:6px}.order-invoice-calendar{width:15px;height:15px;flex:0 0 15px;color:#4f7a5e}
