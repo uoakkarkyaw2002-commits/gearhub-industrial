@@ -900,3 +900,24 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
 @keyframes cart-fx-drop{0%,24%{transform:translateY(-4px);opacity:0}32%{opacity:1}48%{transform:translateY(12px);opacity:1}100%{transform:translateY(12px);opacity:1}}
 @keyframes cart-fx-ring{0%{box-shadow:0 0 0 0 #22a35a99}100%{box-shadow:0 0 0 12px #22a35a00}}
 @keyframes cart-fx-check{to{stroke-dashoffset:0}}
+/* Phone bottom navigation, "liquid" style (owner's video). liquid-nav.js sets --liquid-x (the open
+   tab's centre) and --liquid-lift; the bubble, the notch in the bar and the raised icon follow. */
+@property --liquid-x{syntax:"<length>";inherits:true;initial-value:0px}
+@media(max-width:850px){
+ .mobile-bottom-nav.liquid{overflow:visible;background:transparent!important;border-top:0!important;filter:drop-shadow(0 -1px 0 #e1e8de) drop-shadow(0 -6px 14px #18342614);transition:--liquid-x .5s cubic-bezier(.65,0,.35,1)}
+ .mobile-bottom-nav.liquid::before{content:"";position:absolute;inset:0;z-index:0;background:#fff;-webkit-mask:radial-gradient(circle 37px at var(--liquid-x) 0,#0000 36px,#000 37.5px);mask:radial-gradient(circle 37px at var(--liquid-x) 0,#0000 36px,#000 37.5px)}
+ .mobile-bottom-nav.liquid.liquid-none::before{-webkit-mask:none;mask:none}
+ .mobile-bottom-nav.liquid.liquid-instant,.mobile-bottom-nav.liquid.liquid-instant *{transition:none!important}
+ .mobile-bottom-nav.liquid .liquid-nav-bubble{position:absolute;z-index:1;top:-27px;left:0;width:58px;height:58px;border-radius:50%;background:#fff;box-shadow:0 0 0 7px var(--paper,#f5f7f1),0 6px 16px #1834262e;transform:translateX(calc(var(--liquid-x) - 29px));pointer-events:none;transition:opacity .2s}
+ .mobile-bottom-nav.liquid.liquid-none .liquid-nav-bubble{opacity:0}
+ .mobile-bottom-nav.liquid .bottom-nav-item{z-index:2;justify-content:center}
+ .mobile-bottom-nav.liquid .bottom-nav-item::after{display:none}
+ .mobile-bottom-nav.liquid .bottom-nav-item>span{background:transparent!important;transition:transform .5s cubic-bezier(.65,0,.35,1)}
+ .mobile-bottom-nav.liquid .bottom-nav-item.active>span{transform:translateY(var(--liquid-lift,-30px)) scale(.86)}
+ .mobile-bottom-nav.liquid .bottom-nav-item>small{position:absolute;left:0;right:0;bottom:6px;opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s}
+ .mobile-bottom-nav.liquid .bottom-nav-item.active>small{opacity:1;transform:none;transition-delay:.18s}
+ :root[data-theme="dark"] .mobile-bottom-nav.liquid{filter:drop-shadow(0 -1px 0 #33453a)}
+ :root[data-theme="dark"] .mobile-bottom-nav.liquid::before{background:#142119}
+ :root[data-theme="dark"] .mobile-bottom-nav.liquid .liquid-nav-bubble{background:#1f3326;box-shadow:0 0 0 7px var(--paper,#0f1a13),0 6px 16px #0008}
+}
+@media(max-width:850px) and (prefers-reduced-motion:reduce){.mobile-bottom-nav.liquid,.mobile-bottom-nav.liquid *{transition:none!important}}
