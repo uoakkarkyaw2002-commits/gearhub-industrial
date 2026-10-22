@@ -25,6 +25,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### AGENTS.md section 9: engineering rules (Claude) — completed
+- Task: the owner asked to write down the mistakes from 1.1.84–1.1.95 so they are not repeated. `AGENTS.md` now has section 9: no direct pushes to main, `npm run check && npm test`, single-backslash regexes, `gearhub-shell-v85-<version>`, matching `?v=` tags in `sw.js`, `shop_id` scoping, no data-wiping imports, modal/`hidden` patterns, phone + PC browser tests, honest reports.
+- Files: `AGENTS.md`, `AI_COLLABORATION.md` (docs only; no version bump).
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/165
+- Notes: **Both agents: read AGENTS.md section 9 before every task.**
+
 ### 1.1.96: Excel View opens in the app, phones get Excel, import keeps unlinked data (Claude) — completed
 - Task: the owner reported that "View" still downloaded the file (1.1.95), and asked for Excel on phones.
 - Fixes:

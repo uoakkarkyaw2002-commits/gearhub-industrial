@@ -53,3 +53,52 @@ These rules apply to all future GearHub tasks, within their applicable scope.
 - This file lives in the root `AGENTS.md`.
 - Follow it for all future GearHub tasks within its applicable scope.
 - Do not overwrite an existing `AGENTS.md` without checking and preserving its important rules.
+
+## 9. Engineering Rules (learned from real mistakes, 1.1.84–1.1.95)
+Each rule below exists because breaking it broke the live site or `main`'s CI.
+
+### 9.1 Never push straight to `main`
+- Always work on a branch and open a Pull Request. Merge only after CI ("Production readiness / node22") is green.
+- 1.1.91 and 1.1.95 went to `main` without a PR. Both had syntax errors, so the Excel feature was dead in production.
+
+### 9.2 Run the checks locally before every PR (Node 22; better-sqlite3 crashes on Node 24)
+```
+npm run check && npm test
+```
+- Both must pass with 0 failures. If a test fails because of your change, fix the code or update the test on purpose. Never ignore a failure.
+
+### 9.3 Regex literals in browser JS use single backslashes
+- Wrong: `/^\\/shops\\/([^/]+)/`, `/\\d/`, `/\\.csv$/i`, `/\\r?\\n/`
+- Right: `/^\/shops\/([^/]+)/`, `/\d/`, `/\.csv$/i`, `/\r?\n/`
+- A double backslash makes the whole file a syntax error, so nothing in it runs (`excel-library.js`, `excel-map.js`). Run `node --check public/<file>.js` on every JS file you touch.
+
+### 9.4 Service worker cache name and asset tags
+- In `public/sw.js`, `CACHE_NAME` must be exactly `gearhub-shell-v85-<version>`, e.g. `gearhub-shell-v85-1.1.97`. Keep the `v85-` prefix: `scripts/check-static.js` requires it, and `v86` broke CI twice.
+- Every release bumps the same version in `package.json`, `package-lock.json` (two places), `public/index.html`, `public/sw.js` and `tests/tenant-install.test.js`.
+- When you change a `?v=` tag for a JS/CSS file in `public/index.html`, change the identical tag in the `SHELL` list in `public/sw.js`. The share-store offline-shell test checks that they match.
+
+### 9.5 Database and shop isolation (security)
+- Every SELECT/UPDATE/DELETE on `platform_products`, `platform_orders` or `platform_files` must include `shop_id=?`. `tests/tenant-isolation.test.js` enforces this.
+- Only use columns that exist. Check the schema in `lib/platform-model.js` first. `platform_files` has no `created_at`; selecting it caused SQLITE_ERROR.
+- Store uploaded file types from the checked extension, never from the browser's MIME type.
+
+### 9.6 Never destroy existing data on import or update
+- When updating an existing product from a spreadsheet, change only the fields the owner linked and that have a non-empty value; use `COALESCE(?, column)` for the rest. 1.1.95 reset stock to 0 and emptied categories for unlinked columns.
+
+### 9.7 UI patterns already in this codebase
+- `.modal` is `display:none` until it also has class `open`. Removing `hidden` alone does not show it.
+- A CSS rule like `form{display:flex}` overrides the `hidden` attribute. Add `selector[hidden]{display:none}` for anything you hide with `hidden`.
+- The GearHub owner (`me.isOwner`) controls every shop. Anything a shop owner can do in their shop, the GearHub owner must also be able to do (find the shop via `/api/platform/owner`).
+- Seller shops must never show the GearHub brand.
+
+### 9.8 Test in a real browser at both sizes before saying "done"
+- Phone 375px and PC 1280px, on a seller shop (`/shops/<slug>/`). Click the actual buttons; confirm the feature works, the console has no errors, and nothing else on the page broke.
+- If a feature is PC-only by design, say so and say how phones reach it.
+
+### 9.9 One agent at a time; keep the handoff log
+- Before starting, pull the latest `main` and read `AGENTS.md` and `AI_COLLABORATION.md`.
+- After finishing, add a handoff entry to `AI_COLLABORATION.md` (task, files, PR link, notes) in the same PR.
+- Do not deploy. The owner deploys on Render himself.
+
+### 9.10 Report honestly
+- Never say "done", "merged" or "works" without verifying it. List what you tested, at which sizes, and anything not verified.
