@@ -109,9 +109,10 @@
       renderUpdate();autoApply();
     }catch{const status=document.getElementById('app-update-status');if(status)status.textContent='Cannot check updates. Reconnect and try again. / အင်တာနက် စစ်ပေးပါ။';}
   }
+  let splash;
   function showUpdateSplash(){
     try{sessionStorage.setItem(updateSplashKey,'1')}catch{}
-    window.GearHubSplash?.showUpdating?.();
+    splash=window.GearHubSplash?.showUpdating?.();
   }
   async function apply() {
     if(blocked()){
@@ -146,6 +147,7 @@
           });
       } catch {}
     }
+    splash?.progress?.(80);
     try {
       localStorage.setItem(versionKey, release?.version || buildVersion || "1.0.0");
       localStorage.setItem("gh-app-version", release?.version || buildVersion || "1.0.0");

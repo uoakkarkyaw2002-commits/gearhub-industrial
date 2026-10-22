@@ -7,7 +7,8 @@
  const el=document.getElementById("sky-splash");if(!el)return;
  const shop=location.pathname.match(/^\/shops\/([^/]+)/);
  const updateKey='gh-update-splash:'+(shop?'/shops/'+shop[1]+'/':'/');
- let updating=false;try{updating=sessionStorage.getItem(updateKey)==='1';if(updating)sessionStorage.removeItem(updateKey)}catch{}
+ // The page before the reload stores how far the update got (1–99), so the counter continues.
+ let updating=false,carried=0;try{const saved=sessionStorage.getItem(updateKey);updating=Boolean(saved);carried=Math.min(99,Number(saved)||0);if(updating)sessionStorage.removeItem(updateKey)}catch{}
  const message=node=>node.querySelector('.sky-splash-message');
  const loadingText=updating?'Updating…':'ဆိုင်ကို ဖွင့်နေပါတယ် / Loading';
  const prepareUpdate=node=>{
@@ -15,10 +16,21 @@
   const label=message(node);if(label)label.textContent='Updating…';
  };
  const template=el.cloneNode(true);
+ // Before the reload: "Updating… 0%" counts up while the new version downloads (to 60%, then to
+ // the step updates.js reports) and the number is handed to the next page.
  window.GearHubSplash={showUpdating:()=>{
   let screen=document.getElementById('sky-splash');
   if(!screen){screen=template.cloneNode(true);document.body.prepend(screen)}
-  prepareUpdate(screen);return screen;
+  prepareUpdate(screen);
+  if(screen===el&&!gone)return {progress(){}};
+  screen.classList.add('is-progress');
+  let count=screen.querySelector('.sky-splash-percent');
+  if(!count){count=document.createElement('b');count.className='sky-splash-percent';message(screen)?.after?.(count)}
+  const fill=screen.querySelector('.sky-splash-bar i');
+  let value=0,goal=60;clearInterval(screen._count);
+  const show=()=>{const whole=Math.floor(value);count.textContent=whole+'%';if(fill)fill.style.width=whole+'%';try{sessionStorage.setItem(updateKey,String(Math.max(1,whole)))}catch{}};
+  show();screen._count=setInterval(()=>{if(value<goal){value=Math.min(goal,value+Math.max(0.2,(goal-value)*0.05));show()}},50);
+  return {progress(step){goal=Math.max(goal,Math.min(99,step))}};
  }};
  const nav=performance.getEntriesByType?.("navigation")?.[0];
  // Moving between pages of the same site within seconds is not "opening the shop" (the referrer is
@@ -46,7 +58,7 @@
  const percent=document.createElement('b');percent.className='sky-splash-percent';percent.textContent='0%';
  message(el)?.after?.(percent);
  const started=Date.now();
- let shown=0,goal=75,data=false,done=false,gone=false,failed=false,pictures=[0,0];
+ let shown=carried,goal=Math.max(75,carried),data=false,done=false,gone=false,failed=false,pictures=[0,0];
  const label=text=>{const node=message(el);if(node)node.textContent=text};
  const render=()=>{const value=Math.floor(shown);percent.textContent=value+'%';if(bar)bar.style.width=value+'%'};
  const leave=()=>{if(gone)return;gone=true;clearInterval(tick);el.classList.add("is-leaving");if(audio)audio.pause();setTimeout(()=>el.remove(),quiet?250:550)};
