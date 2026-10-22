@@ -25,13 +25,19 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.113: "Updating…" counts 0–100% (Claude) — in review
+### 1.1.114: Looping flower animation while Updating (Claude) — in review
+- Task: the owner's video. While the app updates, a dark screen shows pink flowers growing (stems, leaves, grass, gold sparkles). The scene fades and grows again in a 6 s loop until 100%. It is drawn with SVG and the Web Animations API, so no video file is downloaded.
+- Files: `public/skyshop-splash.js` (`bloom()` is called from `prepareUpdate`), `public/skyshop-splash.css` (dark background; the picture is hidden while updating), `lib/tenant-install.js` (`SPLASH_V`), sw tag, version files, tests.
+- PR: (this PR)
+- Notes: the 0–100% counter is unchanged. Reduced motion shows the scene without movement.
+
+### 1.1.113: "Updating…" counts 0–100% (Claude) — completed
 - Task: the Updating screen showed a full bar with no number. Now it counts from 0%, and the shop opens only at 100%.
 - Files:
   - `public/skyshop-splash.js`: `showUpdating()` counts up to 60% while the new version downloads, then to the step that `updates.js` reports (80%). It stores the number in `gh-update-splash:<scope>`, and the reloaded page continues from it.
   - `public/updates.js`: keeps the splash handle and reports `progress(80)` once the new worker is installed.
   - `lib/tenant-install.js` (`SPLASH_V`), tags in index/admin/sw, version files, tests.
-- PR: (this PR)
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/183
 
 ### 1.1.112: Press and drag along the phone bottom nav (Claude) — completed
 - Task: the owner's recording (iPhone tab bar). Pressing the bottom nav and dragging left or right moves the bubble with the finger. The tab under the finger rises and shows its label, and letting go opens that tab. A plain tap works as before.
