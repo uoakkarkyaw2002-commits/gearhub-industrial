@@ -241,7 +241,10 @@ $("category-manager-form").addEventListener("submit",async e=>{
  const unnamed=categoryRows.find(c=>!c.category_en.trim());if(unnamed){categoryEditing.add(unnamed._key);expandCategoryParents(unnamed);renderCategoryManager();msg("category-manager-message","Enter an English name for every category.","error");return;}
  const rows=categoryRows.map(c=>({id:Number(c.id)||undefined,category_en:c.category_en.trim(),category_my:String(c.category_my||"").trim()||c.category_en.trim(),icon:c.icon||"",parent_en:(c.parent_en||"").trim(),...(c.bannerUrl?{bannerUrl:c.bannerUrl}:{})}));
  const button=$("save-categories");categorySaving=true;button.disabled=true;msg("category-manager-message","Saving categories…","");
- try{const result=await api("/api/admin/categories",{method:"PUT",body:JSON.stringify({categories:rows})});categoryEditing.clear();renderCategoryManager(result.categories);msg("category-manager-message","Categories saved.","success");toast("Categories saved");await refreshAll();}catch(err){msg("category-manager-message","Could not save categories: "+err.message,"error");toast(err.message);}finally{categorySaving=false;button.disabled=false;}
+ let result;try{result=await api("/api/admin/categories",{method:"PUT",body:JSON.stringify({categories:rows})});}catch(err){msg("category-manager-message","Could not save categories: "+err.message,"error");toast(err.message);return;}finally{categorySaving=false;button.disabled=false;}
+ // Saved: the editor is usable again at once. The rest of the page refreshes in the
+ // background, and a slow or failed refresh never reports the save as failed.
+ categoryEditing.clear();renderCategoryManager(result.categories);msg("category-manager-message","Categories saved.","success");toast("Categories saved");refreshAll().catch(()=>{});
 });
 
 
