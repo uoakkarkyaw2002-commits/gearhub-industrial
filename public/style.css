@@ -921,3 +921,11 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
  :root[data-theme="dark"] .mobile-bottom-nav.liquid .liquid-nav-bubble{background:#1f3326;box-shadow:0 0 0 7px var(--paper,#0f1a13),0 6px 16px #0008}
 }
 @media(max-width:850px) and (prefers-reduced-motion:reduce){.mobile-bottom-nav.liquid,.mobile-bottom-nav.liquid *{transition:none!important}}
+/* The open tab is easy to see (owner's picture): a light-green bubble with a green ring and a bold
+   dark-green label. Icon colours are unchanged. */
+@media(max-width:850px){
+ .mobile-bottom-nav.liquid .liquid-nav-bubble{background:#eefbed;box-shadow:0 0 0 7px var(--paper,#f5f7f1),inset 0 0 0 2.5px #148333,0 6px 16px #1834262e}
+ .mobile-bottom-nav.liquid .bottom-nav-item.active>small{color:#0f6b2a;font-weight:800}
+ :root[data-theme="dark"] .mobile-bottom-nav.liquid .liquid-nav-bubble{background:#28442c;box-shadow:0 0 0 7px var(--paper,#101a14),inset 0 0 0 2.5px #b7f36b,0 6px 16px #0008}
+ :root[data-theme="dark"] .mobile-bottom-nav.liquid .bottom-nav-item.active>small{color:#b7f36b}
+}
