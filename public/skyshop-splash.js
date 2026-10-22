@@ -14,7 +14,30 @@
  const prepareUpdate=node=>{
   node.classList.remove('is-quiet','is-leaving');node.classList.add('is-updating');node.removeAttribute('data-sound');
   const label=message(node);if(label)label.textContent='Updating…';
+  bloom(node);
  };
+ // "Updating" animation (owner's video): on a dark screen pink flowers grow, leaves and grass appear,
+ // gold sparkles float, then everything fades and grows again — a 6-second loop until 100%.
+ function bloom(node){
+  if(node.querySelector('.sky-bloom'))return;
+  const stems=[['M150 250C148 200 152 140 150 70',150,70,1,0],['M140 250C130 200 110 150 100 115',100,115,.85,.05],['M160 250C170 200 190 160 200 105',200,105,.85,.08],['M130 250C125 225 118 205 112 190',112,190,.55,.12],['M172 250C178 230 186 215 190 205',190,205,.5,.15]];
+  const leaves=[[148,205,-40],[152,175,40],[149,145,-35],[151,112,35],[124,195,-50],[114,160,30],[176,190,50],[188,150,-30],[138,234,-60],[164,234,60],[118,244,-75],[182,244,75]];
+  const grass=[24,36,48,60,240,252,264,278];
+  let svg='<svg viewBox="30 40 240 220" preserveAspectRatio="xMidYMax meet"><defs><radialGradient id="sb-petal" cx="50%" cy="80%" r="80%"><stop offset="0" stop-color="#ffd3e6"/><stop offset="1" stop-color="#e2639c"/></radialGradient><radialGradient id="sb-glow"><stop offset="0" stop-color="#ff9fcd" stop-opacity=".55"/><stop offset="1" stop-color="#ff9fcd" stop-opacity="0"/></radialGradient><linearGradient id="sb-leaf" x1="0" x2="1"><stop offset="0" stop-color="#7d2a6c"/><stop offset="1" stop-color="#c2407f"/></linearGradient></defs><g class="sb-all"><ellipse cx="150" cy="252" rx="140" ry="16" fill="url(#sb-glow)"/>';
+  grass.forEach((x,i)=>{const lean=x<150?-12:12;svg+='<path class="sb-draw" data-at="'+(.12+i*.02)+'" pathLength="1" d="M'+x+' 252Q'+(x+lean/2)+' 205 '+(x+lean)+' '+(170+(i%3)*12)+'" fill="none" stroke="#2f9e44" stroke-width="2.4" stroke-linecap="round"/>'});
+  stems.forEach(([d],i)=>{svg+='<path class="sb-draw" data-at="'+stems[i][4]+'" pathLength="1" d="'+d+'" fill="none" stroke="#c63c7d" stroke-width="3" stroke-linecap="round"/>'});
+  leaves.forEach(([x,y,r],i)=>{svg+='<g transform="translate('+x+' '+y+') rotate('+r+')"><ellipse class="sb-pop" data-at="'+(.14+i*.015)+'" rx="10" ry="4.5" fill="url(#sb-leaf)"/></g>'});
+  stems.forEach(([,x,y,size,at])=>{let petals='';for(let k=0;k<5;k++)petals+='<ellipse cx="0" cy="-10" rx="7.5" ry="11" transform="rotate('+k*72+')" fill="url(#sb-petal)"/>';svg+='<g transform="translate('+x+' '+y+') scale('+size+')"><g class="sb-pop" data-at="'+(at+.24)+'"><circle r="22" fill="url(#sb-glow)"/>'+petals+'<circle r="5" fill="#ffd76b"/></g></g>'});
+  for(let i=0;i<14;i++)svg+='<circle class="sb-spark" data-at="'+(.38+(i%7)*.05)+'" cx="'+(70+((i*53)%160))+'" cy="'+(70+((i*37)%120))+'" r="'+(1.1+(i%3)*.5)+'" fill="#ffd76b"/>';
+  const wrap=document.createElement('div');wrap.className='sky-bloom';wrap.setAttribute('aria-hidden','true');wrap.innerHTML=svg+'</g></svg>';node.prepend(wrap);
+  if(!wrap.animate||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const loop=(item,frames)=>item.animate(frames,{duration:6000,iterations:Infinity,easing:'linear'});
+  const at=item=>Number(item.dataset.at);
+  wrap.querySelectorAll('.sb-draw').forEach(item=>{const a=at(item);loop(item,[{strokeDasharray:1,strokeDashoffset:1,offset:0},{strokeDashoffset:1,offset:a},{strokeDashoffset:0,offset:Math.min(.8,a+.18)},{strokeDasharray:1,strokeDashoffset:0,offset:1}])});
+  wrap.querySelectorAll('.sb-pop').forEach(item=>{const a=at(item);loop(item,[{transform:'scale(0)',offset:0},{transform:'scale(0)',offset:a},{transform:'scale(1.15)',offset:Math.min(.8,a+.08)},{transform:'scale(1)',offset:Math.min(.81,a+.12)},{transform:'scale(1)',offset:1}])});
+  wrap.querySelectorAll('.sb-spark').forEach(item=>{const a=at(item);loop(item,[{opacity:0,transform:'translateY(0)',offset:0},{opacity:0,transform:'translateY(0)',offset:a},{opacity:1,offset:a+.08},{opacity:0,transform:'translateY(-26px)',offset:Math.min(.86,a+.3)},{opacity:0,transform:'translateY(-26px)',offset:1}])});
+  loop(wrap.querySelector('.sb-all'),[{opacity:1,offset:0},{opacity:1,offset:.82},{opacity:0,offset:.93},{opacity:0,offset:1}]);
+ }
  const template=el.cloneNode(true);
  // Before the reload: "Updating… 0%" counts up while the new version downloads (to 60%, then to
  // the step updates.js reports) and the number is handed to the next page.
