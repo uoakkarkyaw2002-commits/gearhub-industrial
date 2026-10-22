@@ -25,6 +25,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.92: Fix the storefront Excel library (Claude) — completed
+- Task: the owner reported that the Excel icon from 1.1.91 did nothing.
+- Three bugs: (1) `public/excel-library.js` had `/^\\/shops\\/…/` (double backslashes), a syntax error, so the whole script never ran. (2) The panel only removed `hidden`, but `.modal` is `display:none` until it also gets `.open`. (3) `GET /api/platform/store/:slug/spreadsheets` selected `created_at`, which `platform_files` does not have, so it failed with SQLITE_ERROR ("Platform temporarily unavailable").
+- Files: `public/excel-library.js`, `lib/platform.js`, `public/index.html` and `public/sw.js` (`excel-library.js` tag), `tests/excel-library.test.js`, plus the version files.
+- PR: (see the PR list: "Fix the storefront Excel library (1.1.92)")
+- Notes: 1.1.91 went to `main` without a PR, so CI never ran; `npm run check` and the `every public/*.js file parses` test both failed on `main`. **Codex: always open a PR and wait for CI, and run `npm run check && npm test` locally first.** On phones the Excel icon is still hidden (1.1.91 design); only PC shows it.
+
 ### 1.1.91: Storefront Excel library (Codex) — completed
 - Task: add an Excel icon beside the language button; shop owners can upload Excel files and visitors can open uploaded files.
 - Files: `lib/platform.js`, `lib/platform-model.js`, `public/index.html`, `public/excel-library.js`, `public/style.css`, plus release files.
