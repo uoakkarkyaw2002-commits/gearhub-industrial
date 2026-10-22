@@ -64,7 +64,7 @@
   }
   const shop=location.pathname.match(/^\/shops\/([^/]+)/);
   const scope=shop?'/shops/'+shop[1]+'/':location.pathname==='/platform.html'?'/platform.html':'/';
-  const versionKey='gh-app-version:'+scope,notifiedKey='gh-update-notified:'+scope;
+  const versionKey='gh-app-version:'+scope,notifiedKey='gh-update-notified:'+scope,updateSplashKey='gh-update-splash:'+scope;
   const buildVersion=document.querySelector?.('meta[name="gearhub-build-version"]')?.content;
   let available=false,audio;
   const notificationsOn=()=>localStorage.getItem('gh-notifications')==='on';
@@ -108,11 +108,16 @@
       renderUpdate();autoApply();
     }catch{const status=document.getElementById('app-update-status');if(status)status.textContent='Cannot check updates. Reconnect and try again. / အင်တာနက် စစ်ပေးပါ။';}
   }
+  function showUpdateSplash(){
+    try{sessionStorage.setItem(updateSplashKey,'1')}catch{}
+    window.GearHubSplash?.showUpdating?.();
+  }
   async function apply() {
-    if(blocked()){
+    if(blocked(){
       feedback('Finish the active action or selected file before updating. လုပ်ဆောင်နေမှု/ရွေးထားသောဖိုင်ကို အရင်ပြီးစီးပါ။');return false;
     }
     try{saveDraft();}catch{}
+    showUpdateSplash();
     // A failed worker download must never stop the update: fall back to a plain reload.
     if (registration) {
       try {
@@ -159,6 +164,7 @@
   function reloadWhenSafe(){
     if(blocked()){setTimeout(reloadWhenSafe,1000);return;}
     saveDraft();
+    showUpdateSplash();
     location.reload();
   }
   navigator.serviceWorker?.addEventListener("controllerchange", reloadWhenSafe);
