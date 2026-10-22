@@ -25,10 +25,16 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.108: Phone bottom nav "liquid" animation (Claude) — in review
+### 1.1.109: Open tab easier to see in the phone bottom nav (Claude) — in review
+- Task: the owner wants the pressed tab to stand out, without changing the icon colours.
+- Files: `public/style.css` (bubble: light green `#eefbed` with a 2.5 px green ring; open tab label bold dark green; dark-mode versions), tags and version files, `tests/liquid-nav.test.js`.
+- PR: (this PR)
+- Notes: the owner explicitly said not to change icon colours. Do not switch the icons to line or black versions.
+
+### 1.1.108: Phone bottom nav "liquid" animation (Claude) — completed
 - Task: the owner's screen recording. On phones the open tab's icon rises into a round bubble that sits in a curved notch of the bar. Tapping another tab slides the bubble and the notch there (0.5 s), and the label shows only under the open tab.
 - Files: `public/liquid-nav.js` (new; follows `.active` set by store.js and sets `--liquid-x` / `--liquid-lift`), `public/style.css` (phone-only `.mobile-bottom-nav.liquid` block, `@property --liquid-x`), `public/index.html` / `public/sw.js` tags, version files, `tests/liquid-nav.test.js`.
-- PR: (this PR)
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/178
 - Notes: the shop's white bar and colour icons are kept (the video has a dark bar). PC is unchanged; it uses the top navigation. Turned off for reduced motion.
 
 ### 1.1.107: Updating screen stays until the shop is ready; no double reload (Claude) — completed
