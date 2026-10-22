@@ -25,6 +25,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.102: One Excel file and in-sheet search (Codex) — in review
+- Task: keep only one uploaded Excel workbook per seller shop and let the owner search a sheet while it is open in the app.
+- Cause: each upload inserted a new spreadsheet record, so the library rendered every previous file and had no search control for sheet rows.
+- Files: `lib/platform.js` (safe, shop-scoped spreadsheet replacement; list only the newest file), `public/excel-map.js`, `public/style.css`, cache/version files, `tests/excel-library.test.js`.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/172
+- Notes: Node 22 `npm run check && npm test` passed (237 tests). Browser testing at 375px and 1280px was unavailable on this machine and must be completed before merging.
+
 ### 1.1.101: Plant icon and a continuous line beside "Add" rows (Claude) — completed
 - Task: main categories use a plant (sprout) icon instead of a gear, and the green line beside "Add Child subcategory" / "Add Subcategory" was broken.
 - Cause of the break: those Add rows have a 1px border, which moved their connector origin by 1px. Their `::before`/`::after` now use `left:calc(var(--cx) - 1px)` and `top:-12px`.
