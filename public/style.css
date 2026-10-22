@@ -825,9 +825,17 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
 }
 
 
-/* The storefront navigation artwork is phone-only. */
+/* Desktop keeps the shop logo and name; only the navigation artwork is hidden. */
 @media(min-width:851px){
- body:not(.non-home-view)>.home-navigation .home-profile-banner{display:none!important}
+ body:not(.non-home-view)>.home-navigation .home-profile-banner{
+  display:flex!important;
+  background-image:none!important;
+  background-color:transparent!important;
+  color:#183426;
+  box-shadow:none;
+ }
+ body:not(.non-home-view)>.home-navigation .home-profile-banner .settings-profile-copy>small,
+ body:not(.non-home-view)>.home-navigation .home-profile-banner .settings-profile-chevron{color:#617066}
 }
 /* Category page: no title above the banner; the banner sits at the top. Phones also drop the
    empty header row (its search button is already hidden there). */
