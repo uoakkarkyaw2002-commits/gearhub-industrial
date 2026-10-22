@@ -30,7 +30,17 @@ test('.xlsm workbooks are accepted and every file is stored with a spreadsheet t
 });
 test('Excel preview script parses, phones reach it from Settings, and import never wipes unlinked fields',()=>{
  const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8'),lib=fs.readFileSync(path.join(__dirname,'..','public','excel-library.js'),'utf8'),html=fs.readFileSync(path.join(__dirname,'..','public','index.html'),'utf8'),platform=fs.readFileSync(path.join(__dirname,'..','lib','platform.js'),'utf8');
- assert.doesNotThrow(()=>new Function(map));assert.doesNotMatch(map,/\\\\[\/.dnru]/,'no double-escaped regex characters');
+ assert.doesNotThrow(()=>new Function(map));for(const bad of ['\\\\/shops','\\\\d/','\\\\.csv','\\\\r?','\\\\uFEFF'])assert.ok(!map.includes(bad),'double-escaped regex: '+bad);
  assert.match(html,/id="excel-settings-open" hidden/);assert.match(lib,/settingsOpen\.addEventListener\('click',\(\)=>open\.click\(\)\)/);
  assert.match(platform,/description=COALESCE\(\?,description\),category=COALESCE\(\?,category\),price=COALESCE\(\?,price\),stock=COALESCE\(\?,stock\),active=1 WHERE id=\? AND shop_id=\?/);
+});
+test('Excel viewer shows sheets like a spreadsheet: tabs, letters, row numbers, merges, styles, dates',()=>{
+ const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8'),css=fs.readFileSync(path.join(__dirname,'..','public','style.css'),'utf8');
+ for(const piece of ['class="excel-tab','colName(c)','mergeCell','tabColor','formatDate','cellXfs','rowspan','DecompressionStream'])assert.ok(map.includes(piece),piece);
+ assert.match(css,/\.excel-sheet thead th\{position:sticky;top:0/);assert.match(css,/\.excel-sheet th,\.excel-sheet td\{min-width:0/);
+ // Excel dates: 46296 is 1 Oct 2026 and prints as 1-Oct-26 with d-mmm-yy.
+ const fmt=map.slice(map.indexOf('// ---- Number formats ----'),map.indexOf('// ---- Workbook ----'));const ctx={};new Function('ctx',fmt+';ctx.formatNumber=formatNumber;')(ctx);
+ assert.equal(ctx.formatNumber(46296,'d-mmm-yy'),'1-Oct-26');
+ assert.equal(ctx.formatNumber(384563930,'#,##0'),'384,563,930');
+ assert.equal(ctx.formatNumber(0.125,'0.0%'),'12.5%');
 });
