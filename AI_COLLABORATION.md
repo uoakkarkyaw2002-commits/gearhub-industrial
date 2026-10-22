@@ -25,6 +25,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.83: One add button in the category editor (Claude) — completed
+- Task: remove the top "＋ Add Category" button. Keep only "+ Add Main Category" under the list.
+- Files: `public/admin.html`, `public/admin.js` (its listener removed), `tests/one-add-category.test.js`, plus the version files.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/149
+- Notes: `#add-category` no longer exists. Use `#add-main-category` (and the per-row "Add Subcategory").
+
 ### 1.1.82: Category save frees the editor at once (Claude) — completed
 - Task: after **Save Categories**, Add/Save went dead until the whole page reloaded. On phones this took long, and a failed reload reported the save as failed.
 - Files: `public/admin.js`, `public/admin.html`, `tests/category-save.test.js`, plus the version files.
