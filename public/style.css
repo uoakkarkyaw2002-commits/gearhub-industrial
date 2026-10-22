@@ -862,9 +862,22 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
 .excel-sheet thead th{position:sticky;top:0;z-index:2;background:#f3f3f3;color:#555;font:500 12px system-ui,sans-serif;text-align:center;padding:4px 2px;border:1px solid #d4d4d4}
 .excel-sheet tbody th{position:sticky;left:0;z-index:1;background:#f3f3f3;color:#555;font:500 12px system-ui,sans-serif;text-align:center;border:1px solid #d4d4d4;min-width:38px}
 .excel-sheet .excel-corner{left:0;z-index:3}
-.excel-sheet .excel-rownum-col{width:42px}
 .excel-tabs{display:flex;gap:2px;overflow-x:auto;background:#f3f3f3;border:1px solid #c9d2cc;border-top:0;border-radius:0 0 8px 8px;padding:0 4px;-webkit-overflow-scrolling:touch}
 .excel-tab{flex:0 0 auto;padding:10px 16px;border:0;border-bottom:3px solid var(--tab-color,transparent);background:transparent;color:#444;font-weight:700;cursor:pointer;white-space:nowrap}
 .excel-tab.active{background:#fff;color:#137333;border-bottom-color:#1a73e8}
 @media(max-width:600px){.excel-library-card.excel-sheet-open{max-height:94vh;padding:12px}.excel-sheet{max-height:58vh}.excel-tab{padding:9px 13px}}
 .excel-sheet th,.excel-sheet td{min-width:0;overflow-wrap:normal}
+/* Full-screen sheet (owner reference: Google Sheets on a phone). Only the grid, the sheet tabs
+   and one back arrow in the top-left corner; covers the store's bottom navigation. */
+.excel-fs-back{display:none}
+.excel-fullscreen-open{overflow:hidden}
+.excel-library-modal.excel-fullscreen{padding:0!important;z-index:2000;background:#fff}
+.excel-fullscreen .excel-library-card.excel-sheet-open{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;max-height:none;max-width:none;margin:0;padding:0;border:0;border-radius:0;box-shadow:none;display:flex;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+.excel-fullscreen .excel-library-card>:not(.excel-preview){display:none!important}
+.excel-fullscreen .excel-preview{display:flex;flex-direction:column;flex:1;min-height:0;margin:0;padding:0;border:0;position:relative}
+.excel-fullscreen .excel-preview>.drawer-head,.excel-fullscreen #excel-sheet-status,.excel-fullscreen .excel-map-panel{display:none!important}
+.excel-fullscreen .excel-sheet{flex:1;min-height:0;max-height:none;border:0;border-radius:0}
+.excel-fullscreen .excel-tabs{border:0;border-top:1px solid #d4d4d4;border-radius:0;flex:0 0 auto}
+.excel-fullscreen .excel-tab{padding:14px 20px;font-size:16px}
+.excel-fullscreen .excel-sheet thead th{height:40px}
+.excel-fullscreen .excel-fs-back{display:grid;place-items:center;position:absolute;top:2px;left:4px;z-index:5;width:40px;height:36px;border:0;border-radius:10px;background:#f3f3f3;color:#202124;font-size:22px;font-weight:700;cursor:pointer}

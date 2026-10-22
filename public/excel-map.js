@@ -5,12 +5,15 @@
  const box=document.getElementById('excel-library-list'),card=document.querySelector('.excel-library-card');
  if(!box||!card)return;
  const section=document.createElement('section');section.className='excel-preview';section.hidden=true;
- section.innerHTML='<div class="drawer-head"><h3 id="excel-sheet-title">Spreadsheet</h3><button class="icon-btn" id="excel-sheet-back" type="button" aria-label="Back to files">←</button></div><p id="excel-sheet-status" class="excel-library-status"></p><div id="excel-grid" class="excel-grid excel-sheet"></div><div id="excel-tabs" class="excel-tabs" role="tablist"></div><div id="excel-map-panel" class="excel-map-panel" hidden><strong>Connect data to Product Inventory</strong><p class="excel-library-help">Choose each column yourself. Same SKU updates an existing product.</p><div id="excel-map-fields" class="excel-map-fields"></div><button class="primary" id="excel-import" type="button">Import products</button><p id="excel-import-status" class="excel-library-status"></p></div>';
+ section.innerHTML='<button class="excel-fs-back" id="excel-fs-back" type="button" aria-label="Back">←</button><div class="drawer-head"><h3 id="excel-sheet-title">Spreadsheet</h3><button class="icon-btn" id="excel-sheet-back" type="button" aria-label="Back to files">←</button></div><p id="excel-sheet-status" class="excel-library-status"></p><div id="excel-grid" class="excel-grid excel-sheet"></div><div id="excel-tabs" class="excel-tabs" role="tablist"></div><div id="excel-map-panel" class="excel-map-panel" hidden><strong>Connect data to Product Inventory</strong><p class="excel-library-help">Choose each column yourself. Same SKU updates an existing product.</p><div id="excel-map-fields" class="excel-map-fields"></div><button class="primary" id="excel-import" type="button">Import products</button><p id="excel-import-status" class="excel-library-status"></p></div>';
  card.append(section);
  const grid=section.querySelector('#excel-grid'),tabs=section.querySelector('#excel-tabs'),map=section.querySelector('#excel-map-fields'),panel=section.querySelector('#excel-map-panel'),msg=section.querySelector('#excel-sheet-status'),out=section.querySelector('#excel-import-status'),title=section.querySelector('#excel-sheet-title');
  const slug=(location.pathname.match(/^\/shops\/([^/]+)/)||[])[1];
  const MAX_ROWS=1500,MAX_COLS=60;
  let book=null,data=null,owner=null,active=0;
+ const modal=document.getElementById('excel-library-modal');
+ // Full screen like Google Sheets: only the sheet, its tabs and one back arrow.
+ function fullScreen(on){modal?.classList.toggle('excel-fullscreen',on);document.documentElement.classList.toggle('excel-fullscreen-open',on)}
 
  async function access(){try{const x=await (await fetch('/api/platform/me')).json();if(x.shop?.slug===slug)return{id:x.shop.id,csrf:x.csrfToken};if(x.isOwner){const o=await (await fetch('/api/platform/owner')).json();const s=(o.shops||[]).find(i=>i.slug===slug&&!i.legacy);if(s)return{id:s.id,csrf:x.csrfToken}}return null}catch{return null}}
 
@@ -128,12 +131,15 @@
   if(f.sz)css.push('font-size:'+f.sz+'pt');if(f.name)css.push('font-family:"'+f.name.replace(/"/g,'')+'",system-ui,sans-serif');
   const h=s.h&&s.h!=='general'?(s.h==='centerContinuous'?'center':s.h):cell.numeric?'right':'left';css.push('text-align:'+h);
   css.push('vertical-align:'+(s.v==='center'?'middle':s.v==='top'?'top':'bottom'));if(s.wrap)css.push('white-space:pre-wrap');
-  for(const side of ['left','right','top','bottom'])if(b[side])css.push('border-'+side+':'+b[side]);
+  // Like Excel/Sheets: a filled cell hides the light gridlines unless it has its own border.
+  for(const side of ['left','right','top','bottom'])if(b[side])css.push('border-'+side+':'+b[side]);else if(s.fill)css.push('border-'+side+'-color:'+s.fill);
   return css.join(';');
  }
  function renderSheet(sheet){
   const cols=sheet.maxC+1,rows=sheet.maxR+1,px=w=>Math.round((w??sheet.defW)*7+5);
-  let html='<table><colgroup><col class="excel-rownum-col">'+Array.from({length:cols},(_,c)=>'<col style="width:'+px(sheet.widths[c])+'px">').join('')+'</colgroup><thead><tr><th class="excel-corner"></th>'+Array.from({length:cols},(_,c)=>'<th>'+colName(c)+'</th>').join('')+'</tr></thead><tbody>';
+  // Exact table width = row-number column + every column, so the browser never stretches column A.
+  const widths=Array.from({length:cols},(_,c)=>px(sheet.widths[c])),total=46+widths.reduce((a,b)=>a+b,0);
+  let html='<table style="width:'+total+'px"><colgroup><col class="excel-rownum-col" style="width:46px">'+widths.map(w=>'<col style="width:'+w+'px">').join('')+'</colgroup><thead><tr><th class="excel-corner"></th>'+Array.from({length:cols},(_,c)=>'<th>'+colName(c)+'</th>').join('')+'</tr></thead><tbody>';
   for(let r=0;r<rows;r++){
    const ht=sheet.heights[r];if(ht===0)continue;
    html+='<tr style="height:'+Math.round((ht??sheet.defH)*4/3)+'px"><th>'+(r+1)+'</th>';
@@ -171,7 +177,7 @@
  function setForm(hide){const form=document.getElementById('excel-upload-form');if(!form)return;if(hide){if(!form.dataset.wasHidden)form.dataset.wasHidden=String(form.hidden);form.hidden=true}else if(form.dataset.wasHidden){form.hidden=form.dataset.wasHidden==='true';delete form.dataset.wasHidden}}
  box.addEventListener('click',async e=>{
   const b=e.target.closest('[data-excel-preview]');if(!b)return;
-  section.hidden=false;box.hidden=true;setForm(true);card.classList.add('excel-sheet-open');title.textContent=b.dataset.excelName||'Spreadsheet';grid.innerHTML='';tabs.innerHTML='';panel.hidden=true;msg.textContent='Loading…';out.textContent='';
+  section.hidden=false;box.hidden=true;setForm(true);card.classList.add('excel-sheet-open');fullScreen(true);title.textContent=b.dataset.excelName||'Spreadsheet';grid.innerHTML='';tabs.innerHTML='';panel.hidden=true;msg.textContent='Loading…';out.textContent='';
   try{
    const blob=await (await fetch(b.dataset.excelPreview)).blob(),name=b.dataset.excelName||'';
    if(/\.csv$/i.test(name))book=csvBook(await blob.text());else if(/\.xls[xm]$/i.test(name))book=await readBook(await blob.arrayBuffer());else throw Error('Preview supports .xlsx, .xlsm and .csv. Old .xls files can only be downloaded.');
@@ -180,7 +186,10 @@
   }catch(x){msg.textContent=x.message}
  });
  tabs.addEventListener('click',e=>{const t=e.target.closest('[data-sheet]');if(t)showSheet(+t.dataset.sheet)});
- section.querySelector('#excel-sheet-back').onclick=()=>{section.hidden=true;box.hidden=false;setForm(false);card.classList.remove('excel-sheet-open')};
+ const leave=()=>{section.hidden=true;box.hidden=false;setForm(false);card.classList.remove('excel-sheet-open');fullScreen(false)};
+ section.querySelector('#excel-sheet-back').onclick=leave;section.querySelector('#excel-fs-back').onclick=leave;
+ // Closing the whole Excel panel (Escape, outside tap) also leaves full screen.
+ if(modal)new MutationObserver(()=>{if(modal.hidden&&modal.classList.contains('excel-fullscreen'))leave()}).observe(modal,{attributes:true,attributeFilter:['hidden']});
  section.querySelector('#excel-import').onclick=async()=>{
   const m=Object.fromEntries([...map.querySelectorAll('select')].map(s=>[s.dataset.k,s.value]));
   if(m.sku===''||m.name===''){out.textContent='Select SKU and Product name.';return}
