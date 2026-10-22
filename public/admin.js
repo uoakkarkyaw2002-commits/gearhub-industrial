@@ -162,6 +162,8 @@ const productForm=$("product-form");productForm.addEventListener("submit",e=>{e.
 
 
 let categoryRows=[],categorySequence=0,categorySaving=false;
+// Unsaved category edits: an app update waits instead of reloading the page (updates.js).
+const markCategoriesDirty=(dirty=true)=>{window.__gearhubCategoryDirty=dirty;};
 const categoryExpanded=new Set(),categoryEditing=new Set();
 function categoryChildren(category){return categoryRows.filter(row=>row.parent_en&&row.parent_en===category.category_en&&row!==category);}
 function categoryDepth(c,seen=new Set()){if(!c||seen.has(c))return 3;seen.add(c);return c.parent_en?categoryDepth(categoryRows.find(p=>p.category_en===c.parent_en),seen)+1:0;}
@@ -185,10 +187,10 @@ function renderCategoryManager(rows){
  for(const [id,field] of [["product-category-en-options","category_en"],["product-category-my-options","category_my"]])$(id).innerHTML=categoryRows.map(c=>`<option value="${esc(c[field]||c.category_en)}"></option>`).join("");
 }
 if(window.GearHubTenantAdmin){window.GearHubTenantAdmin.saveCategories=()=>sessionStorage.setItem('gh-category-draft:'+location.pathname,JSON.stringify(categoryRows));window.GearHubTenantAdmin.restoreCategories=rows=>{const key='gh-category-draft:'+location.pathname;let draft;try{draft=JSON.parse(sessionStorage.getItem(key)||'null')}catch{}sessionStorage.removeItem(key);return Array.isArray(draft)?draft:rows;};}
-async function loadCategoryManager(){try{const loaded=await api("/api/admin/categories");renderCategoryManager(window.GearHubTenantAdmin?.restoreCategories?.(loaded)||loaded)}catch(err){if(!String(err.message).includes("Admin login required"))msg("category-manager-message","Could not load categories: "+err.message,"error")}}
-function addCategory(parent){if(categorySaving)return;if(parent&&categoryDepth(parent)>=2){msg('category-manager-message','Maximum three category levels.','error');return;}const c={_key:"new-"+(++categorySequence),category_en:"",category_my:"",parent_en:parent?.category_en||"",icon:"",product_count:0};categoryRows.push(c);categoryEditing.add(c._key);if(parent)categoryExpanded.add(parent._key);renderCategoryManager();document.querySelector('[data-category-value="category_en"][data-category-key="'+c._key+'"]')?.focus();}
+async function loadCategoryManager(){try{const loaded=await api("/api/admin/categories");const rows=window.GearHubTenantAdmin?.restoreCategories?.(loaded)||loaded;markCategoriesDirty(rows!==loaded);renderCategoryManager(rows)}catch(err){if(!String(err.message).includes("Admin login required"))msg("category-manager-message","Could not load categories: "+err.message,"error")}}
+function addCategory(parent){if(categorySaving)return;markCategoriesDirty();if(parent&&categoryDepth(parent)>=2){msg('category-manager-message','Maximum three category levels.','error');return;}const c={_key:"new-"+(++categorySequence),category_en:"",category_my:"",parent_en:parent?.category_en||"",icon:"",product_count:0};categoryRows.push(c);categoryEditing.add(c._key);if(parent)categoryExpanded.add(parent._key);renderCategoryManager();document.querySelector('[data-category-value="category_en"][data-category-key="'+c._key+'"]')?.focus();}
 $("add-main-category").addEventListener("click",()=>addCategory());
-$("category-manager-rows").addEventListener("input",event=>{const input=event.target;if(!input.dataset.categoryValue)return;const c=categoryRows.find(row=>row._key===input.dataset.categoryKey);if(!c)return;const field=input.dataset.categoryValue,previous=c[field];c[field]=input.value;if(field==="category_en"&&previous)categoryRows.filter(row=>row!==c&&row.parent_en===previous).forEach(row=>row.parent_en=c.category_en);});
+$("category-manager-rows").addEventListener("input",event=>{const input=event.target;if(!input.dataset.categoryValue)return;markCategoriesDirty();const c=categoryRows.find(row=>row._key===input.dataset.categoryKey);if(!c)return;const field=input.dataset.categoryValue,previous=c[field];c[field]=input.value;if(field==="category_en"&&previous)categoryRows.filter(row=>row!==c&&row.parent_en===previous).forEach(row=>row.parent_en=c.category_en);});
 $("category-manager-rows").addEventListener("change",event=>{if(event.target.dataset.categoryValue){expandCategoryParents(categoryRows.find(row=>row._key===event.target.dataset.categoryKey));renderCategoryManager();}});
 $("category-manager-rows").addEventListener("click",event=>{
  // Tapping the category name opens its editor (phones have no pencil button).
@@ -198,7 +200,8 @@ $("category-manager-rows").addEventListener("click",event=>{
  if(action==="edit"){categoryEditing.has(c._key)?categoryEditing.delete(c._key):categoryEditing.add(c._key);}
  if(action==="done"){if(!c.category_en.trim()){msg("category-manager-message","Enter an English category name.","error");return;}categoryEditing.delete(c._key);}
  if(action==="add-sub"){if(!c.category_en.trim()){msg("category-manager-message","Name the main category first.","error");return;}addCategory(c);return;}
- if(action==="pick-parent"){const choices=new Set(categoryParentChoices(c));window.GearHubCategoryPicker?.open({rows:categoryRows,value:c.parent_en,allowed:row=>choices.has(row),allowNone:true,mainSelectable:true,titleText:"Select Parent Category",subtitleText:"Choose where this category belongs",onPick:parent=>{const name=parent?.category_en||"";if(name===(c.parent_en||""))return;c.parent_en=name;expandCategoryParents(c);renderCategoryManager();}});return;}
+ if(action==="pick-parent"){const choices=new Set(categoryParentChoices(c));window.GearHubCategoryPicker?.open({rows:categoryRows,value:c.parent_en,allowed:row=>choices.has(row),allowNone:true,mainSelectable:true,titleText:"Select Parent Category",subtitleText:"Choose where this category belongs",onPick:parent=>{const name=parent?.category_en||"";if(name===(c.parent_en||""))return;markCategoriesDirty();c.parent_en=name;expandCategoryParents(c);renderCategoryManager();}});return;}
+ if(["remove-banner","remove","up","down"].includes(action))markCategoriesDirty();
  if(action==="remove-banner"){c.bannerUrl="";msg("category-manager-message","Main category banner removed from the draft. Save Categories to apply.","");}
  if(action==="remove"){
   if(categoryChildren(c).length){msg("category-manager-message","Remove subcategories first. အောက်အမျိုးအစားများကို အရင်ဖျက်ပါ။", "error");return;}
@@ -243,7 +246,7 @@ $("category-manager-form").addEventListener("submit",async e=>{
  let result;try{result=await api("/api/admin/categories",{method:"PUT",body:JSON.stringify({categories:rows})});}catch(err){msg("category-manager-message","Could not save categories: "+err.message,"error");toast(err.message);return;}finally{categorySaving=false;button.disabled=false;}
  // Saved: the editor is usable again at once. The rest of the page refreshes in the
  // background, and a slow or failed refresh never reports the save as failed.
- categoryEditing.clear();renderCategoryManager(result.categories);msg("category-manager-message","Categories saved.","success");toast("Categories saved");refreshAll().catch(()=>{});
+ markCategoriesDirty(false);categoryEditing.clear();renderCategoryManager(result.categories);msg("category-manager-message","Categories saved.","success");toast("Categories saved");refreshAll().catch(()=>{});
 });
 
 
