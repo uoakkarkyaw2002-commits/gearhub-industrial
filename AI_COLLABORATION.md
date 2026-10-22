@@ -25,6 +25,15 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.99: Excel sheet opens full screen (Claude) — completed
+- Task: the owner wants the opened sheet to fill the screen like Google Sheets on a phone, with only one back arrow in the top-left corner.
+- `public/excel-map.js`: opening a sheet puts the modal in `.excel-fullscreen` (covers the store's bottom navigation). A floating `#excel-fs-back` leaves it, and closing the panel also leaves it. The table width is now set to the exact sum of column widths: before, the browser stretched column A, e.g. 149px instead of 40px for width 5. Filled cells hide gridlines unless they have their own border, like Excel/Sheets.
+- `public/style.css`: full-screen rules. The title, status and the linking/import panel are hidden in full screen.
+- Checked with the owner's real workbook (24 visible sheets, 565 rows on CB) at phone 375px and PC 1280px.
+- Files: `public/excel-map.js`, `public/style.css`, `public/index.html`, `public/sw.js`, `tests/excel-library.test.js`, plus the version files.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/168
+- Notes: the linking/import panel is not reachable in full screen. The owner said to do the remaining Excel work later.
+
 ### 1.1.98: Quiet seller splash during app updates (Codex) — in review
 - Task: during an app update or refresh, keep the POLESTAR seller splash visible with `Updating…` so GearHub content never flashes. Update transitions do not play splash sound; normal app openings retain the configured splash sound.
 - Files: `public/updates.js`, `public/skyshop-splash.js`, `public/skyshop-splash.css`, `lib/tenant-install.js`, cache/version files, and the splash regression test.
