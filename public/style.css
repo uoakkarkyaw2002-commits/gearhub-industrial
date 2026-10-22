@@ -850,3 +850,7 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
 
 /* In-app spreadsheet preview and owner-selected product mapping. */
 .excel-file-open{border:0;background:transparent;padding:0;cursor:pointer}.excel-preview{margin-top:16px;padding-top:16px;border-top:1px solid #dce8df}.excel-preview[hidden],.excel-map-panel[hidden]{display:none}.excel-grid{max-height:320px;overflow:auto;border:1px solid #dce8df;border-radius:11px}.excel-grid table{border-collapse:collapse;width:100%;font-size:13px}.excel-grid th,.excel-grid td{padding:8px;min-width:110px;border-bottom:1px solid #e5ece6;text-align:left;overflow-wrap:anywhere}.excel-grid th{position:sticky;top:0;background:#edf6ef}.excel-map-panel{margin-top:14px;padding:14px;border:1px solid #dce8df;border-radius:12px;background:#f8fcf8}.excel-map-fields{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}.excel-map-fields label{font-size:12px;font-weight:700;display:grid;gap:4px}.excel-map-fields select{padding:8px;border:1px solid #d5e2d7;border-radius:8px;background:#fff}@media(max-width:600px){.excel-map-fields{grid-template-columns:repeat(2,1fr)}}
+/* Excel panel on phones: column pickers in two columns, table scrolls sideways. */
+#excel-settings-open[hidden]{display:none}
+@media(max-width:600px){.excel-map-fields{grid-template-columns:1fr 1fr}.excel-library-card{padding:16px}.excel-grid{max-height:50vh}}
+.excel-library-list[hidden]{display:none}
