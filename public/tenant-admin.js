@@ -6,7 +6,9 @@
  async function init(){
   if(context&&(token||!navigator.onLine))return context;if(loading)return loading;
   loading=(async()=>{
-   let r;try{r=await fetch('/api/platform/me',{cache:'no-store'});}catch(e){
+   // While a new version is being deployed the server answers 502/503 for a moment;
+   // wait for it instead of showing the login screen to someone who is still signed in.
+   let r;try{for(let i=0;;i++){r=await fetch('/api/platform/me',{cache:'no-store'});if(r.status<500||i>=40)break;await new Promise(done=>setTimeout(done,3000));}}catch(e){
     // Offline: reuse the shop this device last opened so saved data can be shown.
     let saved=null;try{saved=JSON.parse(localStorage.getItem('gh-admin-ctx:'+slug)||'null');}catch{}
     if(saved){context=saved;token='';if(!setupDone)setup(context);setupDone=true;return context;}throw e;}
