@@ -829,3 +829,7 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
 @media(min-width:851px){
  body:not(.non-home-view)>.home-navigation .home-profile-banner{display:none!important}
 }
+/* Category page: no title above the banner; the banner sits at the top. Phones also drop the
+   empty header row (its search button is already hidden there). */
+#category-view:not(.category-products-mode) .category-page-top h2,#category-view:not(.category-products-mode) .category-page-top .category-page-subtitle{display:none}
+@media(max-width:850px){#category-view:not(.category-products-mode) .category-page-top{display:none!important}}
