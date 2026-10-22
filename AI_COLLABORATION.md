@@ -25,6 +25,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.88: Restore desktop home logo while hiding navigation artwork (Codex) — completed
+- Task: keep the shop logo and name visible on the PC home navigation, while hiding only its background image.
+- Files: `public/style.css`, `public/index.html`, `public/sw.js`, `package.json`, `package-lock.json`, `tests/tenant-install.test.js`.
+- Notes: phone navigation is unchanged.
+
 ### 1.1.87: Hide storefront navigation image on desktop (Codex) — completed
 - Task: remove the navigation/profile banner image from the PC storefront only.
 - Files: `public/style.css`, `public/index.html`, `public/sw.js`, `package.json`, `package-lock.json`, `tests/tenant-install.test.js`.
