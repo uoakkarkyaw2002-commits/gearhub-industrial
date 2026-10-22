@@ -25,6 +25,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.101: Plant icon and a continuous line beside "Add" rows (Claude) — completed
+- Task: main categories use a plant (sprout) icon instead of a gear, and the green line beside "Add Child subcategory" / "Add Subcategory" was broken.
+- Cause of the break: those Add rows have a 1px border, which moved their connector origin by 1px. Their `::before`/`::after` now use `left:calc(var(--cx) - 1px)` and `top:-12px`.
+- Files: `public/admin.js` (`CATEGORY_GEAR` renamed to `CATEGORY_PLANT`, new SVG), `public/site-admin.css`, `public/admin.html`, `tests/category-tree.test.js`, plus the version files.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/170
+
 ### 1.1.100: Category editor as a tree (Claude) — completed
 - Task: the owner wants the admin Product Categories editor to look exactly like their tree design: green gear square for main categories, green folder squares for sub/child categories, green connector lines, product-count pills ("1 product" / "N products"), and › (closed) / ⌄ (open) chevrons. "Add Child subcategory" / "Add Subcategory" are tree rows with a round green plus.
 - Files: `public/admin.js` (`categoryRowMarkup`: icon span, count pill, chevron, add button markup), `public/site-admin.css` (tree block scoped to `#category-manager-rows`; the Myanmar name, the "Main category · N" line and the pencil are hidden; `grid-template-columns:minmax(0,1fr)` keeps rows on screen), `public/admin.html` (cache tags), `tests/category-tree.test.js`, plus the version files.
