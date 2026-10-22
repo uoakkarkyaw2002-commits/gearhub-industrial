@@ -25,6 +25,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.86: New categories stay until saved (Claude) — completed
+- Task: about 10–20 seconds after the owner added a new category (before Save), it disappeared.
+- Cause: the 20-second order poll (`admin-extras.js` → `refreshAll()`) ends with `loadCategoryManager()`, which redrew the editor from the server and wiped unsaved rows.
+- Files: `public/admin.js` (`loadCategoryManager` returns early while `window.__gearhubCategoryDirty` is set), `public/admin.html`, `tests/keep-category-draft.test.js`, plus the version files.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/153
+- Notes: anything else that `refreshAll()` redraws must also respect unsaved edits.
+
 ### 1.1.85: App updates never reload under unsaved edits (Claude) — completed
 - Task: while the owner was adding a new category, an app update (after a deploy) reloaded the page and threw them back to the dashboard.
 - Files: `public/updates.js` (`blocked()` now also waits while an input, textarea or select is focused, or while `window.__gearhubCategoryDirty` is set), `public/admin.js` (`markCategoriesDirty()` on add, edit, parent pick, move and remove; cleared after a successful save), `public/admin.html`, `public/index.html`, `public/sw.js` (`updates.js` cache tag), `tests/keep-category-draft.test.js`, plus the version files.
