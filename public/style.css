@@ -921,3 +921,14 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
  :root[data-theme="dark"] .mobile-bottom-nav.liquid .liquid-nav-bubble{background:#1f3326;box-shadow:0 0 0 7px var(--paper,#0f1a13),0 6px 16px #0008}
 }
 @media(max-width:850px) and (prefers-reduced-motion:reduce){.mobile-bottom-nav.liquid,.mobile-bottom-nav.liquid *{transition:none!important}}
+/* Owner's picture: the bar floats with round corners, the notch has smooth shoulders, the open tab
+   sits in a white bubble with a bold black label. Icon colours are unchanged. */
+@media(max-width:850px){
+ body:has(.mobile-bottom-nav.liquid){padding-bottom:calc(104px + env(safe-area-inset-bottom))}
+ .mobile-bottom-nav.liquid{left:12px!important;right:12px!important;bottom:max(12px,env(safe-area-inset-bottom))!important;min-height:74px!important;padding:6px 4px 8px!important;filter:drop-shadow(0 0 1px #0000001a) drop-shadow(0 10px 22px #0000001a)}
+ .mobile-bottom-nav.liquid::before{border-radius:24px;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='40'%3E%3Cpath d='M0 0H22C29 0 31 4 34 11A38 38 0 0 0 106 11C109 4 111 0 118 0Z'/%3E%3C/svg%3E") no-repeat calc(var(--liquid-x) - 70px) 0/140px 40px,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='40'%3E%3Cpath d='M0 0H22C29 0 31 4 34 11A38 38 0 0 0 106 11C109 4 111 0 118 0Z'/%3E%3C/svg%3E") no-repeat calc(var(--liquid-x) - 70px) 0/140px 40px exclude,linear-gradient(#000 0 0)}
+ .mobile-bottom-nav.liquid .liquid-nav-bubble{background:#fff;box-shadow:0 0 0 6px var(--paper,#f5f7f1),0 6px 16px #0000001f}
+ .mobile-bottom-nav.liquid .bottom-nav-item.active>small{color:#111;font-weight:800}
+ :root[data-theme="dark"] .mobile-bottom-nav.liquid .liquid-nav-bubble{background:#1f3326;box-shadow:0 0 0 6px var(--paper,#101a14),0 6px 16px #0008}
+ :root[data-theme="dark"] .mobile-bottom-nav.liquid .bottom-nav-item.active>small{color:var(--ink)}
+}
