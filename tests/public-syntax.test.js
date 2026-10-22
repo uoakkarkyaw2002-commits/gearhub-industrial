@@ -36,6 +36,14 @@ test('the category picker does not focus the search box on open (no keyboard unt
  assert.doesNotMatch(js,/search\.focus\(\)/);
 });
 
+test('an app update keeps the seller splash visible and quiet until the new page is loaded',()=>{
+ const update=fs.readFileSync(path.join(__dirname,'..','public','updates.js'),'utf8'),splash=fs.readFileSync(path.join(__dirname,'..','public','skyshop-splash.js'),'utf8');
+ assert.match(update,/gh-update-splash:/,'the updater marks a reload as an app update');
+ assert.match(update,/GearHubSplash\?\.showUpdating\?\./,'the update screen is displayed before a reload');
+ assert.match(splash,/updating\)prepareUpdate\(el\)/,'an update changes the opening screen to Updating');
+ assert.match(splash,/else if\(el\.dataset\.sound\)/,'an update never starts the opening sound');
+});
+
 test('the opening screen never shows a "tap for sound" message',()=>{
  const js=fs.readFileSync(path.join(__dirname,'..','public','skyshop-splash.js'),'utf8'),css=fs.readFileSync(path.join(__dirname,'..','public','skyshop-splash.css'),'utf8');
  assert.doesNotMatch(js+css,/Tap for sound|sky-splash-tap/);
