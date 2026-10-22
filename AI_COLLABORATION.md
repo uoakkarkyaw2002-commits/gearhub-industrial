@@ -25,7 +25,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.107: Updating screen stays until the shop is ready; no double reload (Claude) — in review
+### 1.1.108: Phone bottom nav "liquid" animation (Claude) — in review
+- Task: the owner's screen recording. On phones the open tab's icon rises into a round bubble that sits in a curved notch of the bar. Tapping another tab slides the bubble and the notch there (0.5 s), and the label shows only under the open tab.
+- Files: `public/liquid-nav.js` (new; follows `.active` set by store.js and sets `--liquid-x` / `--liquid-lift`), `public/style.css` (phone-only `.mobile-bottom-nav.liquid` block, `@property --liquid-x`), `public/index.html` / `public/sw.js` tags, version files, `tests/liquid-nav.test.js`.
+- PR: (this PR)
+- Notes: the shop's white bar and colour icons are kept (the video has a dark bar). PC is unchanged; it uses the top navigation. Turned off for reduced motion.
+
+### 1.1.107: Updating screen stays until the shop is ready; no double reload (Claude) — completed
 - Task: during an update, and on reload, the page shook, and GearHub's template or other pictures flashed before the shop's own content. The owner wants a quiet "Updating…" picture (no sound) until everything is ready behind it.
 - Cause: the splash left 0.8 s after `load`, before the shop's name, banner and products arrived. A reload had no cover at all. One update could reload twice (`apply()` and `controllerchange`).
 - Files:
@@ -34,7 +40,7 @@ _None._
   - `public/store.js` sends `gearhub:store-shown` after `init()`.
   - `public/updates.js` reloads once and never reloads a page that already has the server's version.
   - `lib/tenant-install.js` (`SPLASH_V`), tags in index/admin/sw, version files, tests.
-- PR: (this PR)
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/177
 
 ### 1.1.106: Add-to-cart button animation (Claude) — completed
 - Task: the owner's video. Tapping a product card's cart button rolls a cart in, drops a box into it and rolls it out (1.3 s). The button then becomes a green circle with a tick and a ring pulse (1.3 s), and returns to normal.
