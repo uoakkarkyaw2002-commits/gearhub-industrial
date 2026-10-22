@@ -51,6 +51,9 @@
   function blocked() {
     return (
       window.__gearhubCheckoutPending || window.__gearhubPlatformPending ||
+      // Never reload under someone who is typing or has unsaved category edits.
+      window.__gearhubCategoryDirty ||
+      document.activeElement?.matches?.("input:not([readonly]):not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]),textarea,select,[contenteditable=true]") ||
       [...document.querySelectorAll("form button")].some(
         (e) => e.disabled && e.dataset.busy === "true",
       ) ||
