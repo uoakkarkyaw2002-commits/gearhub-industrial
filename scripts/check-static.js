@@ -7,6 +7,11 @@ for(const file of ['package.json','package-lock.json','public/manifest.webmanife
 const pkg=JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8')),lock=JSON.parse(fs.readFileSync(path.join(root,'package-lock.json'),'utf8'));if(JSON.stringify(pkg.dependencies)!==JSON.stringify(lock.packages[''].dependencies))throw Error('Package dependencies and lockfile root differ.');
 if(pkg.version!==lock.version||pkg.version!==lock.packages[''].version)throw Error('Build version and lockfile differ.');
 if(!fs.readFileSync(path.join(root,'public/sw.js'),'utf8').includes('gearhub-shell-v85-'+pkg.version))throw Error('Worker cache generation must match the installed build version.');
+// Pasted tool output ("… tokens truncated …") once replaced real CSS and left a block open,
+// which turned every later style into a phone-only style. Stop that before it ships.
+const textFiles=[];(function scan(relative){for(const entry of fs.readdirSync(path.join(root,relative),{withFileTypes:true})){const file=path.join(relative,entry.name);if(entry.isDirectory())scan(file);else if(/\.(?:js|cjs|css|html)$/.test(file))textFiles.push(file);}})('public');
+for(const file of [...textFiles,'server.js',...files.filter(f=>f.startsWith('lib'))]){const text=fs.readFileSync(path.join(root,file),'utf8');if(/tokens truncated|Warning: truncated output|Total output lines:/.test(text))throw Error(file+' contains pasted tool output (truncated text). Restore the real code.');}
+for(const file of textFiles.filter(f=>f.endsWith('.css'))){const css=fs.readFileSync(path.join(root,file),'utf8').replace(/\/\*[\s\S]*?\*\//g,'').replace(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g,'""');let depth=0;for(const ch of css){if(ch==='{')depth++;else if(ch==='}'&&--depth<0)break;}if(depth!==0)throw Error(file+' has unbalanced { } braces, so later rules land in the wrong @media block.');}
 console.log(`Static validation passed: ${files.length} JavaScript files and 3 JSON files. No production secrets required.`);
 
 if(!fs.readFileSync(path.join(root,"public/index.html"),"utf8").includes(`name="gearhub-build-version" content="${pkg.version}"`))throw Error("HTML build version must match package version.");

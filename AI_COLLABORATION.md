@@ -25,10 +25,16 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.104: No unstyled page during a deploy; no dark title bar in the PC store app (Claude) — in review
+### 1.1.105: PC product cards lost their styles; CSS restored (Claude) — in review
+- Task: on PC, product cards showed black squares for View photos / Add to cart and an unstyled quantity box.
+- Cause: commit efd756f (1.1.102, Codex) pasted truncated tool output into `public/style.css`. The text "Warning: truncated output…" went in at the top, and "…131 tokens truncated…" replaced real lines, including the `}` that closes an `@media(max-width:850px)` block. Everything after it became phone-only.
+- Files: `public/style.css` (restored from 7f682de; Codex's Excel search changes kept), `scripts/check-static.js` (fails on truncation text or unbalanced CSS braces), `tests/css-integrity.test.js`, `AGENTS.md` 9.11, version files.
+- PR: (this PR)
+
+### 1.1.104: No unstyled page during a deploy; no dark title bar in the PC store app (Claude) — completed
 - Task: while Render restarts during a deploy, the shop page showed without its styles (black icons, old nav). The installed PC store app also showed a dark title bar with the shop name.
 - Files: `public/sw.js` (a failed or 5xx `.css`/`.js` uses a saved copy, matched with `ignoreSearch`; a 5xx page navigation opens the saved shop page), `lib/tenant-install.js` and `server.js` (store manifests get `display_override:["window-controls-overlay","standalone"]`; the admin manifest is unchanged), `public/desktop.css` (white drag strip in `display-mode:window-controls-overlay`), version files, `tests/safe-deploy-titlebar.test.js`.
-- PR: (this PR)
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/174
 - Notes: updates still reach people only after the owner deploys on Render. Merging alone changes nothing live. Already-installed apps pick up the new manifest when Chrome next checks it (can take up to a day), or after a reinstall.
 
 ### 1.1.103: PC store navigation in the top header (Claude) — completed
