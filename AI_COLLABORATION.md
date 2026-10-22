@@ -25,7 +25,12 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.115: Opening picture always sharp; real Loading; Updating flowers finish (Claude) — in review
+### 1.1.116: PC product cards tilt with the mouse (Claude) — in review
+- Task: the owner's video, PC only. Moving the mouse over a product card tilts it towards the pointer in 3D, lifts the photo forward (scale 1.1, follows the pointer) and moves a soft light with the pointer. Phones and touch screens get nothing.
+- Files: `public/card-tilt.js` (new; only for `(hover:hover) and (pointer:fine) and (min-width:851px)` with a mouse pointer; resets when the mouse leaves), `public/desktop.css` (tilt styles inside the PC hover media block; off for reduced motion), tags and SW shell, version files, `tests/card-tilt.test.js`.
+- PR: (this PR)
+
+### 1.1.115: Opening picture always sharp; real Loading; Updating flowers finish (Claude) — completed
 - Task: on a slow line the opening picture loaded slowly, stuttered, looked blurred or showed only blue. The owner wants:
   - the picture always sharp;
   - Loading that moves only when the line moves, and nothing at all on a fast line;
@@ -45,7 +50,7 @@ _None._
   - `public/updates.js`: reports `progress(40)` after `registration.update()`.
   - `public/settings.js`: Refresh shows the Updating screen.
   - Tags, version files and tests.
-- PR: (this PR)
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/185
 
 ### 1.1.114: Looping flower animation while Updating (Claude) — completed
 - Task: the owner's video. While the app updates, a dark screen shows pink flowers growing (stems, leaves, grass, gold sparkles). The scene fades and grows again in a 6 s loop until 100%. It is drawn with SVG and the Web Animations API, so no video file is downloaded.
