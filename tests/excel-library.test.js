@@ -52,3 +52,14 @@ test('Excel sheet opens full screen with one back arrow and exact column widths'
  assert.match(css,/\.excel-fullscreen \.excel-library-card\.excel-sheet-open\{position:fixed;inset:0;/);
  assert.match(css,/\.excel-fullscreen \.excel-preview>\.drawer-head,\.excel-fullscreen #excel-sheet-status,\.excel-fullscreen \.excel-map-panel\{display:none!important\}/);
 });
+
+test('one current Excel file is shown, replacement stays scoped, and the sheet can be searched as you type',()=>{
+ const platform=fs.readFileSync(path.join(__dirname,'..','lib','platform.js'),'utf8'),map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8');
+ assert.match(platform,/saveFile\(shop, req\.file, "spreadsheet", \{ replaceSpreadsheets: true \}\)/);
+ assert.match(platform,/SELECT id,shop_id,filename,bytes FROM platform_files WHERE shop_id=\? AND kind='spreadsheet'/);
+ assert.match(platform,/DELETE FROM platform_files WHERE id=\? AND shop_id=\? AND kind='spreadsheet'/);
+ assert.match(platform,/kind='spreadsheet' AND ready=1 ORDER BY rowid DESC LIMIT 1/);
+ assert.match(map,/id="excel-sheet-search" type="search"/);
+ assert.match(map,/const visibleRows=Array\.from\(\{length:rows\},\(_,r\)=>r\)\.filter/);
+ assert.match(map,/search\.addEventListener\('input'/);
+});
