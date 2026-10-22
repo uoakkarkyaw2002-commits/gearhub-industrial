@@ -44,3 +44,11 @@ test('Excel viewer shows sheets like a spreadsheet: tabs, letters, row numbers, 
  assert.equal(ctx.formatNumber(384563930,'#,##0'),'384,563,930');
  assert.equal(ctx.formatNumber(0.125,'0.0%'),'12.5%');
 });
+test('Excel sheet opens full screen with one back arrow and exact column widths',()=>{
+ const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8'),css=fs.readFileSync(path.join(__dirname,'..','public','style.css'),'utf8');
+ assert.match(map,/<button class="excel-fs-back" id="excel-fs-back" type="button" aria-label="Back">←<\/button>/);
+ assert.match(map,/modal\?\.classList\.toggle\('excel-fullscreen',on\)/);
+ assert.match(map,/let html='<table style="width:'\+total\+'px">/,'table width = sum of column widths (column A stays narrow)');
+ assert.match(css,/\.excel-fullscreen \.excel-library-card\.excel-sheet-open\{position:fixed;inset:0;/);
+ assert.match(css,/\.excel-fullscreen \.excel-preview>\.drawer-head,\.excel-fullscreen #excel-sheet-status,\.excel-fullscreen \.excel-map-panel\{display:none!important\}/);
+});
