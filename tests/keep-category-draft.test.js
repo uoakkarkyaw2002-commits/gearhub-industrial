@@ -10,3 +10,7 @@ test('update reload waits for typing and unsaved category edits',()=>{
  assert.match(admin,/markCategoriesDirty\(false\);categoryEditing\.clear\(\);renderCategoryManager\(result\.categories\)/);
  assert.match(read('public/admin.html'),/\/updates\.js\?v=20261022-keep-draft-1/);
 });
+test('the 20-second refresh never reloads categories over unsaved edits',()=>{
+ const admin=fs.readFileSync(path.join(__dirname,'..','public','admin.js'),'utf8');
+ assert.match(admin,/async function loadCategoryManager\(\)\{try\{const loaded=await api\("\/api\/admin\/categories"\);[\s\S]{0,140}if\(window\.__gearhubCategoryDirty\)return;/);
+});
