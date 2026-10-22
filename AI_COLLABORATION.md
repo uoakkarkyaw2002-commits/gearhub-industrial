@@ -25,6 +25,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.87: Category page banner at the top (Claude) — completed
+- Task: on the storefront Category tab, remove the category title (e.g. "Electrical Parts") above the banner so the banner sits at the top.
+- Files: `public/style.css` (title and subtitle hidden outside products mode; the whole header row is hidden at ≤850px, where its search button was already hidden), `public/index.html` and `public/sw.js` (`style.css` cache tag), `tests/category-banner-top.test.js`, plus the version files.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/154
+- Notes: products mode (inside a category) is unchanged. `store.js` still sets the h2 text; it is just hidden.
+
 ### 1.1.86: New categories stay until saved (Claude) — completed
 - Task: about 10–20 seconds after the owner added a new category (before Save), it disappeared.
 - Cause: the 20-second order poll (`admin-extras.js` → `refreshAll()`) ends with `loadCategoryManager()`, which redrew the editor from the server and wiped unsaved rows.
