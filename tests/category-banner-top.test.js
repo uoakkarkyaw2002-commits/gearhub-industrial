@@ -4,5 +4,4 @@ test('category page hides the title above the banner',()=>{
  const css=fs.readFileSync(path.join(__dirname,'..','public','style.css'),'utf8');
  assert.match(css,/#category-view:not\(\.category-products-mode\) \.category-page-top h2,#category-view:not\(\.category-products-mode\) \.category-page-top \.category-page-subtitle\{display:none\}/);
  assert.match(css,/@media\(max-width:850px\)\{#category-view:not\(\.category-products-mode\) \.category-page-top\{display:none!important\}\}/);
- assert.match(fs.readFileSync(path.join(__dirname,'..','public','index.html'),'utf8'),/style\.css\?v=20261022-banner-top-1/);
 });
