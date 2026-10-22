@@ -28,7 +28,7 @@ _None._
 ### 1.1.84: App updates never reload under unsaved edits (Claude) — completed
 - Task: while the owner was adding a new category, an app update (after a deploy) reloaded the page and threw them back to the dashboard.
 - Files: `public/updates.js` (`blocked()` now also waits while an input, textarea or select is focused, or while `window.__gearhubCategoryDirty` is set), `public/admin.js` (`markCategoriesDirty()` on add, edit, parent pick, move and remove; cleared after a successful save), `public/admin.html`, `public/index.html`, `public/sw.js` (`updates.js` cache tag), `tests/keep-category-draft.test.js`, plus the version files.
-- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/150
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/151
 - Notes: if you add another editor with unsaved state, set a similar flag and add it to `blocked()` in `updates.js`.
 
 ### 1.1.83: One add button in the category editor (Claude) — completed
