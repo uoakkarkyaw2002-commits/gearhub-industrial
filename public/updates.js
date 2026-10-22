@@ -124,6 +124,7 @@
     if (registration) {
       try {
         await registration.update();
+        splash?.progress?.(40);
         const installing = registration.installing;
         if (
           installing &&

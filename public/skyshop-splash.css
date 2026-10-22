@@ -1,5 +1,5 @@
 /* Opening screen of every seller shop: the SkyShopMM picture for 3 seconds with a loading bar. */
-#sky-splash{position:fixed;inset:0;z-index:2147483000;background:#5aaeff;overflow:hidden;transition:opacity .5s ease}
+#sky-splash{position:fixed;inset:0;z-index:2147483000;background:#f5f7f1;overflow:hidden;transition:opacity .5s ease}
 #sky-splash.is-leaving{opacity:0;pointer-events:none}
 #sky-splash.is-updating .sky-splash-dots{display:none}
 #sky-splash picture,#sky-splash img{position:absolute;inset:0;display:block;width:100%;height:100%}
@@ -30,3 +30,9 @@
 .sky-bloom svg{width:min(100vw,560px);height:auto;max-height:72vh;overflow:visible}
 .sky-bloom .sb-pop{transform-box:fill-box;transform-origin:center}
 .sky-bloom .sb-spark{transform-box:fill-box}
+/* The picture appears only when it is fully loaded (never blurred, half-drawn or an empty blue box). */
+#sky-splash picture{transition:opacity .3s ease}
+#sky-splash.is-picture-wait picture{opacity:0}
+/* On a fast line only the picture shows; the Loading box appears when loading is slow or updating. */
+.sky-splash-loading{transition:opacity .3s ease}
+#sky-splash:not(.show-loading):not(.is-updating) .sky-splash-loading{opacity:0;visibility:hidden}

@@ -1,14 +1,18 @@
-// Opening picture of a shop with a 0–100% counter. The shop opens only at 100%: its own name,
-// banner and products are on the page and the pictures at the top have loaded. If the shop cannot
-// load (no internet, server down) the picture stays and it keeps retrying, so GearHub's empty
-// template is never shown. During an app update it says "Updating…" and plays no sound. On a
-// reload it is a plain cover first and turns into the picture only if loading takes a while.
+// Opening screen of a shop.
+// - The picture comes from the phone's saved copy (the service worker keeps it), and it only fades
+//   in once it is fully loaded, so it is never blurred, half-drawn or an empty blue box.
+// - The 0–100% counter moves only on real steps (page, shop data, top pictures). On a fast line the
+//   Loading box is not shown at all; it appears only when loading is slow.
+// - If the shop cannot load, the screen stays and keeps retrying (GearHub's empty template never shows).
+// - Updating (and Settings → Refresh) shows the flower animation. It always plays to the end; on a
+//   slow line it plays again until the shop is ready. It carries on across the reload.
 (()=>{
  const el=document.getElementById("sky-splash");if(!el)return;
  const shop=location.pathname.match(/^\/shops\/([^/]+)/);
  const updateKey='gh-update-splash:'+(shop?'/shops/'+shop[1]+'/':'/');
  // The page before the reload stores how far the update got (1–99), so the counter continues.
  let updating=false,carried=0;try{const saved=sessionStorage.getItem(updateKey);updating=Boolean(saved);carried=Math.min(99,Number(saved)||0);if(updating)sessionStorage.removeItem(updateKey)}catch{}
+ const bloomKey='gh-bloom-start:'+(shop?'/shops/'+shop[1]+'/':'/'),BLOOM_CYCLE=6000,BLOOM_DONE=4900;
  const message=node=>node.querySelector('.sky-splash-message');
  const loadingText=updating?'Updating…':'ဆိုင်ကို ဖွင့်နေပါတယ် / Loading';
  const prepareUpdate=node=>{
@@ -31,7 +35,11 @@
   for(let i=0;i<14;i++)svg+='<circle class="sb-spark" data-at="'+(.38+(i%7)*.05)+'" cx="'+(70+((i*53)%160))+'" cy="'+(70+((i*37)%120))+'" r="'+(1.1+(i%3)*.5)+'" fill="#ffd76b"/>';
   const wrap=document.createElement('div');wrap.className='sky-bloom';wrap.setAttribute('aria-hidden','true');wrap.innerHTML=svg+'</g></svg>';node.prepend(wrap);
   if(!wrap.animate||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-  const loop=(item,frames)=>item.animate(frames,{duration:6000,iterations:Infinity,easing:'linear'});
+  // The animation started before the reload continues where it was instead of starting again.
+  let start=0;try{start=Number(sessionStorage.getItem(bloomKey))||0}catch{}
+  if(!(start>0&&Date.now()-start<120000)){start=Date.now();try{sessionStorage.setItem(bloomKey,String(start))}catch{}}
+  node._bloomStart=start;
+  const loop=(item,frames)=>{const run=item.animate(frames,{duration:BLOOM_CYCLE,iterations:Infinity,easing:'linear'});run.currentTime=(Date.now()-start)%BLOOM_CYCLE;return run};
   const at=item=>Number(item.dataset.at);
   wrap.querySelectorAll('.sb-draw').forEach(item=>{const a=at(item);loop(item,[{strokeDasharray:1,strokeDashoffset:1,offset:0},{strokeDashoffset:1,offset:a},{strokeDashoffset:0,offset:Math.min(.8,a+.18)},{strokeDasharray:1,strokeDashoffset:0,offset:1}])});
   wrap.querySelectorAll('.sb-pop').forEach(item=>{const a=at(item);loop(item,[{transform:'scale(0)',offset:0},{transform:'scale(0)',offset:a},{transform:'scale(1.15)',offset:Math.min(.8,a+.08)},{transform:'scale(1)',offset:Math.min(.81,a+.12)},{transform:'scale(1)',offset:1}])});
@@ -39,20 +47,20 @@
   loop(wrap.querySelector('.sb-all'),[{opacity:1,offset:0},{opacity:1,offset:.82},{opacity:0,offset:.93},{opacity:0,offset:1}]);
  }
  const template=el.cloneNode(true);
- // Before the reload: "Updating… 0%" counts up while the new version downloads (to 60%, then to
- // the step updates.js reports) and the number is handed to the next page.
+ // Before the reload: "Updating… 0%" moves on the steps updates.js reports (new version found,
+ // downloaded) and the number is handed to the next page.
  window.GearHubSplash={showUpdating:()=>{
   let screen=document.getElementById('sky-splash');
   if(!screen){screen=template.cloneNode(true);document.body.prepend(screen)}
   prepareUpdate(screen);
-  if(screen===el&&!gone)return {progress(){}};
+  if(screen===el&&!gone){try{sessionStorage.setItem(updateKey,String(Math.max(1,Math.floor(shown))))}catch{}return {progress(){}}}
   screen.classList.add('is-progress');
   let count=screen.querySelector('.sky-splash-percent');
   if(!count){count=document.createElement('b');count.className='sky-splash-percent';message(screen)?.after?.(count)}
   const fill=screen.querySelector('.sky-splash-bar i');
-  let value=0,goal=60;clearInterval(screen._count);
+  let value=0,goal=10;clearInterval(screen._count);
   const show=()=>{const whole=Math.floor(value);count.textContent=whole+'%';if(fill)fill.style.width=whole+'%';try{sessionStorage.setItem(updateKey,String(Math.max(1,whole)))}catch{}};
-  show();screen._count=setInterval(()=>{if(value<goal){value=Math.min(goal,value+Math.max(0.2,(goal-value)*0.05));show()}},50);
+  show();screen._count=setInterval(()=>{if(value<goal){value=Math.min(goal,value+Math.max(0.5,(goal-value)*0.2));show()}},50);
   return {progress(step){goal=Math.max(goal,Math.min(99,step))}};
  }};
  const nav=performance.getEntriesByType?.("navigation")?.[0];
@@ -74,27 +82,42 @@
   audio.play().catch(()=>{if(!el.isConnected)return;gestures.forEach(g=>document.addEventListener(g,start,true))});
  }
 
- // Counter: the bar and the number follow real steps (page, shop data, pictures). While waiting
- // for the network it creeps slowly and never passes 75% until the shop data has arrived.
+ // The picture fades in only when it is fully loaded and decoded (from the saved copy it is instant).
+ const photo=el.querySelector('picture img');
+ if(photo){
+  el.classList.add('is-picture-wait');
+  const reveal=()=>el.classList.remove('is-picture-wait');
+  const decode=()=>(photo.decode?photo.decode():Promise.resolve()).then(reveal,reveal);
+  if(photo.complete&&photo.naturalWidth)decode();else photo.addEventListener('load',decode,{once:true});
+ }
+
+ // Counter: the bar and the number move only on real steps — the page (15%), the shop's data (70%),
+ // the top pictures (70–99%) and ready (100%). A slow line simply makes it wait.
  el.classList.add('is-progress');
  const bar=el.querySelector('.sky-splash-bar i');
- const percent=document.createElement('b');percent.className='sky-splash-percent';percent.textContent='0%';
+ const percent=document.createElement('b');percent.className='sky-splash-percent';percent.textContent=Math.floor(carried)+'%';
  message(el)?.after?.(percent);
  const started=Date.now();
- let shown=carried,goal=Math.max(75,carried),data=false,done=false,gone=false,failed=false,pictures=[0,0];
+ let shown=carried,goal=Math.max(5,carried),data=false,done=false,gone=false,failed=false,pictures=[0,0];
+ const step=value=>{goal=Math.max(goal,value)};
+ if(document.readyState!=='loading')step(15);else document.addEventListener('DOMContentLoaded',()=>step(15),{once:true});
  const label=text=>{const node=message(el);if(node)node.textContent=text};
  const render=()=>{const value=Math.floor(shown);percent.textContent=value+'%';if(bar)bar.style.width=value+'%'};
- const leave=()=>{if(gone)return;gone=true;clearInterval(tick);el.classList.add("is-leaving");if(audio)audio.pause();setTimeout(()=>el.remove(),quiet?250:550)};
+ // Save both opening pictures (phone and PC) on the phone for next time, after the shop is open.
+ const keepPictures=()=>{for(const url of [photo?.getAttribute('src'),el.querySelector('picture source')?.getAttribute('srcset')])if(url)fetch(url).catch(()=>{})};
+ const leave=()=>{if(gone)return;gone=true;setTimeout(keepPictures,1500);clearInterval(tick);el.classList.add("is-leaving");if(audio)audio.pause();try{sessionStorage.removeItem(bloomKey)}catch{}setTimeout(()=>el.remove(),quiet?250:550)};
+ // Updating: the flowers always finish (full bloom); on a slow line they grow again until ready.
+ const bloomFinished=()=>{const start=el._bloomStart;if(!start)return true;const passed=Date.now()-start,phase=passed%BLOOM_CYCLE;return passed>=BLOOM_DONE&&phase>=BLOOM_DONE&&phase<BLOOM_DONE+600};
  const tick=setInterval(()=>{
   if(gone)return;
-  const byTime=seconds?Math.min(100,(Date.now()-started)/(seconds*1000)*100):100;
-  if(data&&!done)goal=80+19*(pictures[1]?pictures[0]/pictures[1]:1);
-  if(done)goal=100;
-  const target=Math.min(goal,byTime);
-  if(target>shown)shown=Math.min(target,shown+Math.max(data?0.8:0.15,(target-shown)*(data?0.18:0.04)));
+  if(data&&!done)step(70+29*(pictures[1]?pictures[0]/pictures[1]:1));
+  if(done)step(100);
+  if(goal>shown)shown=Math.min(goal,shown+Math.max(0.6,(goal-shown)*0.2));
   render();
-  if(done&&byTime>=100&&shown>=100)setTimeout(leave,150);
+  if(done&&shown>=100&&Date.now()-started>=seconds*1000&&bloomFinished())setTimeout(leave,150);
  },50);
+ // On a fast line nothing but the picture shows; the Loading box appears only if it takes a while.
+ setTimeout(()=>{if(!gone)el.classList.add('show-loading')},updating?0:quiet?1200:seconds*1000+1200);
  // A reload shows a plain cover; if the shop is not ready soon, show the picture and the counter.
  if(quiet)setTimeout(()=>{if(!gone)el.classList.remove('is-quiet')},700);
 
@@ -125,7 +148,7 @@
   picturesReady().then(()=>{done=true});
  });
  addEventListener('gearhub:store-failed',()=>{
-  if(data)return;failed=true;retrying=false;el.classList.remove('is-quiet');
+  if(data)return;failed=true;retrying=false;el.classList.remove('is-quiet');el.classList.add('show-loading');
   label(navigator.onLine===false?'အင်တာနက် မရှိပါ — ပြန်ချိတ်နေပါတယ် / Offline, retrying':'ပြန်ကြိုးစားနေပါတယ် / Retrying');
  });
  setInterval(retry,5000);
