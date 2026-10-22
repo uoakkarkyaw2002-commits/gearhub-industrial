@@ -28,3 +28,9 @@ test('.xlsm workbooks are accepted and every file is stored with a spreadsheet t
  assert.match(platform,/\.run\(id, shop\.id, kind, spreadsheet\?\.mime \|\| file\.mimetype,/);
  assert.match(html,/accept="\.xlsx,\.xlsm,\.xls,\.csv,/);
 });
+test('Excel preview script parses, phones reach it from Settings, and import never wipes unlinked fields',()=>{
+ const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8'),lib=fs.readFileSync(path.join(__dirname,'..','public','excel-library.js'),'utf8'),html=fs.readFileSync(path.join(__dirname,'..','public','index.html'),'utf8'),platform=fs.readFileSync(path.join(__dirname,'..','lib','platform.js'),'utf8');
+ assert.doesNotThrow(()=>new Function(map));assert.doesNotMatch(map,/\\\\[\/.dnru]/,'no double-escaped regex characters');
+ assert.match(html,/id="excel-settings-open" hidden/);assert.match(lib,/settingsOpen\.addEventListener\('click',\(\)=>open\.click\(\)\)/);
+ assert.match(platform,/description=COALESCE\(\?,description\),category=COALESCE\(\?,category\),price=COALESCE\(\?,price\),stock=COALESCE\(\?,stock\),active=1 WHERE id=\? AND shop_id=\?/);
+});
