@@ -25,14 +25,19 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.110: Opening screen shows 0–100% and never reveals an empty shop (Claude) — in review
+### 1.1.111: Phone bottom nav sits on the bottom edge (Claude) — in review
+- Task: the floating bar left a gap under it where the page showed through. The bar now touches the bottom and both sides, keeps round top corners, and is white down to the screen edge (home-bar area included).
+- Files: `public/style.css` (`left/right/bottom:0`, safe-area padding inside the bar, `border-radius:24px 24px 0 0`), tags and version files, `tests/liquid-nav.test.js`.
+- PR: (this PR)
+
+### 1.1.110: Opening screen shows 0–100% and never reveals an empty shop (Claude) — completed
 - Task: show a 0–100% counter on the opening screen and open the shop only at 100%. If the shop cannot load (offline, server down), keep showing the picture and never the GearHub template without the shop's data.
 - Files:
   - `public/skyshop-splash.js`: the counter follows real steps (page, shop data, first-screen pictures). It never passes 75% before the data arrives. The 12 s cap is removed. On failure it says Retrying and retries every 5 s and when the phone comes back online. A reload starts as a plain cover and shows the picture after 0.7 s.
   - `public/skyshop-splash.css`: counter styles.
   - `public/store.js`: sends `gearhub:store-shown` when `catalogLoaded` (live or saved offline copy) and `gearhub:store-failed` otherwise, and adds `window.GearHubStore.retry()`.
   - `lib/tenant-install.js` (`SPLASH_V`), tags, version files, tests.
-- PR: (this PR)
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/180
 
 ### 1.1.109: Phone bottom nav matches the owner's picture (Claude) — completed
 - Task: make the open tab obvious, exactly like the owner's picture, without changing icon colours. The bar floats with round corners, the notch has smooth shoulders, and the open tab sits in a white bubble with a bold black label.
