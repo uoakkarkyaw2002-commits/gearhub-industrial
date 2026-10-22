@@ -25,10 +25,15 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.111: Phone bottom nav sits on the bottom edge (Claude) — in review
+### 1.1.112: Press and drag along the phone bottom nav (Claude) — in review
+- Task: the owner's recording (iPhone tab bar). Pressing the bottom nav and dragging left or right moves the bubble with the finger. The tab under the finger rises and shows its label, and letting go opens that tab. A plain tap works as before.
+- Files: `public/liquid-nav.js` (pointer events; drag starts after 8 px; the bubble is clamped to the first and last tab; the leftover click is swallowed; `place()` pauses while dragging), `public/style.css` (`touch-action:none` on the nav, `.liquid-dragging` and `.liquid-hover` styles), tags and version files, `tests/liquid-nav.test.js`.
+- PR: (this PR)
+
+### 1.1.111: Phone bottom nav sits on the bottom edge (Claude) — completed
 - Task: the floating bar left a gap under it where the page showed through. The bar now touches the bottom and both sides, keeps round top corners, and is white down to the screen edge (home-bar area included).
 - Files: `public/style.css` (`left/right/bottom:0`, safe-area padding inside the bar, `border-radius:24px 24px 0 0`), tags and version files, `tests/liquid-nav.test.js`.
-- PR: (this PR)
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/181
 
 ### 1.1.110: Opening screen shows 0–100% and never reveals an empty shop (Claude) — completed
 - Task: show a 0–100% counter on the opening screen and open the shop only at 100%. If the shop cannot load (offline, server down), keep showing the picture and never the GearHub template without the shop's data.

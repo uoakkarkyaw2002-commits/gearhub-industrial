@@ -6,12 +6,12 @@ const read=f=>fs.readFileSync(path.join(__dirname,'..','public',f),'utf8');
 function fixture(){
  const props={},classes=new Set(['mobile-bottom-nav']);let observer;
  const cls=set=>({add:(...c)=>c.forEach(x=>set.add(x)),remove:(...c)=>c.forEach(x=>set.delete(x)),contains:c=>set.has(c),toggle:(c,on)=>on?set.add(c):set.delete(c)});
- const items=[0,1,2,3,4].map(i=>{const own=new Set(['bottom-nav-item',...(i===0?['active']:[])]);return{hidden:false,offsetLeft:4+i*73,offsetWidth:73,offsetTop:10,classList:cls(own),own,querySelector:()=>({offsetTop:9,offsetHeight:44})}});
+ const items=[0,1,2,3,4].map(i=>{const own=new Set(['bottom-nav-item',...(i===0?['active']:[])]);return{clicks:0,click(){this.clicks++;items.forEach((it,k)=>it.classList.toggle('active',k===i));observer()},hidden:false,offsetLeft:4+i*73,offsetWidth:73,offsetTop:10,classList:cls(own),own,querySelector:()=>({offsetTop:9,offsetHeight:44})}});
  const bubble={className:'',setAttribute(){},offsetTop:-27,offsetHeight:58};
- const nav={classList:cls(classes),style:{setProperty:(k,v)=>props[k]=v},prepend(){},querySelectorAll:()=>items};
- const ctx={document:{querySelector:()=>nav,createElement:()=>bubble,fonts:null},MutationObserver:class{constructor(f){observer=f}observe(){}},addEventListener(){},setTimeout:f=>f()};
+ const handlers={};const nav={classList:cls(classes),style:{setProperty:(k,v)=>props[k]=v},prepend(){},querySelectorAll:()=>items,addEventListener:(n,f)=>handlers[n]=f,getBoundingClientRect:()=>({left:0}),setPointerCapture(){}};
+ const ctx={document:{querySelector:()=>nav,createElement:()=>bubble,fonts:null},MutationObserver:class{constructor(f){observer=f}observe(){}},addEventListener(){},setTimeout:(f,ms)=>{if(!(ms>=100))f()}};
  vm.runInNewContext(read('liquid-nav.js'),ctx);
- return{props,classes,items,move:i=>{items.forEach((it,k)=>it.classList.toggle('active',k===i));observer()}};
+ return{handlers,props,classes,items,move:i=>{items.forEach((it,k)=>it.classList.toggle('active',k===i));observer()}};
 }
 
 test('the bubble follows the open tab and the icon is lifted into it',()=>{
@@ -30,8 +30,8 @@ test('phone-only styles: notch mask, raised bubble, sliding transition, labels o
  assert.match(tail,/\.liquid-nav-bubble\{[^}]*transform:translateX\(calc\(var\(--liquid-x\) - 29px\)\)/);
  assert.match(tail,/\.bottom-nav-item\.active>span\{transform:translateY\(var\(--liquid-lift,-30px\)\)/);
  assert.match(tail,/\.bottom-nav-item\.active>small\{opacity:1/);
- assert.match(read('index.html'),/<script src="\/store\.js\?v=[^"]+"><\/script><script src="\/liquid-nav\.js\?v=20261022-liquid-4"><\/script>/);
- assert.match(read('sw.js'),/"\/liquid-nav\.js\?v=20261022-liquid-4"/);
+ assert.match(read('index.html'),/<script src="\/store\.js\?v=[^"]+"><\/script><script src="\/liquid-nav\.js\?v=20261022-nav-drag-1"><\/script>/);
+ assert.match(read('sw.js'),/"\/liquid-nav\.js\?v=20261022-nav-drag-1"/);
 });
 
 test('owner picture: floating rounded bar, smooth notch, white bubble, bold black label; icon colours unchanged',()=>{
@@ -41,4 +41,17 @@ test('owner picture: floating rounded bar, smooth notch, white bubble, bold blac
  assert.match(tail,/\.liquid-nav-bubble\{background:#fff;/);
  assert.match(tail,/\.bottom-nav-item\.active>small\{color:#111;font-weight:800\}/);
  assert.doesNotMatch(read('liquid-nav.js'),/nav-line/,'no replacement icons');
+});
+
+test('press and drag: the bubble follows the finger and letting go opens the tab under it',()=>{
+ const f=fixture(),h=f.handlers;
+ h.pointerdown({button:0,pointerId:1,clientX:40});
+ h.pointermove({pointerId:1,clientX:44});assert.ok(!f.classes.has('liquid-dragging'),'small moves are still a tap');
+ h.pointermove({pointerId:1,clientX:200});assert.ok(f.classes.has('liquid-dragging'));assert.equal(f.props['--liquid-x'],'200px','bubble under the finger');
+ assert.ok(f.items[2].own.has('liquid-hover'),'the tab under the finger rises');
+ h.pointermove({pointerId:1,clientX:500});assert.equal(f.props['--liquid-x'],'332.5px','never past the last tab');
+ h.pointermove({pointerId:1,clientX:260});h.pointerup({pointerId:1});
+ assert.equal(f.items[3].clicks,1,'letting go opens the tab');assert.ok(!f.classes.has('liquid-dragging'));
+ let blocked=false;h.click({preventDefault(){blocked=true},stopImmediatePropagation(){}});assert.ok(blocked,'the leftover tap is ignored');
+ const css=read('style.css');assert.match(css,/\.mobile-bottom-nav\.liquid\{touch-action:none;/);assert.match(css,/\.liquid-dragging \.bottom-nav-item\.liquid-hover>span\{transform:translateY\(var\(--liquid-lift,-30px\)\)/);
 });
