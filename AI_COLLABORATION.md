@@ -25,6 +25,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.88: Category page banner at the top (Claude) — completed
+- Task: on the storefront Category tab, remove the category title (e.g. "Electrical Parts") above the banner so the banner sits at the top.
+- Files: `public/style.css` (title and subtitle hidden outside products mode; the whole header row is hidden at ≤850px, where its search button was already hidden), `public/index.html` and `public/sw.js` (`style.css` cache tag), `tests/category-banner-top.test.js`, plus the version files.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/156 (replaces #155, which conflicted with Codex's 1.1.87)
+- Notes: products mode (inside a category) is unchanged. `store.js` still sets the h2 text; it is just hidden.
+- Also fixed again: 1.1.87 set `CACHE_NAME` to `gearhub-shell-v86-…`, which fails `npm run check` (`scripts/check-static.js` requires `gearhub-shell-v85-<version>`). **Codex: keep the `v85-` prefix and run `npm run check` before merging.**
+
 ### 1.1.87: Hide storefront navigation image on desktop (Codex) — completed
 - Task: remove the navigation/profile banner image from the PC storefront only.
 - Files: `public/style.css`, `public/index.html`, `public/sw.js`, `package.json`, `package-lock.json`, `tests/tenant-install.test.js`.
