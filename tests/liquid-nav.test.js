@@ -35,9 +35,9 @@ test('phone-only styles: notch mask, raised bubble, sliding transition, labels o
 });
 
 test('owner picture: floating rounded bar, smooth notch, white bubble, bold black label; icon colours unchanged',()=>{
- const css=read('style.css'),tail=css.slice(css.indexOf("/* Owner's picture: the bar floats"));
- assert.match(tail,/\.mobile-bottom-nav\.liquid\{left:12px!important;right:12px!important;bottom:max\(12px,env\(safe-area-inset-bottom\)\)!important/);
- assert.match(tail,/::before\{border-radius:24px;-webkit-mask:url\("data:image\/svg\+xml[^)]*"\) no-repeat calc\(var\(--liquid-x\) - 70px\) 0\/140px 40px/);
+ const css=read('style.css'),tail=css.slice(css.indexOf("/* Owner's picture: the bar sits on the bottom edge"));
+ assert.match(tail,/\.mobile-bottom-nav\.liquid\{left:0!important;right:0!important;bottom:0!important;min-height:calc\(74px \+ env\(safe-area-inset-bottom\)\)!important;padding:6px 4px calc\(8px \+ env\(safe-area-inset-bottom\)\)!important/,'touches the bottom; white covers the home-bar area');
+ assert.match(tail,/::before\{border-radius:24px 24px 0 0;-webkit-mask:url\("data:image\/svg\+xml[^)]*"\) no-repeat calc\(var\(--liquid-x\) - 70px\) 0\/140px 40px/);
  assert.match(tail,/\.liquid-nav-bubble\{background:#fff;/);
  assert.match(tail,/\.bottom-nav-item\.active>small\{color:#111;font-weight:800\}/);
  assert.doesNotMatch(read('liquid-nav.js'),/nav-line/,'no replacement icons');
