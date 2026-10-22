@@ -25,6 +25,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.87: Hide storefront navigation image on desktop (Codex) — completed
+- Task: remove the navigation/profile banner image from the PC storefront only.
+- Files: `public/style.css`, `public/index.html`, `public/sw.js`, `package.json`, `package-lock.json`, `tests/tenant-install.test.js`.
+- Notes: the banner remains available on phone screens; desktop hides only the top navigation artwork.
+
 ### 1.1.86: New categories stay until saved (Claude) — completed
 - Task: about 10–20 seconds after the owner added a new category (before Save), it disappeared.
 - Cause: the 20-second order poll (`admin-extras.js` → `refreshAll()`) ends with `loadCategoryManager()`, which redrew the editor from the server and wiped unsaved rows.

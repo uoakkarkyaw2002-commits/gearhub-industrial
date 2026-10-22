@@ -823,3 +823,9 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
 @media(max-width:850px){
  body.non-home-view #profile-view:not(.store-view-hidden){margin-top:0}
 }
+
+
+/* The storefront navigation artwork is phone-only. */
+@media(min-width:851px){
+ body:not(.non-home-view)>.home-navigation .home-profile-banner{display:none!important}
+}
