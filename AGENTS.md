@@ -102,3 +102,44 @@ npm run check && npm test
 
 ### 9.10 Report honestly
 - Never say "done", "merged" or "works" without verifying it. List what you tested, at which sizes, and anything not verified.
+
+## 10. How to Work on a Task (owner-approved workflow)
+Follow these steps for every task, together with section 9.
+
+### 10.1 Before you touch code
+- Pull the latest `main`. Read this file and the top entries of `AI_COLLABORATION.md` (the other agent may have just changed related code).
+- Run `npm run check && npm test` on `main` (Node 22). If `main` is already failing, fix that in your PR and say so.
+- Read only the files the task needs. Find the exact function, CSS rule or route involved before deciding anything.
+
+### 10.2 Find the real cause; don't guess
+- Reproduce the owner's problem first: run the app locally with a seller shop (`/shops/<slug>/` and its `/admin`) and data shaped like theirs (e.g. POLESTAR's category tree, a real `.xlsm` with many sheets).
+- Explain why it happened in one sentence (e.g. "the 20-second order refresh reloads categories and wipes unsaved rows"). Fix that cause, not only the symptom.
+- Look for side effects of the fix: other shops, the GearHub owner account, logged-out visitors, phones, PCs, slow networks, app updates mid-edit.
+
+### 10.3 Match the owner's screenshot exactly
+- The screenshot is the spec: same icons, colours, spacing, order, labels, chevrons. Do not add or remove anything they did not ask for.
+- If something in the design is unclear or looks inconsistent, build the clear version and tell the owner exactly where you differed.
+
+### 10.4 Make the change small and safe
+- Change only what the task needs, and keep the surrounding code style.
+- Never wipe or overwrite existing data. Scope every query to `shop_id`.
+- Bump the version and every `?v=` tag you touched, in `index.html`/`admin.html` and `sw.js`, with `CACHE_NAME = gearhub-shell-v85-<version>`.
+- Add a test in `tests/` that would have caught the bug or that pins the new behaviour.
+
+### 10.5 Test it yourself in a browser before saying done
+- Phone 375px and PC 1280px. Click the real buttons; type, save, reload, and wait (e.g. 30–45 s for anything a timer could undo).
+- Check the console for errors and that nothing else on the page broke. Measure when unsure (widths, positions, saved data from the API).
+- Run `npm run check && npm test` again: 0 failures.
+
+### 10.6 Ship through a PR
+- Branch, open a PR with a clear title and a body saying what changed, why, and what you tested. Wait for CI to be green.
+- If `main` moved and your PR conflicts, rebuild it on the new `main` with the next version number. Never push to `main` and never deploy.
+- Add a handoff entry to `AI_COLLABORATION.md` (task, cause, files, PR link, notes) in the same PR.
+
+### 10.7 Report to the owner (in Burmese, short and clear)
+- What was wrong and why, in plain words.
+- What changed, as short bullets they can see on screen.
+- What you tested (phone + PC), and anything not done or not verified.
+- If the screenshot was ambiguous, say where you differed.
+- Next steps for them: the PR link to merge, then Render → Manual Deploy.
+- Never say "done" or "works" unless you verified it yourself.

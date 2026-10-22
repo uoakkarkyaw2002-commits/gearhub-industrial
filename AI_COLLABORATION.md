@@ -25,6 +25,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### AGENTS.md section 10: working workflow (Claude) — completed
+- Task: the owner asked for Codex to work the way Claude does. `AGENTS.md` section 10 is the step-by-step workflow: read first, reproduce and find the real cause, match the screenshot exactly, keep the change small and safe, test phone + PC in a browser, ship through a PR with a handoff entry, report to the owner in Burmese.
+- Files: `AGENTS.md`, `AI_COLLABORATION.md` (docs only; no version bump).
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/171
+- Notes: **Both agents: follow sections 9 and 10 on every task.**
+
 ### 1.1.101: Plant icon and a continuous line beside "Add" rows (Claude) — completed
 - Task: main categories use a plant (sprout) icon instead of a gear, and the green line beside "Add Child subcategory" / "Add Subcategory" was broken.
 - Cause of the break: those Add rows have a 1px border, which moved their connector origin by 1px. Their `::before`/`::after` now use `left:calc(var(--cx) - 1px)` and `top:-12px`.
