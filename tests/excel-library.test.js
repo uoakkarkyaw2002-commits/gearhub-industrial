@@ -14,3 +14,10 @@ test('the Excel panel opens (.modal needs .open) and the list query uses real co
  assert.match(js,/modal\.hidden=true;modal\.classList\.remove\('open'\)/);
  assert.doesNotMatch(platform,/created_at FROM platform_files/,'platform_files has no created_at column');
 });
+test('the GearHub owner can upload Excel files to any shop',()=>{
+ const js=fs.readFileSync(path.join(__dirname,'..','public','excel-library.js'),'utf8');
+ assert.match(js,/else if\(body\.isOwner\)\{[\s\S]*fetch\('\/api\/platform\/owner'\)[\s\S]*item\.slug===slug&&!item\.legacy/);
+});
+test('visitors do not see the Excel upload form',()=>{
+ assert.match(fs.readFileSync(path.join(__dirname,'..','public','style.css'),'utf8'),/\.excel-library-card form\[hidden\]\{display:none\}/);
+});
