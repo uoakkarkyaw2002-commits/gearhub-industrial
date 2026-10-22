@@ -25,6 +25,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.98: Quiet seller splash during app updates (Codex) — in review
+- Task: during an app update or refresh, keep the POLESTAR seller splash visible with `Updating…` so GearHub content never flashes. Update transitions do not play splash sound; normal app openings retain the configured splash sound.
+- Files: `public/updates.js`, `public/skyshop-splash.js`, `public/skyshop-splash.css`, `lib/tenant-install.js`, cache/version files, and the splash regression test.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/167
+- Notes: Node 22 local validation passed: `npm run check && npm test` (233 passing), plus syntax checks for both changed browser scripts. Browser verification is still required before merge.
+
 ### 1.1.97: Excel files open like a spreadsheet (Claude) — completed
 - Task: the owner wants an uploaded workbook to look like Excel/Google Sheets in the app (owner screenshot: sheet tabs CB/PT/JN/BC/ERCK, column letters, row numbers, coloured cells, merged title row, dates like 1-Oct-26).
 - `public/excel-map.js` was rewritten as a readable viewer. It reads the ZIP, workbook, sheet relations, theme colours (with tint), styles (fonts, fills, borders, alignment, number formats), shared strings, merged cells, column widths and row heights. It has tabs for every visible sheet (hidden sheets are skipped) and shows up to 1500 rows × 60 columns. The header row for linking is the first row with at least two values. Linking, import and owner access are unchanged.
