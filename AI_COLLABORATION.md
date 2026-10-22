@@ -25,6 +25,14 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.97: Excel files open like a spreadsheet (Claude) — completed
+- Task: the owner wants an uploaded workbook to look like Excel/Google Sheets in the app (owner screenshot: sheet tabs CB/PT/JN/BC/ERCK, column letters, row numbers, coloured cells, merged title row, dates like 1-Oct-26).
+- `public/excel-map.js` was rewritten as a readable viewer. It reads the ZIP, workbook, sheet relations, theme colours (with tint), styles (fonts, fills, borders, alignment, number formats), shared strings, merged cells, column widths and row heights. It has tabs for every visible sheet (hidden sheets are skipped) and shows up to 1500 rows × 60 columns. The header row for linking is the first row with at least two values. Linking, import and owner access are unchanged.
+- `public/style.css`: `.excel-sheet` grid (sticky letters and row numbers, gridlines), `.excel-tabs`, and a wider card while a sheet is open. Removed the 110px cell minimum inside the viewer.
+- Files: `public/excel-map.js`, `public/style.css`, `public/index.html`, `public/sw.js`, `tests/excel-library.test.js`, plus the version files.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/166
+- Notes: old binary `.xls` cannot be previewed (download only). Formulas show their saved value.
+
 ### AGENTS.md section 9: engineering rules (Claude) — completed
 - Task: the owner asked to write down the mistakes from 1.1.84–1.1.95 so they are not repeated. `AGENTS.md` now has section 9: no direct pushes to main, `npm run check && npm test`, single-backslash regexes, `gearhub-shell-v85-<version>`, matching `?v=` tags in `sw.js`, `shop_id` scoping, no data-wiping imports, modal/`hidden` patterns, phone + PC browser tests, honest reports.
 - Files: `AGENTS.md`, `AI_COLLABORATION.md` (docs only; no version bump).
