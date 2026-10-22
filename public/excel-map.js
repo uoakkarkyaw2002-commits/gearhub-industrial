@@ -5,12 +5,12 @@
  const box=document.getElementById('excel-library-list'),card=document.querySelector('.excel-library-card');
  if(!box||!card)return;
  const section=document.createElement('section');section.className='excel-preview';section.hidden=true;
- section.innerHTML='<button class="excel-fs-back" id="excel-fs-back" type="button" aria-label="Back">←</button><div class="drawer-head"><h3 id="excel-sheet-title">Spreadsheet</h3><button class="icon-btn" id="excel-sheet-back" type="button" aria-label="Back to files">←</button></div><p id="excel-sheet-status" class="excel-library-status"></p><div id="excel-grid" class="excel-grid excel-sheet"></div><div id="excel-tabs" class="excel-tabs" role="tablist"></div><div id="excel-map-panel" class="excel-map-panel" hidden><strong>Connect data to Product Inventory</strong><p class="excel-library-help">Choose each column yourself. Same SKU updates an existing product.</p><div id="excel-map-fields" class="excel-map-fields"></div><button class="primary" id="excel-import" type="button">Import products</button><p id="excel-import-status" class="excel-library-status"></p></div>';
+ section.innerHTML='<button class="excel-fs-back" id="excel-fs-back" type="button" aria-label="Back">←</button><div class="drawer-head"><h3 id="excel-sheet-title">Spreadsheet</h3><button class="icon-btn" id="excel-sheet-back" type="button" aria-label="Back to files">←</button></div><p id="excel-sheet-status" class="excel-library-status"></p><label class="excel-sheet-search"><span class="sr-only">Search this Excel file</span><input id="excel-sheet-search" type="search" placeholder="Search this Excel file" autocomplete="off"></label><div id="excel-grid" class="excel-grid excel-sheet"></div><div id="excel-tabs" class="excel-tabs" role="tablist"></div><div id="excel-map-panel" class="excel-map-panel" hidden><strong>Connect data to Product Inventory</strong><p class="excel-library-help">Choose each column yourself. Same SKU updates an existing product.</p><div id="excel-map-fields" class="excel-map-fields"></div><button class="primary" id="excel-import" type="button">Import products</button><p id="excel-import-status" class="excel-library-status"></p></div>';
  card.append(section);
- const grid=section.querySelector('#excel-grid'),tabs=section.querySelector('#excel-tabs'),map=section.querySelector('#excel-map-fields'),panel=section.querySelector('#excel-map-panel'),msg=section.querySelector('#excel-sheet-status'),out=section.querySelector('#excel-import-status'),title=section.querySelector('#excel-sheet-title');
+ const grid=section.querySelector('#excel-grid'),tabs=section.querySelector('#excel-tabs'),map=section.querySelector('#excel-map-fields'),panel=section.querySelector('#excel-map-panel'),msg=section.querySelector('#excel-sheet-status'),out=section.querySelector('#excel-import-status'),title=section.querySelector('#excel-sheet-title'),search=section.querySelector('#excel-sheet-search');
  const slug=(location.pathname.match(/^\/shops\/([^/]+)/)||[])[1];
  const MAX_ROWS=1500,MAX_COLS=60;
- let book=null,data=null,owner=null,active=0;
+ let book=null,data=null,owner=null,active=0,searchText='',searchTimer=0;
  const modal=document.getElementById('excel-library-modal');
  // Full screen like Google Sheets: only the sheet, its tabs and one back arrow.
  function fullScreen(on){modal?.classList.toggle('excel-fullscreen',on);document.documentElement.classList.toggle('excel-fullscreen-open',on)}
@@ -136,19 +136,21 @@
   return css.join(';');
  }
  function renderSheet(sheet){
-  const cols=sheet.maxC+1,rows=sheet.maxR+1,px=w=>Math.round((w??sheet.defW)*7+5);
+  const cols=sheet.maxC+1,rows=sheet.maxR+1,px=w=>Math.round((w??sheet.defW)*7+5),query=searchText.trim().toLocaleLowerCase();
+  const matching=r=>!query||Array.from({length:cols},(_,c)=>sheet.cells.get(r+','+c)?.text||'').some(value=>String(value).toLocaleLowerCase().includes(query));
+  const visibleRows=Array.from({length:rows},(_,r)=>r).filter(r=>sheet.heights[r]!==0&&matching(r));
   // Exact table width = row-number column + every column, so the browser never stretches column A.
   const widths=Array.from({length:cols},(_,c)=>px(sheet.widths[c])),total=46+widths.reduce((a,b)=>a+b,0);
   let html='<table style="width:'+total+'px"><colgroup><col class="excel-rownum-col" style="width:46px">'+widths.map(w=>'<col style="width:'+w+'px">').join('')+'</colgroup><thead><tr><th class="excel-corner"></th>'+Array.from({length:cols},(_,c)=>'<th>'+colName(c)+'</th>').join('')+'</tr></thead><tbody>';
-  for(let r=0;r<rows;r++){
-   const ht=sheet.heights[r];if(ht===0)continue;
+  for(const r of visibleRows){
+   const ht=sheet.heights[r];
    html+='<tr style="height:'+Math.round((ht??sheet.defH)*4/3)+'px"><th>'+(r+1)+'</th>';
    for(let c=0;c<cols;c++){const key=r+','+c;if(sheet.covered.has(key))continue;const m=sheet.merges.get(key),cell=sheet.cells.get(key);
     html+='<td'+(m?(m.rs>1?' rowspan="'+m.rs+'"':'')+(m.cs>1?' colspan="'+m.cs+'"':''):'')+(cell?' style="'+esc(cellStyle(cell))+'"':'')+'>'+(cell?esc(cell.text):'')+'</td>'}
    html+='</tr>';
   }
   grid.innerHTML=html+'</tbody></table>';grid.scrollTop=0;grid.scrollLeft=0;
-  msg.textContent=rows+' rows'+(sheet.truncated?' (first '+MAX_ROWS+' shown)':'');
+  msg.textContent=(query?visibleRows.length+' of ':'')+rows+' rows'+(sheet.truncated?' (first '+MAX_ROWS+' shown)':'');
  }
  // Header row for linking = first row with at least two values (row 1 is often a title).
  function tableData(sheet){
@@ -161,7 +163,7 @@
   tabs.innerHTML=book.sheets.map((s,i)=>'<button type="button" role="tab" class="excel-tab'+(i===active?' active':'')+'" data-sheet="'+i+'" aria-selected="'+(i===active)+'"'+(s.tab?' style="--tab-color:'+esc(s.tab)+'"':'')+'>'+esc(s.name)+'</button>').join('');
  }
  async function showSheet(i){
-  active=i;renderTabs();msg.textContent='Loading…';
+  active=i;searchText='';search.value='';renderTabs();msg.textContent='Loading…';
   try{const sheet=await readSheet(book.sheets[i]);renderSheet(sheet);data=tableData(sheet);renderMap()}catch(x){msg.textContent=x.message}
  }
  function renderMap(){
@@ -186,6 +188,7 @@
   }catch(x){msg.textContent=x.message}
  });
  tabs.addEventListener('click',e=>{const t=e.target.closest('[data-sheet]');if(t)showSheet(+t.dataset.sheet)});
+ search.addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{searchText=search.value;const sheet=book?.sheets[active];if(sheet?.cells)renderSheet(sheet)},80)});
  const leave=()=>{section.hidden=true;box.hidden=false;setForm(false);card.classList.remove('excel-sheet-open');fullScreen(false)};
  section.querySelector('#excel-sheet-back').onclick=leave;section.querySelector('#excel-fs-back').onclick=leave;
  // Closing the whole Excel panel (Escape, outside tap) also leaves full screen.
