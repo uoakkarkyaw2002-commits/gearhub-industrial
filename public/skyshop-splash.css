@@ -23,3 +23,10 @@
 #sky-splash.is-progress .sky-splash-bar i{width:0;animation:none!important;transform:none;transition:width .12s linear}
 #sky-splash.is-progress .sky-splash-dots{display:none}
 .sky-splash-percent{margin-left:6px;font-variant-numeric:tabular-nums}
+/* "Updating": the flower animation on a dark screen replaces the shop picture until 100%. */
+#sky-splash.is-updating{background:radial-gradient(ellipse at 50% 72%,#2a0d22 0%,#0a050b 62%,#050306 100%)}
+#sky-splash.is-updating picture{display:none}
+.sky-bloom{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;padding-bottom:calc(150px + env(safe-area-inset-bottom,0px));pointer-events:none}
+.sky-bloom svg{width:min(100vw,560px);height:auto;max-height:72vh;overflow:visible}
+.sky-bloom .sb-pop{transform-box:fill-box;transform-origin:center}
+.sky-bloom .sb-spark{transform-box:fill-box}
