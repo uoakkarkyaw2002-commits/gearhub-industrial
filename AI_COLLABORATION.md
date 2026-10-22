@@ -25,11 +25,11 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.109: Open tab easier to see in the phone bottom nav (Claude) — in review
-- Task: the owner wants the pressed tab to stand out, without changing the icon colours.
-- Files: `public/style.css` (bubble: light green `#eefbed` with a 2.5 px green ring; open tab label bold dark green; dark-mode versions), tags and version files, `tests/liquid-nav.test.js`.
-- PR: (this PR)
-- Notes: the owner explicitly said not to change icon colours. Do not switch the icons to line or black versions.
+### 1.1.109: Phone bottom nav matches the owner's picture (Claude) — in review
+- Task: make the open tab obvious, exactly like the owner's picture, without changing icon colours. The bar floats with round corners, the notch has smooth shoulders, and the open tab sits in a white bubble with a bold black label.
+- Files: `public/style.css` (floating bar, SVG notch mask that moves with `--liquid-x` via `mask-composite`, white bubble, `#111` bold label, dark-mode versions), tags and version files, `tests/liquid-nav.test.js`.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/179
+- Notes: the owner said do nothing beyond the picture. Never change the icon colours (no line or black icons).
 
 ### 1.1.108: Phone bottom nav "liquid" animation (Claude) — completed
 - Task: the owner's screen recording. On phones the open tab's icon rises into a round bubble that sits in a curved notch of the bar. Tapping another tab slides the bubble and the notch there (0.5 s), and the label shows only under the open tab.
