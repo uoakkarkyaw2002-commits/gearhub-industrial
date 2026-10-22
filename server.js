@@ -585,6 +585,8 @@ app.get("/app.webmanifest", (_req,res) => {
  const manifest=JSON.parse(fs.readFileSync(path.join(__dirname,"public/manifest.webmanifest"),"utf8"));
  manifest.name=site.brandName||manifest.name;
  manifest.short_name=(site.brandName||manifest.short_name).slice(0,30);
+ // Installed store on PC: no dark title bar with the app name; the page draws its own white strip.
+ manifest.display_override=["window-controls-overlay","standalone"];
  if(site.appIconUrl||site.logoUrl)manifest.icons=[{src:site.appIconUrl||site.logoUrl,sizes:"512x512",purpose:"any"}];
  res.set("Cache-Control","no-cache").type("application/manifest+json").json(manifest);
 });

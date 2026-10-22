@@ -25,10 +25,16 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.103: PC store navigation in the top header (Claude) — in review
+### 1.1.104: No unstyled page during a deploy; no dark title bar in the PC store app (Claude) — in review
+- Task: while Render restarts during a deploy, the shop page showed without its styles (black icons, old nav). The installed PC store app also showed a dark title bar with the shop name.
+- Files: `public/sw.js` (a failed or 5xx `.css`/`.js` uses a saved copy, matched with `ignoreSearch`; a 5xx page navigation opens the saved shop page), `lib/tenant-install.js` and `server.js` (store manifests get `display_override:["window-controls-overlay","standalone"]`; the admin manifest is unchanged), `public/desktop.css` (white drag strip in `display-mode:window-controls-overlay`), version files, `tests/safe-deploy-titlebar.test.js`.
+- PR: (this PR)
+- Notes: updates still reach people only after the owner deploys on Render. Merging alone changes nothing live. Already-installed apps pick up the new manifest when Chrome next checks it (can take up to a day), or after a reinstall.
+
+### 1.1.103: PC store navigation in the top header (Claude) — completed
 - Task: on PC (≥851px) Home / Category / Promotion / Cart / Settings sit in the top header with outline icons; the active page has a light-green pill. The language button beside the Excel icon is hidden on PC. Phones keep the bottom nav.
 - Files: `public/index.html` (`<nav class="desktop-top-nav">`), `public/desktop.css`, `public/sw.js`, version files, `tests/desktop-top-nav.test.js`.
-- PR: (this PR)
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/173
 - Notes: the buttons reuse `data-store-view` / `data-store-action="open-cart"`, so `store.js` needs no change. The phone rule is `.nav .desktop-top-nav{display:none}` because `.nav nav{display:flex}` would otherwise win.
 
 ### 1.1.102: One Excel file and in-sheet search (Codex) — in review

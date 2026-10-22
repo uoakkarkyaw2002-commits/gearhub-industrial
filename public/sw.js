@@ -1,5 +1,5 @@
-const CACHE_NAME = "gearhub-shell-v85-1.1.103";
-const SHELL = ["/skyshop-splash.css?v=20261022-update-1","/skyshop-splash.js?v=20261022-update-1","/category-browser.js?v=20261017-speed-1","/tenant-store.js?v=20261021-order-fast-1","/excel-map.js?v=20261022-excel-search-1","/excel-library.js?v=20261022-excel-phone-1","/updates.js?v=20261022-update-splash-1","/desktop.css?v=20261022-top-nav-2","/","/style.css?v=20261022-excel-search-1","/site-content.js?v=20261018-share-2","/store.js?v=20261021-order-fast-1","/app-install.js?v=20261020-shopsw-1","/settings.js?v=20261018-qrlazy-1","/back-nav.js?v=20261020-back-1","/dialogs.js?v=20261017-share-1","/footer.js?v=20261012-1","/images/hero-excavator.jpg","/app.webmanifest","/app-icon.png","/icons/icon.svg","/icons/apple-touch-icon.png","/qrcode.js?v=1.4.4"];
+const CACHE_NAME = "gearhub-shell-v85-1.1.104";
+const SHELL = ["/skyshop-splash.css?v=20261022-update-1","/skyshop-splash.js?v=20261022-update-1","/category-browser.js?v=20261017-speed-1","/tenant-store.js?v=20261021-order-fast-1","/excel-map.js?v=20261022-excel-search-1","/excel-library.js?v=20261022-excel-phone-1","/updates.js?v=20261022-update-splash-1","/desktop.css?v=20261022-titlebar-1","/","/style.css?v=20261022-excel-search-1","/site-content.js?v=20261018-share-2","/store.js?v=20261021-order-fast-1","/app-install.js?v=20261020-shopsw-1","/settings.js?v=20261018-qrlazy-1","/back-nav.js?v=20261020-back-1","/dialogs.js?v=20261017-share-1","/footer.js?v=20261012-1","/images/hero-excavator.jpg","/app.webmanifest","/app-icon.png","/icons/icon.svg","/icons/apple-touch-icon.png","/qrcode.js?v=1.4.4"];
 const ADMIN_CACHE="gearhub-admin-v1",IMAGE_CACHE="gearhub-img-v1";
 const shopPath=pathname=>{const m=pathname.match(/^\/shops\/([a-z0-9-]+)(?:\/|$)/);return m?'/shops/'+m[1]+'/':null;};
 const offlineCache=pathname=>'gearhub-offline-v2:'+ (shopPath(pathname)||'root');
@@ -27,7 +27,8 @@ self.addEventListener("fetch", event => {
   if (request.mode === "navigate") {
     event.respondWith(fetch(request).then(response => {
       if (response.ok) { const copy = response.clone(); caches.open(CACHE_NAME).then(cache => cache.put(url.pathname === "/" ? "/" : request.url, copy)); }
-      return response;
+      if (response.ok || response.status < 500) return response;
+      throw new Error("server restarting");
     }).catch(async () => (async()=>{const tenant=shopPath(url.pathname);if(tenant)return (await caches.open(offlineCache(url.pathname))).match(url.href).then(async saved=>saved||await (await caches.open(CACHE_NAME)).match(url.href)||new Response('This shop is unavailable offline. Connect to the internet to open it.',{status:503,headers:{'Content-Type':'text/plain'}}));return (await caches.open(offlineCache('/'))).match('/').then(saved=>saved||caches.match('/'));})()));
     return;
   }
@@ -44,10 +45,16 @@ self.addEventListener("fetch", event => {
     event.respondWith(fetch(request).then(response => {
       // Copy before the page reads the body, otherwise the copy fails silently.
       if (response.ok) { const copy = response.clone(); caches.open(CACHE_NAME).then(cache => cache.put(request, copy)); }
-      return response;
-    }).catch(() => caches.match(request)));
+      if (response.ok) return response;
+      return cachedAsset(request).then(saved => saved || response);
+    }).catch(() => cachedAsset(request)));
   }
 });
+// While Render restarts during a deploy, a stylesheet or script can fail for a few seconds.
+// Use a saved copy (even one with another ?v=) so the page never shows without its styles.
+async function cachedAsset(request) {
+  return (await caches.match(request)) || (await caches.match(request, {ignoreSearch: true}));
+}
 
 self.addEventListener("message", event => {
  if(event.data?.type === "APPLY_UPDATE"){self.skipWaiting();return;}

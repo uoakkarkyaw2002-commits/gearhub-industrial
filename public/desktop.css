@@ -110,3 +110,11 @@
  .mobile-bottom-nav{display:none!important}
 }
 @media (min-width:851px) and (max-width:1100px){.desktop-nav-item{padding:0 10px;gap:7px;font-size:13px}.desktop-nav-item svg{width:22px;height:22px}}
+/* Installed store app on PC: the dark title bar with the shop name is replaced by a thin white
+   strip (window controls stay on it, and it still drags the window). */
+@media (display-mode:window-controls-overlay){
+ html::after{content:"";position:fixed;z-index:100;top:0;left:0;right:0;height:env(titlebar-area-height,0px);background:#fff;-webkit-app-region:drag;app-region:drag}
+ body{padding-top:env(titlebar-area-height,0px)}
+ .announcement{display:none}
+ .nav{top:env(titlebar-area-height,0px)}
+}
