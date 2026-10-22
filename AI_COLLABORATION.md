@@ -25,6 +25,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.84: Android launch screen uses the original round shop icon (Codex) — completed
+- Task: remove the blue Android launch/background color and show the shop’s original logo as a round icon.
+- Files: `lib/tenant-install.js`, `public/index.html`, `public/sw.js`, `package.json`, `package-lock.json`, `tests/tenant-install.test.js`.
+- Notes: tenant manifests now use a white launch background; generated shop icons have transparent corners and a white circular face. Reinstall/update the Android app to refresh its launcher icon.
+
 ### 1.1.83: One add button in the category editor (Claude) — completed
 - Task: remove the top "＋ Add Category" button. Keep only "+ Add Main Category" under the list.
 - Files: `public/admin.html`, `public/admin.js` (its listener removed), `tests/one-add-category.test.js`, plus the version files.
