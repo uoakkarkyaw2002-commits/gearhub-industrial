@@ -30,13 +30,15 @@ test('phone-only styles: notch mask, raised bubble, sliding transition, labels o
  assert.match(tail,/\.liquid-nav-bubble\{[^}]*transform:translateX\(calc\(var\(--liquid-x\) - 29px\)\)/);
  assert.match(tail,/\.bottom-nav-item\.active>span\{transform:translateY\(var\(--liquid-lift,-30px\)\)/);
  assert.match(tail,/\.bottom-nav-item\.active>small\{opacity:1/);
- assert.match(read('index.html'),/<script src="\/store\.js\?v=[^"]+"><\/script><script src="\/liquid-nav\.js\?v=20261022-liquid-3"><\/script>/);
- assert.match(read('sw.js'),/"\/liquid-nav\.js\?v=20261022-liquid-3"/);
+ assert.match(read('index.html'),/<script src="\/store\.js\?v=[^"]+"><\/script><script src="\/liquid-nav\.js\?v=20261022-liquid-4"><\/script>/);
+ assert.match(read('sw.js'),/"\/liquid-nav\.js\?v=20261022-liquid-4"/);
 });
 
-test('the open tab is easy to see: light-green bubble, green ring, bold label; icon colours unchanged',()=>{
- const css=read('style.css'),tail=css.slice(css.indexOf('/* The open tab is easy to see'));
- assert.match(tail,/\.liquid-nav-bubble\{background:#eefbed;box-shadow:0 0 0 7px var\(--paper,#f5f7f1\),inset 0 0 0 2\.5px #148333/);
- assert.match(tail,/\.bottom-nav-item\.active>small\{color:#0f6b2a;font-weight:800\}/);
+test('owner picture: floating rounded bar, smooth notch, white bubble, bold black label; icon colours unchanged',()=>{
+ const css=read('style.css'),tail=css.slice(css.indexOf("/* Owner's picture: the bar floats"));
+ assert.match(tail,/\.mobile-bottom-nav\.liquid\{left:12px!important;right:12px!important;bottom:max\(12px,env\(safe-area-inset-bottom\)\)!important/);
+ assert.match(tail,/::before\{border-radius:24px;-webkit-mask:url\("data:image\/svg\+xml[^)]*"\) no-repeat calc\(var\(--liquid-x\) - 70px\) 0\/140px 40px/);
+ assert.match(tail,/\.liquid-nav-bubble\{background:#fff;/);
+ assert.match(tail,/\.bottom-nav-item\.active>small\{color:#111;font-weight:800\}/);
  assert.doesNotMatch(read('liquid-nav.js'),/nav-line/,'no replacement icons');
 });
