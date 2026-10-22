@@ -25,6 +25,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.89: Restore desktop home logo (Codex) — completed
+- Task: show the shop logo and name again in the PC home navigation while keeping its navigation artwork hidden.
+- Files: `public/style.css`, `public/index.html`, `public/sw.js`, `package.json`, `package-lock.json`, `tests/tenant-install.test.js`.
+- Notes: phone navigation is unchanged.
+
 ### 1.1.88: Category page banner at the top (Claude) — completed
 - Task: on the storefront Category tab, remove the category title (e.g. "Electrical Parts") above the banner so the banner sits at the top.
 - Files: `public/style.css` (title and subtitle hidden outside products mode; the whole header row is hidden at ≤850px, where its search button was already hidden), `public/index.html` and `public/sw.js` (`style.css` cache tag), `tests/category-banner-top.test.js`, plus the version files.
