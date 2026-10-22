@@ -1,16 +1,17 @@
-// Opening picture of a shop. It shows whenever the shop is opened (a new tab, a typed or shared
-// link, a Home Screen start). During an app update it shows a quiet "Updating…" picture (no sound).
-// On a reload or a quick move between pages it is a plain cover in the page colour (no picture,
-// no sound). In every case it stays until the shop is drawn with its own name, banner and
-// products and the pictures at the top have loaded, so GearHub's template never flashes.
+// Opening picture of a shop with a 0–100% counter. The shop opens only at 100%: its own name,
+// banner and products are on the page and the pictures at the top have loaded. If the shop cannot
+// load (no internet, server down) the picture stays and it keeps retrying, so GearHub's empty
+// template is never shown. During an app update it says "Updating…" and plays no sound. On a
+// reload it is a plain cover first and turns into the picture only if loading takes a while.
 (()=>{
  const el=document.getElementById("sky-splash");if(!el)return;
  const shop=location.pathname.match(/^\/shops\/([^/]+)/);
  const updateKey='gh-update-splash:'+(shop?'/shops/'+shop[1]+'/':'/');
  let updating=false;try{updating=sessionStorage.getItem(updateKey)==='1';if(updating)sessionStorage.removeItem(updateKey)}catch{}
  const message=node=>node.querySelector('.sky-splash-message');
+ const loadingText=updating?'Updating…':'ဆိုင်ကို ဖွင့်နေပါတယ် / Loading';
  const prepareUpdate=node=>{
-  node.classList.remove('is-quiet','is-leaving');node.classList.add('is-updating','is-waiting');node.removeAttribute('data-sound');
+  node.classList.remove('is-quiet','is-leaving');node.classList.add('is-updating');node.removeAttribute('data-sound');
   const label=message(node);if(label)label.textContent='Updating…';
  };
  const template=el.cloneNode(true);
@@ -37,11 +38,36 @@
   // touch yet) it starts silently on the first touch; no message is shown.
   audio.play().catch(()=>{if(!el.isConnected)return;gestures.forEach(g=>document.addEventListener(g,start,true))});
  }
+
+ // Counter: the bar and the number follow real steps (page, shop data, pictures). While waiting
+ // for the network it creeps slowly and never passes 75% until the shop data has arrived.
+ el.classList.add('is-progress');
+ const bar=el.querySelector('.sky-splash-bar i');
+ const percent=document.createElement('b');percent.className='sky-splash-percent';percent.textContent='0%';
+ message(el)?.after?.(percent);
+ const started=Date.now();
+ let shown=0,goal=75,data=false,done=false,gone=false,failed=false,pictures=[0,0];
+ const label=text=>{const node=message(el);if(node)node.textContent=text};
+ const render=()=>{const value=Math.floor(shown);percent.textContent=value+'%';if(bar)bar.style.width=value+'%'};
+ const leave=()=>{if(gone)return;gone=true;clearInterval(tick);el.classList.add("is-leaving");if(audio)audio.pause();setTimeout(()=>el.remove(),quiet?250:550)};
+ const tick=setInterval(()=>{
+  if(gone)return;
+  const byTime=seconds?Math.min(100,(Date.now()-started)/(seconds*1000)*100):100;
+  if(data&&!done)goal=80+19*(pictures[1]?pictures[0]/pictures[1]:1);
+  if(done)goal=100;
+  const target=Math.min(goal,byTime);
+  if(target>shown)shown=Math.min(target,shown+Math.max(data?0.8:0.15,(target-shown)*(data?0.18:0.04)));
+  render();
+  if(done&&byTime>=100&&shown>=100)setTimeout(leave,150);
+ },50);
+ // A reload shows a plain cover; if the shop is not ready soon, show the picture and the counter.
+ if(quiet)setTimeout(()=>{if(!gone)el.classList.remove('is-quiet')},700);
+
  const wait=ms=>new Promise(r=>setTimeout(r,ms));
  const loaded=img=>new Promise(r=>{if(img.complete)return r();img.addEventListener('load',r,{once:true});img.addEventListener('error',r,{once:true})});
  // Pictures in the first screen (photos and CSS backgrounds such as the banner and logo).
  function picturesReady(){
-  const waits=[document.fonts?.ready],urls=new Set(),bottom=innerHeight*1.2;
+  const waits=[],urls=new Set(),bottom=innerHeight*1.2;
   for(const node of document.body.querySelectorAll('*')){
    if(node===el||el.contains(node))continue;
    const box=node.getBoundingClientRect();if(!box.width||box.bottom<0||box.top>bottom)continue;
@@ -49,14 +75,24 @@
    for(const part of [null,'::before','::after'])for(const m of getComputedStyle(node,part).backgroundImage.matchAll(/url\(["']?([^"')]+)["']?\)/g))urls.add(m[1]);
   }
   for(const url of urls){const img=new Image();img.src=url;waits.push(loaded(img))}
+  if(document.fonts?.ready)waits.push(document.fonts.ready);
+  pictures=[0,waits.length];
+  waits.forEach(w=>w.then(()=>pictures[0]++));
   return Promise.race([Promise.all(waits),wait(2500)]);
  }
- let gone=false;
- const leave=()=>{if(gone)return;gone=true;el.classList.add("is-leaving");if(audio)audio.pause();setTimeout(()=>el.remove(),quiet?250:550)};
- // store.js sends "gearhub:store-shown" once the shop's own data is on the page (or the offline
- // copy / an error message is). Never hold the page for more than 12 seconds.
- const shown=new Promise(r=>{addEventListener('gearhub:store-shown',r,{once:true});setTimeout(r,12000)});
- Promise.all([shown.then(picturesReady),wait(seconds*1000)]).then(leave);
- // Past the opening time the bar keeps moving instead of sitting full.
- if(!updating&&!quiet)setTimeout(()=>el.classList.add('is-waiting'),seconds*1000);
+ // store.js says "gearhub:store-shown" when the shop's own data is on the page (live or the saved
+ // offline copy) and "gearhub:store-failed" when it could not load. On failure the picture stays,
+ // says so, and tries again every few seconds and as soon as the phone is back online.
+ let retrying=false;
+ const retry=()=>{if(gone||data||retrying||!failed)return;retrying=true;setTimeout(()=>{retrying=false},15000);window.GearHubStore?.retry?.()};
+ addEventListener('gearhub:store-shown',()=>{
+  if(data)return;data=true;failed=false;retrying=false;label(loadingText);
+  picturesReady().then(()=>{done=true});
+ });
+ addEventListener('gearhub:store-failed',()=>{
+  if(data)return;failed=true;retrying=false;el.classList.remove('is-quiet');
+  label(navigator.onLine===false?'အင်တာနက် မရှိပါ — ပြန်ချိတ်နေပါတယ် / Offline, retrying':'ပြန်ကြိုးစားနေပါတယ် / Retrying');
+ });
+ setInterval(retry,5000);
+ addEventListener('online',retry);
 })();
