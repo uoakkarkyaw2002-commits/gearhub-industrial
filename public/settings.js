@@ -215,10 +215,12 @@
   byId("share-modal")?.addEventListener("click", event => { if (event.target === event.currentTarget) event.currentTarget.classList.remove("open"); });
   byId("share-copy")?.addEventListener("click", copyLink);
   byId("share-native")?.addEventListener("click", () => navigator.share({ title: byId("share-store-name").textContent, url: byId("share-link").value }).catch(() => {}));
-  // Refresh works like the browser's reload button; unsaved form drafts are kept.
+  // Refresh works like the browser's reload button; unsaved form drafts are kept. It shows the same
+  // flower animation as an update, which finishes on the reloaded page.
   byId("app-refresh-action")?.addEventListener("click", () => {
     window.GearHubUpdates?.saveDraft?.();
-    location.reload();
+    if (window.GearHubSplash?.showUpdating) { window.GearHubSplash.showUpdating(); setTimeout(() => location.reload(), 80); }
+    else location.reload();
   });
   byId("about-app-toggle").addEventListener("click", () => {
     const details = byId("about-app-details");
