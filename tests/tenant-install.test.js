@@ -15,7 +15,7 @@ test('public install identities: server HTML, canonical URL, owned PNG icons, mi
  fs.writeFileSync(path.join(sdir,'sound.wav'),Buffer.concat([Buffer.from('RIFF'),Buffer.from([36,0,0,0]),Buffer.from('WAVEfmt '),Buffer.alloc(24)]));
  splash.save(db,{seconds:5,pc:true,phone:false,sound:'wav'});
  const custom=await(await fetch(base+'/shops/shop-a/')).text();
- assert.match(custom,/id="sky-splash"[^>]*data-seconds="5"[^>]*data-sound="\/splash-asset\/sound\?v=\d+"/);assert.match(custom,/srcset="\/splash-asset\/pc\?v=\d+"/);assert.match(custom,/<img src="\/images\/skyshop-splash-phone\.jpg"/);assert.match(custom,/animation-duration:5s/);
+ assert.match(custom,/id="sky-splash"[^>]*data-seconds="5"[^>]*data-sound="\/splash-asset\/sound\?v=\d+"/);assert.match(custom,/srcset="\/splash-asset\/pc\?v=\d+"/);assert.match(custom,/<img src="\/images\/skyshop-splash-phone\.jpg\?v=1"/);assert.match(custom,/animation-duration:5s/);
  const pcAsset=await fetch(base+'/splash-asset/pc?v=1');assert.equal(pcAsset.status,200);assert.equal(pcAsset.headers.get('content-type'),'image/jpeg');
  const soundAsset=await fetch(base+'/splash-asset/sound?v=1');assert.equal(soundAsset.status,200);assert.equal(soundAsset.headers.get('content-type'),'audio/wav');
  assert.equal((await fetch(base+'/splash-asset/phone')).status,404,'no custom phone picture: the built-in one is used');
@@ -32,7 +32,7 @@ test('offline navigation never falls back from a tenant to root or another tenan
  const caches={open:async name=>({match:async key=>entries.get(name+' '+(typeof key==='string'?new URL(key,origin).href:key.url)),put:async()=>{}}),match:async()=>new Response('ROOT'),keys:async()=>[]};
  vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../public/sw.js'),'utf8'),{self:{location:{origin},addEventListener:(n,f)=>handlers[n]=f},caches,URL,Response,fetch:async()=>{throw Error('offline')}});
  async function navigate(p){let response;handlers.fetch({request:{url:origin+p,mode:'navigate',method:'GET'},respondWith:r=>response=r});return response;}
- entries.set('gearhub-shell-v85-1.1.114 '+origin+'/shops/shop-a/',new Response('SHOP A'));entries.set('gearhub-offline-v2:/shops/shop-b/ '+origin+'/shops/shop-b/',new Response('SHOP B'));
+ entries.set('gearhub-shell-v85-1.1.115 '+origin+'/shops/shop-a/',new Response('SHOP A'));entries.set('gearhub-offline-v2:/shops/shop-b/ '+origin+'/shops/shop-b/',new Response('SHOP B'));
  assert.equal(await(await navigate('/shops/shop-a/')).text(),'SHOP A');assert.equal(await(await navigate('/shops/shop-b/')).text(),'SHOP B');assert.equal((await navigate('/shops/shop-c/')).status,503);assert.equal(await(await navigate('/')).text(),'ROOT');
 });
 test('offline saves reject root, other tenant and admin URLs from a shop client',async()=>{

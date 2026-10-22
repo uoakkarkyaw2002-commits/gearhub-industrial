@@ -5,7 +5,7 @@ const read=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
 
 function run({navType='navigate',updating=false,seconds=3,saved='1'}={}){const made=[];
  const listeners={},timers=[],classes=new Set(),attrs={'data-sound':'/s.mp3'};let removed=false,played=0,now=0;
- const label={textContent:'Loading',after(){},style:{}};let retries=0;
+ const label={textContent:'Loading',after(){},style:{},complete:false,addEventListener(){},getAttribute(){return null}};let retries=0;
  const el={dataset:{seconds:String(seconds),get sound(){return attrs['data-sound']}},classList:{add:(...c)=>c.forEach(x=>classes.add(x)),remove:(...c)=>c.forEach(x=>classes.delete(x)),contains:c=>classes.has(c)},
   removeAttribute:k=>delete attrs[k],hasAttribute:k=>k in attrs,querySelector:()=>label,cloneNode(){return this},remove(){removed=true},get isConnected(){return !removed},contains:()=>false};
  const session=new Map(updating?[['gh-update-splash:/',saved]]:[]);
@@ -55,7 +55,7 @@ test('store.js tells the splash when the shop is drawn; CSS for the quiet cover 
 test('Updating counts 0-100%: before the reload it counts up and hands the number to the next page',()=>{
  const js=read('public/skyshop-splash.js'),up=read('public/updates.js');
  assert.match(js,/const saved=sessionStorage\.getItem\(updateKey\);updating=Boolean\(saved\);carried=Math\.min\(99,Number\(saved\)\|\|0\)/);
- assert.match(js,/let shown=carried,goal=Math\.max\(75,carried\)/,'the new page continues from the carried number');
+ assert.match(js,/let shown=carried,goal=Math\.max\(5,carried\)/,'the new page continues from the carried number');
  assert.match(js,/sessionStorage\.setItem\(updateKey,String\(Math\.max\(1,whole\)\)\)/,'the page before the reload stores its number');
  assert.match(js,/return \{progress\(step\)\{goal=Math\.max\(goal,Math\.min\(99,step\)\)\}\}/);
  assert.match(up,/splash=window\.GearHubSplash\?\.showUpdating\?\.\(\);/);assert.match(up,/splash\?\.progress\?\.\(80\);/);
@@ -70,8 +70,36 @@ test('a reload during an update starts the counter where the old page stopped',a
 test('Updating shows the looping flower animation (owner video) instead of the shop picture',()=>{
  const js=read('public/skyshop-splash.js'),css=read('public/skyshop-splash.css');
  assert.match(js,/const label=message\(node\);if\(label\)label\.textContent='Updating…';\n  bloom\(node\);/,'every Updating screen gets the animation');
- assert.match(js,/item\.animate\(frames,\{duration:6000,iterations:Infinity/,'loops every 6 seconds until the screen closes');
+ assert.match(js,/item\.animate\(frames,\{duration:BLOOM_CYCLE,iterations:Infinity/,'loops every 6 seconds until the screen closes');assert.match(js,/BLOOM_CYCLE=6000,BLOOM_DONE=4900/);
  assert.match(js,/loop\(wrap\.querySelector\('\.sb-all'\),\[\{opacity:1,offset:0\},\{opacity:1,offset:\.82\},\{opacity:0,offset:\.93\}/,'fades out and grows again');
  assert.match(css,/#sky-splash\.is-updating picture\{display:none\}/);
  assert.match(css,/#sky-splash\.is-updating\{background:radial-gradient/);
+});
+
+test('fast line: only the picture shows (no Loading box); slow line: the box appears',async()=>{
+ const fast=run({seconds:3});await fast.fire();await fast.tick(3600);assert.ok(fast.classes.has('is-leaving'));assert.ok(!fast.classes.has('show-loading'),'never shown on a fast line');
+ const slow=run({seconds:3});await slow.tick(4500);assert.ok(slow.classes.has('show-loading'),'shown when still waiting');
+});
+
+test('the counter only moves on real steps (no creeping while the line is stuck)',async()=>{
+ const s=run({seconds:3});await s.tick(20000);
+ assert.ok(Number(s.made[0].textContent.replace('%',''))<=15,'stays at the page step until the shop data arrives');
+});
+
+test('opening picture: saved on the phone, versioned, shown only when fully loaded',()=>{
+ const sw=read('public/sw.js'),install=read('lib/tenant-install.js'),css=read('public/skyshop-splash.css'),js=read('public/skyshop-splash.js');
+ assert.match(sw,/"\/images\/skyshop-splash-phone\.jpg\?v=1","\/images\/skyshop-splash-pc\.jpg\?v=1"/,'built-in pictures are precached');
+ assert.match(sw,/url\.pathname\.startsWith\("\/images\/skyshop-splash-"\) \|\| \/\^\\\/splash-asset\\\/\(\?:pc\|phone\)\$\/\.test\(url\.pathname\)\) \{\n\s*event\.respondWith\(caches\.match\(request\)\.then\(saved => saved \|\|/,'cache first, network only when not saved yet');
+ assert.match(install,/'\/images\/skyshop-splash-'\+kind\+'\.jpg\?v='\+SPLASH_IMAGE_V/);
+ assert.match(css,/#sky-splash\{position:fixed;inset:0;z-index:2147483000;background:#f5f7f1;/,'no blue box while the picture loads');
+ assert.match(css,/#sky-splash\.is-picture-wait picture\{opacity:0\}/);
+ assert.match(js,/const decode=\(\)=>\(photo\.decode\?photo\.decode\(\):Promise\.resolve\(\)\)\.then\(reveal,reveal\);/);
+});
+
+test('Updating and Settings Refresh: the flowers always finish and continue across the reload',()=>{
+ const js=read('public/skyshop-splash.js'),settings=read('public/settings.js');
+ assert.match(js,/run\.currentTime=\(Date\.now\(\)-start\)%BLOOM_CYCLE/,'continues where the old page was');
+ assert.match(js,/return passed>=BLOOM_DONE&&phase>=BLOOM_DONE&&phase<BLOOM_DONE\+600/,'leaves only at full bloom');
+ assert.match(js,/if\(done&&shown>=100&&Date\.now\(\)-started>=seconds\*1000&&bloomFinished\(\)\)setTimeout\(leave,150\)/);
+ assert.match(settings,/if \(window\.GearHubSplash\?\.showUpdating\) \{ window\.GearHubSplash\.showUpdating\(\); setTimeout\(\(\) => location\.reload\(\), 80\); \}/);
 });
