@@ -102,3 +102,8 @@ npm run check && npm test
 
 ### 9.10 Report honestly
 - Never say "done", "merged" or "works" without verifying it. List what you tested, at which sizes, and anything not verified.
+
+### 9.11 Never paste tool output into a source file
+- 1.1.102 wrote a viewer's "… 131 tokens truncated …" note and "Warning: truncated output" lines into `public/style.css`. Real CSS, including a closing `}`, was lost. Every style after that point became phone-only, so PC product cards showed black icons and black buttons.
+- Edit files with real file edits, never by copying a shortened file view back in. If a file view says it was truncated, read it in parts.
+- `npm run check` now fails on truncation text in `public/`, `lib/` or `server.js`, and on unbalanced `{ }` in any CSS file.
