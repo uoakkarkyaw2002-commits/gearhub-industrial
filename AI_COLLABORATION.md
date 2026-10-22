@@ -25,11 +25,17 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.105: PC product cards lost their styles; CSS restored (Claude) — in review
+### 1.1.106: Add-to-cart button animation (Claude) — in review
+- Task: the owner's video. Tapping a product card's cart button rolls a cart in, drops a box into it and rolls it out (1.3 s). The button then becomes a green circle with a tick and a ring pulse (1.3 s), and returns to normal.
+- Files: `public/store.js` (`playCartButton`, called from `addCart` after the stock check), `public/style.css` (`.cart-fx*` styles and `cart-fx-*` keyframes, top level for PC and phone), `public/index.html` / `public/sw.js` tags, version files, `tests/cart-button-animation.test.js`.
+- PR: (this PR)
+- Notes: the existing photo-flies-to-cart animation is kept. Turned off when the device asks for reduced motion. Only `.products .product .add` buttons animate; the small "+" in the category list is unchanged.
+
+### 1.1.105: PC product cards lost their styles; CSS restored (Claude) — completed
 - Task: on PC, product cards showed black squares for View photos / Add to cart and an unstyled quantity box.
 - Cause: commit efd756f (1.1.102, Codex) pasted truncated tool output into `public/style.css`. The text "Warning: truncated output…" went in at the top, and "…131 tokens truncated…" replaced real lines, including the `}` that closes an `@media(max-width:850px)` block. Everything after it became phone-only.
 - Files: `public/style.css` (restored from 7f682de; Codex's Excel search changes kept), `scripts/check-static.js` (fails on truncation text or unbalanced CSS braces), `tests/css-integrity.test.js`, `AGENTS.md` 9.11, version files.
-- PR: (this PR)
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/175
 
 ### 1.1.104: No unstyled page during a deploy; no dark title bar in the PC store app (Claude) — completed
 - Task: while Render restarts during a deploy, the shop page showed without its styles (black icons, old nav). The installed PC store app also showed a dark title bar with the shop name.
