@@ -113,7 +113,7 @@
     window.GearHubSplash?.showUpdating?.();
   }
   async function apply() {
-    if(blocked(){
+    if(blocked()){
       feedback('Finish the active action or selected file before updating. လုပ်ဆောင်နေမှု/ရွေးထားသောဖိုင်ကို အရင်ပြီးစီးပါ။');return false;
     }
     try{saveDraft();}catch{}
