@@ -25,6 +25,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.95: Map Excel columns to products (Codex) — completed
+- Task: preview Excel data in-app and let the owner select column-to-product mappings before importing.
+- Files: `lib/platform.js`, `public/excel-map.js`, `public/index.html`, `public/style.css`, plus release files.
+- Notes: matching SKU updates a product; new SKU creates one.
+
 ### 1.1.94: Excel library accepts .xlsm (Claude) — completed
 - Task: the owner's workbook `OCT-2026 (Excavator).xlsm` was greyed out in the file picker.
 - Files: `lib/platform.js` (`spreadsheetFile` accepts `.xlsm` with a ZIP signature; the stored type now comes from the checked extension, not the browser, so an upload is never served as a web page), `public/index.html` (`accept` list), `tests/excel-library.test.js`, plus the version files.
