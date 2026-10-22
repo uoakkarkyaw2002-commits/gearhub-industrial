@@ -30,6 +30,7 @@ const PORT = Number(process.env.PORT || 3000);
 const settings=runtimeConfig();
 const {production,publicOrigin,dataDir,uploadDir,receiptDir}=settings;
 const sessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(48).toString("hex");
+const SESSION_MAX_AGE = 1000 * 60 * 60 * 24 * 30;
 const sessionCookieName = production ? "__Host-gearhub.sid" : "gearhub.sid";
 fs.mkdirSync(dataDir, { recursive: true });
 fs.mkdirSync(uploadDir, { recursive: true });
@@ -248,7 +249,7 @@ class SQLiteSessionStore extends session.Store {
   try {
    const now = Date.now(), last = touchedSessions.get(sid) || 0;
    if (now - last < 10 * 60 * 1000) return callback(null);
-   const expires = sess.cookie && sess.cookie.expires ? new Date(sess.cookie.expires).getTime() : now + 8 * 60 * 60 * 1000;
+   const expires = sess.cookie && sess.cookie.expires ? new Date(sess.cookie.expires).getTime() : now + SESSION_MAX_AGE;
    db.prepare("UPDATE sessions SET expired_at=? WHERE sid=?").run(expires, sid);
    touchedSessions.set(sid, now);
    if (touchedSessions.size > 5000) touchedSessions.clear();
@@ -296,7 +297,10 @@ app.use(session({
  name: sessionCookieName,
  secret: sessionSecret,
  resave: false, saveUninitialized: false,
- cookie: { httpOnly: true, sameSite: "lax", secure: production, path: "/", maxAge: 1000 * 60 * 60 * 8 }
+ // Admins stay signed in for 30 days after their last visit (each visit extends it),
+ // so a shop owner is not sent back to the login screen every few hours.
+ rolling: true,
+ cookie: { httpOnly: true, sameSite: "lax", secure: production, path: "/", maxAge: SESSION_MAX_AGE }
 }));
 // New-order alerts on the owner's phone (GearHub = scope "main", each shop = "shop:<id>").
 const orderPush=createOrderPush({db,subject:publicOrigin,log:logError});
