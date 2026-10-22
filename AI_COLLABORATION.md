@@ -25,11 +25,12 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.92: Fix the storefront Excel library (Claude) — completed
+### 1.1.93: Excel library fixed and usable in every shop (Claude) — completed
+- 1.1.93 additions: the GearHub owner can upload Excel files to any shop (`excel-library.js` looks the shop up in `/api/platform/owner`; the server already allowed it), and visitors no longer see the upload form (`.excel-library-card form[hidden]{display:none}` in `style.css`, which overrode `hidden`).
 - Task: the owner reported that the Excel icon from 1.1.91 did nothing.
 - Three bugs: (1) `public/excel-library.js` had `/^\\/shops\\/…/` (double backslashes), a syntax error, so the whole script never ran. (2) The panel only removed `hidden`, but `.modal` is `display:none` until it also gets `.open`. (3) `GET /api/platform/store/:slug/spreadsheets` selected `created_at`, which `platform_files` does not have, so it failed with SQLITE_ERROR ("Platform temporarily unavailable").
 - Files: `public/excel-library.js`, `lib/platform.js`, `public/index.html` and `public/sw.js` (`excel-library.js` tag), `tests/excel-library.test.js`, plus the version files.
-- PR: (see the PR list: "Fix the storefront Excel library (1.1.92)")
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/160 (1.1.92) and https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/161 (1.1.93)
 - Notes: 1.1.91 went to `main` without a PR, so CI never ran; `npm run check` and the `every public/*.js file parses` test both failed on `main`. **Codex: always open a PR and wait for CI, and run `npm run check && npm test` locally first.** On phones the Excel icon is still hidden (1.1.91 design); only PC shows it.
 
 ### 1.1.91: Storefront Excel library (Codex) — completed
