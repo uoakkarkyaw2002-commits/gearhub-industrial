@@ -25,6 +25,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.90: "+ Subcategory" inside the category edit panel (Claude) — completed
+- Task: let the owner add a subcategory straight from a main category's edit panel, without expanding it first.
+- Files: `public/admin.js` (edit actions get a `data-category-command="add-sub"` button: "＋ Subcategory" for main categories, "＋ Child subcategory" for subcategories, nothing at level 3; the category draft is now saved only when there are unsaved edits, and an empty draft is never restored, because an empty draft showed no categories and Save would have removed them), `public/admin.html`, `tests/category-add-sub-in-edit.test.js`, plus the version files.
+- Also fixed: after 1.1.89, `public/sw.js` cached `style.css?v=…banner-top-1` while `index.html` loaded `…desktop-nav-logo-1`, so the `share-store` offline-shell test failed on main. `tests/category-banner-top.test.js` no longer pins a `style.css` tag.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/157
+- Notes: **Codex: when you change a `?v=` tag in `index.html`, change the same one in `public/sw.js` (SHELL list), and run `npm test` before merging.**
+
 ### 1.1.89: Restore desktop home logo (Codex) — completed
 - Task: show the shop logo and name again in the PC home navigation while keeping its navigation artwork hidden.
 - Files: `public/style.css`, `public/index.html`, `public/sw.js`, `package.json`, `package-lock.json`, `tests/tenant-install.test.js`.
