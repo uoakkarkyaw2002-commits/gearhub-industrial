@@ -25,10 +25,32 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.114: Looping flower animation while Updating (Claude) — in review
+### 1.1.115: Opening picture always sharp; real Loading; Updating flowers finish (Claude) — in review
+- Task: on a slow line the opening picture loaded slowly, stuttered, looked blurred or showed only blue. The owner wants:
+  - the picture always sharp;
+  - Loading that moves only when the line moves, and nothing at all on a fast line;
+  - the Updating animation always played to the end, and repeated only on a slow line;
+  - Settings → Refresh to show the same animation.
+- Cause: the built-in pictures had no `?v=`, so the server sent `no-store` and every visit downloaded them again. The service worker was network-first for images, and the splash background was blue.
+- Files:
+  - `lib/tenant-install.js`: versioned pictures (`SPLASH_IMAGE_V`).
+  - `public/sw.js`: the pictures are precached and served cache-first for `/images/skyshop-splash-*` and `/splash-asset/pc|phone`.
+  - `public/skyshop-splash.js`:
+    - the picture fades in only after `decode()`;
+    - the counter moves on real steps only (15 / 70 / 70–99 / 100);
+    - the Loading box shows only when slow;
+    - the flowers continue across the reload (`gh-bloom-start`) and the screen leaves only at full bloom;
+    - both pictures are saved for next time.
+  - `public/skyshop-splash.css`: paper background, picture fade, Loading box visibility.
+  - `public/updates.js`: reports `progress(40)` after `registration.update()`.
+  - `public/settings.js`: Refresh shows the Updating screen.
+  - Tags, version files and tests.
+- PR: (this PR)
+
+### 1.1.114: Looping flower animation while Updating (Claude) — completed
 - Task: the owner's video. While the app updates, a dark screen shows pink flowers growing (stems, leaves, grass, gold sparkles). The scene fades and grows again in a 6 s loop until 100%. It is drawn with SVG and the Web Animations API, so no video file is downloaded.
 - Files: `public/skyshop-splash.js` (`bloom()` is called from `prepareUpdate`), `public/skyshop-splash.css` (dark background; the picture is hidden while updating), `lib/tenant-install.js` (`SPLASH_V`), sw tag, version files, tests.
-- PR: (this PR)
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/184
 - Notes: the 0–100% counter is unchanged. Reduced motion shows the scene without movement.
 
 ### 1.1.113: "Updating…" counts 0–100% (Claude) — completed
