@@ -25,6 +25,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.103: PC store navigation in the top header (Claude) — in review
+- Task: on PC (≥851px) Home / Category / Promotion / Cart / Settings sit in the top header with outline icons; the active page has a light-green pill. The language button beside the Excel icon is hidden on PC. Phones keep the bottom nav.
+- Files: `public/index.html` (`<nav class="desktop-top-nav">`), `public/desktop.css`, `public/sw.js`, version files, `tests/desktop-top-nav.test.js`.
+- PR: (this PR)
+- Notes: the buttons reuse `data-store-view` / `data-store-action="open-cart"`, so `store.js` needs no change. The phone rule is `.nav .desktop-top-nav{display:none}` because `.nav nav{display:flex}` would otherwise win.
+
 ### 1.1.102: One Excel file and in-sheet search (Codex) — in review
 - Task: keep only one uploaded Excel workbook per seller shop and let the owner search a sheet while it is open in the app.
 - Cause: each upload inserted a new spreadsheet record, so the library rendered every previous file and had no search control for sheet rows.
