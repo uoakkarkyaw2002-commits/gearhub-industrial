@@ -656,3 +656,8 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
 #category-manager-rows .category-add-sub{display:flex!important;align-items:center;gap:14px;width:100%;min-height:48px;margin:0!important;padding:0 14px!important;background:#ebf8ee!important;border:1px solid #bfe6c8!important;border-radius:12px!important;color:#17803d!important;font-size:16px!important;font-weight:600!important;text-align:left;box-shadow:none!important}
 #category-manager-rows .category-add-plus{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#12a03c;color:#fff;font-size:22px;font-weight:700;line-height:1}
 #category-manager-rows .category-edit-fields{margin-top:10px}
+/* "Add …" rows have a 1px border, which moves their connector origin by 1px; shift it back so
+   the green line stays continuous next to them. */
+#category-manager-rows .category-design-children>.category-add-sub::before,#category-manager-rows .category-design-children>.category-add-sub::after{left:calc(var(--cx) - 1px);top:-12px}
+#category-manager-rows .category-design-children>.category-add-sub::before{height:calc(12px + var(--mid))}
+#category-manager-rows [data-category-depth="0"]>.category-design-heading .category-tree-icon svg{width:34px;height:34px}
