@@ -89,3 +89,24 @@
  body{--desktop-width:min(1840px,calc(100vw - 128px))}
  .products{grid-template-columns:repeat(6,minmax(0,1fr))}
 }
+/* PC header navigation (owner design): Home / Category / Promotion / Cart / Settings sit in the
+   top bar with outline icons; the phone bottom bar, the old text links, the language button and
+   the separate cart button are hidden on PC. Phones are unchanged. */
+.nav .desktop-top-nav{display:none}
+@media (min-width:851px){
+ .home-navigation{display:flex;align-items:center}
+ .home-navigation>nav:not(.desktop-top-nav){display:none!important}
+ .home-navigation .desktop-top-nav{display:flex;align-items:center;gap:clamp(4px,1vw,14px);margin-inline:auto;min-width:0}
+ .desktop-nav-item{display:inline-flex;align-items:center;gap:10px;min-height:52px;padding:0 18px;border:0;border-radius:14px;background:transparent;color:#5d6b66;font:600 15px/1 Inter,"Noto Sans Myanmar",system-ui,sans-serif;white-space:nowrap;cursor:pointer;transition:background-color .2s,color .2s}
+ .desktop-nav-item svg{width:26px;height:26px;flex:0 0 auto;color:#1f2d27}
+ .desktop-nav-item:hover{background:#f1f7f2}
+ .desktop-nav-item.active{background:#e8f4ea;color:#1c6b33}
+ .desktop-nav-item.active svg{color:#1c6b33}
+ .desktop-nav-item:focus-visible{outline:3px solid #9bd899;outline-offset:2px}
+ .home-navigation .nav-actions{position:relative;padding-left:20px}
+ .home-navigation .nav-actions::before{content:"";position:absolute;left:0;top:50%;width:1px;height:34px;transform:translateY(-50%);background:#dfe6e1}
+ .home-navigation .nav-actions #lang,.home-navigation .nav-actions #cart-open{display:none!important}
+ .home-navigation .nav-actions .excel-nav-button{width:56px;min-height:52px;border-radius:14px;background:#f1f4f2;border:0}
+ .mobile-bottom-nav{display:none!important}
+}
+@media (min-width:851px) and (max-width:1100px){.desktop-nav-item{padding:0 10px;gap:7px;font-size:13px}.desktop-nav-item svg{width:22px;height:22px}}
