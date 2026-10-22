@@ -25,6 +25,17 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.96: Excel View opens in the app, phones get Excel, import keeps unlinked data (Claude) — completed
+- Task: the owner reported that "View" still downloaded the file (1.1.95), and asked for Excel on phones.
+- Fixes:
+  1. `public/excel-map.js` had double-escaped regexes again (`\\/`, `\\d`, `\\.csv`, `\\r?\\n`, `\\uFEFF`), a syntax error, so the preview never ran. Main also failed `every public/*.js file parses`.
+  2. The import route's `UPDATE platform_products … WHERE id=?` was not scoped to `shop_id` (failed `tenant-isolation`). It also overwrote unlinked fields: stock became 0 and category became empty. Now it uses `COALESCE(?,col)` and `WHERE id=? AND shop_id=?`, so only linked, non-empty cells change.
+  3. The GearHub owner can import into any shop (same as upload). Back restores the upload form only for people who saw it, and the file list hides while a sheet is open.
+  4. Phones: Settings has an "Excel files" row (seller shops only) that opens the same panel. The column pickers use two columns on phones.
+- Files: `public/excel-map.js`, `public/excel-library.js`, `public/index.html`, `public/style.css`, `public/sw.js`, `lib/platform.js`, `tests/excel-library.test.js`, plus the version files.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/164
+- Notes: **Codex: inside JS regex literals, use single backslashes; run `npm run check && npm test` and open a PR; do not push to main.**
+
 ### 1.1.95: Map Excel columns to products (Codex) — completed
 - Task: preview Excel data in-app and let the owner select column-to-product mappings before importing.
 - Files: `lib/platform.js`, `public/excel-map.js`, `public/index.html`, `public/style.css`, plus release files.
