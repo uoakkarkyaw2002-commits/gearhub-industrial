@@ -881,3 +881,22 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
 .excel-fullscreen .excel-tab{padding:14px 20px;font-size:16px}
 .excel-fullscreen .excel-sheet thead th{height:40px}
 .excel-fullscreen .excel-fs-back{display:grid;place-items:center;position:absolute;top:2px;left:4px;z-index:5;width:40px;height:36px;border:0;border-radius:10px;background:#f3f3f3;color:#202124;font-size:22px;font-weight:700;cursor:pointer}
+/* Add to cart button animation (owner's video): cart rolls in, a box drops in, the cart rolls
+   out, then the button turns into a green circle with a tick and returns to normal. */
+.products .product .add{position:relative;overflow:hidden;transition:background-color .3s,border-radius .3s}
+.products .product .add>svg{transition:opacity .2s,transform .2s}
+.products .product .add.is-adding>svg,.products .product .add.is-success>svg{opacity:0;transform:scale(.6)}
+.products .product .add .cart-fx{position:absolute;inset:0;pointer-events:none}
+.products .product .add .cart-fx-cart{position:absolute;left:50%;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;opacity:0}
+.products .product .add .cart-fx-cart svg{display:block;width:22px;height:22px;fill:none;stroke:#b7f36b;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.products .product .add .cart-fx-box{position:absolute;left:9px;top:-11px;width:8px;height:7px;border-radius:2px;background:#f6c544;opacity:0}
+.products .product .add .cart-fx-check{position:absolute;left:50%;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24;stroke-dashoffset:24;opacity:0}
+.products .product .add.is-adding{background:#163d22}
+.products .product .add.is-adding .cart-fx-cart{animation:cart-fx-roll 1.3s ease-in-out forwards}
+.products .product .add.is-adding .cart-fx-box{animation:cart-fx-drop 1.3s ease-in forwards}
+.products .product .add.is-success{background:#22a35a;border-radius:22px;animation:cart-fx-ring .9s ease-out}
+.products .product .add.is-success .cart-fx-check{opacity:1;animation:cart-fx-check .45s .1s ease-out forwards}
+@keyframes cart-fx-roll{0%{transform:translateX(-32px);opacity:0}22%{transform:translateX(0);opacity:1}68%{transform:translateX(0);opacity:1}100%{transform:translateX(36px);opacity:0}}
+@keyframes cart-fx-drop{0%,24%{transform:translateY(-4px);opacity:0}32%{opacity:1}48%{transform:translateY(12px);opacity:1}100%{transform:translateY(12px);opacity:1}}
+@keyframes cart-fx-ring{0%{box-shadow:0 0 0 0 #22a35a99}100%{box-shadow:0 0 0 12px #22a35a00}}
+@keyframes cart-fx-check{to{stroke-dashoffset:0}}
