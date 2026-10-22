@@ -25,6 +25,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.91: Storefront Excel library (Codex) — completed
+- Task: add an Excel icon beside the language button; shop owners can upload Excel files and visitors can open uploaded files.
+- Files: `lib/platform.js`, `lib/platform-model.js`, `public/index.html`, `public/excel-library.js`, `public/style.css`, plus release files.
+- Notes: uploads require the authenticated owner of that shop; every visitor can open an uploaded file. Files accept .xlsx, .xls and .csv up to 10 MB.
+
 ### 1.1.90: "+ Subcategory" inside the category edit panel (Claude) — completed
 - Task: let the owner add a subcategory straight from a main category's edit panel, without expanding it first.
 - Files: `public/admin.js` (edit actions get a `data-category-command="add-sub"` button: "＋ Subcategory" for main categories, "＋ Child subcategory" for subcategories, nothing at level 3; the category draft is now saved only when there are unsaved edits, and an empty draft is never restored, because an empty draft showed no categories and Save would have removed them), `public/admin.html`, `tests/category-add-sub-in-edit.test.js`, plus the version files.
