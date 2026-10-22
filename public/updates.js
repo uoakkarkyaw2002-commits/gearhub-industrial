@@ -3,7 +3,8 @@
   const draftKey = "gh-update-draft:" + location.pathname;
   let registration,
     release,
-    requested = false;
+    requested = false,
+    reloading = false;
   function fields() {
     return [...document.querySelectorAll("input,textarea,select")].filter(
       (e) => (e.name || e.id) && e.type !== "password" && e.type !== "file",
@@ -150,6 +151,7 @@
       localStorage.setItem("gh-app-version", release?.version || buildVersion || "1.0.0");
     } catch {}
     requested = true;
+    reloading = true;
     if (registration?.waiting) {
       registration.waiting.postMessage({ type: "APPLY_UPDATE" });
       return true;
@@ -161,8 +163,14 @@
   document.addEventListener?.('pointerdown',()=>{if(notificationsOn())enableSound();},{passive:true});
   document.addEventListener?.('keydown',()=>{if(notificationsOn())enableSound();});
   document.addEventListener?.('visibilitychange',()=>{if(document.visibilityState!=='hidden')check();});
-  function reloadWhenSafe(){
+  // A new worker takes over by itself after a deploy. Reload once, and only when this page is
+  // older than the server's version (a page that is already new must not reload again).
+  async function reloadWhenSafe(){
+    if(reloading)return;
     if(blocked()){setTimeout(reloadWhenSafe,1000);return;}
+    try{const r=await fetch('/api/app-release',{cache:'no-store'});const next=r.ok?await r.json():null;if(next?.version&&next.version===buildVersion)return;}catch{}
+    if(reloading)return;
+    reloading=true;
     saveDraft();
     showUpdateSplash();
     location.reload();

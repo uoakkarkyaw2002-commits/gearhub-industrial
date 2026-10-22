@@ -25,10 +25,21 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.106: Add-to-cart button animation (Claude) — in review
+### 1.1.107: Updating screen stays until the shop is ready; no double reload (Claude) — in review
+- Task: during an update, and on reload, the page shook, and GearHub's template or other pictures flashed before the shop's own content. The owner wants a quiet "Updating…" picture (no sound) until everything is ready behind it.
+- Cause: the splash left 0.8 s after `load`, before the shop's name, banner and products arrived. A reload had no cover at all. One update could reload twice (`apply()` and `controllerchange`).
+- Files:
+  - `public/skyshop-splash.js` holds the screen until `gearhub:store-shown` and the first-screen pictures have loaded (12 s cap). Update: "Updating…" picture, no sound, at least 1.2 s. Reload: a plain cover in the page colour.
+  - `public/skyshop-splash.css`: quiet cover and a moving bar.
+  - `public/store.js` sends `gearhub:store-shown` after `init()`.
+  - `public/updates.js` reloads once and never reloads a page that already has the server's version.
+  - `lib/tenant-install.js` (`SPLASH_V`), tags in index/admin/sw, version files, tests.
+- PR: (this PR)
+
+### 1.1.106: Add-to-cart button animation (Claude) — completed
 - Task: the owner's video. Tapping a product card's cart button rolls a cart in, drops a box into it and rolls it out (1.3 s). The button then becomes a green circle with a tick and a ring pulse (1.3 s), and returns to normal.
 - Files: `public/store.js` (`playCartButton`, called from `addCart` after the stock check), `public/style.css` (`.cart-fx*` styles and `cart-fx-*` keyframes, top level for PC and phone), `public/index.html` / `public/sw.js` tags, version files, `tests/cart-button-animation.test.js`.
-- PR: (this PR)
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/176
 - Notes: the existing photo-flies-to-cart animation is kept. Turned off when the device asks for reduced motion. Only `.products .product .add` buttons animate; the small "+" in the category list is unchanged.
 
 ### 1.1.105: PC product cards lost their styles; CSS restored (Claude) — completed
