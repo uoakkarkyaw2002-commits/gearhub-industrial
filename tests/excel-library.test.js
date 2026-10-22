@@ -21,3 +21,10 @@ test('the GearHub owner can upload Excel files to any shop',()=>{
 test('visitors do not see the Excel upload form',()=>{
  assert.match(fs.readFileSync(path.join(__dirname,'..','public','style.css'),'utf8'),/\.excel-library-card form\[hidden\]\{display:none\}/);
 });
+test('.xlsm workbooks are accepted and every file is stored with a spreadsheet type',()=>{
+ const platform=fs.readFileSync(path.join(__dirname,'..','lib','platform.js'),'utf8'),html=fs.readFileSync(path.join(__dirname,'..','public','index.html'),'utf8');
+ assert.match(platform,/\\\.\(xlsx\|xlsm\|xls\|csv\)\$/);
+ assert.match(platform,/xlsm: "application\/vnd\.ms-excel\.sheet\.macroEnabled\.12"/);
+ assert.match(platform,/\.run\(id, shop\.id, kind, spreadsheet\?\.mime \|\| file\.mimetype,/);
+ assert.match(html,/accept="\.xlsx,\.xlsm,\.xls,\.csv,/);
+});

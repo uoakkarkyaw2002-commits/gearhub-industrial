@@ -25,6 +25,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.94: Excel library accepts .xlsm (Claude) — completed
+- Task: the owner's workbook `OCT-2026 (Excavator).xlsm` was greyed out in the file picker.
+- Files: `lib/platform.js` (`spreadsheetFile` accepts `.xlsm` with a ZIP signature; the stored type now comes from the checked extension, not the browser, so an upload is never served as a web page), `public/index.html` (`accept` list), `tests/excel-library.test.js`, plus the version files.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/162
+- Notes: the upload limit is still 10 MB per file, and it counts against the shop's storage.
+
 ### 1.1.93: Excel library fixed and usable in every shop (Claude) — completed
 - 1.1.93 additions: the GearHub owner can upload Excel files to any shop (`excel-library.js` looks the shop up in `/api/platform/owner`; the server already allowed it), and visitors no longer see the upload form (`.excel-library-card form[hidden]{display:none}` in `style.css`, which overrode `hidden`).
 - Task: the owner reported that the Excel icon from 1.1.91 did nothing.
