@@ -25,6 +25,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.85: App updates never reload under unsaved edits (Claude) — completed
+- Task: while the owner was adding a new category, an app update (after a deploy) reloaded the page and threw them back to the dashboard.
+- Files: `public/updates.js` (`blocked()` now also waits while an input, textarea or select is focused, or while `window.__gearhubCategoryDirty` is set), `public/admin.js` (`markCategoriesDirty()` on add, edit, parent pick, move and remove; cleared after a successful save), `public/admin.html`, `public/index.html`, `public/sw.js` (`updates.js` cache tag), `tests/keep-category-draft.test.js`, plus the version files.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/152 (replaces #151, which conflicted with Codex's 1.1.84)
+- Notes: if you add another editor with unsaved state, set a similar flag and add it to `blocked()` in `updates.js`.
+- Also fixed: `tests/tenant-install.test.js` still expected the old service worker cache name (`gearhub-shell-v85-1.1.83`), so it failed on main after 1.1.84. When you bump `CACHE_NAME` in `public/sw.js`, update that test too.
+
 ### 1.1.84: Android launch screen uses the original round shop icon (Codex) — completed
 - Task: remove the blue Android launch/background color and show the shop’s original logo as a round icon.
 - Files: `lib/tenant-install.js`, `public/index.html`, `public/sw.js`, `package.json`, `package-lock.json`, `tests/tenant-install.test.js`.
