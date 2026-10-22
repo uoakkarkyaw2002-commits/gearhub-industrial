@@ -66,3 +66,12 @@ test('a reload during an update starts the counter where the old page stopped',a
  await s.tick(100);assert.equal(s.made[0].textContent,'70%','continues from 70%, not from 0');
  await s.fire();await s.tick(3000);assert.equal(s.made[0].textContent,'100%');assert.ok(s.classes.has('is-leaving'));
 });
+
+test('Updating shows the looping flower animation (owner video) instead of the shop picture',()=>{
+ const js=read('public/skyshop-splash.js'),css=read('public/skyshop-splash.css');
+ assert.match(js,/const label=message\(node\);if\(label\)label\.textContent='Updating…';\n  bloom\(node\);/,'every Updating screen gets the animation');
+ assert.match(js,/item\.animate\(frames,\{duration:6000,iterations:Infinity/,'loops every 6 seconds until the screen closes');
+ assert.match(js,/loop\(wrap\.querySelector\('\.sb-all'\),\[\{opacity:1,offset:0\},\{opacity:1,offset:\.82\},\{opacity:0,offset:\.93\}/,'fades out and grows again');
+ assert.match(css,/#sky-splash\.is-updating picture\{display:none\}/);
+ assert.match(css,/#sky-splash\.is-updating\{background:radial-gradient/);
+});
