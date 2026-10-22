@@ -118,3 +118,15 @@
  .announcement{display:none}
  .nav{top:env(titlebar-area-height,0px)}
 }
+/* PC: product cards tilt towards the mouse and the photo lifts forward (card-tilt.js). */
+@media (min-width:851px) and (hover:hover) and (pointer:fine){
+ .products .product{position:relative;transform:perspective(900px) rotateX(0) rotateY(0);transition:transform .5s cubic-bezier(.2,.8,.2,1),box-shadow .5s;will-change:transform}
+ .products .product.is-tilting{transform:perspective(900px) rotateX(var(--tilt-x,0)) rotateY(var(--tilt-y,0)) translateY(-4px);transition-duration:.12s,.3s;box-shadow:0 22px 44px #1834262b;z-index:2}
+ .products .product .product-art{transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+ .products .product .product-photo{transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+ .products .product.is-tilting .product-art{transform:translateY(-6px)}
+ .products .product.is-tilting .product-photo{transform:scale(1.1) translate(var(--shift-x,0),var(--shift-y,0))}
+ .products .product::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(circle at var(--glare-x,50%) var(--glare-y,50%),#ffffff66,transparent 48%);opacity:0;transition:opacity .3s}
+ .products .product.is-tilting::after{opacity:1}
+}
+@media (min-width:851px) and (prefers-reduced-motion:reduce){.products .product,.products .product *{transition:none!important}.products .product.is-tilting{transform:none}}
