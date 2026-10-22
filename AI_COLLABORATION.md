@@ -25,10 +25,19 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.116: PC product cards tilt with the mouse (Claude) — in review
+### 1.1.117: Excel viewer top bar clean; every Excel file works offline (Claude) — in review
+- Task: remove the blurred grey band at the top of the Excel full-screen viewer, and make every uploaded Excel file work offline automatically.
+- Files:
+  - `public/style.css`: white card, a 50 px white top bar, plain search input (no iOS shading), and the sheet starts below the bar.
+  - `public/sw.js`: new `EXCEL_CACHE`. `/api/platform/spreadsheets/:id` is cache-first (each upload has a new id). `/api/platform/store/:slug/spreadsheets` is network-first with an offline copy.
+  - `public/excel-library.js`: `keepOffline()` runs 3 s after every shop visit, when the phone comes back online and right after an upload. It saves the current file(s) and deletes old ones.
+  - Tags, version files, `tests/excel-offline.test.js`.
+- PR: (this PR)
+
+### 1.1.116: PC product cards tilt with the mouse (Claude) — completed
 - Task: the owner's video, PC only. Moving the mouse over a product card tilts it towards the pointer in 3D, lifts the photo forward (scale 1.1, follows the pointer) and moves a soft light with the pointer. Phones and touch screens get nothing.
 - Files: `public/card-tilt.js` (new; only for `(hover:hover) and (pointer:fine) and (min-width:851px)` with a mouse pointer; resets when the mouse leaves), `public/desktop.css` (tilt styles inside the PC hover media block; off for reduced motion), tags and SW shell, version files, `tests/card-tilt.test.js`.
-- PR: (this PR)
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/186
 
 ### 1.1.115: Opening picture always sharp; real Loading; Updating flowers finish (Claude) — completed
 - Task: on a slow line the opening picture loaded slowly, stuttered, looked blurred or showed only blue. The owner wants:
