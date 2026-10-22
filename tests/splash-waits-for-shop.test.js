@@ -3,19 +3,19 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const path=require('node:path');const vm=require('node:vm');
 const read=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
 
-function run({navType='navigate',updating=false,seconds=3}={}){
+function run({navType='navigate',updating=false,seconds=3,saved='1'}={}){const made=[];
  const listeners={},timers=[],classes=new Set(),attrs={'data-sound':'/s.mp3'};let removed=false,played=0,now=0;
  const label={textContent:'Loading',after(){},style:{}};let retries=0;
  const el={dataset:{seconds:String(seconds),get sound(){return attrs['data-sound']}},classList:{add:(...c)=>c.forEach(x=>classes.add(x)),remove:(...c)=>c.forEach(x=>classes.delete(x)),contains:c=>classes.has(c)},
   removeAttribute:k=>delete attrs[k],hasAttribute:k=>k in attrs,querySelector:()=>label,cloneNode(){return this},remove(){removed=true},get isConnected(){return !removed},contains:()=>false};
- const session=new Map(updating?[['gh-update-splash:/','1']]:[]);
- const ctx={document:{createElement:()=>({className:'',textContent:''}),getElementById:()=>removed?null:el,body:{querySelectorAll:()=>[],prepend(){}},addEventListener(){},removeEventListener(){}},
+ const session=new Map(updating?[['gh-update-splash:/',saved]]:[]);
+ const ctx={document:{createElement:()=>{const n={className:'',textContent:''};made.push(n);return n},getElementById:()=>removed?null:el,body:{querySelectorAll:()=>[],prepend(){}},addEventListener(){},removeEventListener(){}},
   sessionStorage:{getItem:k=>session.get(k)??null,setItem:(k,v)=>session.set(k,v),removeItem:k=>session.delete(k)},location:{pathname:'/'},performance:{getEntriesByType:()=>[{type:navType}]},
   addEventListener:(n,f)=>(listeners[n]=listeners[n]||[]).push(f),setTimeout:(f,ms)=>{timers.push({f,at:now+ms});return timers.length},setInterval:(f,ms)=>{const t={f,at:now+ms,every:ms};timers.push(t);return timers.length},clearInterval(){},navigator:{onLine:true},GearHubStore:{retry:()=>retries++},innerHeight:800,getComputedStyle:()=>({backgroundImage:'none'}),Image:class{},
   Audio:class{constructor(){this.preload=''}play(){played++;return Promise.resolve()}pause(){}},Promise,Date:{now:()=>1e12+now}};
  ctx.window=ctx;vm.runInNewContext(read('public/skyshop-splash.js'),ctx);
  const tick=async ms=>{const end=now+ms;while(true){const due=timers.filter(t=>t.at<=end).sort((a,b)=>a.at-b.at)[0];if(!due)break;now=due.at;if(due.every)due.at+=due.every;else timers.splice(timers.indexOf(due),1);due.f();await Promise.resolve();await Promise.resolve();}now=end;for(let i=0;i<5;i++)await new Promise(r=>setImmediate(r));};
- return {dbg:()=>ctx,classes,label,tick,fire:async(name='gearhub:store-shown')=>{(listeners[name]||[]).forEach(f=>f());await tick(0)},removedSoon:async()=>{await tick(600);return removed},played:()=>played,retries:()=>retries};
+ return {made,dbg:()=>ctx,classes,label,tick,fire:async(name='gearhub:store-shown')=>{(listeners[name]||[]).forEach(f=>f());await tick(0)},removedSoon:async()=>{await tick(600);return removed},played:()=>played,retries:()=>retries};
 }
 
 test('update: "Updating…" picture, no sound, held until the shop is drawn',async()=>{
@@ -50,4 +50,19 @@ test('store.js tells the splash when the shop is drawn; CSS for the quiet cover 
  const css=read('public/skyshop-splash.css');
  assert.match(css,/#sky-splash\.is-quiet picture,#sky-splash\.is-quiet \.sky-splash-loading\{display:none\}/);
  assert.match(css,/#sky-splash\.is-progress \.sky-splash-bar i\{width:0;animation:none!important/);assert.match(read('public/skyshop-splash.js'),/percent\.textContent=value\+'%'/);
+});
+
+test('Updating counts 0-100%: before the reload it counts up and hands the number to the next page',()=>{
+ const js=read('public/skyshop-splash.js'),up=read('public/updates.js');
+ assert.match(js,/const saved=sessionStorage\.getItem\(updateKey\);updating=Boolean\(saved\);carried=Math\.min\(99,Number\(saved\)\|\|0\)/);
+ assert.match(js,/let shown=carried,goal=Math\.max\(75,carried\)/,'the new page continues from the carried number');
+ assert.match(js,/sessionStorage\.setItem\(updateKey,String\(Math\.max\(1,whole\)\)\)/,'the page before the reload stores its number');
+ assert.match(js,/return \{progress\(step\)\{goal=Math\.max\(goal,Math\.min\(99,step\)\)\}\}/);
+ assert.match(up,/splash=window\.GearHubSplash\?\.showUpdating\?\.\(\);/);assert.match(up,/splash\?\.progress\?\.\(80\);/);
+});
+
+test('a reload during an update starts the counter where the old page stopped',async()=>{
+ const s=run({updating:true,saved:'70'});
+ await s.tick(100);assert.equal(s.made[0].textContent,'70%','continues from 70%, not from 0');
+ await s.fire();await s.tick(3000);assert.equal(s.made[0].textContent,'100%');assert.ok(s.classes.has('is-leaving'));
 });
