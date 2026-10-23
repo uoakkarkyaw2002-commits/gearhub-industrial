@@ -33,7 +33,7 @@
     <p class="muted">skyshopmm.com ဖွင့်ရင် နောက်မှာ ပေါ်မယ့် ပုံပါ။ Zip (Codex ပို့တဲ့ ဖိုင်) တင်ရင် ထဲက ပုံနဲ့ လှုပ်တဲ့ SVG ကို အလိုလို ထည့်ပေးပါတယ်။ ဖုန်းပုံ မထည့်ရင် ဖုန်းမှာ PC ပုံကို ပြပါတယ်။</p>
     ${SCENE_SIDES.map(([side, title, pic, layer, picKey, layerKey]) => `<h4 class="scene-side">${title}</h4>
     <div class="scene-preview scene-preview-${side}"><img alt="" src="/scene-asset/${pic}?v=${encodeURIComponent(st.rev)}">${st[layerKey] || st.layer ? `<img alt="" src="/scene-asset/${layer}?v=${encodeURIComponent(st.rev)}">` : ""}</div>
-    <div class="splash-row"><div><strong>Zip ဖိုင်</strong><small>ပုံ (jpg/png/webp) + SVG ပါတဲ့ zip</small></div><label class="splash-file">Zip ရွေးပြီး တင်ရန်<input type="file" accept=".zip,application/zip" data-scene-zip="${side}"></label></div>
+    <div class="splash-row"><div><strong>Zip ဖိုင်</strong><small>ပုံ + SVG ပါတဲ့ zip (ဒါမှမဟုတ် Codex ရဲ့ HTML တစ်ဖိုင်တည်း)</small></div><label class="splash-file">Zip ရွေးပြီး တင်ရန်<input type="file" accept=".zip,application/zip,.html,text/html" data-scene-zip="${side}"></label></div>
     <div class="splash-row"><div><strong>Picture / ပုံ</strong><small>${st[picKey] ? "ကိုယ်ပိုင်ပုံ သုံးနေပါတယ်" : side === "pc" ? "မူလပုံ" : "PC ပုံကို သုံးနေပါတယ်"}</small></div><label class="splash-file">ပုံရွေးပြီး တင်ရန် (၁၂ MB အောက်)<input type="file" accept="image/jpeg,image/png,image/webp" data-scene-upload="${pic}"></label>${st[picKey] ? `<button type="button" data-scene-reset="${pic}">ဖယ်ရန်</button>` : ""}</div>
     <div class="splash-row"><div><strong>Moving layer / လှုပ်တဲ့ SVG</strong><small>${st[layerKey] ? "ထည့်ထားပါတယ်" : side === "pc" ? "မရှိပါ" : "PC အတိုင်း"}</small></div><label class="splash-file">SVG ရွေးပြီး တင်ရန် (1.5 MB အောက်)<input type="file" accept=".svg,image/svg+xml" data-scene-upload="${layer}"></label>${st[layerKey] ? `<button type="button" data-scene-reset="${layer}">ဖယ်ရန်</button>` : ""}</div>`).join("")}
   </div></details>`;
@@ -50,6 +50,35 @@
       const start = offset + 30 + v.getUint16(offset + 26, true) + v.getUint16(offset + 28, true), raw = b.slice(start, start + size);
       out.push({ name, read: () => method === 0 ? new Blob([raw]) : method === 8 ? new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).blob() : Promise.reject(new Error("Unsupported zip")) });
     }
+    return out;
+  }
+  // Codex can also pack a background as ONE html page: the picture inside it (data: URI) and the
+  // moving <svg> inline. Take both out. For phones a wide picture is cut to a tall 9:16 picture at
+  // the same spot the page shows (its object-position), so the phone looks like Codex's preview.
+  async function fromHtmlPackage(html, tall) {
+    const doc = new DOMParser().parseFromString(html, "text/html"), out = {};
+    const src = doc.querySelector('img[src^="data:image/"]')?.getAttribute("src") || "";
+    const m = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=\s]+)$/.exec(src);
+    if (m) {
+      const bytes = Uint8Array.from(atob(m[2].replace(/\s+/g, "")), (c) => c.charCodeAt(0));
+      let blob = new Blob([bytes], { type: m[1] });
+      if (tall) {
+        const css = [...doc.querySelectorAll("style")].map((x) => x.textContent).join("\n");
+        const x = Number((/#art\s*\{[^}]*object-position:\s*([\d.]+)%/.exec(css) || [])[1] ?? 50) / 100;
+        const url = URL.createObjectURL(blob), img = new Image();
+        await new Promise((ok, bad) => { img.onload = ok; img.onerror = bad; img.src = url; });
+        const w = img.naturalWidth, h = img.naturalHeight, cw = Math.round(h * 9 / 16);
+        if (cw < w) {
+          const canvas = document.createElement("canvas"); canvas.width = cw; canvas.height = h;
+          canvas.getContext("2d").drawImage(img, Math.round((w - cw) * x), 0, cw, h, 0, 0, cw, h);
+          blob = await new Promise((ok) => canvas.toBlob(ok, "image/jpeg", 0.9));
+        }
+        URL.revokeObjectURL(url);
+      }
+      out.picture = { blob, name: tall ? "phone.jpg" : "picture.jpg" };
+    }
+    const svg = doc.querySelector("svg");
+    if (svg) out.layer = { blob: new Blob([new XMLSerializer().serializeToString(svg)], { type: "image/svg+xml" }), name: "layer.svg" };
     return out;
   }
   const field = (name, label, value = "", type = "text") =>
@@ -417,10 +446,16 @@
       const [picKind, layerKind] = e.target.dataset.sceneZip === "phone" ? ["phone", "phone-layer"] : ["picture", "layer"];
       try {
         msg("Zip ဖွင့်နေပါတယ်… / Opening zip…");
-        const files = await unzipFiles(file), picture = files.find((f) => /\.(jpe?g|png|webp)$/i.test(f.name)), layer = files.find((f) => /\.svg$/i.test(f.name));
-        if (!picture && !layer) throw new Error("Zip ထဲမှာ ပုံ (jpg/png/webp) ဒါမှမဟုတ် SVG မတွေ့ပါ / No picture or SVG in this zip.");
-        if (picture) await sceneUpload(picKind, await picture.read(), picture.name.split("/").pop());
-        if (layer) await sceneUpload(layerKind, new Blob([await (await layer.read()).arrayBuffer()], { type: "image/svg+xml" }), layer.name.split("/").pop());
+        const tall = picKind === "phone";
+        const files = /\.html?$/i.test(file.name) ? [{ name: file.name, read: async () => file }] : await unzipFiles(file);
+        let picture = files.find((f) => /\.(jpe?g|png|webp)$/i.test(f.name)), layer = files.find((f) => /\.svg$/i.test(f.name));
+        picture = picture && { blob: await picture.read(), name: picture.name.split("/").pop() };
+        layer = layer && { blob: new Blob([await (await layer.read()).arrayBuffer()], { type: "image/svg+xml" }), name: layer.name.split("/").pop() };
+        const page = !picture && !layer && files.find((f) => /\.html?$/i.test(f.name));
+        if (page) ({ picture, layer } = await fromHtmlPackage(await (await page.read()).text(), tall));
+        if (!picture && !layer) throw new Error("Zip ထဲမှာ ပုံ (jpg/png/webp)၊ SVG ဒါမှမဟုတ် ပုံပါတဲ့ HTML မတွေ့ပါ / No picture, SVG or picture page in this zip.");
+        if (picture) await sceneUpload(picKind, picture.blob, picture.name);
+        if (layer) await sceneUpload(layerKind, layer.blob, layer.name);
         msg("သိမ်းပြီးပါပြီ / Saved"); await load();
       } catch (err) { msg(err.message); e.target.value = ""; }
     }));
