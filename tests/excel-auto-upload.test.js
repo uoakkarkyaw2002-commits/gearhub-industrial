@@ -47,6 +47,6 @@ test('the downloaded Windows program: picks the file, watches it, uploads after 
  assert.match(bat,/'\/api\/platform\/spreadsheets\/auto-upload'/);
  assert.match(bat,/Start-Sleep -Seconds 60/);
  const html=fs.readFileSync(path.join(__dirname,'..','public','index.html'),'utf8');
- assert.match(html,/<script src="\/excel-auto-upload\.js\?v=20261023-auto-1"><\/script><script src="\/excel-library\.js\?v=20261023-auto-1"><\/script>/);
+ assert.match(html,/<script src="\/excel-auto-upload\.js\?v=20261023-auto-1"><\/script><script src="\/excel-library\.js\?v=20261023-folder-1"><\/script>/);
  assert.match(html,/id="excel-auto-upload" class="excel-auto-upload" hidden/);
 });
