@@ -1,5 +1,5 @@
-// Excel viewer: select cells like a spreadsheet. Click (or tap) a cell to select it; drag with the
-// mouse or Shift+click to select a range; the row numbers and column letters of the range light up.
+// Excel viewer: click or tap any cell (or its row number) to select the complete row.
+// Drag with the mouse or Shift+click still selects a range; row numbers and column letters light up.
 // Ctrl/Cmd+C copies the selection as rows and columns (pastes into Excel or Sheets); Esc clears it.
 (()=>{
  const grid=document.getElementById('excel-grid');if(!grid)return;
@@ -13,18 +13,19 @@
   const active=grid.querySelector('td[data-r="'+anchor.r+'"][data-c="'+anchor.c+'"]');if(active){active.classList.add('xs-active');marked.push(active)}
   for(const head of grid.querySelectorAll('thead th[data-c],tbody th[data-r]')){const c=head.dataset.c,r=head.dataset.r;if((c!==undefined&&c>=box.left&&c<=box.right)||(r!==undefined&&r>=box.top&&r<=box.bottom)){head.classList.add('xs-head');marked.push(head)}}
  }
- function selectRow(rowHead){
-  const r=Number(rowHead.dataset.r),cells=[...grid.querySelectorAll('td[data-r]')].filter(cell=>{const p=pos(cell);return p.r<=r&&p.r2>=r});
+ function selectRow(r){
+  const cells=[...grid.querySelectorAll('td[data-r]')].filter(cell=>{const p=pos(cell);return p.r<=r&&p.r2>=r});
   if(!cells.length)return false;
   const left=Math.min(...cells.map(cell=>pos(cell).c)),right=Math.max(...cells.map(cell=>pos(cell).c2));
   anchor={r,c:left,r2:r,c2:left};focus={r,c:right,r2:r,c2:right};dragging=false;paint();return true;
  }
  grid.addEventListener('pointerdown',event=>{
   const rowHead=event.target.closest('tbody th[data-r]');
-  if(rowHead?.tagName==='TH'&&!event.button&&selectRow(rowHead)){event.preventDefault?.();return}
+  if(rowHead?.tagName==='TH'&&!event.button&&selectRow(Number(rowHead.dataset.r))){event.preventDefault?.();return}
   const cell=event.target.closest('td[data-r]');if(!cell||event.button)return;
   const p=pos(cell);
-  if(event.shiftKey&&anchor)focus=p;else{anchor=p;focus=p}
+  if(!event.shiftKey&&selectRow(p.r)){dragging=event.pointerType==='mouse';event.preventDefault?.();return}
+  if(anchor)focus=p;else{anchor=p;focus=p}
   dragging=event.pointerType==='mouse';paint();
  });
  grid.addEventListener('pointerover',event=>{
