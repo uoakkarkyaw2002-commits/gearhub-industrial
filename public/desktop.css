@@ -130,3 +130,11 @@
  .products .product.is-tilting::after{opacity:1}
 }
 @media (min-width:851px) and (prefers-reduced-motion:reduce){.products .product,.products .product *{transition:none!important}.products .product.is-tilting{transform:none}}
+/* PC: the top menu stays on every page (Category, Promotion, Settings too) and stays at the top
+   while scrolling, so you can always get back (owner's request). Phones keep the bottom menu. */
+@media (min-width:851px){
+ body>.home-navigation,body.non-home-view>.home-navigation{display:flex!important;position:sticky;top:0;z-index:40;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 4px 20px #18342608}
+ body.non-home-view>.home-navigation nav a{color:var(--ink)}
+ body.non-home-view>.home-navigation .home-profile-banner{display:flex!important;background-image:none!important;background-color:transparent!important;color:#183426;box-shadow:none}
+ body.non-home-view>.home-navigation .home-profile-banner .settings-profile-copy>small,body.non-home-view>.home-navigation .home-profile-banner .settings-profile-chevron{color:#617066}
+}
