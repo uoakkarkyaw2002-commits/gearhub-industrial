@@ -25,6 +25,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 2026-10-23 — Claude — 1.1.130 skyshopmm.com opens "My shop"
+- Owner: skyshopmm.com should land on /platform.html (Apply / Review / Approved).
+- `server.js`: `GET /` redirects 302 to `/platform.html` (query kept) when `PLATFORM_ENABLED=true`. GearHub's own store is still at `/index.html`; `/shops/<slug>/` is unchanged.
+- Test: `tests/root-to-platform.test.js`.
+
 ### 2026-10-23 — Claude — 1.1.129 Update no longer stops at 80%
 - Owner: with the app open, "Updating… 80%" stayed until the app was closed and opened again.
 - Cause (`public/updates.js`): `apply()` set `reloading=true`, then (new worker waiting) only posted `APPLY_UPDATE`. The `controllerchange` handler `reloadWhenSafe()` returns when `reloading` is true, so nothing reloaded.
