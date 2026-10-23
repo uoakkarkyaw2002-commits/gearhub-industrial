@@ -25,6 +25,14 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 2026-10-23 — Claude — 1.1.137 Codex background pages with their own program (swaying grass)
+- Owner: Codex's new PC zip (OPEN_ME.html: picture inside, birds SVG, plus a WebGL script that sways the grass) only showed the old still picture.
+- `lib/site-scene.js`: new kinds `page` / `phone-page` (whole HTML, ≤10 MB, must be HTML).
+- `lib/tenant-install.js`: `GET /scene-asset/state` (which pages exist) and `/scene-asset/page|phone-page` served with CSP `sandbox allow-scripts; default-src 'none'; img-src data: blob:; …; frame-ancestors <PUBLIC_ORIGIN>` and no X-Frame-Options. (Inside a sandbox, 'self' is the page's blank origin, so frame-ancestors must name the site.)
+- `public/platform.js`: if a page exists (phone: phone page, else PC page unless the phone has its own picture), an iframe `.sky-frame` shows it behind everything; no `sandbox` attribute (WebKit left attribute-sandboxed frames blank; the CSP header sandboxes it). Zip upload keeps an HTML page whole only when it holds everything itself and has a `<script>`; otherwise the side's page is removed. Owner page shows "Codex page" with a remove button.
+- Local check needs https or a proxy: helmet's `upgrade-insecure-requests` upgrades frames on http://127.0.0.1. Verified through a proxy without it: picture + WebGL grass + birds render in the page.
+- Test: `tests/site-scene.test.js`.
+
 ### 2026-10-23 — Claude — 1.1.136 Background zip: Codex single-HTML packages
 - Owner: the phone zip from Codex was refused (PC zip worked). It holds only OPEN_ON_PHONE.html: the picture as a data: URI in `img#art` and the moving `<svg>` inline.
 - `public/platform.js`: when a zip (or a picked .html) has no separate picture/SVG, `fromHtmlPackage` takes the data: picture and the first `<svg>` out of the HTML. For phones a wide picture is cut to 9:16 at the page's `#art` object-position (88% in Codex's file), so it matches Codex's preview. Checked with the real file: 528×938 picture + 9.5 KB SVG; phone page looks like the preview.
