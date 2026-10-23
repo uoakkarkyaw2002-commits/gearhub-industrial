@@ -3,7 +3,7 @@ const {test}=require('node:test');const assert=require('node:assert/strict');con
 const read=f=>fs.readFileSync(path.join(__dirname,'..','public',f),'utf8');
 test('platform page shows the sunset scene behind the application card',()=>{
  const html=read('platform.html'),css=read('platform.css'),svg=read('images/platform-scene.svg');
- assert.match(html,/<img class="sky-scene" src="\/scene-asset\/picture" alt="" aria-hidden="true" \/>/);
+ assert.match(html,/<img class="sky-scene" src="\/scene-asset\/picture" alt="" aria-hidden="true" \/><\/picture>/);
  assert.match(css,/\.sky-scene,\.sky-layer\{display:none\}/);
  assert.match(css,/body\.onboarding \.sky-scene,body\.onboarding \.sky-layer\{display:block;position:fixed;inset:0/);
  assert.match(svg,/^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg"/);
