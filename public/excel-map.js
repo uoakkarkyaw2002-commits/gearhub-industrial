@@ -141,12 +141,12 @@
   const visibleRows=Array.from({length:rows},(_,r)=>r).filter(r=>sheet.heights[r]!==0&&matching(r));
   // Exact table width = row-number column + every column, so the browser never stretches column A.
   const widths=Array.from({length:cols},(_,c)=>px(sheet.widths[c])),total=46+widths.reduce((a,b)=>a+b,0);
-  let html='<table style="width:'+total+'px"><colgroup><col class="excel-rownum-col" style="width:46px">'+widths.map(w=>'<col style="width:'+w+'px">').join('')+'</colgroup><thead><tr><th class="excel-corner"></th>'+Array.from({length:cols},(_,c)=>'<th>'+colName(c)+'</th>').join('')+'</tr></thead><tbody>';
+  let html='<table style="width:'+total+'px"><colgroup><col class="excel-rownum-col" style="width:46px">'+widths.map(w=>'<col style="width:'+w+'px">').join('')+'</colgroup><thead><tr><th class="excel-corner"></th>'+Array.from({length:cols},(_,c)=>'<th data-c="'+c+'">'+colName(c)+'</th>').join('')+'</tr></thead><tbody>';
   for(const r of visibleRows){
    const ht=sheet.heights[r];
-   html+='<tr style="height:'+Math.round((ht??sheet.defH)*4/3)+'px"><th>'+(r+1)+'</th>';
+   html+='<tr style="height:'+Math.round((ht??sheet.defH)*4/3)+'px"><th data-r="'+r+'">'+(r+1)+'</th>';
    for(let c=0;c<cols;c++){const key=r+','+c;if(sheet.covered.has(key))continue;const m=sheet.merges.get(key),cell=sheet.cells.get(key);
-    html+='<td'+(m?(m.rs>1?' rowspan="'+m.rs+'"':'')+(m.cs>1?' colspan="'+m.cs+'"':''):'')+(cell?' style="'+esc(cellStyle(cell))+'"':'')+'>'+(cell?esc(cell.text):'')+'</td>'}
+    html+='<td data-r="'+r+'" data-c="'+c+'"'+(m?(m.rs>1?' data-r2="'+(r+m.rs-1)+'"':'')+(m.cs>1?' data-c2="'+(c+m.cs-1)+'"':''):'')+(m?(m.rs>1?' rowspan="'+m.rs+'"':'')+(m.cs>1?' colspan="'+m.cs+'"':''):'')+(cell?' style="'+esc(cellStyle(cell))+'"':'')+'>'+(cell?esc(cell.text):'')+'</td>'}
    html+='</tr>';
   }
   grid.innerHTML=html+'</tbody></table>';grid.scrollTop=0;grid.scrollLeft=0;
