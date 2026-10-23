@@ -25,6 +25,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 2026-10-23 — Claude — 1.1.129 Update no longer stops at 80%
+- Owner: with the app open, "Updating… 80%" stayed until the app was closed and opened again.
+- Cause (`public/updates.js`): `apply()` set `reloading=true`, then (new worker waiting) only posted `APPLY_UPDATE`. The `controllerchange` handler `reloadWhenSafe()` returns when `reloading` is true, so nothing reloaded.
+- Fix: in that branch `apply()` reloads itself on `controllerchange`, or after 4 s if the switch never comes. `registration.update()` now times out after 15 s.
+- Tests: new case in `tests/updates.test.js` (fails on the old code); cache tag in `tests/keep-category-draft.test.js`.
+
 ### 2026-10-23 — Claude — 1.1.128 Search bar + Excel folder button
 - Owner's picture: a white search pill and a square folder button beside it; Excel opens only from that folder button, not from Settings.
 - `public/index.html`: the search section holds `.search-pill` (SVG magnifier + `#search`) and `#excel-library-open.excel-folder-button` (folder icon). The top-bar Excel button and the Settings "Excel files" row are removed.
