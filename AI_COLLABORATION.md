@@ -25,10 +25,27 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.119: Cart on phones reaches the bottom edge (Claude) — in review
+### 1.1.120: Excel auto upload from the shop's Windows PC (Claude) — in review
+- Task: the owner edits the Excel file every day on a Windows PC and wants it uploaded to the shop by itself, without visiting the site.
+- How it works: in the shop's Excel panel the owner presses "Download PC auto upload". The server makes a per-shop upload key (only its SHA-256 is stored; a new key replaces the old one), and the browser builds a `.bat` file carrying it. Double-clicking the `.bat` once on the PC:
+  - asks for the Excel file;
+  - saves a PowerShell watcher in `%LOCALAPPDATA%\SkyShopExcelUpload`;
+  - adds a hidden start-up entry in the Startup folder (no admin rights needed).
+  The watcher checks every minute and uploads the file after each save, even while Excel has it open.
+- Files:
+  - `lib/platform-model.js`: `platform_upload_keys` table.
+  - `lib/platform.js`:
+    - `POST /api/platform/spreadsheets/auto-upload` takes the key in `X-Upload-Key`, needs no session or CSRF (it sits before the CSRF middleware), is rate limited, and replaces the shop's spreadsheet.
+    - `GET/POST /shops/:id/upload-key` is for the owner only, through `shopFor`.
+  - `public/excel-auto-upload.js` (new; builds the `.bat`).
+  - `public/excel-library.js`: button and status.
+  - `public/index.html`, `public/style.css`, SW shell, version files, `tests/excel-auto-upload.test.js`.
+- Notes: the watcher sends `Origin` because `originGuard` blocks POSTs without one. Not run on a real Windows PC yet; the script was only reviewed.
+
+### 1.1.119: Cart on phones reaches the bottom edge (Claude) — completed
 - Task: tapping Cart on a phone showed a dark band around the bottom nav's round corners and notch. The empty-cart drawer stopped 86 px above the bottom, so the dark overlay showed through.
 - Files: `public/style.css` (phone: `#drawer` and the empty-cart drawer use `bottom:0`, with `padding-bottom:calc(96px + safe area)` so content stays above the nav), tags, version files, `tests/liquid-nav.test.js`.
-- PR: (this PR)
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/190
 
 ### 1.1.118: Select cells in the Excel viewer (Claude) — completed
 - Task: in the Excel viewer, cells could not be selected. Now they can be selected like a spreadsheet:
