@@ -25,6 +25,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 2026-10-23 — Claude — 1.1.125 Excel freeze panes start where Excel froze them
+- Owner's photo: Excel shows INV from row 28 / column C (frozen at C28), the web showed row 1 and columns A-B.
+- `public/excel-map.js`: the frozen area starts at the sheet view's `topLeftCell`; rows above and columns left of it are not shown (like Excel). Merges are cut at these lines. Frozen columns now stick when at least 120px is left to scroll (PC); on phones they scroll.
+- Number formats: `?` shows as a space, so accounting zero `"-"??` shows `-` (was `-??`).
+- Tests updated in `tests/excel-library.test.js` and `tests/excel-select.test.js`.
+
 ### 1.1.124: Select an Excel row from any cell (Codex) — in review
 - Task: owner wants a complete blue row selection like Google Sheets, without needing to tap the left row number.
 - Change: clicking or tapping any cell selects every visible cell in that row; clicking its row number still works. Mouse drag and Shift+click range selection remain available.
