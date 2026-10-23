@@ -25,6 +25,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 2026-10-23 — Claude — 1.1.128 Search bar + Excel folder button
+- Owner's picture: a white search pill and a square folder button beside it; Excel opens only from that folder button, not from Settings.
+- `public/index.html`: the search section holds `.search-pill` (SVG magnifier + `#search`) and `#excel-library-open.excel-folder-button` (folder icon). The top-bar Excel button and the Settings "Excel files" row are removed.
+- `public/excel-library.js`: the folder button shows only in seller shops (`open.hidden=!slug`).
+- `public/style.css` / `public/desktop.css`: pill and folder button styles (phone and PC).
+- Tests: `tests/excel-library.test.js`, `tests/excel-auto-upload.test.js` (cache tag).
+
 ### 2026-10-23 — Claude — 1.1.127 Excel: selection visible on filled cells, pinch zoom out
 - Owner: tapped selection did not show on many cells (BC, INV); INV could only zoom bigger.
 - Cause: `cellStyle` wrote `background:` (shorthand), which removed the blue `background-image` of `.xs-sel` on every filled cell. Now `background-color:`.
