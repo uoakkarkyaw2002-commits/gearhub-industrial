@@ -48,7 +48,7 @@ test('Excel sheet opens full screen with one back arrow and exact column widths'
  const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8'),css=fs.readFileSync(path.join(__dirname,'..','public','style.css'),'utf8');
  assert.match(map,/<button class="excel-fs-back" id="excel-fs-back" type="button" aria-label="Back">←<\/button>/);
  assert.match(map,/modal\?\.classList\.toggle\('excel-fullscreen',on\)/);
- assert.match(map,/let html='<table style="width:'\+total\+'px">/,'table width = sum of column widths (column A stays narrow)');
+ assert.match(map,/let html='<table style="width:'\+total\+'px;font-size:'\+Math\.round\(11\*zoom\*10\)\/10\+'pt;--excel-zoom:'\+zoom\+'">/,'table width = sum of column widths (column A stays narrow)');
  assert.match(css,/\.excel-fullscreen \.excel-library-card\.excel-sheet-open\{position:fixed;inset:0;/);
  assert.match(css,/\.excel-fullscreen \.excel-preview>\.drawer-head,\.excel-fullscreen #excel-sheet-status,\.excel-fullscreen \.excel-map-panel\{display:none!important\}/);
 });
@@ -98,4 +98,15 @@ test('excel viewer draws shapes and pictures (linked totals on the invoice)',()=
  assert.match(map,/return binary\?out\.blob\(\):out\.text\(\)/);
  assert.match(css,/#excel-grid \.excel-shape\{position:absolute/);
  assert.match(css,/\.excel-sheet tr\.excel-frozen-row>td\.excel-shape-host\{z-index:25\}/);
+});
+
+test('excel viewer: selection shows on filled cells; two-finger zoom smaller and bigger',()=>{
+ const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8'),css=fs.readFileSync(path.join(__dirname,'..','public','style.css'),'utf8');
+ // background shorthand would wipe the blue selection layer (background-image) on filled cells.
+ assert.match(map,/if\(s\.fill\)css\.push\('background-color:'\+s\.fill\)/);
+ assert.doesNotMatch(map,/css\.push\('background:'/);
+ assert.match(map,/let zoom=1;const ZMIN=0\.3,ZMAX=3;/);
+ assert.match(map,/grid\.addEventListener\('touchmove',e=>\{if\(!pinch\|\|e\.touches\.length!==2\)return;e\.preventDefault\(\)/);
+ assert.match(map,/grid\.addEventListener\('wheel',e=>\{if\(!e\.ctrlKey\)return;/);
+ assert.match(css,/#excel-grid\{touch-action:pan-x pan-y\}/);
 });
