@@ -25,14 +25,26 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.117: Excel viewer top bar clean; every Excel file works offline (Claude) — in review
+### 1.1.118: Select cells in the Excel viewer (Claude) — in review
+- Task: in the Excel viewer, cells could not be selected. Now they can be selected like a spreadsheet:
+  - click or tap a cell (blue outline);
+  - drag with the mouse, or Shift+click, to select a range (tinted, with the row numbers and column letters highlighted);
+  - Ctrl/Cmd+C copies the range as rows and columns; Esc clears.
+- Files:
+  - `public/excel-select.js` (new).
+  - `public/excel-map.js`: cells get `data-r`/`data-c` (plus `data-r2`/`data-c2` for merges); headers get `data-c`/`data-r`.
+  - `public/style.css`: `.xs-sel`, `.xs-active`, `.xs-head`; no text dragging on a mouse.
+  - Tags, version files, `tests/excel-select.test.js`.
+- PR: (this PR)
+
+### 1.1.117: Excel viewer top bar clean; every Excel file works offline (Claude) — completed
 - Task: remove the blurred grey band at the top of the Excel full-screen viewer, and make every uploaded Excel file work offline automatically.
 - Files:
   - `public/style.css`: white card, a 50 px white top bar, plain search input (no iOS shading), and the sheet starts below the bar.
   - `public/sw.js`: new `EXCEL_CACHE`. `/api/platform/spreadsheets/:id` is cache-first (each upload has a new id). `/api/platform/store/:slug/spreadsheets` is network-first with an offline copy.
   - `public/excel-library.js`: `keepOffline()` runs 3 s after every shop visit, when the phone comes back online and right after an upload. It saves the current file(s) and deletes old ones.
   - Tags, version files, `tests/excel-offline.test.js`.
-- PR: (this PR)
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/187
 
 ### 1.1.116: PC product cards tilt with the mouse (Claude) — completed
 - Task: the owner's video, PC only. Moving the mouse over a product card tilts it towards the pointer in 3D, lifts the photo forward (scale 1.1, follows the pointer) and moves a soft light with the pointer. Phones and touch screens get nothing.
