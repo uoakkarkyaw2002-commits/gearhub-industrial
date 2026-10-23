@@ -967,3 +967,11 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
 .excel-auto-upload small{color:#5b6b61;line-height:1.45}
 .excel-auto-upload button{justify-self:start;padding:9px 14px;border:0;border-radius:10px;background:#183426;color:#fff;font:inherit;font-weight:700;cursor:pointer}
 .excel-auto-upload[hidden]{display:none}
+/* Freeze panes from the Excel file (excel-map.js sets top/left). */
+.excel-sheet tr.excel-frozen-row>td,.excel-sheet tr.excel-frozen-row>th{position:sticky;z-index:1}
+.excel-sheet tr.excel-frozen-row>td{background-color:#fff}
+.excel-sheet tr.excel-frozen-row>th{z-index:3}
+.excel-sheet .excel-corner.excel-corner{z-index:4}
+.excel-sheet table.excel-cols-frozen td.excel-frozen-col{position:sticky;z-index:1;background-color:#fff}
+.excel-sheet table.excel-cols-frozen tr.excel-frozen-row>td.excel-frozen-col{z-index:2}
+.excel-sheet table.excel-cols-frozen thead th.excel-frozen-col{z-index:3}

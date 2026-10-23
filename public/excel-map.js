@@ -93,8 +93,16 @@
   const WIDTH={thin:1,hair:1,dotted:1,dashed:1,medium:2,mediumDashed:2,thick:3,double:3};
   const borders=kids(one(st,'borders'),'border').map(b=>Object.fromEntries(['left','right','top','bottom'].map(side=>{const e=kids(b,side)[0],style=e?.getAttribute('style');return [side,style?`${WIDTH[style]||1}px ${style==='double'?'double':/dash|dot/.test(style)?'dashed':'solid'} ${color(one(e,'color'),themeHex)||'#000'}`:'']})));
   const xfs=kids(one(st,'cellXfs'),'xf').map(x=>{const a=one(x,'alignment');return{fmt:fmts[x.getAttribute('numFmtId')||0]||'General',font:fonts[+x.getAttribute('fontId')||0]||{},fill:fills[+x.getAttribute('fillId')||0]||'',border:borders[+x.getAttribute('borderId')||0]||{},h:a?.getAttribute('horizontal')||'',v:a?.getAttribute('vertical')||'',wrap:a?.getAttribute('wrapText')==='1'}});
+  // Conditional-format styles (dxf): only what a rule changes (font colour/bold/italic, fill, border).
+  // "Automatic" colour in a rule means black text.
+  const dxfColor=el=>el?.getAttribute('auto')==='1'?'#000000':color(el,themeHex);
+  const dxfs=kids(one(st,'dxfs'),'dxf').map(d=>{const f=one(d,'font'),p=one(d,'patternFill'),b=one(d,'border'),out={};
+   if(f){out.font={};const c=dxfColor(one(f,'color'));if(c)out.font.color=c;if(one(f,'b'))out.font.b=one(f,'b').getAttribute('val')!=='0';if(one(f,'i'))out.font.i=one(f,'i').getAttribute('val')!=='0';if(one(f,'u'))out.font.u=true}
+   if(p){const c=color(one(p,'bgColor'),themeHex)||color(one(p,'fgColor'),themeHex);if(c)out.fill=c}
+   if(b){out.border={};for(const side of ['left','right','top','bottom']){const e=kids(b,side)[0],style=e?.getAttribute('style');if(style)out.border[side]=`${WIDTH[style]||1}px ${style==='double'?'double':/dash|dot/.test(style)?'dashed':'solid'} ${dxfColor(one(e,'color'))||'#000'}`}}
+   return out});
   const sheets=all(wb,'sheet').filter(s=>!s.getAttribute('state')||s.getAttribute('state')==='visible').map(s=>({name:s.getAttribute('name'),path:target[s.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','id')||s.getAttribute('r:id')]}));
-  return{read,sheets,xfs,shared};
+  return{read,sheets,xfs,shared,dxfs};
  }
  const colIndex=ref=>{let n=0;for(const ch of ref.replace(/[0-9]/g,''))n=n*26+ch.charCodeAt(0)-64;return n-1};
  const colName=i=>{let s='';i++;while(i>0){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26)}return s};
@@ -106,7 +114,7 @@
   const heights={};
   for(const row of all(doc,'row')){
    const r=+row.getAttribute('r')-1;if(r>=MAX_ROWS){sheet.truncated=true;break}
-   if(row.getAttribute('ht'))heights[r]=row.getAttribute('hidden')==='1'?0:+row.getAttribute('ht');
+   if(row.getAttribute('hidden')==='1')heights[r]=0;else if(row.getAttribute('ht'))heights[r]=+row.getAttribute('ht');
    for(const c of kids(row,'c')){
     const ci=colIndex(c.getAttribute('r')||'A1');if(ci>=MAX_COLS)continue;
     const type=c.getAttribute('t'),raw=one(c,'v')?.textContent??'',style=book.xfs[+(c.getAttribute('s')||0)]||{fmt:'General',font:{},border:{}};
@@ -114,19 +122,90 @@
     if(type==='s')text=book.shared[+raw]??'';else if(type==='inlineStr')text=all(c,'t').map(t=>t.textContent).join('');else if(type==='str'||type==='e')text=raw;else if(type==='b')text=raw==='1'?'TRUE':'FALSE';else if(raw!=='')text=formatNumber(+raw,style.fmt);
     const numeric=!type||type==='n';
     if(text===''&&!style.fill&&!Object.values(style.border||{}).some(Boolean))continue;
-    cells.set(r+','+ci,{text,style,numeric:numeric&&raw!==''});
+    cells.set(r+','+ci,{text,style,numeric:numeric&&raw!=='',value:numeric&&raw!==''?+raw:type==='b'?raw==='1':text});
     if(text!==''||style.fill){maxR=Math.max(maxR,r);maxC=Math.max(maxC,ci)}
    }
   }
   const merges=new Map(),covered=new Set();
   all(doc,'mergeCell').forEach(m=>{const [a,b]=(m.getAttribute('ref')||'').split(':');if(!b)return;const r1=+a.replace(/\D/g,'')-1,c1=colIndex(a),r2=Math.min(+b.replace(/\D/g,'')-1,MAX_ROWS-1),c2=Math.min(colIndex(b),MAX_COLS-1);merges.set(r1+','+c1,{rs:r2-r1+1,cs:c2-c1+1});for(let r=r1;r<=r2;r++)for(let c=c1;c<=c2;c++)if(r!==r1||c!==c1)covered.add(r+','+c)});
   const tab=one(one(doc,'sheetPr'),'tabColor');
-  Object.assign(sheet,{cells,merges,covered,widths,heights,defW,defH,maxR,maxC,tab:tab?color(tab,[]):''});
+  // Frozen rows/columns, as saved in Excel (View > Freeze Panes).
+  const pane=one(doc,'pane'),frozen=pane&&/frozen/.test(pane.getAttribute('state')||'')?{rows:+(pane.getAttribute('ySplit')||0),cols:+(pane.getAttribute('xSplit')||0)}:{rows:0,cols:0};
+  Object.assign(sheet,{cells,merges,covered,widths,heights,defW,defH,maxR,maxC,frozen,tab:tab?color(tab,[]):''});
+  try{applyConditionalFormats(sheet,doc)}catch{}
   return sheet;
+ }
+
+ // ---- Conditional formatting (view only) ----
+ // Supports the rules these workbooks use: formulas ("$P36<>\"\"", OR/AND/NOT/ISBLANK, comparisons, &,
+ // + - * /), duplicate/unique values, blanks/non-blanks, "cell value is" and "text contains".
+ // A rule changes only font colour/bold/italic, fill and border, like Excel; the first (highest
+ // priority) matching rule wins for each property. Formulas use the values Excel saved in the file.
+ function parseRange(ref){const m=/^\$?([A-Z]+)?\$?(\d+)?(?::\$?([A-Z]+)?\$?(\d+)?)?$/.exec(ref);if(!m)return null;
+  const c1=m[1]?colIndex(m[1]):0,r1=m[2]?+m[2]-1:0,c2=m[3]?colIndex(m[3]):m[4]&&!m[3]?c1:m[1]&&!m[2]&&!m[3]?c1:16383,r2=m[4]?+m[4]-1:m[2]&&!m[3]&&!m[4]?r1:1048575;
+  return{r1,c1,r2:Math.max(r1,r2),c2:Math.max(c1,c2)}}
+ function compileFormula(text,anchor){
+  const tokens=[];const re=/\s*(?:("(?:[^"]|"")*")|(\$?[A-Z]{1,3}\$?\d+)(?![\w(])|(\d+(?:\.\d+)?)|(<>|<=|>=|[=<>&+\-*/(),])|([A-Z][A-Z0-9.]*)(?=\()|(TRUE|FALSE)\b)/iy;
+  let pos=0;while(pos<text.length){re.lastIndex=pos;const m=re.exec(text);if(!m||m[0]==='')throw Error('formula');pos=re.lastIndex;
+   if(m[1]!=null)tokens.push({t:'s',v:m[1].slice(1,-1).replace(/""/g,'"')});else if(m[2]){const r=/(\$?)([A-Z]+)(\$?)(\d+)/i.exec(m[2]);tokens.push({t:'ref',ac:!!r[1],c:colIndex(r[2].toUpperCase()),ar:!!r[3],r:+r[4]-1})}
+   else if(m[3]!=null)tokens.push({t:'n',v:+m[3]});else if(m[4])tokens.push({t:'op',v:m[4]});else if(m[5])tokens.push({t:'fn',v:m[5].toUpperCase()});else if(m[6])tokens.push({t:'b',v:m[6].toUpperCase()==='TRUE'})}
+  let i=0;const peek=()=>tokens[i],take=v=>{const k=tokens[i];if(v&&!(k&&k.t==='op'&&k.v===v))throw Error('formula');i++;return k};
+  function primary(){const k=take();if(!k)throw Error('formula');
+   if(k.t==='n'||k.t==='s'||k.t==='b'){const v=k.v;return()=>v}
+   if(k.t==='ref')return(ctx)=>ctx.get(k.ar?k.r:k.r-anchor.r+ctx.r,k.ac?k.c:k.c-anchor.c+ctx.c);
+   if(k.t==='op'&&k.v==='('){const e=compare();take(')');return e}
+   if(k.t==='op'&&k.v==='-'){const e=primary();return ctx=>-num(e(ctx))}
+   if(k.t==='fn'){take('(');const args=[];if(!(peek()?.t==='op'&&peek().v===')')){args.push(compare());while(peek()?.t==='op'&&peek().v===','){take(',');args.push(compare())}}take(')');
+    const f={OR:v=>v.some(truthy),AND:v=>v.every(truthy),NOT:v=>!truthy(v[0]),ISBLANK:v=>v[0]==='',LEN:v=>String(v[0]).length,TRIM:v=>String(v[0]).trim().replace(/\s+/g,' '),UPPER:v=>String(v[0]).toUpperCase(),LOWER:v=>String(v[0]).toLowerCase(),ABS:v=>Math.abs(num(v[0])),ISNUMBER:v=>typeof v[0]==='number',IF:v=>truthy(v[0])?v[1]:v[2]??false}[k.v];
+    if(!f)throw Error('formula');return ctx=>f(args.map(a=>a(ctx)))}
+   throw Error('formula')}
+  function binary(next,ops,apply){return()=>{let left=next();while(peek()?.t==='op'&&ops.includes(peek().v)){const op=take().v,right=next(),l=left;left=ctx=>apply(op,l(ctx),right(ctx))}return left}}
+  const mul=binary(primary,['*','/'],(op,a,b)=>op==='*'?num(a)*num(b):num(a)/num(b));
+  const add=binary(mul,['+','-'],(op,a,b)=>op==='+'?num(a)+num(b):num(a)-num(b));
+  const cat=binary(add,['&'],(op,a,b)=>String(a)+String(b));
+  const compare=binary(cat,['=','<>','<','>','<=','>='],(op,a,b)=>{const c=cmp(a,b);return{'=':c===0,'<>':c!==0,'<':c<0,'>':c>0,'<=':c<=0,'>=':c>=0}[op]});
+  const fn=compare();if(i!==tokens.length)throw Error('formula');return fn;
+ }
+ const num=v=>typeof v==='number'?v:typeof v==='boolean'?+v:v===''?0:+v||0;
+ const truthy=v=>typeof v==='string'?v!==''&&v.toUpperCase()!=='FALSE':!!v;
+ function cmp(a,b){if(a==='')a=typeof b==='number'?0:'';if(b==='')b=typeof a==='number'?0:'';
+  if(typeof a==='number'&&typeof b==='number')return a-b;if(typeof a==='number')return -1;if(typeof b==='number')return 1;
+  const x=String(a).toLowerCase(),y=String(b).toLowerCase();return x<y?-1:x>y?1:0}
+ function applyConditionalFormats(sheet,doc){
+  const rules=[];
+  for(const block of all(doc,'conditionalFormatting')){
+   const ranges=(block.getAttribute('sqref')||'').split(/\s+/).map(parseRange).filter(Boolean);if(!ranges.length)continue;
+   for(const rule of kids(block,'cfRule')){const dxf=book.dxfs[+rule.getAttribute('dxfId')];if(!dxf||rule.getAttribute('dxfId')==null)continue;
+    rules.push({ranges,anchor:{r:ranges[0].r1,c:ranges[0].c1},type:rule.getAttribute('type'),op:rule.getAttribute('operator'),text:rule.getAttribute('text')||'',priority:+(rule.getAttribute('priority')||0),stop:rule.getAttribute('stopIfTrue')==='1',formulas:kids(rule,'formula').map(f=>f.textContent),dxf})}}
+  if(!rules.length)return;rules.sort((a,b)=>a.priority-b.priority);
+  const value=(r,c)=>{const cell=sheet.cells.get(r+','+c);return cell?cell.value??cell.text:''};
+  const stopped=new Set();
+  for(const rule of rules){
+   let test;
+   try{
+    if(rule.type==='expression'){const f=compileFormula(rule.formulas[0]||'',rule.anchor);test=(r,c)=>truthy(f({r,c,get:value}))}
+    else if(rule.type==='cellIs'){const fs=rule.formulas.map(x=>compileFormula(x,rule.anchor));test=(r,c)=>{const v=value(r,c),ctx={r,c,get:value},a=fs[0]?.(ctx),b=fs[1]?.(ctx);
+     return{equal:()=>cmp(v,a)===0,notEqual:()=>cmp(v,a)!==0,greaterThan:()=>cmp(v,a)>0,lessThan:()=>cmp(v,a)<0,greaterThanOrEqual:()=>cmp(v,a)>=0,lessThanOrEqual:()=>cmp(v,a)<=0,between:()=>cmp(v,a)>=0&&cmp(v,b)<=0,notBetween:()=>cmp(v,a)<0||cmp(v,b)>0}[rule.op]?.()??false}}
+    else if(rule.type==='containsBlanks')test=(r,c)=>String(value(r,c)).trim()==='';
+    else if(rule.type==='notContainsBlanks')test=(r,c)=>String(value(r,c)).trim()!=='';
+    else if(rule.type==='containsText')test=(r,c)=>String(value(r,c)).toLowerCase().includes(rule.text.toLowerCase());
+    else if(rule.type==='duplicateValues'||rule.type==='uniqueValues'){const counts=new Map();
+     for(const g of rule.ranges)for(let r=g.r1;r<=Math.min(g.r2,sheet.maxR);r++)for(let c=g.c1;c<=Math.min(g.c2,sheet.maxC);c++){const v=String(value(r,c)).toLowerCase();if(v!=='')counts.set(v,(counts.get(v)||0)+1)}
+     test=(r,c)=>{const v=String(value(r,c)).toLowerCase();return v!==''&&(rule.type==='duplicateValues'?counts.get(v)>1:counts.get(v)===1)}}
+    else continue;
+   }catch{continue}
+   for(const g of rule.ranges)for(let r=g.r1;r<=Math.min(g.r2,sheet.maxR);r++)for(let c=g.c1;c<=Math.min(g.c2,sheet.maxC);c++){
+    const key=r+','+c;if(stopped.has(key))continue;let hit=false;try{hit=test(r,c)}catch{}if(!hit)continue;
+    let cell=sheet.cells.get(key);if(!cell){if(!rule.dxf.fill&&!rule.dxf.border)continue;cell={text:'',style:book.xfs[0]||{fmt:'General',font:{},border:{}},numeric:false,value:''};sheet.cells.set(key,cell)}
+    const cf=cell.cf||(cell.cf={font:{},border:{}}),d=rule.dxf;
+    for(const k in d.font||{})if(!(k in cf.font))cf.font[k]=d.font[k];if(d.fill&&!cf.fill)cf.fill=d.fill;for(const k in d.border||{})if(!(k in cf.border))cf.border[k]=d.border[k];
+    if(rule.stop)stopped.add(key);
+   }
+  }
  }
  const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
  function cellStyle(cell){
-  const s=cell.style,f=s.font||{},b=s.border||{},css=[];
+  const cf=cell.cf,s=cf?{...cell.style,fill:cf.fill||cell.style.fill}:cell.style,f=cf?{...(s.font||{}),...cf.font}:s.font||{},b=cf?{...(s.border||{}),...cf.border}:s.border||{},css=[];
   if(s.fill)css.push('background:'+s.fill);if(f.color)css.push('color:'+f.color);if(f.b)css.push('font-weight:700');if(f.i)css.push('font-style:italic');if(f.u)css.push('text-decoration:underline');
   if(f.sz)css.push('font-size:'+f.sz+'pt');if(f.name)css.push('font-family:"'+f.name.replace(/"/g,'')+'",system-ui,sans-serif');
   const h=s.h&&s.h!=='general'?(s.h==='centerContinuous'?'center':s.h):cell.numeric?'right':'left';css.push('text-align:'+h);
@@ -138,20 +217,44 @@
  function renderSheet(sheet){
   const cols=sheet.maxC+1,rows=sheet.maxR+1,px=w=>Math.round((w??sheet.defW)*7+5),query=searchText.trim().toLocaleLowerCase();
   const matching=r=>!query||Array.from({length:cols},(_,c)=>sheet.cells.get(r+','+c)?.text||'').some(value=>String(value).toLocaleLowerCase().includes(query));
-  const visibleRows=Array.from({length:rows},(_,r)=>r).filter(r=>sheet.heights[r]!==0&&matching(r));
-  // Exact table width = row-number column + every column, so the browser never stretches column A.
-  const widths=Array.from({length:cols},(_,c)=>px(sheet.widths[c])),total=46+widths.reduce((a,b)=>a+b,0);
-  let html='<table style="width:'+total+'px"><colgroup><col class="excel-rownum-col" style="width:46px">'+widths.map(w=>'<col style="width:'+w+'px">').join('')+'</colgroup><thead><tr><th class="excel-corner"></th>'+Array.from({length:cols},(_,c)=>'<th data-c="'+c+'">'+colName(c)+'</th>').join('')+'</tr></thead><tbody>';
+  const visibleRows=Array.from({length:rows},(_,r)=>r).filter(r=>sheet.heights[r]!==0&&matching(r)),rowShown=new Set(visibleRows);
+  // Hidden columns (width 0 or hidden in Excel) are left out completely, like Excel.
+  const visibleCols=Array.from({length:cols},(_,c)=>c).filter(c=>sheet.widths[c]!==0);
+  const widths=visibleCols.map(c=>px(sheet.widths[c])),total=46+widths.reduce((a,b)=>a+b,0);
+  const frozen=sheet.frozen||{rows:0,cols:0};
+  // Below the freeze line, a merge that started in the frozen rows goes on as an empty block.
+  const merges=new Map(sheet.merges),covered=new Set(sheet.covered),split=new Set();
+  if(frozen.rows)for(const [key,m] of sheet.merges){const [r,c]=key.split(',').map(Number);if(r<frozen.rows&&r+m.rs>frozen.rows){const k=frozen.rows+','+c;merges.set(k,{rs:r+m.rs-frozen.rows,cs:m.cs});covered.delete(k);split.add(k)}}
+  let html='<table style="width:'+total+'px"><colgroup><col class="excel-rownum-col" style="width:46px">'+widths.map(w=>'<col style="width:'+w+'px">').join('')+'</colgroup><thead><tr><th class="excel-corner"></th>'+visibleCols.map(c=>'<th data-c="'+c+'"'+(c<frozen.cols?' class="excel-frozen-col"':'')+'>'+colName(c)+'</th>').join('')+'</tr></thead><tbody>';
   for(const r of visibleRows){
    const ht=sheet.heights[r];
-   html+='<tr style="height:'+Math.round((ht??sheet.defH)*4/3)+'px"><th data-r="'+r+'">'+(r+1)+'</th>';
-   for(let c=0;c<cols;c++){const key=r+','+c;if(sheet.covered.has(key))continue;const m=sheet.merges.get(key),cell=sheet.cells.get(key);
-    html+='<td data-r="'+r+'" data-c="'+c+'"'+(m?(m.rs>1?' data-r2="'+(r+m.rs-1)+'"':'')+(m.cs>1?' data-c2="'+(c+m.cs-1)+'"':''):'')+(m?(m.rs>1?' rowspan="'+m.rs+'"':'')+(m.cs>1?' colspan="'+m.cs+'"':''):'')+(cell?' style="'+esc(cellStyle(cell))+'"':'')+'>'+(cell?esc(cell.text):'')+'</td>'}
+   html+='<tr'+(r<frozen.rows?' class="excel-frozen-row"':'')+' style="height:'+Math.round((ht??sheet.defH)*4/3)+'px"><th data-r="'+r+'">'+(r+1)+'</th>';
+   for(const c of visibleCols){const key=r+','+c;if(covered.has(key))continue;const m=merges.get(key),cell=split.has(key)?null:sheet.cells.get(key);
+    // A merge never crosses the freeze line (Excel splits it there too).
+    let rs=1,cs=1;if(m){for(let i=1;i<m.rs;i++)if(rowShown.has(r+i)&&(r>=frozen.rows||r+i<frozen.rows))rs++;for(let i=1;i<m.cs;i++)if(sheet.widths[c+i]!==0)cs++}
+    html+='<td data-r="'+r+'" data-c="'+c+'"'+(c<frozen.cols?' class="excel-frozen-col"':'')+(m?(m.rs>1?' data-r2="'+(r+m.rs-1)+'"':'')+(m.cs>1?' data-c2="'+(c+m.cs-1)+'"':''):'')+(rs>1?' rowspan="'+rs+'"':'')+(cs>1?' colspan="'+cs+'"':'')+(cell?' style="'+esc(cellStyle(cell))+'"':'')+'>'+(cell?esc(cell.text):'')+'</td>'}
    html+='</tr>';
   }
   grid.innerHTML=html+'</tbody></table>';grid.scrollTop=0;grid.scrollLeft=0;
+  freeze();
   msg.textContent=(query?visibleRows.length+' of ':'')+rows+' rows'+(sheet.truncated?' (first '+MAX_ROWS+' shown)':'');
  }
+ // Freeze panes saved in the file: the frozen rows stay under the column letters and the frozen
+ // columns stay beside the row numbers while scrolling. Columns are frozen only when they leave at
+ // least half of the view free, so a phone can still scroll the rest of the sheet.
+ function freeze(){
+  const table=grid.querySelector('table');if(!table||!grid.clientWidth)return;
+  // Offsets are measured with sticky positions off, so they are right even after scrolling.
+  const rowCells=[...table.querySelectorAll('tr.excel-frozen-row>*')],colCells=[...table.querySelectorAll('.excel-frozen-col')];
+  rowCells.forEach(cell=>{cell.style.top=''});colCells.forEach(cell=>{cell.style.left=''});
+  const head=[...table.querySelectorAll('thead th.excel-frozen-col')],last=head[head.length-1];
+  const fits=!!last&&last.offsetLeft+last.offsetWidth-46<=grid.clientWidth/2;
+  const tops=rowCells.map(cell=>cell.parentNode.offsetTop),lefts=fits?colCells.map(cell=>cell.offsetLeft):[];
+  rowCells.forEach((cell,i)=>{cell.style.top=tops[i]+'px'});
+  table.classList.toggle('excel-cols-frozen',fits);
+  colCells.forEach((cell,i)=>{if(fits)cell.style.left=lefts[i]+'px'});
+ }
+ if(window.ResizeObserver)new ResizeObserver(()=>freeze()).observe(grid);
  // Header row for linking = first row with at least two values (row 1 is often a title).
  function tableData(sheet){
   const rowValues=r=>Array.from({length:sheet.maxC+1},(_,c)=>sheet.cells.get(r+','+c)?.text??'');
