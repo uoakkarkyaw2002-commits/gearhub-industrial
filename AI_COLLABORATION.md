@@ -25,6 +25,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 2026-10-23 — Claude — 1.1.127 Excel: selection visible on filled cells, pinch zoom out
+- Owner: tapped selection did not show on many cells (BC, INV); INV could only zoom bigger.
+- Cause: `cellStyle` wrote `background:` (shorthand), which removed the blue `background-image` of `.xs-sel` on every filled cell. Now `background-color:`.
+- Zoom: `excel-map.js` has its own sheet zoom 30%–300% (two-finger pinch on phones, Ctrl+wheel / trackpad pinch on PC). Widths, row heights and fonts are drawn at the zoom; while pinching the table is scaled live, then redrawn keeping the scroll position. `#excel-grid{touch-action:pan-x pan-y}` + `gesturestart` preventDefault stop the page zoom inside the sheet.
+- Tests in `tests/excel-library.test.js`.
+
 ### 2026-10-23 — Claude — 1.1.126 Excel viewer draws shapes and pictures
 - Owner: INV row 28 totals (16,111,720, 38,251,500 PSM, DT, JSM, 831,682) were missing. They are Excel shapes linked to cells (`textlink="ERCK!AS206"`), not cell values.
 - `public/excel-map.js`: `readDrawing` reads the sheet's drawing (shapes `sp` with fill/line/text and theme colours incl. lumMod/lumOff; pictures `pic` from xl/media). The saved linked value inside the shape is shown. `placeShapes` puts each shape inside the td under its top-left corner, so it scrolls and stays frozen with that cell; columns reached by shapes are drawn. The zip reader can now return a Blob (`read(name,true)`).
