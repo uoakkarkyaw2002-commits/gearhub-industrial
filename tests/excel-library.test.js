@@ -63,3 +63,24 @@ test('one current Excel file is shown, replacement stays scoped, and the sheet c
  assert.match(map,/const visibleRows=Array\.from\(\{length:rows\},\(_,r\)=>r\)\.filter/);
  assert.match(map,/search\.addEventListener\('input'/);
 });
+
+test('excel viewer shows the file like Excel: conditional formats, hidden rows/columns, freeze panes',()=>{
+ const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8'),css=fs.readFileSync(path.join(__dirname,'..','public','style.css'),'utf8');
+ // The formula engine, run for real on the rules the owner's invoice sheet uses.
+ const src=map.slice(map.indexOf(' function parseRange'),map.indexOf(' function applyConditionalFormats'));
+ const colIndex=ref=>{let n=0;for(const ch of ref.replace(/[0-9]/g,''))n=n*26+ch.charCodeAt(0)-64;return n-1};
+ const {compileFormula,truthy}=new Function('colIndex',src+';return{compileFormula,truthy}')(colIndex);
+ const cells={'36,15':'PSM-J75-20','44,3':'','44,4':5000};
+ const ctx=(r,c)=>({r,c,get:(rr,cc)=>cells[rr+','+cc]??''});
+ const filled=compileFormula('$P36<>""',{r:35,c:7});
+ assert.equal(truthy(filled(ctx(36,9))),true);
+ assert.equal(truthy(filled(ctx(37,9))),false);
+ const any=compileFormula('OR($D45<>"", $E45<>"", $F45<>"")',{r:44,c:7});
+ assert.equal(truthy(any(ctx(44,10))),true);
+ assert.equal(truthy(compileFormula('AND(ISBLANK(A1),A2*2>=10)',{r:0,c:0})({r:0,c:0,get:(r)=>r===1?5:''})),true);
+ assert.match(map,/const dxfColor=el=>el\?\.getAttribute\('auto'\)==='1'\?'#000000'/);
+ assert.match(map,/if\(row\.getAttribute\('hidden'\)==='1'\)heights\[r\]=0/);
+ assert.match(map,/const visibleCols=Array\.from\(\{length:cols\},\(_,c\)=>c\)\.filter\(c=>sheet\.widths\[c\]!==0\)/);
+ assert.match(map,/state'\)\|\|''\)\?\{rows:\+\(pane\.getAttribute\('ySplit'\)/);
+ assert.match(css,/\.excel-sheet tr\.excel-frozen-row>td,\.excel-sheet tr\.excel-frozen-row>th\{position:sticky;z-index:1\}/);
+});

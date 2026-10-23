@@ -45,7 +45,7 @@ test('clicking a row number selects every cell across that row',()=>{
 test('cells carry their sheet position; selection styles; script loaded and cached',()=>{
  const map=read('excel-map.js');
  assert.match(map,/html\+='<td data-r="'\+r\+'" data-c="'\+c\+'"'/);
- assert.match(map,/'<th data-c="'\+c\+'">'\+colName\(c\)\+'<\/th>'/);
+ assert.match(map,/'<th data-c="'\+c\+'"'\+\(c<frozen\.cols\?' class="excel-frozen-col"':''\)\+'>'\+colName\(c\)\+'<\/th>'/);
  const css=read('style.css');assert.match(css,/#excel-grid td\.xs-active\{box-shadow:inset 0 0 0 2px #1a73e8/);assert.match(css,/#excel-grid tbody th\[data-r\]\{cursor:pointer/);
  assert.match(read('index.html'),/<script src="\/excel-select\.js\?v=20261023-row-select-1"><\/script>/);
  assert.match(read('sw.js'),/"\/excel-select\.js\?v=20261023-row-select-1"/);
