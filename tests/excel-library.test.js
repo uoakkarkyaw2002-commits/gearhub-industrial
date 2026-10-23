@@ -87,5 +87,15 @@ test('excel viewer shows the file like Excel: conditional formats, hidden rows/c
  // Accounting zero "-"?? shows as "-", like Excel.
  const fmt=new Function('const isDate=()=>false;'+map.slice(map.indexOf(' function formatNumber'),map.indexOf(' // ---- Workbook'))+';return formatNumber')();
  assert.equal(fmt(0,'_(* #,##0_);_(* (#,##0);_(* "-"??_);_(@_)').trim(),'-');
- assert.match(css,/\.excel-sheet tr\.excel-frozen-row>td,\.excel-sheet tr\.excel-frozen-row>th\{position:sticky;z-index:1\}/);
+ assert.match(css,/\.excel-sheet tr\.excel-frozen-row>td,\.excel-sheet tr\.excel-frozen-row>th\{position:sticky;z-index:20\}/);
+});
+
+test('excel viewer draws shapes and pictures (linked totals on the invoice)',()=>{
+ const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8'),css=fs.readFileSync(path.join(__dirname,'..','public','style.css'),'utf8');
+ assert.match(map,/try\{sheet\.shapes=await readDrawing\(sheet\.path,doc\)\}catch\{sheet\.shapes=\[\]\}/);
+ assert.match(map,/n=>n\.localName==='sp'\|\|n\.localName==='pic'/);
+ assert.match(map,/placeShapes\(table\);/);
+ assert.match(map,/return binary\?out\.blob\(\):out\.text\(\)/);
+ assert.match(css,/#excel-grid \.excel-shape\{position:absolute/);
+ assert.match(css,/\.excel-sheet tr\.excel-frozen-row>td\.excel-shape-host\{z-index:25\}/);
 });
