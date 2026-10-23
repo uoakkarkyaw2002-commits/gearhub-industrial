@@ -25,6 +25,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 2026-10-23 — Claude — 1.1.133 PC top menu on every page
+- Owner: on PC the top menu disappeared on Category (and other non-home pages), so it was hard to get back.
+- `public/desktop.css`: at ≥851px the store header shows on every view and is sticky at the top; off the Home page the logo area matches Home (no banner artwork). `style.css` still hides it on phones (bottom menu there).
+- Test: `tests/pc-top-nav.test.js`.
+
 ### 2026-10-23 — Claude — 1.1.132 skyshopmm.com top menu + Sign in pop-up
 - Owner's picture: menu at the top right (Home, About, Service, Contact, Sign in); the shop form shows only after Sign in. About/Service/Contact content comes later (links are #about/#service/#contact for now).
 - `public/platform.html`: `#site-nav` in the header (Home has `data-platform-link`, so updates.js does not add its own "My shop" link).
