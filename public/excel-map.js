@@ -75,7 +75,7 @@
   const percent=clean.includes('%');if(percent)n*=100;
   const body=(clean.match(/[#0,.]+/)||[''])[0],decimals=(body.split('.')[1]||'').replace(/[^0#]/g,'').length,group=body.includes(',');
   const num=Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:(body.split('.')[1]||'').replace(/[^0]/g,'').length,maximumFractionDigits:decimals,useGrouping:group});
-  const idx=clean.indexOf(body),pre=clean.slice(0,idx).replace(/"/g,'').replace(/\\/g,''),post=clean.slice(idx+body.length).replace(/"/g,'').replace(/\\/g,'');
+  const idx=clean.indexOf(body),pre=clean.slice(0,idx).replace(/"/g,'').replace(/\\/g,'').replace(/\?/g,' '),post=clean.slice(idx+body.length).replace(/"/g,'').replace(/\\/g,'').replace(/\?/g,' ');
   return (n<0&&!sections[1]?'-':'')+pre+(body?num:'')+post;
  }
 
@@ -130,7 +130,13 @@
   all(doc,'mergeCell').forEach(m=>{const [a,b]=(m.getAttribute('ref')||'').split(':');if(!b)return;const r1=+a.replace(/\D/g,'')-1,c1=colIndex(a),r2=Math.min(+b.replace(/\D/g,'')-1,MAX_ROWS-1),c2=Math.min(colIndex(b),MAX_COLS-1);merges.set(r1+','+c1,{rs:r2-r1+1,cs:c2-c1+1});for(let r=r1;r<=r2;r++)for(let c=c1;c<=c2;c++)if(r!==r1||c!==c1)covered.add(r+','+c)});
   const tab=one(one(doc,'sheetPr'),'tabColor');
   // Frozen rows/columns, as saved in Excel (View > Freeze Panes).
-  const pane=one(doc,'pane'),frozen=pane&&/frozen/.test(pane.getAttribute('state')||'')?{rows:+(pane.getAttribute('ySplit')||0),cols:+(pane.getAttribute('xSplit')||0)}:{rows:0,cols:0};
+  // Excel freezes the rows/columns that were at the top-left when Freeze Panes was used (the sheet
+  // view's topLeftCell). The rows above and the columns to the left of that cell cannot be seen.
+  const pane=one(doc,'pane'),frozen={r0:0,r1:0,c0:0,c1:0};
+  if(pane&&/frozen/.test(pane.getAttribute('state')||'')){
+   const tl=/^([A-Z]+)(\d+)$/.exec(one(doc,'sheetView')?.getAttribute('topLeftCell')||'A1')||['','A','1'],ys=+(pane.getAttribute('ySplit')||0),xs=+(pane.getAttribute('xSplit')||0);
+   if(ys){frozen.r0=+tl[2]-1;frozen.r1=frozen.r0+ys}if(xs){frozen.c0=colIndex(tl[1]);frozen.c1=frozen.c0+xs}
+  }
   Object.assign(sheet,{cells,merges,covered,widths,heights,defW,defH,maxR,maxC,frozen,tab:tab?color(tab,[]):''});
   try{applyConditionalFormats(sheet,doc)}catch{}
   return sheet;
@@ -217,22 +223,24 @@
  function renderSheet(sheet){
   const cols=sheet.maxC+1,rows=sheet.maxR+1,px=w=>Math.round((w??sheet.defW)*7+5),query=searchText.trim().toLocaleLowerCase();
   const matching=r=>!query||Array.from({length:cols},(_,c)=>sheet.cells.get(r+','+c)?.text||'').some(value=>String(value).toLocaleLowerCase().includes(query));
-  const visibleRows=Array.from({length:rows},(_,r)=>r).filter(r=>sheet.heights[r]!==0&&matching(r)),rowShown=new Set(visibleRows);
+  const frozen=sheet.frozen||{r0:0,r1:0,c0:0,c1:0};
+  const visibleRows=Array.from({length:rows},(_,r)=>r).filter(r=>r>=frozen.r0&&sheet.heights[r]!==0&&matching(r)),rowShown=new Set(visibleRows);
   // Hidden columns (width 0 or hidden in Excel) are left out completely, like Excel.
-  const visibleCols=Array.from({length:cols},(_,c)=>c).filter(c=>sheet.widths[c]!==0);
+  const visibleCols=Array.from({length:cols},(_,c)=>c).filter(c=>c>=frozen.c0&&sheet.widths[c]!==0),colShown=new Set(visibleCols);
   const widths=visibleCols.map(c=>px(sheet.widths[c])),total=46+widths.reduce((a,b)=>a+b,0);
-  const frozen=sheet.frozen||{rows:0,cols:0};
-  // Below the freeze line, a merge that started in the frozen rows goes on as an empty block.
+  // Merges are cut at the freeze lines (Excel splits them there too). Above/left of the frozen
+  // area the cells cannot be seen, so a merge starting there shows its value in the visible part.
   const merges=new Map(sheet.merges),covered=new Set(sheet.covered),split=new Set();
-  if(frozen.rows)for(const [key,m] of sheet.merges){const [r,c]=key.split(',').map(Number);if(r<frozen.rows&&r+m.rs>frozen.rows){const k=frozen.rows+','+c;merges.set(k,{rs:r+m.rs-frozen.rows,cs:m.cs});covered.delete(k);split.add(k)}}
-  let html='<table style="width:'+total+'px"><colgroup><col class="excel-rownum-col" style="width:46px">'+widths.map(w=>'<col style="width:'+w+'px">').join('')+'</colgroup><thead><tr><th class="excel-corner"></th>'+visibleCols.map(c=>'<th data-c="'+c+'"'+(c<frozen.cols?' class="excel-frozen-col"':'')+'>'+colName(c)+'</th>').join('')+'</tr></thead><tbody>';
+  const cut=(axis,at,carry)=>{if(!at)return;for(const [key,m] of [...merges]){const [r,c]=key.split(',').map(Number),start=axis?c:r,size=axis?m.cs:m.rs;if(start<at&&start+size>at){
+   merges.set(key,axis?{rs:m.rs,cs:at-c}:{rs:at-r,cs:m.cs});const k=axis?r+','+at:at+','+c;merges.set(k,axis?{rs:m.rs,cs:c+m.cs-at}:{rs:r+m.rs-at,cs:m.cs});covered.delete(k);if(!carry)split.add(k);else if(!sheet.cells.has(k)&&sheet.cells.has(key))sheet.cells.set(k,sheet.cells.get(key))}}};
+  cut(0,frozen.r0,true);cut(1,frozen.c0,true);cut(0,frozen.r1,false);cut(1,frozen.c1,false);
+  let html='<table style="width:'+total+'px"><colgroup><col class="excel-rownum-col" style="width:46px">'+widths.map(w=>'<col style="width:'+w+'px">').join('')+'</colgroup><thead><tr><th class="excel-corner"></th>'+visibleCols.map(c=>'<th data-c="'+c+'"'+(c<frozen.c1?' class="excel-frozen-col"':'')+'>'+colName(c)+'</th>').join('')+'</tr></thead><tbody>';
   for(const r of visibleRows){
    const ht=sheet.heights[r];
-   html+='<tr'+(r<frozen.rows?' class="excel-frozen-row"':'')+' style="height:'+Math.round((ht??sheet.defH)*4/3)+'px"><th data-r="'+r+'">'+(r+1)+'</th>';
+   html+='<tr'+(r<frozen.r1?' class="excel-frozen-row"':'')+' style="height:'+Math.round((ht??sheet.defH)*4/3)+'px"><th data-r="'+r+'">'+(r+1)+'</th>';
    for(const c of visibleCols){const key=r+','+c;if(covered.has(key))continue;const m=merges.get(key),cell=split.has(key)?null:sheet.cells.get(key);
-    // A merge never crosses the freeze line (Excel splits it there too).
-    let rs=1,cs=1;if(m){for(let i=1;i<m.rs;i++)if(rowShown.has(r+i)&&(r>=frozen.rows||r+i<frozen.rows))rs++;for(let i=1;i<m.cs;i++)if(sheet.widths[c+i]!==0)cs++}
-    html+='<td data-r="'+r+'" data-c="'+c+'"'+(c<frozen.cols?' class="excel-frozen-col"':'')+(m?(m.rs>1?' data-r2="'+(r+m.rs-1)+'"':'')+(m.cs>1?' data-c2="'+(c+m.cs-1)+'"':''):'')+(rs>1?' rowspan="'+rs+'"':'')+(cs>1?' colspan="'+cs+'"':'')+(cell?' style="'+esc(cellStyle(cell))+'"':'')+'>'+(cell?esc(cell.text):'')+'</td>'}
+    let rs=1,cs=1;if(m){for(let i=1;i<m.rs;i++)if(rowShown.has(r+i))rs++;for(let i=1;i<m.cs;i++)if(colShown.has(c+i))cs++}
+    html+='<td data-r="'+r+'" data-c="'+c+'"'+(c<frozen.c1?' class="excel-frozen-col"':'')+(m?(m.rs>1?' data-r2="'+(r+m.rs-1)+'"':'')+(m.cs>1?' data-c2="'+(c+m.cs-1)+'"':''):'')+(rs>1?' rowspan="'+rs+'"':'')+(cs>1?' colspan="'+cs+'"':'')+(cell?' style="'+esc(cellStyle(cell))+'"':'')+'>'+(cell?esc(cell.text):'')+'</td>'}
    html+='</tr>';
   }
   grid.innerHTML=html+'</tbody></table>';grid.scrollTop=0;grid.scrollLeft=0;
@@ -240,15 +248,15 @@
   msg.textContent=(query?visibleRows.length+' of ':'')+rows+' rows'+(sheet.truncated?' (first '+MAX_ROWS+' shown)':'');
  }
  // Freeze panes saved in the file: the frozen rows stay under the column letters and the frozen
- // columns stay beside the row numbers while scrolling. Columns are frozen only when they leave at
- // least half of the view free, so a phone can still scroll the rest of the sheet.
+ // columns stay beside the row numbers while scrolling. Columns are frozen only when some room is
+ // left to scroll the rest (on a phone they usually scroll with the sheet).
  function freeze(){
   const table=grid.querySelector('table');if(!table||!grid.clientWidth)return;
   // Offsets are measured with sticky positions off, so they are right even after scrolling.
   const rowCells=[...table.querySelectorAll('tr.excel-frozen-row>*')],colCells=[...table.querySelectorAll('.excel-frozen-col')];
   rowCells.forEach(cell=>{cell.style.top=''});colCells.forEach(cell=>{cell.style.left=''});
   const head=[...table.querySelectorAll('thead th.excel-frozen-col')],last=head[head.length-1];
-  const fits=!!last&&last.offsetLeft+last.offsetWidth-46<=grid.clientWidth/2;
+  const fits=!!last&&last.offsetLeft+last.offsetWidth+120<=grid.clientWidth;
   const tops=rowCells.map(cell=>cell.parentNode.offsetTop),lefts=fits?colCells.map(cell=>cell.offsetLeft):[];
   rowCells.forEach((cell,i)=>{cell.style.top=tops[i]+'px'});
   table.classList.toggle('excel-cols-frozen',fits);
