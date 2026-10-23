@@ -73,10 +73,19 @@
       }
     });
   }
+  // Sign in opens the card as a pop-up over the scene; ×, Esc or a tap outside closes it.
+  const signIn=open=>document.body.classList.toggle("signin-open",open);
+  $("signin-open")?.addEventListener("click",()=>signIn(true));
+  $("account").addEventListener("click",e=>{if(e.target.id==="signin-close"||e.target===$("account"))signIn(false)});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape")signIn(false)});
   async function load() {
     me = await api("/me");
     csrf = me.csrfToken;
     document.body.classList.toggle("onboarding",!me.isOwner);
+    // Visitors (not signed in) see the scene and the top menu; the sign-in card opens from "Sign in".
+    document.body.classList.toggle("visitor",!me.user&&!me.isOwner);
+    $("site-nav").hidden=!!me.isOwner;
+    $("signin-open").hidden=!!me.user;
     $("logout").hidden = !me.user;
     $("account").hidden=!!me.user&&!me.isOwner;
     $("owner").innerHTML = "";
@@ -85,6 +94,7 @@
     $("account").innerHTML = me.user
       ? `<p>${esc(me.user.name)} · ${esc(me.user.email)}</p>`
       : window.GearHubApplication.login(me.oauthReady);
+    if(!me.user)$("account").querySelector(".login-application")?.insertAdjacentHTML("afterbegin",'<button type="button" class="signin-close" id="signin-close" aria-label="Close">×</button>');
     $("google-login")?.addEventListener("click", async () => {
       try {
         location.href = (await api("/auth/start", "POST", {})).url;
