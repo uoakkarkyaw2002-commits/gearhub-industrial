@@ -25,6 +25,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 2026-10-23 — Claude — 1.1.132 skyshopmm.com top menu + Sign in pop-up
+- Owner's picture: menu at the top right (Home, About, Service, Contact, Sign in); the shop form shows only after Sign in. About/Service/Contact content comes later (links are #about/#service/#contact for now).
+- `public/platform.html`: `#site-nav` in the header (Home has `data-platform-link`, so updates.js does not add its own "My shop" link).
+- `public/platform.js`: `body.visitor` when nobody is signed in; Sign in opens `#account` as a pop-up (`body.signin-open`), closed by ×, Esc or a tap outside. Signed-in applicants see their card as before.
+- `public/platform.css`: menu, pop-up and phone layout (Sign in top right, links in a second row, scene full screen).
+- Test: `tests/platform-scene.test.js`.
+
 ### 2026-10-23 — Claude — 1.1.131 Sunset scene on skyshopmm.com
 - Owner (video of an illustrated landscape website): use that kind of background on skyshopmm.com instead of the plain one.
 - `public/images/platform-scene.svg`: original drawing (not copied from the video): sunset sky, mountain range with a sunlit peak, lake, grass; clouds drift, birds fly, grass sways; motion stops with prefers-reduced-motion.
