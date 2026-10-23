@@ -732,6 +732,19 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
     await owner.call('/owner/splash','PUT',{seconds:3});
     assert.equal((await owner.call('/owner/splash/pc','DELETE')).data.pc,false);assert.equal((await owner.call('/owner/splash/sound','DELETE')).data.sound,'');assert.equal((await owner.call('/owner')).data.splash.seconds,3);
   });
+  await t.test('only the GearHub owner changes the skyshopmm.com background (picture + moving SVG)',async()=>{
+    const png=await require('sharp')({create:{width:16,height:9,channels:3,background:'#ff9933'}}).png().toBuffer();
+    assert.deepEqual((({picture,layer})=>({picture,layer}))((await owner.call('/owner')).data.scene),{picture:false,layer:false});
+    const pic=()=>{const f=new FormData();f.append('file',new Blob([png],{type:'image/png'}),'bg.png');return f};
+    const svg=()=>{const f=new FormData();f.append('file',new Blob(['<svg viewBox="0 0 10 10"><script>x()</script><circle r="2"/></svg>'],{type:'image/svg+xml'}),'birds.svg');return f};
+    assert.equal((await b.call('/owner/scene/picture','POST',pic())).status,403);
+    assert.equal((await b.call('/owner/scene/layer','DELETE')).status,403);
+    const saved=await owner.call('/owner/scene/picture','POST',pic());assert.equal(saved.status,200,JSON.stringify(saved.data));assert.equal(saved.data.picture,true);
+    const layer=await owner.call('/owner/scene/layer','POST',svg());assert.equal(layer.status,200,JSON.stringify(layer.data));assert.equal(layer.data.layer,true);
+    const kept=fs.readFileSync(path.join(root,'platform-media','scene','layer.svg'),'utf8');assert.ok(!kept.includes('script'),kept);
+    const notSvg=new FormData();notSvg.append('file',new Blob(['hello'],{type:'image/svg+xml'}),'x.svg');assert.equal((await owner.call('/owner/scene/layer','POST',notSvg)).status,400);
+    assert.equal((await owner.call('/owner/scene/layer','DELETE')).data.layer,false);assert.equal((await owner.call('/owner/scene/picture','DELETE')).data.picture,false);
+  });
   await t.test('owner extension adds calendar months and cannot be used by sellers',async()=>{await owner.call('/owner/shops/'+bid,'PATCH',{endsAt:'2099-01-31T00:00:00.000Z'});const before=(await b.me()).shop;assert.equal((await b.call('/owner/shops/'+bid+'/extend','POST',{months:2})).status,403);const r=await owner.call('/owner/shops/'+bid+'/extend','POST',{months:2});assert.equal(r.status,200);assert.equal(r.data.startsAt,before.starts_at);assert.equal(r.data.endsAt,model.addCalendarMonths(before.ends_at,2));assert.equal((await owner.call('/owner/shops/'+bid+'/extend','POST',{months:0})).status,400);assert.equal((await owner.call('/owner/shops/'+bid+'/extend','POST',{months:2})).status,200);});
   await t.test(
     "multi-product reopen rollback and shipped/completed cancellation preserve stock",
