@@ -27,10 +27,11 @@ _None._
 
 ### 2026-10-23 — Claude — 1.1.134 GearHub owner uploads the skyshopmm.com background
 - Owner wants to change the skyshopmm.com background himself, e.g. with the zip Codex makes (background.jpg + animated birds.svg).
+- Owner also asked for phones: separate phone picture (`phone`) and phone layer (`phone-layer`); phones without their own use the PC files.
 - `lib/site-scene.js` (new): picture (sharp → JPG ≤2600px) and optional moving SVG layer, kept in `platform_meta` "site-scene" and `<dataDir>/platform-media/scene/`. SVGs are cleaned (scripts, on* attributes, foreignObject, outside links removed; non-SVG refused).
 - `lib/platform.js`: `POST/DELETE /api/platform/owner/scene/:kind` (picture|layer, owner only, 12 MB); `/owner` returns `scene`.
-- `lib/tenant-install.js`: `GET /scene-asset/picture` (owner's picture, or 302 to the built-in drawing) and `/scene-asset/layer` (served with CSP `sandbox`, no-cache).
-- `public/platform.html/.js/.css`: background = `/scene-asset/picture` with `/scene-asset/layer` on top (removed when none). Owner page has "skyshopmm.com background / နောက်ခံပုံ" with preview, Zip upload (opened in the browser; first picture + first SVG are uploaded), picture, SVG and reset buttons.
+- `lib/tenant-install.js`: `GET /scene-asset/{picture,phone,layer,phone-layer}`; phone falls back to PC, no picture = built-in drawing. Files are sent directly (a redirect to the sandboxed SVG failed to load in Chrome). SVGs carry CSP `sandbox`; no-cache.
+- `public/platform.html/.js/.css`: `<picture>` elements pick `/scene-asset/phone*` under 600px, else `/scene-asset/picture` + `/scene-asset/layer` on top. Owner page has "skyshopmm.com background / နောက်ခံပုံ" with PC and Phone parts, each with preview, Zip upload (opened in the browser; first picture + first SVG are uploaded), picture, SVG and reset buttons.
 - Tests: `tests/site-scene.test.js`, `tests/platform.test.js` (owner-only upload), `tests/platform-scene.test.js`.
 
 ### 2026-10-23 — Claude — 1.1.133 PC top menu on every page
