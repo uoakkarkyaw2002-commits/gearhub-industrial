@@ -55,3 +55,8 @@ test('press and drag: the bubble follows the finger and letting go opens the tab
  let blocked=false;h.click({preventDefault(){blocked=true},stopImmediatePropagation(){}});assert.ok(blocked,'the leftover tap is ignored');
  const css=read('style.css');assert.match(css,/\.mobile-bottom-nav\.liquid\{touch-action:none;/);assert.match(css,/\.liquid-dragging \.bottom-nav-item\.liquid-hover>span\{transform:translateY\(var\(--liquid-lift,-30px\)\)/);
 });
+
+test('phones: the cart reaches the bottom edge under the nav (no dark corners) and its content stops above the nav',()=>{
+ const css=read('style.css');
+ assert.match(css,/@media\(max-width:850px\)\{\n #drawer,#drawer:has\(\.cart-empty-design\)\{bottom:0!important;padding-bottom:calc\(96px \+ env\(safe-area-inset-bottom\)\)!important\}/);
+});
