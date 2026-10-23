@@ -25,6 +25,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.123: Reliable Excel full-row selection (Codex) — in review
+- Task: tapping or clicking an Excel row number selects its complete visible row, like Google Sheets.
+- Cause: the earlier code calculated the range from column headers, which is unreliable when the displayed row contains hidden columns or merged cells.
+- Files: `public/excel-select.js`, cache/version files, `tests/excel-select.test.js`.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/195
+- Notes: Node 22 `npm run check && npm test` passed (279 tests). Interactive 375px/1280px browser checks are unavailable in this environment.
+
 ### 2026-10-23 — Claude — 1.1.122 Excel viewer looks like the original file
 - Owner wants view-only Excel that looks exactly like the file in Excel.
 - `public/excel-map.js`:
