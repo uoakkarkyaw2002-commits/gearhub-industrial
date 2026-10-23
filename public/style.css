@@ -967,11 +967,22 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
 .excel-auto-upload small{color:#5b6b61;line-height:1.45}
 .excel-auto-upload button{justify-self:start;padding:9px 14px;border:0;border-radius:10px;background:#183426;color:#fff;font:inherit;font-weight:700;cursor:pointer}
 .excel-auto-upload[hidden]{display:none}
-/* Freeze panes from the Excel file (excel-map.js sets top/left). */
-.excel-sheet tr.excel-frozen-row>td,.excel-sheet tr.excel-frozen-row>th{position:sticky;z-index:1}
+/* Freeze panes from the Excel file (excel-map.js sets top/left). Layers, low to high: cells,
+   frozen columns, frozen rows, frozen corner, row numbers, column letters. A cell holding a shape
+   is lifted 5 inside its own layer so the shape covers the cells beside it. */
+.excel-sheet tr.excel-frozen-row>td,.excel-sheet tr.excel-frozen-row>th{position:sticky;z-index:20}
 .excel-sheet tr.excel-frozen-row>td{background-color:#fff}
-.excel-sheet tr.excel-frozen-row>th{z-index:3}
-.excel-sheet .excel-corner.excel-corner{z-index:4}
-.excel-sheet table.excel-cols-frozen td.excel-frozen-col{position:sticky;z-index:1;background-color:#fff}
-.excel-sheet table.excel-cols-frozen tr.excel-frozen-row>td.excel-frozen-col{z-index:2}
-.excel-sheet table.excel-cols-frozen thead th.excel-frozen-col{z-index:3}
+.excel-sheet table.excel-cols-frozen td.excel-frozen-col{position:sticky;z-index:10;background-color:#fff}
+.excel-sheet table.excel-cols-frozen tr.excel-frozen-row>td.excel-frozen-col{z-index:30}
+.excel-sheet tbody th{z-index:40}
+.excel-sheet tr.excel-frozen-row>th{z-index:45}
+.excel-sheet thead th{z-index:50}
+.excel-sheet table.excel-cols-frozen thead th.excel-frozen-col{z-index:55}
+.excel-sheet .excel-corner.excel-corner{z-index:60}
+.excel-sheet td.excel-shape-host{z-index:5}
+.excel-sheet table.excel-cols-frozen td.excel-frozen-col.excel-shape-host{z-index:15}
+.excel-sheet tr.excel-frozen-row>td.excel-shape-host{z-index:25}
+.excel-sheet table.excel-cols-frozen tr.excel-frozen-row>td.excel-frozen-col.excel-shape-host{z-index:35}
+/* Excel shapes and pictures (excel-map.js places them inside their top-left cell). */
+#excel-grid .excel-shape{position:absolute;z-index:0;box-sizing:border-box;display:flex;flex-direction:column;overflow:hidden;padding:2px 6px;white-space:pre-wrap;line-height:1.2;pointer-events:none;font-family:"Times New Roman",system-ui,serif}
+#excel-grid .excel-shape img{width:100%;height:100%;object-fit:fill;display:block}

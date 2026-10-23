@@ -29,11 +29,11 @@
    const name=new TextDecoder().decode(b.slice(p+46,p+46+nameLen));p+=46+nameLen+extra+comment;
    files.set(name,{method,size,offset});
   }
-  return async name=>{
+  return async (name,binary)=>{
    const f=files.get(name.replace(/^\//,''));if(!f)return null;
    const start=f.offset+30+v.getUint16(f.offset+26,true)+v.getUint16(f.offset+28,true),raw=b.slice(start,start+f.size);
-   if(f.method===0)return new TextDecoder().decode(raw);
-   if(f.method===8){if(!window.DecompressionStream)throw Error('This browser cannot open this workbook.');return new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text()}
+   if(f.method===0)return binary?new Blob([raw]):new TextDecoder().decode(raw);
+   if(f.method===8){if(!window.DecompressionStream)throw Error('This browser cannot open this workbook.');const out=new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate-raw')));return binary?out.blob():out.text()}
    throw Error('Unsupported workbook compression.');
   };
  }
@@ -102,7 +102,7 @@
    if(b){out.border={};for(const side of ['left','right','top','bottom']){const e=kids(b,side)[0],style=e?.getAttribute('style');if(style)out.border[side]=`${WIDTH[style]||1}px ${style==='double'?'double':/dash|dot/.test(style)?'dashed':'solid'} ${dxfColor(one(e,'color'))||'#000'}`}}
    return out});
   const sheets=all(wb,'sheet').filter(s=>!s.getAttribute('state')||s.getAttribute('state')==='visible').map(s=>({name:s.getAttribute('name'),path:target[s.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','id')||s.getAttribute('r:id')]}));
-  return{read,sheets,xfs,shared,dxfs};
+  return{read,sheets,xfs,shared,dxfs,themeHex};
  }
  const colIndex=ref=>{let n=0;for(const ch of ref.replace(/[0-9]/g,''))n=n*26+ch.charCodeAt(0)-64;return n-1};
  const colName=i=>{let s='';i++;while(i>0){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26)}return s};
@@ -139,7 +139,59 @@
   }
   Object.assign(sheet,{cells,merges,covered,widths,heights,defW,defH,maxR,maxC,frozen,tab:tab?color(tab,[]):''});
   try{applyConditionalFormats(sheet,doc)}catch{}
+  try{sheet.shapes=await readDrawing(sheet.path,doc)}catch{sheet.shapes=[]}
+  for(const sh of sheet.shapes)sheet.maxC=Math.min(MAX_COLS-1,Math.max(sheet.maxC,sh.to.c??sh.from.c));
   return sheet;
+ }
+
+ // ---- Shapes and pictures (Insert > Shapes / Pictures) ----
+ // Boxes such as the coloured totals on the invoice are shapes, often linked to a cell (=ERCK!AS206).
+ // Excel saves the linked value inside the shape, so the saved text is shown as it is.
+ const relPath=(base,target)=>{if(target.startsWith('/'))return target.slice(1);const parts=base.split('/');parts.pop();for(const piece of target.split('/')){if(piece==='..')parts.pop();else if(piece!=='.')parts.push(piece)}return parts.join('/')};
+ const relsOf=async path=>{const map={};const i=path.lastIndexOf('/');all(xml(await book.read(path.slice(0,i)+'/_rels/'+path.slice(i+1)+'.rels')),'Relationship').forEach(r=>{map[r.getAttribute('Id')]=relPath(path,r.getAttribute('Target')||'')});return map};
+ const SCHEME={bg1:0,tx1:1,bg2:2,tx2:3,lt1:0,dk1:1,lt2:2,dk2:3,accent1:4,accent2:5,accent3:6,accent4:7,accent5:8,accent6:9,hlink:10,folHlink:11};
+ function drawColor(fill){
+  const c=fill&&[...fill.children].find(e=>/Clr$/.test(e.localName));if(!c)return '';
+  let hex=c.localName==='srgbClr'?c.getAttribute('val'):c.localName==='schemeClr'?book.themeHex[SCHEME[c.getAttribute('val')]]:c.localName==='sysClr'?c.getAttribute('lastClr'):c.localName==='prstClr'?({black:'000000',white:'FFFFFF',red:'FF0000',green:'008000',blue:'0000FF',yellow:'FFFF00'})[c.getAttribute('val')]:'';
+  if(!hex)return '';let [r,g,b]=hex.match(/../g).map(h=>parseInt(h,16)/255),alpha=1;
+  // lumMod/lumOff work in HSL, like Office's "Lighter 40%" / "Darker 25%".
+  const mod=n=>{const e=[...c.children].find(x=>x.localName===n);return e?+e.getAttribute('val')/100000:null};
+  const lm=mod('lumMod'),lo=mod('lumOff'),sh=mod('shade'),ti=mod('tint'),al=mod('alpha');
+  if(lm!=null||lo!=null){const max=Math.max(r,g,b),min=Math.min(r,g,b);let h=0,s2=0,l=(max+min)/2;
+   if(max!==min){const d=max-min;s2=l>0.5?d/(2-max-min):d/(max+min);h=max===r?(g-b)/d+(g<b?6:0):max===g?(b-r)/d+2:(r-g)/d+4;h/=6}
+   l=Math.min(1,Math.max(0,l*(lm??1)+(lo??0)));
+   const q=l<0.5?l*(1+s2):l+s2-l*s2,p2=2*l-q,f=t=>{t=(t+1)%1;return t<1/6?p2+(q-p2)*6*t:t<1/2?q:t<2/3?p2+(q-p2)*(2/3-t)*6:p2};
+   [r,g,b]=s2?[f(h+1/3),f(h),f(h-1/3)]:[l,l,l]}
+  if(sh!=null)[r,g,b]=[r,g,b].map(x=>x*sh);if(ti!=null)[r,g,b]=[r,g,b].map(x=>x+(1-x)*(1-ti));if(al!=null)alpha=al;
+  return 'rgba('+[r,g,b].map(x=>Math.round(x*255)).join(',')+','+alpha+')';
+ }
+ async function readDrawing(path,doc){
+  const ref=one(doc,'drawing');if(!ref)return [];
+  const sheetRels=await relsOf(path),drawPath=sheetRels[ref.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','id')||ref.getAttribute('r:id')];if(!drawPath)return [];
+  const draw=xml(await book.read(drawPath)),drawRels=await relsOf(drawPath),shapes=[],EMU=9525;
+  const point=el=>el&&{c:+one(el,'col').textContent,cOff:+one(el,'colOff').textContent/EMU,r:+one(el,'row').textContent,rOff:+one(el,'rowOff').textContent/EMU};
+  for(const anchor of [...draw.documentElement.children]){
+   const from=point(kids(anchor,'from')[0]);if(!from)continue;
+   const ext=kids(anchor,'ext')[0],to=point(kids(anchor,'to')[0])||{w:+(ext?.getAttribute('cx')||0)/EMU,h:+(ext?.getAttribute('cy')||0)/EMU};
+   for(const node of [...anchor.children].filter(n=>n.localName==='sp'||n.localName==='pic')){
+    const nv=one(node,'cNvPr');if(nv?.getAttribute('hidden')==='1')continue;
+    const sp=kids(node,'spPr')[0],style=kids(node,'style')[0],shape={from,to,kind:node.localName};
+    if(node.localName==='pic'){const id=one(node,'blip')?.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','embed');const media=drawRels[id];if(!media)continue;
+     try{shape.src=URL.createObjectURL(await book.read(media,true))}catch{continue}}
+    else{
+     const fill=kids(sp,'solidFill')[0],noFill=kids(sp,'noFill')[0];shape.fill=noFill?'':fill?drawColor(fill):style?drawColor(one(style,'fillRef')):'';
+     const ln=kids(sp,'ln')[0];shape.line=ln&&!kids(ln,'noFill').length?(drawColor(kids(ln,'solidFill')[0])||'')&&{color:drawColor(kids(ln,'solidFill')[0]),w:Math.max(1,Math.round(+(ln.getAttribute('w')||9525)/EMU))}:(!ln&&style?{color:drawColor(one(style,'lnRef')),w:1}:null);
+     shape.round=/roundRect/.test(one(sp,'prstGeom')?.getAttribute('prst')||'');shape.ellipse=one(sp,'prstGeom')?.getAttribute('prst')==='ellipse';
+     shape.shadow=!!one(sp,'outerShdw');
+     const body=one(node,'txBody'),bodyPr=one(body,'bodyPr');shape.vAlign=bodyPr?.getAttribute('anchor')||'t';
+     shape.paras=all(body,'p').map(p=>{const runs=[...p.children].filter(e=>e.localName==='r'||e.localName==='fld');
+      return{align:one(p,'pPr')?.getAttribute('algn')||'l',runs:runs.map(r=>{const pr=one(r,'rPr')||one(p,'endParaRPr');return{text:one(r,'t')?.textContent||'',size:pr?.getAttribute('sz')?+pr.getAttribute('sz')/100:11,b:pr?.getAttribute('b')==='1',i:pr?.getAttribute('i')==='1',color:pr?drawColor(kids(pr,'solidFill')[0]):'',font:one(pr,'latin')?.getAttribute('typeface')||''}})}});
+     if(style&&!shape.paras.some(p=>p.runs.some(r=>r.color))){const fc=drawColor(one(style,'fontRef'));shape.paras.forEach(p=>p.runs.forEach(r=>{r.color=fc}))}
+    }
+    shapes.push(shape);
+   }
+  }
+  return shapes;
  }
 
  // ---- Conditional formatting (view only) ----
@@ -243,13 +295,14 @@
     html+='<td data-r="'+r+'" data-c="'+c+'"'+(c<frozen.c1?' class="excel-frozen-col"':'')+(m?(m.rs>1?' data-r2="'+(r+m.rs-1)+'"':'')+(m.cs>1?' data-c2="'+(c+m.cs-1)+'"':''):'')+(rs>1?' rowspan="'+rs+'"':'')+(cs>1?' colspan="'+cs+'"':'')+(cell?' style="'+esc(cellStyle(cell))+'"':'')+'>'+(cell?esc(cell.text):'')+'</td>'}
    html+='</tr>';
   }
-  grid.innerHTML=html+'</tbody></table>';grid.scrollTop=0;grid.scrollLeft=0;
+  grid.innerHTML=html+'</tbody></table>';grid.scrollTop=0;grid.scrollLeft=0;renderedSheet=sheet;
   freeze();
   msg.textContent=(query?visibleRows.length+' of ':'')+rows+' rows'+(sheet.truncated?' (first '+MAX_ROWS+' shown)':'');
  }
  // Freeze panes saved in the file: the frozen rows stay under the column letters and the frozen
  // columns stay beside the row numbers while scrolling. Columns are frozen only when some room is
  // left to scroll the rest (on a phone they usually scroll with the sheet).
+ let renderedSheet=null;
  function freeze(){
   const table=grid.querySelector('table');if(!table||!grid.clientWidth)return;
   // Offsets are measured with sticky positions off, so they are right even after scrolling.
@@ -261,6 +314,43 @@
   rowCells.forEach((cell,i)=>{cell.style.top=tops[i]+'px'});
   table.classList.toggle('excel-cols-frozen',fits);
   colCells.forEach((cell,i)=>{if(fits)cell.style.left=lefts[i]+'px'});
+  placeShapes(table);
+ }
+ // Each shape goes inside the cell under its top-left corner, so it scrolls (and stays frozen) with
+ // that cell, like Excel. Positions come from the drawn table, so hidden rows/columns are skipped.
+ function placeShapes(table){
+  table.querySelectorAll('.excel-shape').forEach(e=>e.remove());table.querySelectorAll('.excel-shape-host').forEach(e=>e.classList.remove('excel-shape-host'));
+  const sheet=renderedSheet;if(!sheet?.shapes?.length)return;
+  const cols=[...table.querySelectorAll('thead th[data-c]')],rows=[...table.querySelectorAll('tbody th[data-r]')];if(!cols.length||!rows.length)return;
+  // Measured with the sheet scrolled to the top-left, so frozen (sticky) cells sit where they belong.
+  const keep=[grid.scrollTop,grid.scrollLeft];grid.scrollTop=0;grid.scrollLeft=0;
+  const box=el=>el.getBoundingClientRect(),cx=cols.map(th=>{const b=box(th);return{x:b.left,w:b.width}}),ry=rows.map(th=>{const b=box(th);return{y:b.top,h:b.height}});
+  const colAt=c=>{let i=cols.findIndex(th=>+th.dataset.c>=c);return i<0?{x:cx[cx.length-1].x+cx[cx.length-1].w,w:0,exact:false}:{...cx[i],exact:+cols[i].dataset.c===c}};
+  const rowAt=r=>{let i=rows.findIndex(th=>+th.dataset.r>=r);return i<0?{y:ry[ry.length-1].y+ry[ry.length-1].h,h:0,exact:false}:{...ry[i],exact:+rows[i].dataset.r===r}};
+  const placed=[];
+  for(const s of sheet.shapes){
+   const a=colAt(s.from.c),b=rowAt(s.from.r),x=a.x+(a.exact?Math.min(s.from.cOff,a.w):0),y=b.y+(b.exact?Math.min(s.from.rOff,b.h):0);
+   let w,h;if(s.to.w!=null){w=s.to.w;h=s.to.h}else{const c2=colAt(s.to.c),r2=rowAt(s.to.r);w=c2.x+(c2.exact?Math.min(s.to.cOff,c2.w):0)-x;h=r2.y+(r2.exact?Math.min(s.to.rOff,r2.h):0)-y}
+   if(w<=1||h<=1)continue;
+   // The cell that holds it: the drawn td covering the first visible row/column at the corner.
+   const R=+rows.find(th=>+th.dataset.r>=s.from.r)?.dataset.r,C=+cols.find(th=>+th.dataset.c>=s.from.c)?.dataset.c;
+   const host=[...table.querySelectorAll('tbody td')].find(td=>{const r1=+td.dataset.r,c1=+td.dataset.c;return r1<=R&&R<=+(td.dataset.r2||r1)&&c1<=C&&C<=+(td.dataset.c2||c1)});
+   if(!host)continue;
+   const el=document.createElement('div');el.className='excel-shape';el.setAttribute('aria-hidden','true');
+   const hb=box(host);el.style.cssText='left:'+Math.round(x-hb.left)+'px;top:'+Math.round(y-hb.top)+'px;width:'+Math.round(w)+'px;height:'+Math.round(h)+'px';
+   if(s.kind==='pic'){const img=document.createElement('img');img.src=s.src;img.alt='';el.append(img)}
+   else{
+    if(s.fill)el.style.background=s.fill;if(s.line)el.style.border=s.line.w+'px solid '+s.line.color;if(s.round)el.style.borderRadius=Math.round(Math.min(w,h)/6)+'px';if(s.ellipse)el.style.borderRadius='50%';if(s.shadow)el.style.boxShadow='2px 2px 4px rgba(0,0,0,.35)';
+    el.style.justifyContent=s.vAlign==='ctr'?'center':s.vAlign==='b'?'flex-end':'flex-start';
+    for(const p of s.paras){const line=document.createElement('div');line.style.textAlign=p.align==='ctr'?'center':p.align==='r'?'right':'left';
+     for(const r of p.runs){const span=document.createElement('span');span.textContent=r.text;span.style.fontSize=r.size+'pt';if(r.b)span.style.fontWeight='700';if(r.i)span.style.fontStyle='italic';if(r.color)span.style.color=r.color;if(r.font&&!/^\+/.test(r.font))span.style.fontFamily='"'+r.font.replace(/"/g,'')+'",system-ui,sans-serif';line.append(span)}
+     if(!p.runs.length)line.innerHTML='&nbsp;';el.append(line)}
+   }
+   if(getComputedStyle(host).position==='static')host.style.position='relative';
+   host.style.overflow='visible';host.classList.add('excel-shape-host');placed.push([host,el]);
+  }
+  placed.forEach(([host,el])=>host.append(el));
+  grid.scrollTop=keep[0];grid.scrollLeft=keep[1];
  }
  if(window.ResizeObserver)new ResizeObserver(()=>freeze()).observe(grid);
  // Header row for linking = first row with at least two values (row 1 is often a title).
