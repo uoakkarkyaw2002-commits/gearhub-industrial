@@ -25,6 +25,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 2026-10-23 — Claude — 1.1.136 Background zip: Codex single-HTML packages
+- Owner: the phone zip from Codex was refused (PC zip worked). It holds only OPEN_ON_PHONE.html: the picture as a data: URI in `img#art` and the moving `<svg>` inline.
+- `public/platform.js`: when a zip (or a picked .html) has no separate picture/SVG, `fromHtmlPackage` takes the data: picture and the first `<svg>` out of the HTML. For phones a wide picture is cut to 9:16 at the page's `#art` object-position (88% in Codex's file), so it matches Codex's preview. Checked with the real file: 528×938 picture + 9.5 KB SVG; phone page looks like the preview.
+- Test in `tests/site-scene.test.js`.
+
 ### 2026-10-23 — Claude — 1.1.135 No broken-image icon on skyshopmm.com
 - Live check after 1.1.134: with no moving layer uploaded, `/scene-asset/layer` returned 404 and Chrome drew a small broken-image icon at the top left.
 - `lib/tenant-install.js`: a missing layer now returns an empty 1×1 transparent SVG. Test in `tests/site-scene.test.js`.
