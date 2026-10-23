@@ -264,16 +264,18 @@
  const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
  function cellStyle(cell){
   const cf=cell.cf,s=cf?{...cell.style,fill:cf.fill||cell.style.fill}:cell.style,f=cf?{...(s.font||{}),...cf.font}:s.font||{},b=cf?{...(s.border||{}),...cf.border}:s.border||{},css=[];
-  if(s.fill)css.push('background:'+s.fill);if(f.color)css.push('color:'+f.color);if(f.b)css.push('font-weight:700');if(f.i)css.push('font-style:italic');if(f.u)css.push('text-decoration:underline');
-  if(f.sz)css.push('font-size:'+f.sz+'pt');if(f.name)css.push('font-family:"'+f.name.replace(/"/g,'')+'",system-ui,sans-serif');
+  if(s.fill)css.push('background-color:'+s.fill);if(f.color)css.push('color:'+f.color);if(f.b)css.push('font-weight:700');if(f.i)css.push('font-style:italic');if(f.u)css.push('text-decoration:underline');
+  if(f.sz)css.push('font-size:'+Math.round(f.sz*zoom*10)/10+'pt');if(f.name)css.push('font-family:"'+f.name.replace(/"/g,'')+'",system-ui,sans-serif');
   const h=s.h&&s.h!=='general'?(s.h==='centerContinuous'?'center':s.h):cell.numeric?'right':'left';css.push('text-align:'+h);
   css.push('vertical-align:'+(s.v==='center'?'middle':s.v==='top'?'top':'bottom'));if(s.wrap)css.push('white-space:pre-wrap');
   // Like Excel/Sheets: a filled cell hides the light gridlines unless it has its own border.
   for(const side of ['left','right','top','bottom'])if(b[side])css.push('border-'+side+':'+b[side]);else if(s.fill)css.push('border-'+side+'-color:'+s.fill);
   return css.join(';');
  }
- function renderSheet(sheet){
-  const cols=sheet.maxC+1,rows=sheet.maxR+1,px=w=>Math.round((w??sheet.defW)*7+5),query=searchText.trim().toLocaleLowerCase();
+ // Sheet zoom (pinch on phones, Ctrl + wheel / trackpad pinch on PC). Excel's own zoom range.
+ let zoom=1;const ZMIN=0.3,ZMAX=3;
+ function renderSheet(sheet,keepScroll){
+  const cols=sheet.maxC+1,rows=sheet.maxR+1,px=w=>Math.round(((w??sheet.defW)*7+5)*zoom),query=searchText.trim().toLocaleLowerCase();
   const matching=r=>!query||Array.from({length:cols},(_,c)=>sheet.cells.get(r+','+c)?.text||'').some(value=>String(value).toLocaleLowerCase().includes(query));
   const frozen=sheet.frozen||{r0:0,r1:0,c0:0,c1:0};
   const visibleRows=Array.from({length:rows},(_,r)=>r).filter(r=>r>=frozen.r0&&sheet.heights[r]!==0&&matching(r)),rowShown=new Set(visibleRows);
@@ -286,16 +288,18 @@
   const cut=(axis,at,carry)=>{if(!at)return;for(const [key,m] of [...merges]){const [r,c]=key.split(',').map(Number),start=axis?c:r,size=axis?m.cs:m.rs;if(start<at&&start+size>at){
    merges.set(key,axis?{rs:m.rs,cs:at-c}:{rs:at-r,cs:m.cs});const k=axis?r+','+at:at+','+c;merges.set(k,axis?{rs:m.rs,cs:c+m.cs-at}:{rs:r+m.rs-at,cs:m.cs});covered.delete(k);if(!carry)split.add(k);else if(!sheet.cells.has(k)&&sheet.cells.has(key))sheet.cells.set(k,sheet.cells.get(key))}}};
   cut(0,frozen.r0,true);cut(1,frozen.c0,true);cut(0,frozen.r1,false);cut(1,frozen.c1,false);
-  let html='<table style="width:'+total+'px"><colgroup><col class="excel-rownum-col" style="width:46px">'+widths.map(w=>'<col style="width:'+w+'px">').join('')+'</colgroup><thead><tr><th class="excel-corner"></th>'+visibleCols.map(c=>'<th data-c="'+c+'"'+(c<frozen.c1?' class="excel-frozen-col"':'')+'>'+colName(c)+'</th>').join('')+'</tr></thead><tbody>';
+  let html='<table style="width:'+total+'px;font-size:'+Math.round(11*zoom*10)/10+'pt;--excel-zoom:'+zoom+'"><colgroup><col class="excel-rownum-col" style="width:46px">'+widths.map(w=>'<col style="width:'+w+'px">').join('')+'</colgroup><thead><tr><th class="excel-corner"></th>'+visibleCols.map(c=>'<th data-c="'+c+'"'+(c<frozen.c1?' class="excel-frozen-col"':'')+'>'+colName(c)+'</th>').join('')+'</tr></thead><tbody>';
   for(const r of visibleRows){
    const ht=sheet.heights[r];
-   html+='<tr'+(r<frozen.r1?' class="excel-frozen-row"':'')+' style="height:'+Math.round((ht??sheet.defH)*4/3)+'px"><th data-r="'+r+'">'+(r+1)+'</th>';
+   html+='<tr'+(r<frozen.r1?' class="excel-frozen-row"':'')+' style="height:'+Math.round((ht??sheet.defH)*4/3*zoom)+'px"><th data-r="'+r+'">'+(r+1)+'</th>';
    for(const c of visibleCols){const key=r+','+c;if(covered.has(key))continue;const m=merges.get(key),cell=split.has(key)?null:sheet.cells.get(key);
     let rs=1,cs=1;if(m){for(let i=1;i<m.rs;i++)if(rowShown.has(r+i))rs++;for(let i=1;i<m.cs;i++)if(colShown.has(c+i))cs++}
     html+='<td data-r="'+r+'" data-c="'+c+'"'+(c<frozen.c1?' class="excel-frozen-col"':'')+(m?(m.rs>1?' data-r2="'+(r+m.rs-1)+'"':'')+(m.cs>1?' data-c2="'+(c+m.cs-1)+'"':''):'')+(rs>1?' rowspan="'+rs+'"':'')+(cs>1?' colspan="'+cs+'"':'')+(cell?' style="'+esc(cellStyle(cell))+'"':'')+'>'+(cell?esc(cell.text):'')+'</td>'}
    html+='</tr>';
   }
-  grid.innerHTML=html+'</tbody></table>';grid.scrollTop=0;grid.scrollLeft=0;renderedSheet=sheet;
+  const keep=keepScroll&&[grid.scrollTop/(grid.scrollHeight||1),grid.scrollLeft/(grid.scrollWidth||1)];
+  grid.innerHTML=html+'</tbody></table>';renderedSheet=sheet;
+  if(keep){grid.scrollTop=keep[0]*grid.scrollHeight;grid.scrollLeft=keep[1]*grid.scrollWidth}else{grid.scrollTop=0;grid.scrollLeft=0}
   freeze();
   msg.textContent=(query?visibleRows.length+' of ':'')+rows+' rows'+(sheet.truncated?' (first '+MAX_ROWS+' shown)':'');
  }
@@ -343,7 +347,7 @@
     if(s.fill)el.style.background=s.fill;if(s.line)el.style.border=s.line.w+'px solid '+s.line.color;if(s.round)el.style.borderRadius=Math.round(Math.min(w,h)/6)+'px';if(s.ellipse)el.style.borderRadius='50%';if(s.shadow)el.style.boxShadow='2px 2px 4px rgba(0,0,0,.35)';
     el.style.justifyContent=s.vAlign==='ctr'?'center':s.vAlign==='b'?'flex-end':'flex-start';
     for(const p of s.paras){const line=document.createElement('div');line.style.textAlign=p.align==='ctr'?'center':p.align==='r'?'right':'left';
-     for(const r of p.runs){const span=document.createElement('span');span.textContent=r.text;span.style.fontSize=r.size+'pt';if(r.b)span.style.fontWeight='700';if(r.i)span.style.fontStyle='italic';if(r.color)span.style.color=r.color;if(r.font&&!/^\+/.test(r.font))span.style.fontFamily='"'+r.font.replace(/"/g,'')+'",system-ui,sans-serif';line.append(span)}
+     for(const r of p.runs){const span=document.createElement('span');span.textContent=r.text;span.style.fontSize=Math.round(r.size*zoom*10)/10+'pt';if(r.b)span.style.fontWeight='700';if(r.i)span.style.fontStyle='italic';if(r.color)span.style.color=r.color;if(r.font&&!/^\+/.test(r.font))span.style.fontFamily='"'+r.font.replace(/"/g,'')+'",system-ui,sans-serif';line.append(span)}
      if(!p.runs.length)line.innerHTML='&nbsp;';el.append(line)}
    }
    if(getComputedStyle(host).position==='static')host.style.position='relative';
@@ -389,6 +393,20 @@
   }catch(x){msg.textContent=x.message}
  });
  tabs.addEventListener('click',e=>{const t=e.target.closest('[data-sheet]');if(t)showSheet(+t.dataset.sheet)});
+ // Two fingers pinch the sheet bigger or smaller (the page itself would only zoom in). The table is
+ // scaled live while pinching and drawn again at the new size when the fingers lift.
+ function setZoom(next,keepScroll=true){next=Math.min(ZMAX,Math.max(ZMIN,Math.round(next*100)/100));if(next===zoom)return;zoom=next;if(renderedSheet)renderSheet(renderedSheet,keepScroll)}
+ let pinch=null;const gap=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+ grid.addEventListener('touchstart',e=>{if(e.touches.length!==2)return;const table=grid.querySelector('table');if(!table)return;const g=grid.getBoundingClientRect(),t=table.getBoundingClientRect();
+  pinch={start:gap(e.touches),scale:1,table,ox:(e.touches[0].clientX+e.touches[1].clientX)/2-t.left,oy:(e.touches[0].clientY+e.touches[1].clientY)/2-t.top};table.style.transformOrigin=pinch.ox+'px '+pinch.oy+'px'},{passive:true});
+ grid.addEventListener('touchmove',e=>{if(!pinch||e.touches.length!==2)return;e.preventDefault();
+  pinch.scale=Math.min(ZMAX/zoom,Math.max(ZMIN/zoom,gap(e.touches)/pinch.start));pinch.table.style.transform='scale('+pinch.scale+')'},{passive:false});
+ const endPinch=e=>{if(!pinch||e.touches.length>=2)return;const {scale,table}=pinch;pinch=null;table.style.transform='';table.style.transformOrigin='';setZoom(zoom*scale)};
+ grid.addEventListener('touchend',endPinch);grid.addEventListener('touchcancel',endPinch);
+ // iOS Safari: stop its own page zoom inside the sheet; the sheet zooms itself.
+ grid.addEventListener('gesturestart',e=>e.preventDefault());
+ let wheelZoom=1,wheelTimer=0;
+ grid.addEventListener('wheel',e=>{if(!e.ctrlKey)return;e.preventDefault();wheelZoom*=Math.exp(-e.deltaY/200);clearTimeout(wheelTimer);wheelTimer=setTimeout(()=>{const z=wheelZoom;wheelZoom=1;setZoom(zoom*z)},120)},{passive:false});
  search.addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{searchText=search.value;const sheet=book?.sheets[active];if(sheet?.cells)renderSheet(sheet)},80)});
  const leave=()=>{section.hidden=true;box.hidden=false;setForm(false);card.classList.remove('excel-sheet-open');fullScreen(false)};
  section.querySelector('#excel-sheet-back').onclick=leave;section.querySelector('#excel-fs-back').onclick=leave;
