@@ -14,7 +14,13 @@ test('picture and layer are saved and can be reset',async()=>{
  assert.ok(fs.existsSync(path.join(scene.dirOf(dir),'picture.jpg')));
  assert.equal((await scene.saveFile(db,dir,'layer',Buffer.from('<svg viewBox="0 0 1 1"><circle r="1"/></svg>'))).layer,true);
  await assert.rejects(scene.saveFile(db,dir,'picture',Buffer.from('not a picture')),/JPG, PNG or WebP/);
- assert.equal(scene.reset(db,dir,'layer').layer,false);assert.equal(scene.reset(db,dir,'picture').picture,false);
+ // Phones can have their own picture and layer.
+ assert.equal((await scene.saveFile(db,dir,'phone',png)).phone,true);
+ assert.equal((await scene.saveFile(db,dir,'phone-layer',Buffer.from('<svg><g/></svg>'))).phoneLayer,true);
+ assert.ok(fs.existsSync(path.join(scene.dirOf(dir),'phone.jpg'))&&fs.existsSync(path.join(scene.dirOf(dir),'phone-layer.svg')));
+ await assert.rejects(scene.saveFile(db,dir,'other',png),/Unknown item/);
+ for(const kind of ['layer','picture','phone','phone-layer'])scene.reset(db,dir,kind);
+ assert.deepEqual((({picture,layer,phone,phoneLayer})=>({picture,layer,phone,phoneLayer}))(scene.load(db)),{picture:false,layer:false,phone:false,phoneLayer:false});
  fs.rmSync(dir,{recursive:true,force:true});
 });
 test('the owner page opens a zip (stored and deflated files) like the one Codex sends',async()=>{
@@ -37,9 +43,12 @@ test('the owner page opens a zip (stored and deflated files) like the one Codex 
  assert.equal(await (await files[0].read()).text(),'JPEGDATA');
  assert.equal(await (await files[1].read()).text(),'<svg><g/></svg>');
 });
-test('platform page shows the uploaded background with the moving layer on top',()=>{
+test('platform page shows the uploaded background (phone files on phones) with the moving layer on top',()=>{
  const html=fs.readFileSync(path.join(__dirname,'..','public','platform.html'),'utf8'),install=fs.readFileSync(path.join(__dirname,'..','lib','tenant-install.js'),'utf8');
- assert.match(html,/<img class="sky-scene" src="\/scene-asset\/picture" alt="" aria-hidden="true" \/>\n    <img class="sky-layer" src="\/scene-asset\/layer" alt="" aria-hidden="true" \/>/);
- assert.match(install,/if\(!settings\.picture\)return res\.redirect\(302,'\/images\/platform-scene\.svg\?v=3'\)/);
+ assert.match(html,/<picture class="sky-picture"><source media="\(max-width:600px\)" srcset="\/scene-asset\/phone" \/><img class="sky-scene" src="\/scene-asset\/picture" alt="" aria-hidden="true" \/><\/picture>/);
+ assert.match(html,/<picture class="sky-picture"><source media="\(max-width:600px\)" srcset="\/scene-asset\/phone-layer" \/><img class="sky-layer" src="\/scene-asset\/layer" alt="" aria-hidden="true" \/><\/picture>/);
+ // Phones fall back to the PC files; no picture = built-in drawing. Sent directly, never redirected.
+ assert.match(install,/order=\{picture:\['picture'\],phone:\['phone','picture'\],layer:\['layer'\],'phone-layer':\['phone-layer','layer'\]\}/);
+ assert.match(install,/file=path\.join\(publicDir,'images','platform-scene\.svg'\)/);
  assert.match(install,/'Content-Security-Policy',"default-src 'none'; style-src 'unsafe-inline'; img-src data:; sandbox"/);
 });
