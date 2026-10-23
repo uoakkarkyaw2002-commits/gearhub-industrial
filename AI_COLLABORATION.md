@@ -25,6 +25,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.124: Select an Excel row from any cell (Codex) — in review
+- Task: owner wants a complete blue row selection like Google Sheets, without needing to tap the left row number.
+- Change: clicking or tapping any cell selects every visible cell in that row; clicking its row number still works. Mouse drag and Shift+click range selection remain available.
+- Files: `public/excel-select.js`, version/cache files, `tests/excel-select.test.js`.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/196
+- Notes: Node 22 `npm run check && npm test` passed (279 tests). Interactive 375px/1280px browser checks are unavailable in this environment.
+
 ### 1.1.123: Reliable Excel full-row selection (Codex) — in review
 - Task: tapping or clicking an Excel row number selects its complete visible row, like Google Sheets.
 - Cause: the earlier code calculated the range from column headers, which is unreliable when the displayed row contains hidden columns or merged cells.
