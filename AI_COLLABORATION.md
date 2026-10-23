@@ -25,6 +25,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 2026-10-23 — Claude — 1.1.126 Excel viewer draws shapes and pictures
+- Owner: INV row 28 totals (16,111,720, 38,251,500 PSM, DT, JSM, 831,682) were missing. They are Excel shapes linked to cells (`textlink="ERCK!AS206"`), not cell values.
+- `public/excel-map.js`: `readDrawing` reads the sheet's drawing (shapes `sp` with fill/line/text and theme colours incl. lumMod/lumOff; pictures `pic` from xl/media). The saved linked value inside the shape is shown. `placeShapes` puts each shape inside the td under its top-left corner, so it scrolls and stays frozen with that cell; columns reached by shapes are drawn. The zip reader can now return a Blob (`read(name,true)`).
+- `public/style.css`: freeze-pane z-index layers reworked (cells < frozen cols 10 < frozen rows 20 < corner 30 < row numbers 40 < letters 50); a shape's cell is lifted 5 in its layer (`.excel-shape-host`).
+- Tests in `tests/excel-library.test.js`.
+
 ### 2026-10-23 — Claude — 1.1.125 Excel freeze panes start where Excel froze them
 - Owner's photo: Excel shows INV from row 28 / column C (frozen at C28), the web showed row 1 and columns A-B.
 - `public/excel-map.js`: the frozen area starts at the sheet view's `topLeftCell`; rows above and columns left of it are not shown (like Excel). Merges are cut at these lines. Frozen columns now stick when at least 120px is left to scroll (PC); on phones they scroll.
