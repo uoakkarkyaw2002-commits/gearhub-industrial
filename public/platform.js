@@ -26,6 +26,30 @@
     ${SPLASH_ITEMS.map(([kind, label, fallback]) => `<div class="splash-row"><div><strong>${label}</strong><small>${st[kind] ? "ကိုယ်ပိုင်ပုံ သုံးနေပါတယ်" : "မူလပုံ"}</small></div><img class="splash-preview" alt="" src="${st[kind] ? "/splash-asset/" + kind + "?v=" + encodeURIComponent(st.rev) : fallback}"><label class="splash-file">ပုံရွေးပြီး တင်ရန်<input type="file" accept="image/jpeg,image/png,image/webp" data-splash-upload="${kind}"></label>${st[kind] ? `<button type="button" data-splash-reset="${kind}">မူလပုံသို့ ပြန်ထား</button>` : ""}</div>`).join("")}
     <div class="splash-row"><div><strong>Sound / အသံ</strong><small>${st.sound ? "ကိုယ်ပိုင်အသံ (" + esc(st.sound) + ")" : "အသံ မရှိပါ"}</small></div>${st.sound ? `<audio controls preload="none" src="/splash-asset/sound?v=${encodeURIComponent(st.rev)}"></audio>` : ""}<label class="splash-file">အသံဖိုင်ရွေးပြီး တင်ရန် (mp3, m4a, wav, ogg · ၆ MB အောက်)<input type="file" accept="audio/mpeg,audio/mp4,audio/x-m4a,audio/wav,audio/ogg,.mp3,.m4a,.wav,.ogg" data-splash-upload="sound"></label>${st.sound ? '<button type="button" data-splash-reset="sound">အသံ ဖယ်ရန်</button>' : ""}</div>
   </div></details>`;
+  // skyshopmm.com background (owner): a picture, an optional moving SVG layer, or a Codex-style .zip
+  // holding both (the zip is opened here in the browser and its two files are uploaded).
+  const sceneEditor = (st) => !st ? "" : `<details class="owner-settings splash-editor scene-editor"><summary>skyshopmm.com background / နောက်ခံပုံ <small>${st.picture ? "ကိုယ်ပိုင်ပုံ" : "မူလပုံ"}${st.layer ? " + လှုပ်တဲ့ layer" : ""}</small></summary><div class="splash-body">
+    <p class="muted">skyshopmm.com ဖွင့်ရင် နောက်မှာ ပေါ်မယ့် ပုံပါ။ Zip (Codex ပို့တဲ့ ဖိုင်) တင်ရင် ထဲက ပုံနဲ့ လှုပ်တဲ့ SVG ကို အလိုလို ထည့်ပေးပါတယ်။</p>
+    <div class="scene-preview"><img alt="" src="/scene-asset/picture?v=${encodeURIComponent(st.rev)}">${st.layer ? `<img alt="" src="/scene-asset/layer?v=${encodeURIComponent(st.rev)}">` : ""}</div>
+    <div class="splash-row"><div><strong>Zip ဖိုင် / Zip file</strong><small>ပုံ (jpg/png/webp) + SVG ပါတဲ့ zip</small></div><label class="splash-file">Zip ရွေးပြီး တင်ရန်<input type="file" accept=".zip,application/zip" data-scene-zip></label></div>
+    <div class="splash-row"><div><strong>Picture / ပုံ</strong><small>${st.picture ? "ကိုယ်ပိုင်ပုံ သုံးနေပါတယ်" : "မူလပုံ"}</small></div><label class="splash-file">ပုံရွေးပြီး တင်ရန် (၁၂ MB အောက်)<input type="file" accept="image/jpeg,image/png,image/webp" data-scene-upload="picture"></label>${st.picture ? `<button type="button" data-scene-reset="picture">မူလပုံသို့ ပြန်ထား</button>` : ""}</div>
+    <div class="splash-row"><div><strong>Moving layer / လှုပ်တဲ့ SVG</strong><small>${st.layer ? "ထည့်ထားပါတယ်" : "မရှိပါ"}</small></div><label class="splash-file">SVG ရွေးပြီး တင်ရန် (1.5 MB အောက်)<input type="file" accept=".svg,image/svg+xml" data-scene-upload="layer"></label>${st.layer ? `<button type="button" data-scene-reset="layer">ဖယ်ရန်</button>` : ""}</div>
+  </div></details>`;
+  // Reads the files inside a .zip in the browser (stored or deflated entries).
+  async function unzipFiles(file) {
+    const buf = await file.arrayBuffer(), b = new Uint8Array(buf), v = new DataView(buf), out = [];
+    let end = -1; for (let i = b.length - 22; i >= 0 && i > b.length - 66000; i--) if (v.getUint32(i, true) === 0x06054b50) { end = i; break; }
+    if (end < 0) throw new Error("This is not a zip file.");
+    let p = v.getUint32(end + 16, true); const count = v.getUint16(end + 10, true);
+    for (let n = 0; n < count && v.getUint32(p, true) === 0x02014b50; n++) {
+      const method = v.getUint16(p + 10, true), size = v.getUint32(p + 20, true), nameLen = v.getUint16(p + 28, true), extra = v.getUint16(p + 30, true), comment = v.getUint16(p + 32, true), offset = v.getUint32(p + 42, true);
+      const name = new TextDecoder().decode(b.slice(p + 46, p + 46 + nameLen)); p += 46 + nameLen + extra + comment;
+      if (name.endsWith("/") || /(^|\/)(__MACOSX|\.)/.test(name)) continue;
+      const start = offset + 30 + v.getUint16(offset + 26, true) + v.getUint16(offset + 28, true), raw = b.slice(start, start + size);
+      out.push({ name, read: () => method === 0 ? new Blob([raw]) : method === 8 ? new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).blob() : Promise.reject(new Error("Unsupported zip")) });
+    }
+    return out;
+  }
   const field = (name, label, value = "", type = "text") =>
     `<label>${esc(label)}<input name="${name}" type="${type}" value="${esc(value)}"></label>`;
   const select = (name, label, values, current) =>
@@ -73,6 +97,9 @@
       }
     });
   }
+  // The moving layer over the background is optional; drop it when none is uploaded.
+  const sceneLayer=document.querySelector(".sky-layer");
+  if(sceneLayer){if(sceneLayer.complete&&!sceneLayer.naturalWidth)sceneLayer.remove();else sceneLayer.addEventListener("error",()=>sceneLayer.remove());}
   // Sign in opens the card as a pop-up over the scene; ×, Esc or a tap outside closes it.
   const signIn=open=>document.body.classList.toggle("signin-open",open);
   $("signin-open")?.addEventListener("click",()=>signIn(true));
@@ -233,6 +260,7 @@
       <details class="owner-settings"><summary>Users <small>${v.users.length}</small></summary>${v.users.map((u) => `<form id="u-${u.id}" class="user-row"><div><strong>${esc(u.name || u.email)}</strong><small>${esc(u.email)}</small></div>${select("status", "Status", ["active", "suspended"], u.status)}<button>Save</button></form>`).join("")}</details>
       ${policyEditor(v.policies)}
       ${splashEditor(v.splash)}
+      ${sceneEditor(v.scene)}
       <details class="owner-settings"><summary>In-app update announcement</summary><form id="release">${field("version", "Deployed version", v.release.version).replace("<input ", "<input readonly ")}${field("notes", "Update notes", v.release.notes)}<p class="muted">Updates install automatically when no checkout or file upload is in progress.</p><button>Publish</button></form></details>
     </section>`;
 
@@ -375,6 +403,26 @@
       const file = input.files[0];if (!file) return;
       const data = new FormData();data.append("file", file);
       try { msg("တင်နေပါတယ်… / Uploading…"); await api("/owner/splash/" + input.dataset.splashUpload, "POST", data); msg("သိမ်းပြီးပါပြီ / Saved"); await load(); } catch (err) { msg(err.message); input.value = ""; }
+    }));
+    const sceneUpload = async (kind, blob, name) => { const data = new FormData(); data.append("file", blob, name); await api("/owner/scene/" + kind, "POST", data); };
+    document.querySelectorAll("[data-scene-upload]").forEach((input) => input.addEventListener("change", async () => {
+      const file = input.files[0]; if (!file) return;
+      try { msg("တင်နေပါတယ်… / Uploading…"); await sceneUpload(input.dataset.sceneUpload, file, file.name); msg("သိမ်းပြီးပါပြီ / Saved"); await load(); } catch (err) { msg(err.message); input.value = ""; }
+    }));
+    document.querySelector("[data-scene-zip]")?.addEventListener("change", async (e) => {
+      const file = e.target.files[0]; if (!file) return;
+      try {
+        msg("Zip ဖွင့်နေပါတယ်… / Opening zip…");
+        const files = await unzipFiles(file), picture = files.find((f) => /\.(jpe?g|png|webp)$/i.test(f.name)), layer = files.find((f) => /\.svg$/i.test(f.name));
+        if (!picture && !layer) throw new Error("Zip ထဲမှာ ပုံ (jpg/png/webp) ဒါမှမဟုတ် SVG မတွေ့ပါ / No picture or SVG in this zip.");
+        if (picture) await sceneUpload("picture", await picture.read(), picture.name.split("/").pop());
+        if (layer) await sceneUpload("layer", new Blob([await (await layer.read()).arrayBuffer()], { type: "image/svg+xml" }), layer.name.split("/").pop());
+        msg("သိမ်းပြီးပါပြီ / Saved"); await load();
+      } catch (err) { msg(err.message); e.target.value = ""; }
+    });
+    document.querySelectorAll("[data-scene-reset]").forEach((button) => button.addEventListener("click", async () => {
+      if (!confirm("မူလအတိုင်း ပြန်ထားမှာ သေချာပါသလား? / Go back to the default?")) return;
+      try { await api("/owner/scene/" + button.dataset.sceneReset, "DELETE"); msg("သိမ်းပြီးပါပြီ / Saved"); await load(); } catch (err) { msg(err.message); }
     }));
     document.querySelectorAll("[data-splash-reset]").forEach((button) => button.addEventListener("click", async () => {
       if (!confirm("မူလအတိုင်း ပြန်ထားမှာ သေချာပါသလား? / Go back to the default?")) return;
