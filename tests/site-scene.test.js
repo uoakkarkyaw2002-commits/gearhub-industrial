@@ -53,3 +53,11 @@ test('platform page shows the uploaded background (phone files on phones) with t
  assert.match(install,/else return res\.type\('image\/svg\+xml'\)\.send\('<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" width="1" height="1"\/>'\);/);
  assert.match(install,/'Content-Security-Policy',"default-src 'none'; style-src 'unsafe-inline'; img-src data:; sandbox"/);
 });
+test('a Codex single-HTML package (picture inside + inline SVG) is accepted, phones get a tall cut',()=>{
+ const js=fs.readFileSync(path.join(__dirname,'..','public','platform.js'),'utf8');
+ assert.match(js,/const page = !picture && !layer && files\.find\(\(f\) => \/\\\.html\?\$\/i\.test\(f\.name\)\);/);
+ assert.match(js,/if \(page\) \(\{ picture, layer \} = await fromHtmlPackage\(await \(await page\.read\(\)\)\.text\(\), tall\)\);/);
+ assert.match(js,/doc\.querySelector\('img\[src\^="data:image\/"\]'\)/);
+ assert.match(js,/const w = img\.naturalWidth, h = img\.naturalHeight, cw = Math\.round\(h \* 9 \/ 16\);/);
+ assert.match(js,/accept="\.zip,application\/zip,\.html,text\/html" data-scene-zip="\$\{side\}"/);
+});
