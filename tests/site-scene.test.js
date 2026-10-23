@@ -50,5 +50,6 @@ test('platform page shows the uploaded background (phone files on phones) with t
  // Phones fall back to the PC files; no picture = built-in drawing. Sent directly, never redirected.
  assert.match(install,/order=\{picture:\['picture'\],phone:\['phone','picture'\],layer:\['layer'\],'phone-layer':\['phone-layer','layer'\]\}/);
  assert.match(install,/file=path\.join\(publicDir,'images','platform-scene\.svg'\)/);
+ assert.match(install,/else return res\.type\('image\/svg\+xml'\)\.send\('<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" width="1" height="1"\/>'\);/);
  assert.match(install,/'Content-Security-Policy',"default-src 'none'; style-src 'unsafe-inline'; img-src data:; sandbox"/);
 });
