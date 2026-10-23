@@ -25,6 +25,15 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 2026-10-23 — Claude — 1.1.122 Excel viewer looks like the original file
+- Owner wants view-only Excel that looks exactly like the file in Excel.
+- `public/excel-map.js`:
+  - Reads conditional-format styles (`<dxfs>`, "automatic" colour = black) and each sheet's `<conditionalFormatting>`. Rules run by priority: formulas (refs, `$`, comparisons, `& + - * /`, OR/AND/NOT/ISBLANK/LEN/TRIM/UPPER/LOWER/ABS/ISNUMBER/IF), duplicate/unique, blanks/non-blanks, cellIs, containsText. Unknown formulas are skipped. This fixed the POLESTAR INV rows that were white-on-white.
+  - Rows with `hidden="1"` are hidden even without `ht`. Hidden columns are left out completely (merges count only visible rows/columns; `data-c` stays the sheet index).
+  - Freeze panes from `<pane state="frozen">`: frozen rows stick under the letters; frozen columns stick only when they use at most half the view (else they scroll, so phones can still move). A merge never crosses the freeze line.
+- `public/style.css`: freeze-pane sticky rules at the end.
+- Tests: `tests/excel-library.test.js` runs the formula engine; `tests/excel-select.test.js` header pattern updated.
+
 ### 1.1.121: Excel auto upload from the shop's Windows PC (Claude) — in review
 - Task: the owner edits the Excel file every day on a Windows PC and wants it uploaded to the shop by itself, without visiting the site.
 - How it works: in the shop's Excel panel the owner presses "Download PC auto upload". The server makes a per-shop upload key (only its SHA-256 is stored; a new key replaces the old one), and the browser builds a `.bat` file carrying it. Double-clicking the `.bat` once on the PC:
