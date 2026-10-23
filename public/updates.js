@@ -123,7 +123,7 @@
     // A failed worker download must never stop the update: fall back to a plain reload.
     if (registration) {
       try {
-        await registration.update();
+        await Promise.race([registration.update(), new Promise((_, reject) => setTimeout(() => reject(Error("Update check timed out")), 15000))]);
         splash?.progress?.(40);
         const installing = registration.installing;
         if (
@@ -155,10 +155,18 @@
     } catch {}
     requested = true;
     reloading = true;
+    // The new version takes over, then the page reloads. reloadWhenSafe() ignores this switch
+    // (reloading is already true), so reload here, with a timer in case the switch never comes
+    // (this was the update that stopped at 80%).
     if (registration?.waiting) {
+      let done = false;
+      const finish = () => { if (done) return; done = true; splash?.progress?.(99); location.reload(); };
+      navigator.serviceWorker?.addEventListener("controllerchange", finish, { once: true });
       registration.waiting.postMessage({ type: "APPLY_UPDATE" });
+      setTimeout(finish, 4000);
       return true;
     }
+    splash?.progress?.(99);
     location.reload();
     return true;
   }
