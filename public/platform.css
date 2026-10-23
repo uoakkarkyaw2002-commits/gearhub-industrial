@@ -388,6 +388,7 @@ body.onboarding{background:radial-gradient(ellipse at top,#f0f9f3 0%,#f7faf7 72%
 .splash-file input{font-weight:400}.splash-row audio{max-width:100%}
 /* skyshopmm.com opening page (people applying for a shop): an illustrated sunset scene fills the
    screen behind the card (owner's request). Shop owners' control pages keep their plain look. */
+.sky-picture{display:contents}
 .sky-scene,.sky-layer{display:none}
 body.onboarding{background:#2a2667}
 body.onboarding .sky-scene,body.onboarding .sky-layer{display:block;position:fixed;inset:0;width:100%;height:100%;object-fit:cover;object-position:70% bottom;z-index:0;pointer-events:none}
@@ -431,4 +432,6 @@ body.visitor.signin-open #account .login-application{position:relative;width:min
 }
 /* Owner: background preview (picture with the moving layer on top). */
 .scene-preview{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#2a2667}
+.scene-preview-phone{aspect-ratio:9/16;width:min(220px,60%)}
+.scene-side{margin:14px 0 6px;font-size:15px}
 .scene-preview img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
