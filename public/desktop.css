@@ -45,9 +45,9 @@
  .home-navigation nav a:hover{color:#43823d}
  .home-navigation .nav-actions{flex-shrink:0;align-items:center}
  .home-navigation .nav-actions button{padding:10px 12px;min-height:42px;font-size:12px}
- main>.mobile-search{display:flex;align-items:center;gap:12px;width:calc(100% - 2*var(--desktop-gutter));max-width:calc(var(--desktop-width) - 2*var(--desktop-gutter));height:48px;padding:0 16px;margin:24px auto 18px;background:#fff;border:1px solid var(--line);border-radius:12px;color:var(--muted)}
+ main>.mobile-search{display:flex;align-items:center;gap:12px;width:calc(100% - 2*var(--desktop-gutter));max-width:calc(var(--desktop-width) - 2*var(--desktop-gutter));margin:24px auto 18px}
  .mobile-search input{width:100%;min-width:0;border:0;background:transparent;padding:0;outline:none}
- .mobile-search:focus-within{border-color:#43823d;box-shadow:0 0 0 3px #43823d15}
+
  main>.hero{width:calc(100% - 2*var(--desktop-gutter));max-width:calc(var(--desktop-width) - 2*var(--desktop-gutter));padding:0;min-height:360px;margin:0 auto 32px;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);border-radius:22px}
  .hero>div:first-child{min-width:0;padding:32px 0 32px 36px}
  .hero h1{font-size:clamp(32px,3.2vw,45px);line-height:1.35;letter-spacing:-.8px;margin:12px 0}
