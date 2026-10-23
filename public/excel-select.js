@@ -14,6 +14,11 @@
   for(const head of grid.querySelectorAll('thead th[data-c],tbody th[data-r]')){const c=head.dataset.c,r=head.dataset.r;if((c!==undefined&&c>=box.left&&c<=box.right)||(r!==undefined&&r>=box.top&&r<=box.bottom)){head.classList.add('xs-head');marked.push(head)}}
  }
  grid.addEventListener('pointerdown',event=>{
+  const rowHead=event.target.closest('tbody th[data-r]');
+  if(rowHead?.tagName==='TH'&&!event.button){
+   const r=Number(rowHead.dataset.r),last=Math.max(...[...grid.querySelectorAll('thead th[data-c]')].map(head=>Number(head.dataset.c)).filter(Number.isFinite));
+   anchor={r,c:0,r2:r,c2:0};focus={r,c:last,r2:r,c2:last};dragging=false;paint();return;
+  }
   const cell=event.target.closest('td[data-r]');if(!cell||event.button)return;
   const p=pos(cell);
   if(event.shiftKey&&anchor)focus=p;else{anchor=p;focus=p}
