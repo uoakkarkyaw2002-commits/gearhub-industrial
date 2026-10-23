@@ -25,6 +25,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 2026-10-23 — Claude — 1.1.131 Sunset scene on skyshopmm.com
+- Owner (video of an illustrated landscape website): use that kind of background on skyshopmm.com instead of the plain one.
+- `public/images/platform-scene.svg`: original drawing (not copied from the video): sunset sky, mountain range with a sunlit peak, lake, grass; clouds drift, birds fly, grass sways; motion stops with prefers-reduced-motion.
+- `public/platform.html`/`platform.css`: shown only for visitors (`body.onboarding`); fixed full screen on PC, a top picture on phones with the card below it. Header text turns white over the scene. Shop owners' control pages are unchanged.
+- Test: `tests/platform-scene.test.js`.
+
 ### 2026-10-23 — Claude — 1.1.130 skyshopmm.com opens "My shop"
 - Owner: skyshopmm.com should land on /platform.html (Apply / Review / Approved).
 - `server.js`: `GET /` redirects 302 to `/platform.html` (query kept) when `PLATFORM_ENABLED=true`. GearHub's own store is still at `/index.html`; `/shops/<slug>/` is unchanged.
