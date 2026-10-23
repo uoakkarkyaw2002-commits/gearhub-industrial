@@ -25,6 +25,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 2026-10-23 — Claude — 1.1.135 No broken-image icon on skyshopmm.com
+- Live check after 1.1.134: with no moving layer uploaded, `/scene-asset/layer` returned 404 and Chrome drew a small broken-image icon at the top left.
+- `lib/tenant-install.js`: a missing layer now returns an empty 1×1 transparent SVG. Test in `tests/site-scene.test.js`.
+
 ### 2026-10-23 — Claude — 1.1.134 GearHub owner uploads the skyshopmm.com background
 - Owner wants to change the skyshopmm.com background himself, e.g. with the zip Codex makes (background.jpg + animated birds.svg).
 - Owner also asked for phones: separate phone picture (`phone`) and phone layer (`phone-layer`); phones without their own use the PC files.
