@@ -4,7 +4,7 @@ const read=f=>fs.readFileSync(path.join(__dirname,'..','public',f),'utf8');
 
 function sheet(){
  const listeners={},docKeys={};
- const mk=(attrs,tag)=>{const cls=new Set();return{tag,dataset:attrs,textContent:attrs.text||'',classList:{add:(...c)=>c.forEach(x=>cls.add(x)),remove:(...c)=>c.forEach(x=>cls.delete(x)),has:c=>cls.has(c)},closest(){return this}}};
+ const mk=(attrs,tag)=>{const cls=new Set();return{tag,tagName:tag.toUpperCase(),dataset:attrs,textContent:attrs.text||'',classList:{add:(...c)=>c.forEach(x=>cls.add(x)),remove:(...c)=>c.forEach(x=>cls.delete(x)),has:c=>cls.has(c)},closest(){return this}}};
  const cells=[];for(let r=0;r<3;r++)for(let c=0;c<3;c++)cells.push(mk({r:String(r),c:String(c),text:'R'+r+'C'+c},'td'));
  const heads=[0,1,2].map(c=>mk({c:String(c)},'th')).concat([0,1,2].map(r=>mk({r:String(r)},'th')));
  let copied=null;
@@ -35,11 +35,18 @@ test('Shift+click extends; Esc clears',()=>{
  s.docKeys.keydown({key:'Escape'});assert.ok(!s.at(1,0).classList.has('xs-sel'));
 });
 
+test('clicking a row number selects every cell across that row',()=>{
+ const s=sheet(),rowHead=s.heads.find(head=>head.dataset.r==='1');
+ s.listeners.pointerdown({target:rowHead,button:0,pointerType:'mouse'});
+ for(const c of [0,1,2])assert.ok(s.at(1,c).classList.has('xs-sel'),'R1C'+c+' selected');
+ assert.ok(!s.at(0,0).classList.has('xs-sel'));
+});
+
 test('cells carry their sheet position; selection styles; script loaded and cached',()=>{
  const map=read('excel-map.js');
  assert.match(map,/html\+='<td data-r="'\+r\+'" data-c="'\+c\+'"'/);
  assert.match(map,/'<th data-c="'\+c\+'">'\+colName\(c\)\+'<\/th>'/);
- const css=read('style.css');assert.match(css,/#excel-grid td\.xs-active\{box-shadow:inset 0 0 0 2px #1a73e8/);
- assert.match(read('index.html'),/<script src="\/excel-select\.js\?v=20261023-select-1"><\/script>/);
- assert.match(read('sw.js'),/"\/excel-select\.js\?v=20261023-select-1"/);
+ const css=read('style.css');assert.match(css,/#excel-grid td\.xs-active\{box-shadow:inset 0 0 0 2px #1a73e8/);assert.match(css,/#excel-grid tbody th\[data-r\]\{cursor:pointer/);
+ assert.match(read('index.html'),/<script src="\/excel-select\.js\?v=20261023-row-select-1"><\/script>/);
+ assert.match(read('sw.js'),/"\/excel-select\.js\?v=20261023-row-select-1"/);
 });
