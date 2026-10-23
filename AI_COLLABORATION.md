@@ -25,6 +25,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.119: Cart on phones reaches the bottom edge (Claude) — in review
+- Task: tapping Cart on a phone showed a dark band around the bottom nav's round corners and notch. The empty-cart drawer stopped 86 px above the bottom, so the dark overlay showed through.
+- Files: `public/style.css` (phone: `#drawer` and the empty-cart drawer use `bottom:0`, with `padding-bottom:calc(96px + safe area)` so content stays above the nav), tags, version files, `tests/liquid-nav.test.js`.
+- PR: (this PR). Built on 1.1.118 (#188); merge #188 first.
+
 ### 1.1.118: Select cells in the Excel viewer (Claude) — in review
 - Task: in the Excel viewer, cells could not be selected. Now they can be selected like a spreadsheet:
   - click or tap a cell (blue outline);
