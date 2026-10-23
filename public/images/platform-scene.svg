@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMax slice">
+<!-- skyshopmm.com opening background: sunset mountains, lake, grass, drifting clouds and flying birds.
+     Original drawing for GearHub (style asked for by the owner); everything moves slowly and stops
+     for people who turn motion off. -->
+<style>
+ .cloud{animation:drift 70s linear infinite}
+ .cloud.slow{animation-duration:110s}
+ .flock{animation:fly 38s linear infinite}
+ .flock.late{animation-delay:-19s;animation-duration:46s}
+ .wing{transform-box:fill-box;transform-origin:center;animation:flap .9s ease-in-out infinite alternate}
+ .wing:nth-child(2n){animation-delay:-.45s}
+ .grass{transform-box:fill-box;transform-origin:bottom center;animation:sway 5s ease-in-out infinite alternate}
+ .grass.b{animation-delay:-2.5s;animation-duration:6s}
+ .shine{animation:shine 6s ease-in-out infinite alternate}
+ @keyframes drift{from{transform:translateX(-260px)}to{transform:translateX(260px)}}
+ @keyframes fly{from{transform:translate(-500px,60px)}to{transform:translate(1900px,-90px)}}
+ @keyframes flap{from{transform:scaleY(1)}to{transform:scaleY(-.6)}}
+ @keyframes sway{from{transform:rotate(-2.5deg)}to{transform:rotate(2.5deg)}}
+ @keyframes shine{from{opacity:.55}to{opacity:1}}
+ @media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+<defs>
+ <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#2a2667"/><stop offset=".38" stop-color="#5b4596"/><stop offset=".62" stop-color="#c06c97"/><stop offset=".8" stop-color="#f19a6c"/><stop offset="1" stop-color="#ffc98a"/>
+ </linearGradient>
+ <radialGradient id="sun" cx="1330" cy="560" r="460" gradientUnits="userSpaceOnUse">
+  <stop offset="0" stop-color="#fff1c4" stop-opacity=".95"/><stop offset=".35" stop-color="#ffc178" stop-opacity=".55"/><stop offset="1" stop-color="#ff9d6e" stop-opacity="0"/>
+ </radialGradient>
+ <linearGradient id="litFace" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0" stop-color="#ffd38a"/><stop offset=".5" stop-color="#f59a63"/><stop offset="1" stop-color="#c8608a"/>
+ </linearGradient>
+ <linearGradient id="shadeFace" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#7b5aa8"/><stop offset="1" stop-color="#4b3c8c"/>
+ </linearGradient>
+ <linearGradient id="far" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#a98cc9"/><stop offset="1" stop-color="#7c67b2"/>
+ </linearGradient>
+ <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#4a3f93"/><stop offset="1" stop-color="#2d2a6e"/>
+ </linearGradient>
+ <linearGradient id="lake" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#f3a774"/><stop offset=".35" stop-color="#b9739f"/><stop offset="1" stop-color="#4b4497"/>
+ </linearGradient>
+ <linearGradient id="front" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#2a2462"/><stop offset="1" stop-color="#15123a"/>
+ </linearGradient>
+ <g id="cloudShape">
+  <ellipse cx="0" cy="0" rx="90" ry="34" fill="#fff6f4"/>
+  <ellipse cx="-55" cy="8" rx="60" ry="26" fill="#fbe6ef"/>
+  <ellipse cx="45" cy="-22" rx="56" ry="36" fill="#fff"/>
+  <ellipse cx="-10" cy="-30" rx="44" ry="30" fill="#fff8f4"/>
+  <ellipse cx="70" cy="10" rx="58" ry="22" fill="#f6dbe8"/>
+  <path d="M-115 14h250" stroke="#e8c4da" stroke-width="10" stroke-linecap="round" opacity=".7"/>
+ </g>
+ <g id="bird">
+  <path class="wing" d="M0 0q-10-9-22-6q11 2 22 10z" fill="#fff"/>
+  <path class="wing" d="M0 0q10-9 22-6q-11 2-22 10z" fill="#f4eef8"/>
+ </g>
+</defs>
+
+<rect width="1600" height="1000" fill="url(#sky)"/>
+<rect width="1600" height="1000" fill="url(#sun)" class="shine"/>
+<circle cx="1330" cy="560" r="46" fill="#fff4d6" opacity=".9"/>
+
+<!-- far range -->
+<path d="M0 640 L120 560 L210 600 L330 500 L450 590 L560 520 L660 600 L760 545 L900 610 L1180 600 L1300 520 L1420 590 L1530 540 L1600 575 L1600 760 L0 760Z" fill="url(#far)" opacity=".85"/>
+
+<!-- high clouds behind the peak -->
+<g class="cloud slow"><use href="#cloudShape" transform="translate(1250 250) scale(1.5)"/></g>
+<g class="cloud"><use href="#cloudShape" transform="translate(560 330) scale(1.1)"/></g>
+
+<g transform="translate(330 0)">
+<!-- main peak: sunlit face and shaded side -->
+<path d="M540 700 C640 600 760 470 850 370 C872 344 892 316 905 300 C930 322 962 360 1000 402 C1080 486 1170 600 1260 700Z" fill="url(#shadeFace)"/>
+<path d="M905 300 C930 322 962 360 1000 402 C1080 486 1170 600 1260 700 L985 700 C962 620 944 522 928 432 C920 384 912 340 905 300Z" fill="url(#litFace)"/>
+<g fill="none" stroke-linecap="round">
+ <path d="M905 304 C898 380 878 460 836 540 C810 590 780 630 742 668" stroke="#9a78c4" stroke-width="5" opacity=".6"/>
+ <path d="M958 356 C990 430 1016 520 1028 610" stroke="#ffd79c" stroke-width="5" opacity=".55"/>
+ <path d="M1040 450 C1080 520 1110 590 1130 660" stroke="#ffcf93" stroke-width="4" opacity=".45"/>
+</g>
+<path d="M905 300 C916 312 926 322 938 334 C929 341 922 349 918 360 C912 351 905 347 897 353 C893 341 889 332 881 327 C890 318 898 308 905 300Z" fill="#fff3e8"/>
+</g>
+<!-- side ridges -->
+<path d="M300 720 L470 560 L560 610 L680 540 L820 720Z" fill="#6a4f9e"/>
+<path d="M470 560 L520 600 L600 640 L560 720 L420 720Z" fill="#e28e74" opacity=".45"/>
+<path d="M780 720 L900 620 L980 650 L1080 590 L1200 720Z" fill="#62479a"/>
+
+<!-- low clouds in front of the peak -->
+<g class="cloud"><use href="#cloudShape" transform="translate(1420 520) scale(1.25)"/></g>
+<g class="cloud slow"><use href="#cloudShape" transform="translate(300 450) scale(.9)"/></g>
+
+<!-- birds -->
+<g class="flock" transform="translate(0 -40)">
+ <use href="#bird" transform="translate(300 300) scale(1.2)"/><use href="#bird" transform="translate(350 280)"/><use href="#bird" transform="translate(395 310) scale(.9)"/>
+ <use href="#bird" transform="translate(440 270) scale(1.1)"/><use href="#bird" transform="translate(490 300) scale(.8)"/><use href="#bird" transform="translate(530 285) scale(.9)"/>
+</g>
+<g class="flock late">
+ <use href="#bird" transform="translate(200 220) scale(.9)"/><use href="#bird" transform="translate(245 240) scale(.7)"/><use href="#bird" transform="translate(285 215) scale(.8)"/>
+</g>
+
+<!-- hills and lake -->
+<path d="M0 760 C180 700 300 720 420 745 C560 775 640 720 780 735 C900 748 1000 760 1100 745 C1260 720 1420 740 1600 720 L1600 1000 L0 1000Z" fill="url(#hill)"/>
+<path d="M240 790 C420 770 640 775 860 785 C1080 795 1260 780 1420 792 L1460 880 C1200 900 900 905 600 895 C420 890 300 880 220 860Z" fill="url(#lake)"/>
+<g opacity=".7" class="shine">
+ <path d="M520 805h260M610 822h180M560 840h300M700 858h160" stroke="#ffd9a3" stroke-width="5" stroke-linecap="round"/>
+ <path d="M980 812h120M940 832h220M1010 852h140" stroke="#ffe3b8" stroke-width="4" stroke-linecap="round"/>
+</g>
+<ellipse cx="430" cy="860" rx="40" ry="16" fill="#3a2f78"/><ellipse cx="1180" cy="850" rx="30" ry="12" fill="#3a2f78"/>
+
+<!-- front bank and grass -->
+<path d="M0 870 C200 850 380 900 560 930 C760 960 900 930 1080 920 C1260 910 1440 880 1600 860 L1600 1000 L0 1000Z" fill="url(#front)"/>
+<g fill="#2f2a6f">
+ <path class="grass" d="M60 1000 C70 930 80 880 110 830 C96 890 92 950 100 1000Z"/>
+ <path class="grass b" d="M110 1000 C130 920 160 870 200 840 C175 900 160 950 150 1000Z"/>
+ <path class="grass" d="M180 1000 C190 940 200 900 230 860 C222 910 218 960 220 1000Z"/>
+ <path class="grass b" d="M1380 1000 C1390 930 1410 880 1450 840 C1430 900 1420 950 1420 1000Z"/>
+ <path class="grass" d="M1440 1000 C1460 920 1490 870 1530 830 C1505 890 1490 950 1485 1000Z"/>
+ <path class="grass b" d="M1500 1000 C1515 940 1540 900 1580 860 C1560 910 1548 960 1545 1000Z"/>
+</g>
+<g fill="#e6a46f" opacity=".85">
+ <path class="grass b" d="M150 1000 C150 950 160 905 175 870 C170 920 168 960 170 1000Z"/>
+ <path class="grass" d="M1470 1000 C1472 945 1482 905 1500 872 C1494 920 1490 960 1490 1000Z"/>
+</g>
+</svg>
