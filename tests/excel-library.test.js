@@ -80,7 +80,12 @@ test('excel viewer shows the file like Excel: conditional formats, hidden rows/c
  assert.equal(truthy(compileFormula('AND(ISBLANK(A1),A2*2>=10)',{r:0,c:0})({r:0,c:0,get:(r)=>r===1?5:''})),true);
  assert.match(map,/const dxfColor=el=>el\?\.getAttribute\('auto'\)==='1'\?'#000000'/);
  assert.match(map,/if\(row\.getAttribute\('hidden'\)==='1'\)heights\[r\]=0/);
- assert.match(map,/const visibleCols=Array\.from\(\{length:cols\},\(_,c\)=>c\)\.filter\(c=>sheet\.widths\[c\]!==0\)/);
- assert.match(map,/state'\)\|\|''\)\?\{rows:\+\(pane\.getAttribute\('ySplit'\)/);
+ assert.match(map,/const visibleCols=Array\.from\(\{length:cols\},\(_,c\)=>c\)\.filter\(c=>c>=frozen\.c0&&sheet\.widths\[c\]!==0\)/);
+ // Frozen area starts at the sheet view's top-left cell (INV: frozen at C28 hides rows 1-27 and columns A-B).
+ assert.match(map,/if\(ys\)\{frozen\.r0=\+tl\[2\]-1;frozen\.r1=frozen\.r0\+ys\}if\(xs\)\{frozen\.c0=colIndex\(tl\[1\]\);frozen\.c1=frozen\.c0\+xs\}/);
+ assert.match(map,/filter\(r=>r>=frozen\.r0&&sheet\.heights\[r\]!==0/);
+ // Accounting zero "-"?? shows as "-", like Excel.
+ const fmt=new Function('const isDate=()=>false;'+map.slice(map.indexOf(' function formatNumber'),map.indexOf(' // ---- Workbook'))+';return formatNumber')();
+ assert.equal(fmt(0,'_(* #,##0_);_(* (#,##0);_(* "-"??_);_(@_)').trim(),'-');
  assert.match(css,/\.excel-sheet tr\.excel-frozen-row>td,\.excel-sheet tr\.excel-frozen-row>th\{position:sticky;z-index:1\}/);
 });
