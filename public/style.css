@@ -943,3 +943,10 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
  .mobile-bottom-nav.liquid.liquid-dragging .bottom-nav-item.active:not(.liquid-hover)>small{opacity:0}
  .mobile-bottom-nav.liquid.liquid-dragging .bottom-nav-item.liquid-hover>small{opacity:1;transform:none;color:#111;font-weight:800;transition-delay:0s}
 }
+
+/* Excel full screen: a plain white top bar (no grey band or iPhone input shading), and the sheet
+   starts below it so the column letters are never hidden under the search box. */
+.excel-fullscreen .excel-library-card.excel-sheet-open{background:#fff}
+.excel-fullscreen .excel-preview::before{content:"";position:absolute;top:0;left:0;right:0;height:50px;background:#fff;border-bottom:1px solid #e3e6e4;z-index:4}
+.excel-fullscreen .excel-sheet-search input{-webkit-appearance:none;appearance:none;box-shadow:none;background:#f3f5f4;border-color:#dfe4e1}
+.excel-fullscreen .excel-sheet{margin-top:50px}

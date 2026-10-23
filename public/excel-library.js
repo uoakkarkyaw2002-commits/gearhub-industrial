@@ -12,5 +12,19 @@
  const settingsOpen=document.getElementById('excel-settings-open');if(settingsOpen&&slug){settingsOpen.hidden=false;settingsOpen.addEventListener('click',()=>open.click())}
  open.addEventListener('click',async()=>{modal.hidden=false;modal.classList.add('open');await Promise.all([load(),ownerAccess()])});
  const dismiss=()=>{modal.hidden=true;modal.classList.remove('open');show('')};close.addEventListener('click',dismiss);modal.addEventListener('click',event=>{if(event.target===modal)dismiss()});document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!modal.hidden)dismiss()});
- form.addEventListener('submit',async event=>{event.preventDefault();if(!owner||!input.files?.[0])return;show('Uploading…');const data=new FormData();data.append('file',input.files[0]);try{const response=await fetch('/api/platform/shops/'+owner.id+'/spreadsheets',{method:'POST',headers:{'X-CSRF-Token':owner.csrfToken},body:data});const body=await response.json();if(!response.ok)throw Error(body.error||'Upload failed.');input.value='';show('Uploaded.');await load()}catch(error){show(error.message,true)}});
+ // Every uploaded Excel file is saved on the phone by itself (no button), so it opens offline.
+ // Files no longer in the shop are removed from the phone.
+ async function keepOffline(){
+  if(!slug||!('caches' in window)||navigator.onLine===false)return;
+  try{
+   const response=await fetch('/api/platform/store/'+encodeURIComponent(slug)+'/spreadsheets');if(!response.ok)return;
+   const files=(await response.json()).files||[],cache=await caches.open('gearhub-excel-v1'),keep=new Set(files.map(file=>new URL(file.url,location.origin).href));
+   for(const request of await cache.keys())if(/\/api\/platform\/spreadsheets\//.test(request.url)&&!keep.has(request.url))await cache.delete(request);
+   for(const url of keep)if(!(await cache.match(url))){const file=await fetch(url);if(file.ok)await cache.put(url,file)}
+  }catch{}
+ }
+ const later=()=>setTimeout(keepOffline,3000);
+ if(document.readyState==='complete')later();else addEventListener('load',later,{once:true});
+ addEventListener('online',keepOffline);
+ form.addEventListener('submit',async event=>{event.preventDefault();if(!owner||!input.files?.[0])return;show('Uploading…');const data=new FormData();data.append('file',input.files[0]);try{const response=await fetch('/api/platform/shops/'+owner.id+'/spreadsheets',{method:'POST',headers:{'X-CSRF-Token':owner.csrfToken},body:data});const body=await response.json();if(!response.ok)throw Error(body.error||'Upload failed.');input.value='';show('Uploaded.');await load();keepOffline()}catch(error){show(error.message,true)}});
 })();
