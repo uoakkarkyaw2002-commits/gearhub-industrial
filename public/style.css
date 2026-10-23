@@ -956,3 +956,8 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
 #excel-grid th.xs-head{background:#d3e3fd;color:#0b57d0}
 #excel-grid td{cursor:cell}
 @media (pointer:fine){#excel-grid{-webkit-user-select:none;user-select:none}}
+/* Phones: the cart (empty or not) reaches the bottom edge under the bottom nav, so no dark overlay
+   shows around the nav's round corners and notch; its content stops above the nav. */
+@media(max-width:850px){
+ #drawer,#drawer:has(.cart-empty-design){bottom:0!important;padding-bottom:calc(96px + env(safe-area-inset-bottom))!important}
+}
