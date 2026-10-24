@@ -30,7 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.150: Installed app title bar stays white (Claude) — in review
+### 1.1.151: INV lines like Excel — SR box, WH-1 boxes, blue bar (Claude) — in review
+- Owner (PC app, ~1625px): "SR border still broken; WH-1 lines don't look good".
+- `public/excel-map.js` `edgeAt`/`edgeCss`: each line is now drawn whole inside the cell that owns it (no more half-and-half thick lines). On an edge both cells claim, the right/lower cell's line wins, as in Excel (SR's black left line over D36:F36's thick white right line); the cell that gives way hides its line and its gridline there. Merged cells do this part by part, placed from the border box so they line up with the cells beside (WH-1 top line stuck out 2px).
+- Files: `public/excel-map.js` (+ cache tag in `index.html`/`sw.js`), `tests/excel-library.test.js`, version files.
+- Checked in WebKit with the real workbook: INV at 1625×1017 (SR box closed, WH-1 boxes even, blue bar straight at row 36) and 440×956; all 24 sheets scrolled at phone size: 0 gaps, 0 jumps.
+
+### 1.1.150: Installed app title bar stays white (Claude) — merged
 - Owner (PC app screenshot): the dark green bar at the very top of the installed POLESTAR app should be white like the header below.
 - Cause: the page and manifest were already white (1.1.147), but `public/settings.js` `applyTheme` set `<meta name="theme-color">` back to `#183426` in light mode after load. Now `#ffffff` (dark mode keeps `#101a14`).
 - Files: `public/settings.js` (+ cache tag in `index.html`/`sw.js`), `tests/manifest.test.js`, version files.

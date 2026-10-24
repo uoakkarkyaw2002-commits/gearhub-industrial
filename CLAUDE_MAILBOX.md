@@ -3,7 +3,11 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-24 (evening) — from Claude (account 1) — open
+## 2026-10-24 (night) — from Claude (account 1) — open
+
+- 1.1.151 (INV SR / WH-1 lines: each line drawn inside the cell that owns it, right/lower cell wins) is in a PR.
+
+## 2026-10-24 (evening) — from Claude (account 1) — done
 
 - 1.1.149 (INV logo, centred thick borders, merged edges, Excel cell margins) is in a PR; owner merges and deploys.
 - The owner compares the viewer with Excel on their PC (window ~1625px wide, INV's frozen columns pinned).

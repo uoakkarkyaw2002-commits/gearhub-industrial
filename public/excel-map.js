@@ -277,20 +277,20 @@
  // row draw their own left/top.
  // A merged cell's edge can differ along its length (each column/row under it has its own border, as in
  // Excel): edge.right/bottom is then '' and edge.rightParts/bottomParts list [offset px, length px, border].
- // Excel draws a thick line centred on the edge between two cells: the left/upper cell draws the first
- // half, the right/lower cell the rest (a thick white line beside INV's blue bar only shows a sliver).
- // Thin and double lines stay whole on the left/upper cell.
- const half=(v,first)=>{if(!v)return '';const [w,st,...rest]=v.split(' '),n=parseFloat(w);if(st==='double'||!(n>1))return first?v:'';const k=first?Math.floor(n/2):n-Math.floor(n/2);return k?k+'px '+st+' '+rest.join(' '):''};
- function edgeCss(b,edge){const css=[],rightV=edge&&'rightAll' in edge?edge.rightAll:b.right||edge?.right,bottomV=edge&&'bottomAll' in edge?edge.bottomAll:b.bottom||edge?.bottom;
-  const right=edge?.lastCol?rightV:half(rightV,true),bottom=edge?.lastRow?bottomV:half(bottomV,true);
-  const left=edge?.firstCol?b.left:half(edge&&'leftAll' in edge?edge.leftAll:edge?.left,false),top=edge?.firstRow?b.top:half(edge&&'topAll' in edge?edge.topAll:edge?.top,false);
-  if(right)css.push('border-right:'+right);if(bottom)css.push('border-bottom:'+bottom);if(left)css.push('border-left:'+left);if(top)css.push('border-top:'+top);
-  const layers=[];
-  for(const [at,len,v0] of edge?.bottomParts||[]){const v=half(v0,true);if(!v)continue;const [w,,col]=v.split(' ');layers.push(['linear-gradient('+col+','+col+')',len+'px '+w,at+'px 100%'])}
-  for(const [at,len,v0] of edge?.rightParts||[]){const v=half(v0,true);if(!v)continue;const [w,,col]=v.split(' ');layers.push(['linear-gradient('+col+','+col+')',w+' '+len+'px','100% '+at+'px'])}
-  if(!edge?.firstCol)for(const [at,len,v0] of edge?.leftParts||[]){const v=half(v0,false);if(!v)continue;const [w,,col]=v.split(' ');layers.push(['linear-gradient('+col+','+col+')',w+' '+len+'px','0 '+at+'px'])}
-  if(!edge?.firstRow)for(const [at,len,v0] of edge?.topParts||[]){const v=half(v0,false);if(!v)continue;const [w,,col]=v.split(' ');layers.push(['linear-gradient('+col+','+col+')',len+'px '+w,at+'px 0'])}
-  if(layers.length)css.push('background-image:'+layers.map(l=>l[0]).join(','),'background-size:'+layers.map(l=>l[1]).join(','),'background-position:'+layers.map(l=>l[2]).join(','),'background-repeat:no-repeat');
+ // Each line is drawn inside the cell that owns it, as Excel shows it: on an edge between two cells the
+ // right / lower cell's own line wins (INV: SR's black left line over D36:F36's thick white right one),
+ // otherwise the left / upper cell's. The cell that gives way hides its light gridline there. A merged
+ // cell's side can differ along its length: edge.<side>Parts list [offset px, length px, line].
+ function edgeCss(b,edge){edge=edge||{};const css=[],pick=(k,own)=>k+'All' in edge?edge[k+'All']:k in edge?edge[k]:own;
+  const right=pick('right',b.right),bottom=pick('bottom',b.bottom),left=pick('left',b.left),top=pick('top',b.top);
+  if(right)css.push('border-right:'+right);else if(edge.rightOff||edge.rightParts)css.push('border-right-color:transparent');
+  if(bottom)css.push('border-bottom:'+bottom);else if(edge.bottomOff||edge.bottomParts)css.push('border-bottom-color:transparent');
+  if(left)css.push('border-left:'+left);if(top)css.push('border-top:'+top);
+  const layers=[],seg=(parts,size,pos)=>{for(const [at,len,v] of parts||[]){if(!v)continue;const [w,,col]=v.split(' ');layers.push(['linear-gradient('+col+','+col+')',size(len,w),pos(at)])}};
+  seg(edge.bottomParts,(len,w)=>len+'px '+w,at=>at+'px 100%');seg(edge.topParts,(len,w)=>len+'px '+w,at=>at+'px 0');
+  seg(edge.rightParts,(len,w)=>w+' '+len+'px',at=>'100% '+at+'px');seg(edge.leftParts,(len,w)=>w+' '+len+'px',at=>'0 '+at+'px');
+  // Parts are placed from the cell's outer edge (not inside its own borders), so they line up with the cells beside.
+  if(layers.length)css.push('background-image:'+layers.map(l=>l[0]).join(','),'background-size:'+layers.map(l=>l[1]).join(','),'background-position:'+layers.map(l=>l[2]).join(','),'background-repeat:no-repeat','background-origin:border-box');
   return css}
  function cellStyle(cell,edge){
   const cf=cell.cf,s=cf?{...cell.style,fill:cf.fill||cell.style.fill}:cell.style,f=cf?{...(s.font||{}),...cf.font}:s.font||{},b=bordersOf(cell),css=[];
@@ -332,17 +332,14 @@
   // Uneven edge of a merged cell: one part per row/column; otherwise one border for the whole side.
   const sideParts=(list,size,valueAt,edge,key)=>{const parts=[];let at=0;for(const i of list){const len=size(i);parts.push([at,len,valueAt(i)]);at+=len}
    if(new Set(parts.map(p=>p[2])).size>1){edge[key+'All']='';edge[key+'Parts']=parts}else edge[key+'All']=parts[0]?.[2]||''};
-  const edgeAt=(r,c,m)=>{const cs=m?m.cs:1,rs=m?m.rs:1,nc=colAfter[c+cs-1],nr=rowAfter[r+rs-1],lc=colBefore.get(c),rb=rowBefore.get(r);
-   const edge={right:nc===undefined?'':outer(r,nc,'left'),bottom:nr===undefined?'':outer(nr,c,'top'),firstCol:lc===undefined,firstRow:rb===undefined,lastCol:nc===undefined,lastRow:nr===undefined};
-   // The edge on the left / above: the neighbour's right / bottom border, else this cell's own.
-   if(lc!==undefined)edge.left=outer(r,lc,'right')||sideAt(r+','+c,'left');if(rb!==undefined)edge.top=outer(rb,c,'bottom')||sideAt(r+','+c,'top');
-   if(m&&(cs>1||rs>1)){
-    const cols=[];for(let j=c;j<c+cs;j++)if(colShown.has(j))cols.push(j);const rowsIn=[];for(let i=r;i<r+rs;i++)if(rowShown.has(i))rowsIn.push(i);
-    sideParts(cols,j=>widthOf.get(j)||0,j=>sideAt((r+rs-1)+','+j,'bottom')||(nr===undefined?'':outer(nr,j,'top')),edge,'bottom');
-    sideParts(rowsIn,rowH,i=>sideAt(i+','+(c+cs-1),'right')||(nc===undefined?'':outer(i,nc,'left')),edge,'right');
-    if(lc!==undefined)sideParts(rowsIn,rowH,i=>outer(i,lc,'right')||sideAt(i+','+c,'left'),edge,'left');
-    if(rb!==undefined)sideParts(cols,j=>widthOf.get(j)||0,j=>outer(rb,j,'bottom')||sideAt(r+','+j,'top'),edge,'top');
-   }
+  const edgeAt=(r,c,m)=>{const cs=m?m.cs:1,rs=m?m.rs:1,nc=colAfter[c+cs-1],nr=rowAfter[r+rs-1],edge={};
+   const cols=[];for(let j=c;j<c+cs;j++)if(colShown.has(j))cols.push(j);const rowsIn=[];for(let i=r;i<r+rs;i++)if(rowShown.has(i))rowsIn.push(i);
+   const nextL=i=>nc===undefined?'':outer(i,nc,'left'),nextT=j=>nr===undefined?'':outer(nr,j,'top');
+   if(rowsIn.some(i=>nextL(i)))edge.rightOff=true;if(cols.some(j=>nextT(j)))edge.bottomOff=true;
+   sideParts(rowsIn,rowH,i=>nextL(i)?'':sideAt(i+','+(c+cs-1),'right'),edge,'right');
+   sideParts(cols,j=>widthOf.get(j)||0,j=>nextT(j)?'':sideAt((r+rs-1)+','+j,'bottom'),edge,'bottom');
+   sideParts(rowsIn,rowH,i=>sideAt(i+','+c,'left'),edge,'left');
+   sideParts(cols,j=>widthOf.get(j)||0,j=>sideAt(r+','+j,'top'),edge,'top');
    return edge};
   // Cell text. Long text spills into empty cells beside it, as in Excel (left/general text to the right,
   // right-aligned to the left, centred both ways); it stops at the next cell with text or a merge.
