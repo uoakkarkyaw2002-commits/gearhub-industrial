@@ -30,7 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.156: Download all photos button in the product gallery (Claude) — in review
+### 1.1.157: Gallery download — parachute falls slowly, save after landing (Claude) — in review
+- Owner (iPhone video of 1.1.156): photos came from the saved copies so fast that the parachute flashed and the share sheet opened at once. Wanted: the parachute falls slowly from above onto the bar, and saving shows only after it lands.
+- `public/store.js` `downloadGalleryPhotos`: the shown progress is the smaller of the real download progress and time / 3 s, driven by a 30 ms timer (animation frames stop in hidden windows). It sets `--fall` (0→1) and the %; after landing: check + "Complete", 0.5 s, then the share sheet (phones) or the file downloads (PCs). If iOS refuses the late share sheet, the existing "Tap to save" step appears.
+- `public/style.css`: while downloading the drop sits at `calc(-40px + var(--fall) * 48px)` (starts above the bar, lands on it), no transition.
+- Checked in the app browser: phone 375 — the parachute goes from 44 px above the bar to the bar over ~3 s (6 %, 41 %, 75 %, Complete), share called after landing (~4.3 s); PC 1280 — files saved after landing. No console errors.
+
+### 1.1.156: Download all photos button in the product gallery (Claude) — merged, live
 - Owner: add a button that downloads all of a product's photos; design from their reference video (a ring with a down arrow; pressed, the ring unrolls into a progress bar, the arrow floats on a parachute with the %, then a check and "Complete").
 - `public/index.html`: `#gallery-download` next to the gallery count. `public/style.css` (end of file): `.gallery-dl*` states idle / downloading / done / save. `public/store.js` `downloadGalleryPhotos`: fetches each photo with byte progress (works offline, photos are cache-first), names files `<product>-<n>.<ext>`. Phones (`pointer:coarse` + `navigator.canShare({files})`) open the share sheet (Save Images → Photos); if the browser refuses it after the download, the button shows "Tap to save" and the next tap opens it. PCs download each file.
 - Checked in the app browser: PC 1280 (3 photos → 3 files named correctly, idle / 33 % with parachute / 100 % / Complete), phone 375 (share path with a stubbed share: "Tap to save" then Complete), no console errors, no sideways scroll. Not checked: the real iPhone share sheet (owner).

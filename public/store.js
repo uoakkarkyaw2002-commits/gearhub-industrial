@@ -155,15 +155,19 @@ async function downloadGalleryPhotos(){
  if(!galleryProduct||galleryDlBusy)return;
  if($("gallery-download").dataset.state==="save"&&galleryFiles){const r=await shareGalleryFiles();if(r!=="again")galleryDl(r==="ok"?"done":"idle",100,r==="ok"?"Complete":"");return}
  galleryDlBusy=true;const urls=galleryProduct.imageUrls||[],base=(productName(galleryProduct)||galleryProduct.name_en||"photo").replace(/[^\p{L}\p{N}\p{M}._ -]+/gu,"").trim().replace(/\s+/g,"-")||"photo",files=[];
- const show=part=>{const v=Math.max(1,Math.min(100,Math.round(part*100)));galleryDl("downloading",v,v+"%")};
- show(0);await new Promise(r=>setTimeout(r,450));
+ // The parachute falls slowly from above onto the bar (at least 3 s, longer if the photos take longer);
+ // the percent follows it, and saving starts only after it lands (owner's video).
+ let real=0,failed=false;const b=$("gallery-download"),t0=performance.now()+450;
+ galleryDl("downloading",1,"1%");b.style.setProperty("--fall",0);
+ const landed=new Promise(resolve=>{const tick=()=>{const shown=Math.max(0,Math.min(real,(performance.now()-t0)/3000));const v=Math.max(1,Math.round(shown*100));b.style.setProperty("--fall",shown);galleryDl("downloading",v,v+"%");if(failed||shown>=1)resolve();else setTimeout(tick,30)};tick()});
  try{for(let i=0;i<urls.length;i++){
   const r=await fetch(urls[i]);if(!r.ok)throw new Error(String(r.status));
   const total=Number(r.headers.get("content-length"))||0,parts=[];let got=0;
-  if(r.body&&total){const reader=r.body.getReader();for(;;){const {done,value}=await reader.read();if(done)break;parts.push(value);got+=value.length;show((i+Math.min(1,got/total))/urls.length)}}else parts.push(await r.arrayBuffer());
+  if(r.body&&total){const reader=r.body.getReader();for(;;){const {done,value}=await reader.read();if(done)break;parts.push(value);got+=value.length;real=(i+Math.min(1,got/total))/urls.length}}else parts.push(await r.arrayBuffer());
   const type=(r.headers.get("content-type")||"image/jpeg").split(";")[0],ext=((type.split("/")[1]||"jpg").split("+")[0].replace("jpeg","jpg").replace(/[^a-z0-9]/g,""))||"jpg";
-  files.push(new File(parts,base+"-"+(i+1)+"."+ext,{type}));show((i+1)/urls.length);
- }}catch(_){galleryDlBusy=false;galleryDl("idle");toast(lang==="my"?"ပုံ download မရပါ။ ပြန်ကြိုးစားပါ။":"Could not download the photos. Try again.");return}
+  files.push(new File(parts,base+"-"+(i+1)+"."+ext,{type}));real=(i+1)/urls.length;
+ }}catch(_){failed=true;galleryDlBusy=false;galleryDl("idle");toast(lang==="my"?"ပုံ download မရပါ။ ပြန်ကြိုးစားပါ။":"Could not download the photos. Try again.");return}
+ await landed;galleryDl("done",100,"Complete");await new Promise(r=>setTimeout(r,500));
  galleryFiles=files;let result="ok";
  if(matchMedia("(pointer:coarse)").matches&&navigator.canShare&&navigator.canShare({files}))result=await shareGalleryFiles();
  else for(const f of files){const a=document.createElement("a"),u=URL.createObjectURL(f);a.href=u;a.download=f.name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);await new Promise(r=>setTimeout(r,300))}
