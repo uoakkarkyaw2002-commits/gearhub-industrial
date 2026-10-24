@@ -26,12 +26,14 @@ _None._
 ## Handoff entries (newest first)
 
 ### 1.1.144: Faster Excel viewer (Claude) — in review
-- Owner: the Excel viewer stutters and feels heavy while using it.
-- Measured with a 1500×30 CSV (45,000 cells) at 375px on a Mac: each drag/selection move rescanned every cell (20–46 ms per move, several times that on a phone); opening/searching drew the whole sheet in one block (~373 ms).
-- `public/excel-select.js`: cells and headers are indexed by position once per table (rebuilt when rows or shapes are added); selection, row select and copy use it. Drag move: ~0.1 ms.
-- `public/excel-map.js`: opening, searching and switching sheets draw the first 120 rows at once (~28 ms) and add the rest 150 rows per frame; `freeze()` runs again at the end for frozen panes and shapes. Zoom still redraws all at once so it keeps the scroll place.
-- Files: those two, `public/index.html`/`public/sw.js` cache tags, tests in `tests/excel-select.test.js`, version files.
-- Not done: zoom redraw is still one block on big sheets. Not verified on a real phone or with a styled .xlsx (CSV only).
+- Owner: the Excel viewer stutters and feels heavy. Tested with the owner's real workbook (OCT-2026 (Excavator).xlsm, 24 sheets, up to 37,000 cells per sheet; frozen rows/columns, pictures, 1,500 merges).
+- `public/excel-map.js`: only rows near the screen are drawn (1200 px above/below; frozen rows always); spacer rows stand in for the rest (bottom spacer in its own `tbody.excel-after` so cut merges end at the drawn part). A merge starts its drawn part at its first row. Drawn rows are measured with fractional heights so spacers stay exact; no spacer above the first rows (an empty row takes a pixel between collapsed borders). Shapes are placed only when their corner row is drawn. `grid.cellText` gives copy the sheet's own text.
+- `public/excel-select.js`: cells/headers indexed by position (rebuilt and selection repainted when rows are redrawn); copy reads `grid.cellText`.
+- `public/style.css`: spacer rows; `.excel-sheet{overflow-anchor:none}` (browser scroll anchoring moved the sheet ~3000 px per redraw).
+- Results (WebKit at 375px, real workbook): zoom 2–110 ms (was 121–448 ms on a Mac, more on phones); sheet switch e.g. CB 210→29 ms, BC revisit 674→53 ms; drag select ~0.1 ms (was 20–46 ms); cells on the page e.g. BC 37,489→~1,900.
+- Checks: every sheet scrolled top to bottom in WebKit at 375px (and 6 big sheets at 1280px): no gaps, no jumps. Screenshots vs the previous version at the top of 10 sheets and after scrolling down on 6 (incl. frozen columns, pictures): pixel-identical except one 1-px line under the sticky header on 2 sheets. Selection across redraws, copy of 247 rows incl. undrawn ones, row-number select, search: correct. Chrome 375px: no gaps.
+- Known: jumping straight to a far scroll position (scroll-bar drag) can land a few rows from where the old full table would, because undrawn rows' wrapped-text heights are only known once drawn; content is always correct. First open of a very large sheet still spends ~0.4 s reading its XML (once per file).
+- Testing notes: WebKit probe = Swift WKWebView runner, local server behind a proxy that strips `upgrade-insecure-requests` and caching; hide the SkyShop splash before snapshots.
 
 ### 1.1.143: Phone grass under the working birds layer (Claude) — in review
 - Owner's iPhone recording after 1.1.142: picture fast, but the grass didn't sway and the birds vanished once the Codex box appeared.

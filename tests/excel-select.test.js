@@ -59,8 +59,8 @@ test('cells carry their sheet position; selection styles; script loaded and cach
  assert.match(map,/html\+='<td data-r="'\+r\+'" data-c="'\+c\+'"'/);
  assert.match(map,/'<th data-c="'\+c\+'"'\+\(c<frozen\.c1\?' class="excel-frozen-col"':''\)\+'>'\+colName\(c\)\+'<\/th>'/);
  const css=read('style.css');assert.match(css,/#excel-grid td\.xs-active\{box-shadow:inset 0 0 0 2px #1a73e8/);assert.match(css,/#excel-grid tbody th\[data-r\]\{cursor:pointer/);
- assert.match(read('index.html'),/<script src="\/excel-select\.js\?v=20261024-speed-1"><\/script>/);
- assert.match(read('sw.js'),/"\/excel-select\.js\?v=20261024-speed-1"/);
+ assert.match(read('index.html'),/<script src="\/excel-select\.js\?v=20261024-speed-2"><\/script>/);
+ assert.match(read('sw.js'),/"\/excel-select\.js\?v=20261024-speed-2"/);
 });
 
  test('touch hold-and-drag selects cells; quick swipes and two fingers remain scrolling/zoom gestures',()=>{
@@ -87,9 +87,16 @@ test('dragging does not rescan the whole sheet on every move (big sheets stutter
  for(const [r,c] of [[0,0],[0,1],[0,2],[1,0],[1,1],[1,2]])assert.ok(s.at(r,c).classList.has('xs-sel'),'R'+r+'C'+c);
  assert.ok(!s.at(2,0).classList.has('xs-sel'));
 });
-test('a big sheet shows its first rows at once and adds the rest in parts; zoom draws all at once',()=>{
- const map=read('excel-map.js');
- assert.match(map,/const token=\+\+drawToken,first=keep\?visibleRows\.length:120;let next=first;/);
- assert.match(map,/tbody\.insertAdjacentHTML\('beforeend',visibleRows\.slice\(next,next\+=150\)\.map\(rowHtml\)\.join\(''\)\);if\(next<visibleRows\.length\)requestAnimationFrame\(more\);else freeze\(\)/);
- assert.match(read('excel-select.js'),/new MutationObserver\(\(\)=>\{index=null\}\)\.observe\(grid,\{childList:true,subtree:true\}\);/);
+test('a big sheet draws only the rows near the screen; copy reads the sheet itself',()=>{
+ const map=read('excel-map.js'),css=read('style.css'),sel=read('excel-select.js');
+ assert.match(map,/main\.innerHTML=view\.frozenHtml\+\(start\?view\.spacer\(view\.tops\[start\]\):''\)\+view\.body\.slice\(start,end\)\.map\(view\.rowHtml\)\.join\(''\);/,'no spacer above the first rows (it would shift them a pixel)');
+ assert.match(map,/const off=view\.base\+view\.tops\[start\]-placeOf\(drawn\[0\]\);/,'the first drawn row is pinned to its exact place');
+ assert.match(read('style.css'),/\.excel-sheet\{overflow-anchor:none\}/,'browser scroll anchoring would move the sheet when rows are swapped');
+ assert.match(map,/while\(start>0&&view\.origin\[start\]<start\)start=view\.origin\[start\];/,'a merged cell starts its drawn part at its first row');
+ assert.match(map,/<tbody class="excel-after">/,'cut merges end at the drawn part, not in the bottom spacer');
+ assert.match(map,/grid\.addEventListener\('scroll',\(\)=>drawRows\(false\),\{passive:true\}\);/);
+ assert.match(map,/grid\.cellText=\(r,c\)=>renderedSheet\?\.cells\.get\(r\+','\+c\)\?\.text\?\?'';/);
+ assert.match(css,/\.excel-sheet tr\.excel-spacer>td\{padding:0;border:0;background:transparent;line-height:0;font-size:0\}/);
+ assert.match(sel,/new MutationObserver\(\(\)=>\{index=null;if\(anchor\)paint\(\)\}\)\.observe\(grid,\{childList:true,subtree:true\}\);/);
+ assert.match(sel,/grid\.cellText\?grid\.cellText\(r,c\)/);
 });

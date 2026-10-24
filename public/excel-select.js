@@ -75,14 +75,14 @@
  grid.addEventListener('contextmenu',event=>{if(touch)event.preventDefault()});
  // A new sheet or search result replaces the table: the old selection goes with it.
  new MutationObserver(()=>{endTouch();dragging=false;marked=[];anchor=focus=null}).observe(grid,{childList:true});
- // Rows added later (a big sheet is drawn in parts) or pictures placed in cells: rebuild the index.
- new MutationObserver(()=>{index=null}).observe(grid,{childList:true,subtree:true});
+ // A scrolled big sheet draws other rows: rebuild the index and show the selection on them.
+ new MutationObserver(()=>{index=null;if(anchor)paint()}).observe(grid,{childList:true,subtree:true});
  document.addEventListener('keydown',event=>{
   if(!anchor||!grid.offsetParent)return;
   if(event.key==='Escape'){clear();anchor=focus=null;return}
   if(!(event.ctrlKey||event.metaKey)||event.key.toLowerCase()!=='c'||String(getSelection?.()||'').trim())return;
   const box=area(),rows=[];
-  const ix=lookup();for(let r=box.top;r<=box.bottom;r++){const line=[];for(let c=box.left;c<=box.right;c++)line.push(ix.cells.get(r+','+c)?.textContent||'');rows.push(line.join('\t'))}
+  const ix=lookup();for(let r=box.top;r<=box.bottom;r++){const line=[];for(let c=box.left;c<=box.right;c++)line.push((grid.cellText?grid.cellText(r,c):ix.cells.get(r+','+c)?.textContent)||'');rows.push(line.join('\t'))}
   navigator.clipboard?.writeText(rows.join('\n')).catch(()=>{});event.preventDefault();
  });
 })();
