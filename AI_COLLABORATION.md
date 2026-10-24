@@ -25,6 +25,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.139: Excel row and cell selection (Codex) — in review
+- Task: only a row-number click selects the whole row; a data-cell click selects that cell, and dragging selects a range.
+- Cause addressed: pointer handling now resolves a clicked data cell before checking for a row header; the selection script cache key is bumped so deployed clients fetch the corrected behavior.
+- Files: `public/excel-select.js`, `tests/excel-select.test.js`, version/cache files.
+- Validation: Node 22 `npm run check` and `npm test` passed (294 tests); `node --check public/excel-select.js` passed. Browser verification was unavailable in this environment.
+- PR: pending.
+
 ### 1.1.138: Excel gridlines on filled cells (Codex) — in review
 - Task: restore visible cell lines in the Excel viewer, including on filled cells.
 - Cause: cells without explicit workbook borders had their border colour changed to match the fill, hiding gridlines.

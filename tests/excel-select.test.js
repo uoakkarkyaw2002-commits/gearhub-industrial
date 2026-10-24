@@ -45,6 +45,9 @@ test('only row numbers select full rows; cells select individually on mouse and 
  const rowHead=s.heads.find(head=>head.dataset.r==='1');
  s.listeners.pointerdown({target:rowHead,button:0,pointerType:'mouse'});
  for(const c of [0,1,2])assert.ok(s.at(1,c).classList.has('xs-sel'),'row number selects R1C'+c);
+ s.listeners.pointerdown({target:s.at(1,2),button:0,pointerType:'mouse'});
+ assert.ok(s.at(1,2).classList.has('xs-active'));
+ for(const c of [0,1])assert.ok(!s.at(1,c).classList.has('xs-sel'),'cell click clears the full-row selection');
  s.listeners.pointerdown({target:s.at(2,2),button:0,pointerType:'touch'});
  assert.ok(s.at(2,2).classList.has('xs-active'));
  assert.ok(!s.at(1,1).classList.has('xs-sel'));
@@ -56,8 +59,8 @@ test('cells carry their sheet position; selection styles; script loaded and cach
  assert.match(map,/html\+='<td data-r="'\+r\+'" data-c="'\+c\+'"'/);
  assert.match(map,/'<th data-c="'\+c\+'"'\+\(c<frozen\.c1\?' class="excel-frozen-col"':''\)\+'>'\+colName\(c\)\+'<\/th>'/);
  const css=read('style.css');assert.match(css,/#excel-grid td\.xs-active\{box-shadow:inset 0 0 0 2px #1a73e8/);assert.match(css,/#excel-grid tbody th\[data-r\]\{cursor:pointer/);
- assert.match(read('index.html'),/<script src="\/excel-select\.js\?v=20261023-row-select-3"><\/script>/);
- assert.match(read('sw.js'),/"\/excel-select\.js\?v=20261023-row-select-3"/);
+ assert.match(read('index.html'),/<script src="\/excel-select\.js\?v=20261024-row-select-4"><\/script>/);
+ assert.match(read('sw.js'),/"\/excel-select\.js\?v=20261024-row-select-4"/);
 });
 
  test('touch hold-and-drag selects cells; quick swipes and two fingers remain scrolling/zoom gestures',()=>{
