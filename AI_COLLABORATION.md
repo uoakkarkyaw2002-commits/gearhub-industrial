@@ -25,6 +25,14 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.146: Excel borders like the file; clean top bar (Claude) — in review
+- Owner (iPhone screenshot, BC row 1010): cell borders missing; wants the look exactly like the original file. Also: never again anything smudged/overlapping at the very top.
+- Cause 1: the file sets borders on cells' left/top. With collapsed table borders the left/upper cell's light gridline wins a shared edge, so most black lines showed grey (this was true before the recent Excel changes too: 525/525 cell borders identical to 1.1.143).
+- Cause 2: with collapsed borders, rows scrolling under the sticky column letters painted their lines and a strip of text over them (WebKit and Chrome).
+- `public/style.css`: table uses separate borders; cells and headers draw right/bottom edges only. Search bar fixed to 40px inside the 50px white bar (it was 57px and hung over the column letters); back button centred.
+- `public/excel-map.js`: each cell's right/bottom edge = its own border, else the left/top border of the cell to the right/below (inside a merged range: the range's first cell). First shown column/row draw their own left/top.
+- Checks (WebKit, owner's real workbook): BC rows 1004–1018 now show black borders like Google Sheets; top bar clean at 440px and 1280px; all 24 sheets scroll with no gaps/jumps; old-vs-new pixel check at the top of all 24 sheets: no line lost (only 1–3px shifts of thick lines, now inside the cell), black lines gained where the file has them; search jumps at 440/1280 still correct; row heights equal (one INV row +1px from a 2px border).
+
 ### 1.1.145: Excel search like Google Sheets (Claude) — in review
 - Owner (iPhone screenshots): searching hid every row without a match, so the header row disappeared; wanted it like Google Sheets.
 - `public/excel-map.js`: search no longer filters rows. `find()` lists matching cells (row by row), selects the first, scrolls it just under the header/frozen rows (and sideways past frozen columns only when they are really frozen), and ˄ ˅ buttons / Enter / Shift+Enter go to the previous/next match (wrapping). Status shows "N found" / "No match". After zoom the same match stays selected.
