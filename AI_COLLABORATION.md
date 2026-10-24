@@ -25,13 +25,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.137: Excel cell selection and row headers (Codex) — awaiting PR
+### 1.1.137: Excel cell selection and row headers (Codex) — in review
 - Task: only row-number taps select a whole row; cell taps select one cell and dragging selects a range.
 - Cause: the cell pointerdown handler called selectRow, so all ordinary cell clicks selected a row and mouse dragging started from its first column.
 - Change: cell-based anchors restored; phone hold (350 ms) then drag selects a range, quick swipes scroll, and two-finger gestures remain available to the existing zoom handler.
 - Files: `public/excel-select.js`, `tests/excel-select.test.js`, version/cache files; no CSS changes.
-- Validation: baseline Node 22 checks and 292 tests passed. Chrome local seller shop at 375px and 1280px: actual cell/row clicks, mouse drag, touch hold-drag, phone swipe scrolling and reload passed without page errors. Temporary CSV fixture; physical iPhone and the owner's workbook not verified.
-- PR: pending.
+- Validation: baseline Node 22 checks and 292 tests passed; final checks and all 293 tests passed. Chrome local seller shop at 375px and 1280px: actual cell/row clicks, mouse drag, touch hold-drag, phone swipe scrolling and reload passed without page errors. Temporary CSV fixture; physical iPhone and the owner's workbook not verified.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/209. Owner merges after green CI and deploys manually.
 
 ### 2026-10-23 — Claude — 1.1.136 Background zip: Codex single-HTML packages
 - Owner: the phone zip from Codex was refused (PC zip worked). It holds only OPEN_ON_PHONE.html: the picture as a data: URI in `img#art` and the moving `<svg>` inline.
