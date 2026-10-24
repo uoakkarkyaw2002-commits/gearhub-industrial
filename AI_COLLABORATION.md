@@ -30,7 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.155: Saved product photos show at once offline (Claude) — in review
+### 1.1.156: Download all photos button in the product gallery (Claude) — in review
+- Owner: add a button that downloads all of a product's photos; design from their reference video (a ring with a down arrow; pressed, the ring unrolls into a progress bar, the arrow floats on a parachute with the %, then a check and "Complete").
+- `public/index.html`: `#gallery-download` next to the gallery count. `public/style.css` (end of file): `.gallery-dl*` states idle / downloading / done / save. `public/store.js` `downloadGalleryPhotos`: fetches each photo with byte progress (works offline, photos are cache-first), names files `<product>-<n>.<ext>`. Phones (`pointer:coarse` + `navigator.canShare({files})`) open the share sheet (Save Images → Photos); if the browser refuses it after the download, the button shows "Tap to save" and the next tap opens it. PCs download each file.
+- Checked in the app browser: PC 1280 (3 photos → 3 files named correctly, idle / 33 % with parachute / 100 % / Complete), phone 375 (share path with a stubbed share: "Tap to save" then Complete), no console errors, no sideways scroll. Not checked: the real iPhone share sheet (owner).
+
+### 1.1.155: Saved product photos show at once offline (Claude) — merged, live, owner confirmed
 - Owner (installed PC app, internet off, 1.1.154): Fuse Box gallery showed the big photo but thumbnails 2–11 stayed blank.
 - All 11 photos were in the offline cache (checked on live). The fetch handler tried the network first and used the cache only after the network failed; offline the network can hang instead of failing, so those requests never finished. The big photo came from the browser's own HTTP cache.
 - `public/sw.js`: product photos (`/api/platform/images/<id>`, immutable) are now served from the cache first, and downloaded (and kept, max 900) only when missing. Other images keep network-first.

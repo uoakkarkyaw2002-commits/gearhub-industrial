@@ -1025,3 +1025,24 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
 .excel-folder-button[hidden]{display:none}
 .excel-folder-button svg{width:26px;height:26px}
 .excel-folder-button:active{transform:scale(.96)}
+/* Gallery "download all photos" button: the ring unrolls into the progress bar, the arrow floats down
+   on a parachute while photos download, then a check and "Complete" (owner's reference video). */
+.gallery-info{display:flex;align-items:center;gap:14px}
+.gallery-dl{position:relative;flex:0 0 150px;width:150px;height:60px;padding:0;border:0;background:none;color:#14b8a6;cursor:pointer;-webkit-tap-highlight-color:transparent;--p:0}
+.gallery-dl-track{position:absolute;left:53px;top:8px;width:44px;height:44px;box-sizing:border-box;border:2.5px solid currentColor;border-radius:999px;overflow:hidden;box-shadow:0 0 14px rgba(20,184,166,.35);transition:left .45s cubic-bezier(.65,0,.25,1),top .45s cubic-bezier(.65,0,.25,1),width .45s cubic-bezier(.65,0,.25,1),height .45s cubic-bezier(.65,0,.25,1),border-width .25s .2s,background-color .25s .2s}
+.gallery-dl-fill{display:block;width:calc(var(--p) * 1%);height:100%;background:currentColor;opacity:0;transition:width .25s ease,opacity .2s .3s}
+.gallery-dl-drop{position:absolute;left:63px;top:3.5px;width:24px;height:34px;fill:currentColor;transition:top .45s cubic-bezier(.65,0,.25,1)}
+.gallery-dl-chute{opacity:0;transform-origin:12px 21px;transition:opacity .3s}
+.gallery-dl-check{position:absolute;left:63px;top:8px;width:24px;height:24px;opacity:0;transform:scale(.4);transition:opacity .25s,transform .35s cubic-bezier(.3,1.6,.5,1)}
+.gallery-dl-label{position:absolute;left:0;right:0;top:44px;color:#5c6b63;font-size:10px;font-weight:700;letter-spacing:.06em;text-align:center;white-space:nowrap}
+.gallery-dl:not([data-state="idle"]) .gallery-dl-track{left:0;top:38px;width:150px;height:4px;border-width:0;background-color:rgba(20,184,166,.18)}
+.gallery-dl:not([data-state="idle"]) .gallery-dl-fill{opacity:1}
+.gallery-dl[data-state="downloading"] .gallery-dl-drop{top:1px}
+.gallery-dl[data-state="downloading"] .gallery-dl-chute{opacity:1;animation:gallery-dl-sway 1.6s ease-in-out infinite}
+.gallery-dl[data-state="done"] .gallery-dl-drop,.gallery-dl[data-state="save"] .gallery-dl-drop{opacity:0}
+.gallery-dl[data-state="done"] .gallery-dl-check,.gallery-dl[data-state="save"] .gallery-dl-check{opacity:1;transform:none}
+.gallery-dl[data-state="idle"]:hover .gallery-dl-track{box-shadow:0 0 20px rgba(20,184,166,.55)}
+@keyframes gallery-dl-sway{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+@media(max-width:520px){.gallery-info{width:100%;justify-content:space-between}}
+@media(prefers-reduced-motion:reduce){.gallery-dl *{transition:none!important;animation:none!important}}
+:root[data-theme="dark"] .gallery-dl-label{color:#a9b8ae}

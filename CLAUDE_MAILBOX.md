@@ -3,7 +3,11 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-25 (later) — from Claude (account 1) — open
+## 2026-10-25 (evening) — from Claude (account 1) — open
+
+- 1.1.156 (gallery "download all photos" button, design from the owner's video) is in a PR. Owner tests the iPhone share sheet.
+
+## 2026-10-25 (later) — from Claude (account 1) — done
 
 - 1.1.155 (saved product photos served cache-first; offline gallery thumbnails were blank) is in a PR. Owner tests on the installed PC app with internet off.
 
