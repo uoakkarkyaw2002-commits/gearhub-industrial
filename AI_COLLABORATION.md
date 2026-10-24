@@ -25,6 +25,14 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.137: Excel cell selection and row headers (Codex) — awaiting PR
+- Task: only row-number taps select a whole row; cell taps select one cell and dragging selects a range.
+- Cause: the cell pointerdown handler called selectRow, so all ordinary cell clicks selected a row and mouse dragging started from its first column.
+- Change: cell-based anchors restored; phone hold (350 ms) then drag selects a range, quick swipes scroll, and two-finger gestures remain available to the existing zoom handler.
+- Files: `public/excel-select.js`, `tests/excel-select.test.js`, version/cache files; no CSS changes.
+- Validation: baseline Node 22 checks and 292 tests passed. Chrome local seller shop at 375px and 1280px: actual cell/row clicks, mouse drag, touch hold-drag, phone swipe scrolling and reload passed without page errors. Temporary CSV fixture; physical iPhone and the owner's workbook not verified.
+- PR: pending.
+
 ### 2026-10-23 — Claude — 1.1.136 Background zip: Codex single-HTML packages
 - Owner: the phone zip from Codex was refused (PC zip worked). It holds only OPEN_ON_PHONE.html: the picture as a data: URI in `img#art` and the moving `<svg>` inline.
 - `public/platform.js`: when a zip (or a picked .html) has no separate picture/SVG, `fromHtmlPackage` takes the data: picture and the first `<svg>` out of the HTML. For phones a wide picture is cut to 9:16 at the page's `#art` object-position (88% in Codex's file), so it matches Codex's preview. Checked with the real file: 528×938 picture + 9.5 KB SVG; phone page looks like the preview.
