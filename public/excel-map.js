@@ -298,21 +298,60 @@
    return html+'</tr>';
   };
   const keep=keepScroll&&[grid.scrollTop/(grid.scrollHeight||1),grid.scrollLeft/(grid.scrollWidth||1)];
-  // Opening, searching or switching sheets: the first rows show at once and the rest are added 150 rows
-  // at a time, so a big sheet never freezes the screen. Zoom keeps its place, so it draws all at once.
-  const token=++drawToken,first=keep?visibleRows.length:120;let next=first;
-  grid.innerHTML=html+visibleRows.slice(0,first).map(rowHtml).join('')+'</tbody></table>';renderedSheet=sheet;
-  if(keep){grid.scrollTop=keep[0]*grid.scrollHeight;grid.scrollLeft=keep[1]*grid.scrollWidth}else{grid.scrollTop=0;grid.scrollLeft=0}
-  freeze();
-  const tbody=grid.querySelector('tbody');
-  const more=()=>{if(token!==drawToken||!tbody.isConnected)return;tbody.insertAdjacentHTML('beforeend',visibleRows.slice(next,next+=150).map(rowHtml).join(''));if(next<visibleRows.length)requestAnimationFrame(more);else freeze()};
-  if(next<visibleRows.length)requestAnimationFrame(more);
+  // Only the rows near the screen are drawn (frozen rows always); empty spacer rows stand in for the
+  // rest. A big sheet has tens of thousands of cells, and drawing them all made opening, zooming and
+  // scrolling stutter on phones. Merged cells start their drawn part at the merge's first row.
+  const body=visibleRows.filter(r=>r>=frozen.r1),index=new Map(body.map((r,i)=>[r,i]));
+  const hts=Float64Array.from(body,r=>Math.round((sheet.heights[r]??sheet.defH)*4/3*zoom));
+  const origin=Int32Array.from(body,(_,i)=>i);
+  for(const [key,m] of merges){if(m.rs<2)continue;const r=+key.split(',')[0],i=index.get(r);if(i===undefined)continue;for(let k=1;k<m.rs;k++){const j=index.get(r+k);if(j!==undefined&&origin[j]>i)origin[j]=i}}
+  const spacer=h=>'<tr class="excel-spacer" style="height:'+h+'px"><td colspan="'+(visibleCols.length+1)+'"></td></tr>';
+  const frozenRows=visibleRows.filter(r=>r<frozen.r1);
+  grid.innerHTML=html+'</tbody><tbody class="excel-after">'+spacer(0)+'</tbody></table>';renderedSheet=sheet;
+  view={sheet,body,index,hts,origin,rowHtml,spacer,frozenHtml:frozenRows.map(rowHtml).join(''),frozenCount:frozenRows.length,tops:null,start:0,end:0,base:0};
+  sumTops();
+  // Drawn from the top first: that measures where the body rows begin.
+  grid.scrollTop=0;drawRows(true,0);
+  grid.scrollLeft=keep?keep[1]*grid.scrollWidth:0;
+  if(keep)drawRows(true,keep[0]*(view.base+view.tops[body.length]));
   msg.textContent=(query?visibleRows.length+' of ':'')+rows+' rows'+(sheet.truncated?' (first '+MAX_ROWS+' shown)':'');
  }
+ let view=null;
+ const sumTops=()=>{const t=new Float64Array(view.hts.length+1);for(let i=0;i<view.hts.length;i++)t[i+1]=t[i]+view.hts[i];view.tops=t};
+ // Row index at a height inside the body rows.
+ const rowAtY=y=>{const t=view.tops;let lo=0,hi=view.body.length;while(lo<hi){const mid=(lo+hi)>>1;if(t[mid+1]<=y)lo=mid+1;else hi=mid}return Math.min(lo,Math.max(0,view.body.length-1))};
+ // Position of a drawn row inside the scrolled sheet.
+ const placeOf=el=>el.getBoundingClientRect().top-grid.getBoundingClientRect().top+grid.scrollTop;
+ const MARGIN=1200;
+ function drawRows(force,target){
+  if(!view||!grid.isConnected)return;const n=view.body.length,top=view.base,y=Math.max(0,(target??grid.scrollTop)-top),h=grid.clientHeight||800;
+  if(!force&&(view.start===0||y-MARGIN/2>=view.tops[view.start])&&(view.end>=n||y+h+MARGIN/2<=view.tops[view.end]))return;
+  let start=rowAtY(Math.max(0,y-MARGIN));while(start>0&&view.origin[start]<start)start=view.origin[start];
+  const end=n?Math.min(n,rowAtY(y+h+MARGIN)+1):0,anchor=rowAtY(y),offset=y-view.tops[anchor];
+  const [main,after]=grid.querySelectorAll('tbody');
+  // No spacer above the first rows: even an empty row takes a pixel between table borders.
+  main.innerHTML=view.frozenHtml+(start?view.spacer(view.tops[start]):'')+view.body.slice(start,end).map(view.rowHtml).join('');
+  after.innerHTML=view.spacer(view.tops[n]-view.tops[end]);
+  view.start=start;view.end=end;
+  // Rows can be taller than Excel's height (wrapped text): measure the drawn ones so the spacers
+  // and the scroll position stay exact.
+  const drawn=[...main.rows].slice(view.frozenCount+(start?1:0));let changed=false;
+  drawn.forEach((tr,k)=>{const real=tr.getBoundingClientRect().height;if(real&&Math.abs(real-view.hts[start+k])>0.01){view.hts[start+k]=real;changed=true}});
+  if(changed){sumTops();after.firstChild.style.height=view.tops[n]-view.tops[end]+'px'}
+  // The first drawn row sits exactly where it would with every row drawn.
+  if(!start&&drawn[0])view.base=placeOf(drawn[0]);
+  else if(drawn[0]){const gap=main.querySelector('tr.excel-spacer');gap.style.height=view.tops[start]+'px';const off=view.base+view.tops[start]-placeOf(drawn[0]);if(Math.abs(off)>0.01)gap.style.height=view.tops[start]+off+'px'}
+  if(force||changed)grid.scrollTop=y>0&&n?view.base+view.tops[anchor]+offset:(target??grid.scrollTop);
+  freeze();
+ }
+ // Scroll events already come once per frame; most return at once (rows still cover the screen).
+ grid.addEventListener('scroll',()=>drawRows(false),{passive:true});
+ // Copy (excel-select.js) reads from the sheet itself, since rows away from the screen are not drawn.
+ grid.cellText=(r,c)=>renderedSheet?.cells.get(r+','+c)?.text??'';
  // Freeze panes saved in the file: the frozen rows stay under the column letters and the frozen
  // columns stay beside the row numbers while scrolling. Columns are frozen only when some room is
  // left to scroll the rest (on a phone they usually scroll with the sheet).
- let renderedSheet=null,drawToken=0;
+ let renderedSheet=null;
  function freeze(){
   const table=grid.querySelector('table');if(!table||!grid.clientWidth)return;
   // Offsets are measured with sticky positions off, so they are right even after scrolling.
@@ -336,9 +375,14 @@
   const keep=[grid.scrollTop,grid.scrollLeft];grid.scrollTop=0;grid.scrollLeft=0;
   const box=el=>el.getBoundingClientRect(),cx=cols.map(th=>{const b=box(th);return{x:b.left,w:b.width}}),ry=rows.map(th=>{const b=box(th);return{y:b.top,h:b.height}});
   const colAt=c=>{let i=cols.findIndex(th=>+th.dataset.c>=c);return i<0?{x:cx[cx.length-1].x+cx[cx.length-1].w,w:0,exact:false}:{...cx[i],exact:+cols[i].dataset.c===c}};
-  const rowAt=r=>{let i=rows.findIndex(th=>+th.dataset.r>=r);return i<0?{y:ry[ry.length-1].y+ry[ry.length-1].h,h:0,exact:false}:{...ry[i],exact:+rows[i].dataset.r===r}};
+  // Rows below the drawn part: their height comes from the row list (they are not drawn).
+  const below=r=>{const last=+rows[rows.length-1].dataset.r,i=view?view.index?.get(last):undefined;if(!view||i===undefined)return 0;const j=view.body.findIndex(x=>x>=r);return(j<0?view.tops[view.body.length]:view.tops[j])-view.tops[i+1]};
+  const rowAt=r=>{let i=rows.findIndex(th=>+th.dataset.r>=r);return i<0?{y:ry[ry.length-1].y+ry[ry.length-1].h+below(r),h:0,exact:false}:{...ry[i],exact:+rows[i].dataset.r===r}};
+  // Only shapes whose corner is in a drawn row are placed; the rest are placed when scrolled near.
+  const frozenEnd=sheet.frozen?.r1||0,firstBody=view?view.body[view.start]:0,lastDrawn=+rows[rows.length-1].dataset.r;
   const placed=[];
   for(const s of sheet.shapes){
+   if(s.from.r>lastDrawn||(s.from.r>=frozenEnd&&s.from.r<firstBody))continue;
    const a=colAt(s.from.c),b=rowAt(s.from.r),x=a.x+(a.exact?Math.min(s.from.cOff,a.w):0),y=b.y+(b.exact?Math.min(s.from.rOff,b.h):0);
    let w,h;if(s.to.w!=null){w=s.to.w;h=s.to.h}else{const c2=colAt(s.to.c),r2=rowAt(s.to.r);w=c2.x+(c2.exact?Math.min(s.to.cOff,c2.w):0)-x;h=r2.y+(r2.exact?Math.min(s.to.rOff,r2.h):0)-y}
    if(w<=1||h<=1)continue;
@@ -362,7 +406,7 @@
   placed.forEach(([host,el])=>host.append(el));
   grid.scrollTop=keep[0];grid.scrollLeft=keep[1];
  }
- if(window.ResizeObserver)new ResizeObserver(()=>freeze()).observe(grid);
+ if(window.ResizeObserver)new ResizeObserver(()=>{drawRows(false);freeze()}).observe(grid);
  // Header row for linking = first row with at least two values (row 1 is often a title).
  function tableData(sheet){
   const rowValues=r=>Array.from({length:sheet.maxC+1},(_,c)=>sheet.cells.get(r+','+c)?.text??'');
