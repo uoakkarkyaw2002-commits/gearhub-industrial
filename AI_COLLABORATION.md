@@ -30,7 +30,7 @@ _None._
 - Cause addressed: pointer handling now resolves a clicked data cell before checking for a row header; the selection script cache key is bumped so deployed clients fetch the corrected behavior.
 - Files: `public/excel-select.js`, `tests/excel-select.test.js`, version/cache files.
 - Validation: Node 22 `npm run check` and `npm test` passed (294 tests); `node --check public/excel-select.js` passed. Browser verification was unavailable in this environment.
-- PR: pending.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/211.
 
 ### 1.1.138: Excel gridlines on filled cells (Codex) — in review
 - Task: restore visible cell lines in the Excel viewer, including on filled cells.
