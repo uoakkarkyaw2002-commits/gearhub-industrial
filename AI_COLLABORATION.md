@@ -25,6 +25,14 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.147: White installed storefront top bar (Codex) — in review
+- Owner asked for the dark top app/browser color to become white and blend into the storefront below.
+- Cause: the root page theme-color and installed seller app manifest theme_color were both dark green; iOS standalone status style also requested a dark translucent bar.
+- `public/index.html`, `public/manifest.webmanifest`, `lib/tenant-install.js`: set storefront/app theme color to white and iOS standalone status style to default.
+- Release version and shell cache bumped; `tests/manifest.test.js` and `tests/tenant-install.test.js` pin white.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/219
+- Node 22 checks: static check passed; 304 tests passed. Browser visual check unavailable; no deployment.
+
 ### 1.1.146: Excel borders like the file; clean top bar (Claude) — in review
 - Owner (iPhone screenshot, BC row 1010): cell borders missing; wants the look exactly like the original file. Also: never again anything smudged/overlapping at the very top.
 - Cause 1: the file sets borders on cells' left/top. With collapsed table borders the left/upper cell's light gridline wins a shared edge, so most black lines showed grey (this was true before the recent Excel changes too: 525/525 cell borders identical to 1.1.143).
