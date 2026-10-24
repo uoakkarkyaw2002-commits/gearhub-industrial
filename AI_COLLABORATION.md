@@ -30,7 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.153: Offline keeps product photos (Claude) — in review
+### 1.1.154: Offline photos finish on big shops (Claude) — in review
+- Live check of 1.1.153 on POLESTAR (100 products, 645 photos, ~180 KB each): after 2 minutes 393/645 photos were saved (61 %) and Settings showed "Offline failed". `store.js` gave the whole download 120 s, and every run downloaded every photo again (`cache:"reload"`).
+- `store.js`: the 120 s limit now restarts on every progress message, so it only fails when the download stalls.
+- `sw.js` SAVE_OFFLINE: a product photo (`/api/platform/images/<id>`, immutable) already in the offline cache is skipped; one already seen while browsing is copied from the other caches instead of downloaded. Later runs only fetch new photos.
+- Tests: `tests/tenant-install.test.js` (saved/seen photos are not fetched again). Version files and cache tags bumped.
+
+### 1.1.153: Offline keeps product photos (Claude) — merged, live (timed out on POLESTAR, see 1.1.154)
 - Owner (installed PC app, internet off): Settings said "Offline success" but product photos (gallery 2/3, 3/3) were blank.
 - Cause: product photos are served from `/api/platform/images/<id>`, and the offline save skipped every `/api/` address (in `store.js` collect and in the `sw.js` SAVE_OFFLINE filter). Only photos already seen were in the image cache.
 - Fix: both allow `/api/platform/images/`; other `/api/` data is still not saved. Offline, the image branch of the fetch handler already falls back to `caches.match`, which finds the saved copy.
