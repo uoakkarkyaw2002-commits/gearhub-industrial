@@ -1,5 +1,5 @@
-const CACHE_NAME = "gearhub-shell-v85-1.1.153";
-const SHELL = ["/skyshop-splash.css?v=20261022-solid-1","/skyshop-splash.js?v=20261022-solid-1","/images/skyshop-splash-phone.jpg?v=1","/images/skyshop-splash-pc.jpg?v=1","/category-browser.js?v=20261017-speed-1","/tenant-store.js?v=20261021-order-fast-1","/excel-map.js?v=20261024-look-10","/excel-select.js?v=20261024-find-2","/excel-auto-upload.js?v=20261023-auto-1","/excel-library.js?v=20261023-folder-1","/updates.js?v=20261023-update80-1","/desktop.css?v=20261023-pcnav-2","/","/style.css?v=20261024-offline-1","/site-content.js?v=20261018-share-2","/store.js?v=20261024-offline-photos-1","/liquid-nav.js?v=20261022-nav-drag-1","/card-tilt.js?v=20261023-tilt-1","/app-install.js?v=20261020-shopsw-1","/settings.js?v=20261024-offline-1","/back-nav.js?v=20261020-back-1","/dialogs.js?v=20261017-share-1","/footer.js?v=20261012-1","/images/hero-excavator.jpg","/app.webmanifest","/app-icon.png","/icons/icon.svg","/icons/apple-touch-icon.png","/qrcode.js?v=1.4.4"];
+const CACHE_NAME = "gearhub-shell-v85-1.1.154";
+const SHELL = ["/skyshop-splash.css?v=20261022-solid-1","/skyshop-splash.js?v=20261022-solid-1","/images/skyshop-splash-phone.jpg?v=1","/images/skyshop-splash-pc.jpg?v=1","/category-browser.js?v=20261017-speed-1","/tenant-store.js?v=20261021-order-fast-1","/excel-map.js?v=20261024-look-10","/excel-select.js?v=20261024-find-2","/excel-auto-upload.js?v=20261023-auto-1","/excel-library.js?v=20261023-folder-1","/updates.js?v=20261023-update80-1","/desktop.css?v=20261023-pcnav-2","/","/style.css?v=20261024-offline-1","/site-content.js?v=20261018-share-2","/store.js?v=20261024-offline-photos-2","/liquid-nav.js?v=20261022-nav-drag-1","/card-tilt.js?v=20261023-tilt-1","/app-install.js?v=20261020-shopsw-1","/settings.js?v=20261024-offline-1","/back-nav.js?v=20261020-back-1","/dialogs.js?v=20261017-share-1","/footer.js?v=20261012-1","/images/hero-excavator.jpg","/app.webmanifest","/app-icon.png","/icons/icon.svg","/icons/apple-touch-icon.png","/qrcode.js?v=1.4.4"];
 const ADMIN_CACHE="gearhub-admin-v1",IMAGE_CACHE="gearhub-img-v1",EXCEL_CACHE="gearhub-excel-v1";
 const shopPath=pathname=>{const m=pathname.match(/^\/shops\/([a-z0-9-]+)(?:\/|$)/);return m?'/shops/'+m[1]+'/':null;};
 const offlineCache=pathname=>'gearhub-offline-v2:'+ (shopPath(pathname)||'root');
@@ -96,7 +96,9 @@ self.addEventListener("message", event => {
    let failures = 0;
    for(let start=0;start<urls.length;start+=6){
     await Promise.all(urls.slice(start,start+6).map(async url => {
-     try {const response=await fetch(url,{cache:"reload"});if(!response.ok)throw new Error();await cache.put(url,response);}
+     // Product photos never change at their address: reuse a saved copy (also one already seen while
+     // browsing) instead of downloading it again — POLESTAR has ~650 photos.
+     try {if(new URL(url,self.location.origin).pathname.startsWith("/api/platform/images/")){if(await cache.match(url))return;const seen=await caches.match(url);if(seen?.ok){await cache.put(url,seen);return}}const response=await fetch(url,{cache:"reload"});if(!response.ok)throw new Error();await cache.put(url,response);}
      catch(_){if(!(await cache.match(url)))failures++;}
     }));
     event.ports[0]?.postMessage({progress:Math.min(start+6,urls.length),total:urls.length});
