@@ -25,6 +25,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.142: Swaying grass on phones without a frame (Claude) — in review
+- Owner: after 1.1.141 the birds fly on iPhone but the grass doesn't sway like PC. Owner asked to add it.
+- `public/platform.js`: on phones, after the picture + birds layer show, the stored phone page's own picture (`img#art`) and birds `<svg>` are placed in a `.sky-codex` box in this page, and its program runs from `GET /scene-asset/phone-script`. No frame, so iPhone doesn't freeze it. The grass canvas stays hidden until 8 frames are drawn (`.drawn`), so there is no black screen. PC keeps the frame.
+- `lib/tenant-install.js`: `GET /scene-asset/phone-script` serves the phone page's first `<script>` as JavaScript (404 without a phone page). It runs with this site's rights; only the GearHub owner can upload that page.
+- `public/platform.css`: `.sky-codex` layout. Files also: `public/platform.html`, `tests/site-scene.test.js`, version/cache files.
+- Validation: Node 22 check + 297 tests. App browser 375px: picture at once, birds fly, grass sways, no frame, no errors; 1280px still the frame. Not verified on a real iPhone.
+
 ### 1.1.141: Phones show the picture and flying birds without the Codex frame (Claude) — in review
 - Owner's iPhone recording (home-screen app): ~10 s dark screen while the Codex phone page loaded, then the birds stayed frozen inside the frame. Owner chose: phones without the frame (birds fly, picture at once); grass sways on PC only.
 - `public/platform.js`: the `.sky-frame` is only created above 600px; phones keep `/scene-asset/phone` + `/scene-asset/phone-layer` (the zip upload already saves both). The phone page stays stored but is not shown.
