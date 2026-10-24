@@ -1,5 +1,5 @@
-// Excel viewer: click or tap any cell (or its row number) to select the complete row.
-// Drag with the mouse or Shift+click still selects a range; row numbers and column letters light up.
+// Excel viewer: cells select individually; row numbers select the complete row.
+// Mouse drag, Shift+click or touch hold-and-drag selects a range.
 // Ctrl/Cmd+C copies the selection as rows and columns (pastes into Excel or Sheets); Esc clears it.
 (()=>{
  const grid=document.getElementById('excel-grid');if(!grid)return;
@@ -24,8 +24,8 @@
   if(rowHead?.tagName==='TH'&&!event.button&&selectRow(Number(rowHead.dataset.r))){event.preventDefault?.();return}
   const cell=event.target.closest('td[data-r]');if(!cell||event.button)return;
   const p=pos(cell);
-  if(!event.shiftKey&&selectRow(p.r)){dragging=event.pointerType==='mouse';event.preventDefault?.();return}
-  if(anchor)focus=p;else{anchor=p;focus=p}
+  if(event.shiftKey&&anchor)focus=p;else{anchor=p;focus=p}
+  if(event.pointerType==='mouse')event.preventDefault?.();
   dragging=event.pointerType==='mouse';paint();
  });
  grid.addEventListener('pointerover',event=>{
@@ -33,8 +33,28 @@
   focus=pos(cell);paint();
  });
  addEventListener('pointerup',()=>{dragging=false});
+ addEventListener('pointercancel',()=>{dragging=false});
+ // A quick swipe scrolls; hold a cell briefly before dragging to select on phones.
+ let touch=null,holdTimer=null;
+ function endTouch(){clearTimeout(holdTimer);holdTimer=null;touch=null}
+ grid.addEventListener('touchstart',event=>{
+  endTouch();if(event.touches.length!==1)return;
+  const cell=event.target.closest('td[data-r]');if(!cell)return;
+  const finger=event.touches[0];touch={x:finger.clientX,y:finger.clientY,p:pos(cell),selecting:false};
+  holdTimer=setTimeout(()=>{if(!touch)return;touch.selecting=true;anchor=touch.p;focus=touch.p;paint()},350);
+ },{passive:true});
+ grid.addEventListener('touchmove',event=>{
+  if(!touch)return;if(event.touches.length!==1){endTouch();return}
+  const finger=event.touches[0];
+  if(!touch.selecting){if(Math.hypot(finger.clientX-touch.x,finger.clientY-touch.y)>8)endTouch();return}
+  event.preventDefault();
+  const cell=document.elementFromPoint(finger.clientX,finger.clientY)?.closest('td[data-r]');
+  if(cell&&grid.contains(cell)){focus=pos(cell);paint()}
+ },{passive:false});
+ grid.addEventListener('touchend',endTouch);grid.addEventListener('touchcancel',endTouch);
+ grid.addEventListener('contextmenu',event=>{if(touch)event.preventDefault()});
  // A new sheet or search result replaces the table: the old selection goes with it.
- new MutationObserver(()=>{marked=[];anchor=focus=null}).observe(grid,{childList:true});
+ new MutationObserver(()=>{endTouch();dragging=false;marked=[];anchor=focus=null}).observe(grid,{childList:true});
  document.addEventListener('keydown',event=>{
   if(!anchor||!grid.offsetParent)return;
   if(event.key==='Escape'){clear();anchor=focus=null;return}
