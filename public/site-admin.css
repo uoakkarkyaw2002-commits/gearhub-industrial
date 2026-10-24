@@ -661,3 +661,24 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
 #category-manager-rows .category-design-children>.category-add-sub::before,#category-manager-rows .category-design-children>.category-add-sub::after{left:calc(var(--cx) - 1px);top:-12px}
 #category-manager-rows .category-design-children>.category-add-sub::before{height:calc(12px + var(--mid))}
 #category-manager-rows [data-category-depth="0"]>.category-design-heading .category-tree-icon svg{width:34px;height:34px}
+/* Add Product runaway button (product-runaway.js): with required fields empty it leaves its slot
+   (dashed outline), tied to it by a line, and comes back once they are all filled. */
+.product-submit-bar #product-submit{position:relative;z-index:1;margin:0 auto;transition:transform .45s cubic-bezier(.3,1.35,.5,1),width .35s ease,border-radius .35s ease,box-shadow .3s}
+.product-submit-bar::before{content:"";position:absolute;left:0;right:0;top:12px;height:52px;border:2px dashed #2e9c4c;border-radius:11px;opacity:0;pointer-events:none;transition:opacity .25s}
+.product-submit-bar.rw-away::before{opacity:.55}
+.product-submit-bar.rw-away #product-submit{width:44%;border-radius:999px;font-size:15px;white-space:nowrap;box-shadow:0 8px 20px rgba(20,139,48,.28)}
+.rw-tether{position:absolute;top:38px;left:50%;width:0;height:2px;background:linear-gradient(90deg,#2e9c4c,#7fd18f);border-radius:2px;opacity:0;pointer-events:none;transition:width .45s cubic-bezier(.3,1.35,.5,1),left .45s cubic-bezier(.3,1.35,.5,1),opacity .2s}
+.rw-tether::before{content:"";position:absolute;top:-4px;width:6px;height:6px;border:2px solid #2e9c4c;border-radius:50%;background:#fff}
+.rw-away .rw-tether{opacity:1}
+.rw-away .rw-tether[style*="calc"]::before{right:-5px}.rw-away .rw-tether:not([style*="calc"])::before{left:-5px}
+.rw-status{display:none;margin:9px 0 0;color:#5c6b63;font-size:12px;font-weight:700;text-align:center}
+.rw-armed .rw-status{display:block}
+.rw-status::before{content:"";display:inline-block;width:7px;height:7px;margin-right:7px;border-radius:50%;background:#e0a100;vertical-align:1px}
+.rw-status[data-state="ready"]{color:#1d7a36}.rw-status[data-state="ready"]::before{background:#22a447}
+#product-form input.rw-ok{border-color:#2e9c4c!important;outline:2px solid #2e9c4c!important;outline-offset:-2px;padding-right:38px!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%2322a447'/%3E%3Cpath d='m7 12.5 3.2 3.2L17 9' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:right 11px center!important;background-size:20px!important}
+#product-form input.rw-missing{border-color:#e7a33a!important;outline:2px solid #e7a33a!important;outline-offset:-2px}
+.product-submit-bar #product-submit:disabled{opacity:.92;cursor:progress}
+.product-submit-bar #product-submit:disabled::after{content:"";display:inline-block;width:15px;height:15px;margin-left:10px;border:2.5px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;vertical-align:-2px;animation:rw-spin .8s linear infinite}
+@keyframes rw-spin{to{transform:rotate(360deg)}}
+@media(max-width:600px){.product-submit-bar::before{top:10px}.rw-tether{top:36px}.product-submit-bar.rw-away #product-submit{font-size:14px}}
+@media(prefers-reduced-motion:reduce){.product-submit-bar #product-submit,.rw-tether{transition:none}}

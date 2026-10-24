@@ -30,7 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.157: Gallery download — parachute falls slowly, save after landing (Claude) — in review
+### 1.1.158: Add Product "runaway" button (Claude) — in review
+- Owner: when Add Product is pressed with required fields empty, animate like their reference video ("Runaway Login": the button will not stand still until the form is filled).
+- New `public/product-runaway.js` (loaded by `admin.html`): with SKU / Category / English name / Price / Stock empty, a tap (phones) or the mouse coming close (PCs) makes the button bolt out of its slot as a pill; a dashed outline marks the slot, a line ties it back, and a status line lists the empty fields ("N fields to fill before it stands still", "One to go — it is slowing down"). Filled required fields get a green outline + check, empty ones an orange outline. Once all are filled it returns to the slot ("Locked in. Go on then."). While saving, the button shows a spinner. Enter still submits through the existing `saveProductForm` (browser validation). Save logic is unchanged.
+- Styles at the end of `public/site-admin.css`.
+- Checked in the app browser with the real form markup on a temporary page (no admin login locally): phone 375 (bolt, status updates 5 → 2 → 1 → locked in, checks/outlines, spinner) and PC 1280 (mouse dodging). Not checked inside a logged-in admin (owner).
+
+### 1.1.157: Gallery download — parachute falls slowly, save after landing (Claude) — merged, live, owner confirmed
 - Owner (iPhone video of 1.1.156): photos came from the saved copies so fast that the parachute flashed and the share sheet opened at once. Wanted: the parachute falls slowly from above onto the bar, and saving shows only after it lands.
 - `public/store.js` `downloadGalleryPhotos`: the shown progress is the smaller of the real download progress and time / 3 s, driven by a 30 ms timer (animation frames stop in hidden windows). It sets `--fall` (0→1) and the %; after landing: check + "Complete", 0.5 s, then the share sheet (phones) or the file downloads (PCs). If iOS refuses the late share sheet, the existing "Tap to save" step appears.
 - `public/style.css`: while downloading the drop sits at `calc(-40px + var(--fall) * 48px)` (starts above the bar, lands on it), no transition.
