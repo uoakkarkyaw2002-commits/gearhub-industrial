@@ -1046,3 +1046,17 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
 @media(max-width:520px){.gallery-info{width:100%;justify-content:space-between}}
 @media(prefers-reduced-motion:reduce){.gallery-dl *{transition:none!important;animation:none!important}}
 :root[data-theme="dark"] .gallery-dl-label{color:#a9b8ae}
+/* Excel viewer: ≡ at the left of the sheet tabs (stays put while the tabs scroll) opens a "Sheets"
+   list from the bottom, like the Google Sheets app (owner's screenshot). */
+.excel-sheet-menu{position:sticky;left:-4px;z-index:2;flex:0 0 auto;display:grid;place-items:center;width:52px;margin-left:-4px;padding:0;border:0;border-right:1px solid #d4d4d4;background:#f3f3f3;color:#1e8e3e;cursor:pointer}
+.excel-sheet-menu svg{width:24px;height:24px}
+.excel-sheet-list{position:fixed;inset:0;z-index:120;display:flex;align-items:flex-end;background:rgba(0,0,0,.32)}
+.excel-sheet-list[hidden]{display:none}
+.excel-sheet-list-card{width:100%;max-height:62vh;max-height:62dvh;display:flex;flex-direction:column;background:#2f3034;color:#fff;padding-bottom:env(safe-area-inset-bottom);animation:excel-sheet-list-up .22s ease-out}
+.excel-sheet-list-card h4{flex:0 0 auto;margin:0;padding:18px 16px;border-bottom:1px solid #45464b;font-size:17px;font-weight:500;text-align:center}
+.excel-sheet-list-rows{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.excel-sheet-list-row{display:block;width:calc(100% - 34px);margin-left:34px;padding:20px 0;border:0;border-bottom:1px solid #45464b;background:none;color:#fff;font-size:17px;text-align:left;cursor:pointer}
+.excel-sheet-list-row.active{color:#81c995;font-weight:700}
+@keyframes excel-sheet-list-up{from{transform:translateY(100%)}to{transform:none}}
+@media(min-width:700px){.excel-sheet-list{align-items:center;justify-content:center}.excel-sheet-list-card{width:min(420px,92vw);border-radius:14px;overflow:hidden}}
+@media(prefers-reduced-motion:reduce){.excel-sheet-list-card{animation:none}}
