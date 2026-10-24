@@ -30,7 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.162: Excel selection like Google Sheets on phones; tap selection to copy (Claude) — in review
+### 1.1.163: Excel tap-to-select works on iPhone (Claude) — in review
+- Owner (iPhone, 1.1.162): tapping a cell selected nothing, so the handles and copy never appeared.
+- 1.1.162 selected on the `click` event; iPhone Safari did not deliver it there. `public/excel-select.js` now reads a tap from `touchend` (touch shorter than 500 ms that moved under 8 px, not a handle drag or hold) and ignores the click that may follow; `click` stays for pens/other pointers. Copy runs inside `touchend` (a user gesture, so the clipboard is allowed).
+- Test added in `tests/excel-select.test.js`; cache tag bumped.
+- Checked in the app browser at 375 with touch events only (no click): tap selects + handles, second tap copies + "Copied". Not checked on a real iPhone: this Mac has no Xcode / iOS Simulator.
+
+### 1.1.162: Excel selection like Google Sheets on phones; tap selection to copy (Claude) — merged, live (tap failed on iPhone, see 1.1.163)
 - Owner (iPhone video): scrolling selected the cell under the finger. Wanted: tap where you want, then drag to select (like Google Sheets); tapping the selection again copies it.
 - `public/excel-select.js`: touch `pointerdown` no longer selects (a swipe only scrolls); a tap (`click`) selects a cell. On touch screens two blue corner handles (`.xs-handle`, placed in the grid) drag to grow/shrink the selection; hold-and-drag still works. Tapping inside the selection copies it (toast "Copied", short flash). Mouse: clicking the selected single cell again copies it; clicking a cell inside a bigger selection selects that cell; Ctrl/Cmd+C as before. The repaint observer ignores the handles moving (no loop).
 - Styles at the end of `public/style.css`. Tests in `tests/excel-select.test.js` updated and added.

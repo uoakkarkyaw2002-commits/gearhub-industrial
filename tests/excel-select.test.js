@@ -59,8 +59,8 @@ test('cells carry their sheet position; selection styles; script loaded and cach
  assert.match(map,/html\+='<td data-r="'\+r\+'" data-c="'\+c\+'"'/);
  assert.match(map,/'<th data-c="'\+c\+'"'\+\(c<frozen\.c1\?' class="excel-frozen-col"':''\)\+'>'\+colName\(c\)\+'<\/th>'/);
  const css=read('style.css');assert.match(css,/#excel-grid td\.xs-active\{box-shadow:inset 0 0 0 2px #1a73e8/);assert.match(css,/#excel-grid tbody th\[data-r\]\{cursor:pointer/);
- assert.match(read('index.html'),/<script src="\/excel-select\.js\?v=20261025-tap-1"><\/script>/);
- assert.match(read('sw.js'),/"\/excel-select\.js\?v=20261025-tap-1"/);
+ assert.match(read('index.html'),/<script src="\/excel-select\.js\?v=20261025-tap-2"><\/script>/);
+ assert.match(read('sw.js'),/"\/excel-select\.js\?v=20261025-tap-2"/);
 });
 
  test('touch hold-and-drag selects cells; quick swipes and two fingers remain scrolling/zoom gestures',()=>{
@@ -137,4 +137,14 @@ test('mouse: clicking the selected cell again copies it; dragging from it starts
  assert.equal(s.copied(),'R1C0');assert.ok(s.at(1,0).classList.has('xs-active'),'selection kept');
  s.listeners.pointerdown({target:s.at(1,0),button:0,pointerType:'mouse'});s.listeners.pointerover({target:s.at(2,2),buttons:1});s.globalEvents.pointerup();
  assert.ok(s.at(2,2).classList.has('xs-sel')&&s.at(1,1).classList.has('xs-sel'),'drag from it selects a range');
+});
+test('iPhone: a short touch that does not move selects (no click needed); a second tap copies',async()=>{
+ const s=sheet(),finger=(x,y)=>({clientX:x,clientY:y});
+ s.listeners.touchstart({target:s.at(1,1),touches:[finger(10,10)]});s.listeners.touchend();
+ assert.ok(s.at(1,1).classList.has('xs-active'),'touch tap selects');
+ s.listeners.click({target:s.at(1,1)});assert.equal(s.copied(),null,'the click after a touch tap is not handled twice');
+ s.listeners.touchstart({target:s.at(1,1),touches:[finger(10,10)]});s.listeners.touchend();await new Promise(r=>setImmediate(r));
+ assert.equal(s.copied(),'R1C1');
+ s.listeners.touchstart({target:s.at(2,2),touches:[finger(10,10)]});s.listeners.touchmove({touches:[finger(10,40)],preventDefault(){}});s.listeners.touchend();
+ assert.ok(!s.at(2,2).classList.has('xs-sel'),'a swipe selects nothing');
 });
