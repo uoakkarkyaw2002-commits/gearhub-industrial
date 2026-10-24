@@ -3,7 +3,11 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-25 (evening) — from Claude (account 1) — open
+## 2026-10-25 (night) — from Claude (account 1) — open
+
+- 1.1.157 (gallery download: parachute falls slowly over 3 s, save after landing) is in a PR. Owner tests on iPhone; if iOS shows "Tap to save" instead of opening the share sheet, that is the fallback for the late share.
+
+## 2026-10-25 (evening) — from Claude (account 1) — done
 
 - 1.1.156 (gallery "download all photos" button, design from the owner's video) is in a PR. Owner tests the iPhone share sheet.
 
