@@ -49,20 +49,35 @@ test('Excel viewer shows sheets like a spreadsheet: tabs, letters, row numbers, 
 });
 test('filled Excel cells keep light gridlines while workbook and conditional borders retain their styles',()=>{
  const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8');
- const src=map.slice(map.indexOf(' function cellStyle('),map.indexOf(' // Sheet zoom'));
+ const src=map.slice(map.indexOf(' const bordersOf='),map.indexOf(' // Sheet zoom'));
  const cellStyle=new Function('const zoom=1;'+src+';return cellStyle')();
  for(const fill of ['#FFFFFF','#00B050']){
   const style={fill,font:{},border:{left:'3px solid #FF0000'}};
   const cell={style,text:'Invoice'};
-  const css=cellStyle(cell);
+  const css=cellStyle(cell,{firstCol:true});
   assert.ok(css.includes('background-color:'+fill));
-  assert.ok(css.includes('border-left:3px solid #FF0000'));
+  assert.ok(css.includes('border-left:3px solid #FF0000'),'the first shown column draws its own left border');
+  assert.doesNotMatch(cellStyle(cell),/border-left/,'elsewhere the cell to the left draws that edge (it gets it as edge.right)');
   assert.doesNotMatch(css,/border-(?:right|top|bottom)(?:-color)?:/,'unbordered edges inherit visible sheet gridlines');
   const conditional=cellStyle({...cell,cf:{fill:'#FFFFFF',border:{bottom:'2px solid #000000'}}});
   assert.ok(conditional.includes('border-bottom:2px solid #000000'));
   assert.doesNotMatch(conditional,/border-(?:right|top)(?:-color)?:/);
   assert.deepEqual(style,{fill,font:{},border:{left:'3px solid #FF0000'}},'rendering does not change workbook formatting');
  }
+ // The file often sets only left/top borders; the edge shared with the next cell shows them (as in Excel).
+ const plain={style:{font:{},border:{}},text:'x'};
+ const shared=cellStyle(plain,{right:'1px solid #000',bottom:'1px solid #000'});
+ assert.ok(shared.includes('border-right:1px solid #000')&&shared.includes('border-bottom:1px solid #000'));
+ const own=cellStyle({style:{font:{},border:{right:'2px solid #F00'}},text:'x'},{right:'1px solid #000'});
+ assert.ok(own.includes('border-right:2px solid #F00')&&!own.includes('border-right:1px'),'the cell\'s own border wins');
+});
+test('empty cells and cells next to bordered cells show the shared border (BC sheet lost its lines)',()=>{
+ const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8');
+ assert.match(map,/const edgeAt=\(r,c,m\)=>\{const nc=colAfter\[c\+\(m\?m\.cs:1\)-1\],nr=rowAfter\[r\+\(m\?m\.rs:1\)-1\];/);
+ const css=fs.readFileSync(path.join(__dirname,'..','public','style.css'),'utf8');
+ assert.match(css,/\.excel-sheet table\{border-collapse:separate;border-spacing:0;/,'collapsed borders let scrolled rows paint over the sticky column letters');
+ assert.match(css,/\.excel-sheet td\{padding:2px 5px;border:0;border-right:1px solid #e2e2e2;border-bottom:1px solid #e2e2e2;/);
+ assert.match(map,/\(cell\?' style="'\+esc\(cellStyle\(cell,edgeAt\(r,c,m\)\)\)\+'"':\(e=>e\.length\?' style="'\+esc\(e\.join\(';'\)\)\+'"':''\)\(edgeCss\(\{\},edgeAt\(r,c,m\)\)\)\)/);
 });
 test('Excel sheet opens full screen with one back arrow and exact column widths',()=>{
  const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8'),css=fs.readFileSync(path.join(__dirname,'..','public','style.css'),'utf8');
@@ -129,4 +144,9 @@ test('excel viewer: selection shows on filled cells; two-finger zoom smaller and
  assert.match(map,/grid\.addEventListener\('touchmove',e=>\{if\(!pinch\|\|e\.touches\.length!==2\)return;e\.preventDefault\(\)/);
  assert.match(map,/grid\.addEventListener\('wheel',e=>\{if\(!e\.ctrlKey\)return;/);
  assert.match(css,/#excel-grid\{touch-action:pan-x pan-y\}/);
+});
+test('a border on a merged range shows on the edge next to any of its cells (INV row 405 lost its thick line)',()=>{
+ const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8');
+ assert.match(map,/const sideAt=\(key,side\)=>bordersOf\(sheet\.cells\.get\(key\)\)\[side\]\|\|\(coverOf\.has\(key\)\?bordersOf\(sheet\.cells\.get\(coverOf\.get\(key\)\)\)\[side\]:''\)\|\|'';/);
+ assert.match(map,/right:nc===undefined\?'':sideAt\(r\+','\+nc,'left'\),bottom:nr===undefined\?'':sideAt\(nr\+','\+c,'top'\)/);
 });

@@ -262,14 +262,22 @@
   }
  }
  const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
- function cellStyle(cell){
-  const cf=cell.cf,s=cf?{...cell.style,fill:cf.fill||cell.style.fill}:cell.style,f=cf?{...(s.font||{}),...cf.font}:s.font||{},b=cf?{...(s.border||{}),...cf.border}:s.border||{},css=[];
+ const bordersOf=cell=>!cell?{}:cell.cf?{...(cell.style.border||{}),...cell.cf.border}:cell.style.border||{};
+ // Each cell draws its right and bottom edge (the sheet uses separate borders). Excel shows an edge if
+ // either cell beside it has a border there, and files often set only left/top, so edge holds the left
+ // border of the cell to the right and the top border of the cell below. Only the first shown column and
+ // row draw their own left/top.
+ function edgeCss(b,edge){const css=[],right=b.right||edge?.right,bottom=b.bottom||edge?.bottom;
+  if(right)css.push('border-right:'+right);if(bottom)css.push('border-bottom:'+bottom);
+  if(edge?.firstCol&&b.left)css.push('border-left:'+b.left);if(edge?.firstRow&&b.top)css.push('border-top:'+b.top);return css}
+ function cellStyle(cell,edge){
+  const cf=cell.cf,s=cf?{...cell.style,fill:cf.fill||cell.style.fill}:cell.style,f=cf?{...(s.font||{}),...cf.font}:s.font||{},b=bordersOf(cell),css=[];
   if(s.fill)css.push('background-color:'+s.fill);if(f.color)css.push('color:'+f.color);if(f.b)css.push('font-weight:700');if(f.i)css.push('font-style:italic');if(f.u)css.push('text-decoration:underline');
   if(f.sz)css.push('font-size:'+Math.round(f.sz*zoom*10)/10+'pt');if(f.name)css.push('font-family:"'+f.name.replace(/"/g,'')+'",system-ui,sans-serif');
   const h=s.h&&s.h!=='general'?(s.h==='centerContinuous'?'center':s.h):cell.numeric?'right':'left';css.push('text-align:'+h);
   css.push('vertical-align:'+(s.v==='center'?'middle':s.v==='top'?'top':'bottom'));if(s.wrap)css.push('white-space:pre-wrap');
   // Keep the sheet's light gridlines visible on filled cells too; explicit workbook borders win.
-  for(const side of ['left','right','top','bottom'])if(b[side])css.push('border-'+side+':'+b[side]);
+  css.push(...edgeCss(b,edge));
   return css.join(';');
  }
  // Sheet zoom (pinch on phones, Ctrl + wheel / trackpad pinch on PC). Excel's own zoom range.
@@ -288,12 +296,19 @@
    merges.set(key,axis?{rs:m.rs,cs:at-c}:{rs:at-r,cs:m.cs});const k=axis?r+','+at:at+','+c;merges.set(k,axis?{rs:m.rs,cs:c+m.cs-at}:{rs:r+m.rs-at,cs:m.cs});covered.delete(k);if(!carry)split.add(k);else if(!sheet.cells.has(k)&&sheet.cells.has(key))sheet.cells.set(k,sheet.cells.get(key))}}};
   cut(0,frozen.r0,true);cut(1,frozen.c0,true);cut(0,frozen.r1,false);cut(1,frozen.c1,false);
   let html='<table style="width:'+total+'px;font-size:'+Math.round(11*zoom*10)/10+'pt;--excel-zoom:'+zoom+'"><colgroup><col class="excel-rownum-col" style="width:46px">'+widths.map(w=>'<col style="width:'+w+'px">').join('')+'</colgroup><thead><tr><th class="excel-corner"></th>'+visibleCols.map(c=>'<th data-c="'+c+'"'+(c<frozen.c1?' class="excel-frozen-col"':'')+'>'+colName(c)+'</th>').join('')+'</tr></thead><tbody>';
+  // Next shown column / row after a given one (hidden ones are skipped), for shared cell edges.
+  const after=(list,size)=>{const next=new Array(size+1).fill(undefined);let k=list.length-1;for(let i=size;i>=0;i--){while(k>=0&&list[k]>i)k--;next[i]=list[k+1]}return next};
+  const colAfter=after(visibleCols,cols),rowAfter=after(visibleRows,rows);
+  // A cell inside a merged range takes the border of the range's first cell when it has none itself.
+  const coverOf=new Map();for(const [key,mm] of merges){const [r0,c0]=key.split(',').map(Number);for(let i=0;i<mm.rs;i++)for(let j=0;j<mm.cs;j++)if(i||j)coverOf.set((r0+i)+','+(c0+j),key)}
+  const sideAt=(key,side)=>bordersOf(sheet.cells.get(key))[side]||(coverOf.has(key)?bordersOf(sheet.cells.get(coverOf.get(key)))[side]:'')||'';
+  const edgeAt=(r,c,m)=>{const nc=colAfter[c+(m?m.cs:1)-1],nr=rowAfter[r+(m?m.rs:1)-1];return{right:nc===undefined?'':sideAt(r+','+nc,'left'),bottom:nr===undefined?'':sideAt(nr+','+c,'top'),firstCol:c===visibleCols[0],firstRow:r===visibleRows[0]}};
   const rowHtml=r=>{
    const ht=sheet.heights[r];
    let html='<tr'+(r<frozen.r1?' class="excel-frozen-row"':'')+' style="height:'+Math.round((ht??sheet.defH)*4/3*zoom)+'px"><th data-r="'+r+'">'+(r+1)+'</th>';
    for(const c of visibleCols){const key=r+','+c;if(covered.has(key))continue;const m=merges.get(key),cell=split.has(key)?null:sheet.cells.get(key);
     let rs=1,cs=1;if(m){for(let i=1;i<m.rs;i++)if(rowShown.has(r+i))rs++;for(let i=1;i<m.cs;i++)if(colShown.has(c+i))cs++}
-    html+='<td data-r="'+r+'" data-c="'+c+'"'+(c<frozen.c1?' class="excel-frozen-col"':'')+(m?(m.rs>1?' data-r2="'+(r+m.rs-1)+'"':'')+(m.cs>1?' data-c2="'+(c+m.cs-1)+'"':''):'')+(rs>1?' rowspan="'+rs+'"':'')+(cs>1?' colspan="'+cs+'"':'')+(cell?' style="'+esc(cellStyle(cell))+'"':'')+'>'+(cell?esc(cell.text):'')+'</td>'}
+    html+='<td data-r="'+r+'" data-c="'+c+'"'+(c<frozen.c1?' class="excel-frozen-col"':'')+(m?(m.rs>1?' data-r2="'+(r+m.rs-1)+'"':'')+(m.cs>1?' data-c2="'+(c+m.cs-1)+'"':''):'')+(rs>1?' rowspan="'+rs+'"':'')+(cs>1?' colspan="'+cs+'"':'')+(cell?' style="'+esc(cellStyle(cell,edgeAt(r,c,m)))+'"':(e=>e.length?' style="'+esc(e.join(';'))+'"':'')(edgeCss({},edgeAt(r,c,m))))+'>'+(cell?esc(cell.text):'')+'</td>'}
    return html+'</tr>';
   };
   const keep=keepScroll&&[grid.scrollTop/(grid.scrollHeight||1),grid.scrollLeft/(grid.scrollWidth||1)];
