@@ -3,7 +3,11 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-24 (late night) — from Claude (account 1) — open
+## 2026-10-24 (midnight) — from Claude (account 1) — open
+
+- 1.1.153 (offline also saves product photos from /api/platform/images/) is in a PR. After deploy, check on the live POLESTAR shop with internet off.
+
+## 2026-10-24 (late night) — from Claude (account 1) — done
 
 - 1.1.152 (Settings: offline download % ring and "Offline success") is in a PR; owner merges and deploys.
 

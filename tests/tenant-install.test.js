@@ -32,16 +32,16 @@ test('offline navigation never falls back from a tenant to root or another tenan
  const caches={open:async name=>({match:async key=>entries.get(name+' '+(typeof key==='string'?new URL(key,origin).href:key.url)),put:async()=>{}}),match:async()=>new Response('ROOT'),keys:async()=>[]};
  vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../public/sw.js'),'utf8'),{self:{location:{origin},addEventListener:(n,f)=>handlers[n]=f},caches,URL,Response,fetch:async()=>{throw Error('offline')}});
  async function navigate(p){let response;handlers.fetch({request:{url:origin+p,mode:'navigate',method:'GET'},respondWith:r=>response=r});return response;}
- entries.set('gearhub-shell-v85-1.1.152 '+origin+'/shops/shop-a/',new Response('SHOP A'));entries.set('gearhub-offline-v2:/shops/shop-b/ '+origin+'/shops/shop-b/',new Response('SHOP B'));
+ entries.set('gearhub-shell-v85-1.1.153 '+origin+'/shops/shop-a/',new Response('SHOP A'));entries.set('gearhub-offline-v2:/shops/shop-b/ '+origin+'/shops/shop-b/',new Response('SHOP B'));
  assert.equal(await(await navigate('/shops/shop-a/')).text(),'SHOP A');assert.equal(await(await navigate('/shops/shop-b/')).text(),'SHOP B');assert.equal((await navigate('/shops/shop-c/')).status,503);assert.equal(await(await navigate('/')).text(),'ROOT');
 });
 test('offline saves reject root, other tenant and admin URLs from a shop client',async()=>{
  const handlers={},saved=[],posted=[];let pending;
  vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../public/sw.js'),'utf8'),{self:{location:{origin:'https://example.test'},addEventListener:(n,f)=>handlers[n]=f},URL,Response,caches:{open:async name=>({put:async url=>saved.push([name,url]),match:async()=>null})},fetch:async()=>new Response('ok')});
- handlers.message({source:{url:'https://example.test/shops/shop-a/'},data:{type:'SAVE_OFFLINE',urls:['/','/shops/shop-b/','/shops/shop-a/admin','/shops/shop-a/','/style.css']},waitUntil:p=>pending=p,ports:[{postMessage:m=>posted.push(m)}]});await pending;
- assert.deepEqual(saved.map(x=>x[1]),['/shops/shop-a/','/style.css']);
+ handlers.message({source:{url:'https://example.test/shops/shop-a/'},data:{type:'SAVE_OFFLINE',urls:['/','/shops/shop-b/','/shops/shop-a/admin','/shops/shop-a/','/style.css','/api/products','/api/platform/images/photo-1']},waitUntil:p=>pending=p,ports:[{postMessage:m=>posted.push(m)}]});await pending;
+ assert.deepEqual(saved.map(x=>x[1]),['/shops/shop-a/','/style.css','/api/platform/images/photo-1'],'product photos are saved for offline (owner: photos blank with internet off)');
  // Settings shows the download as 1–100 %, then "Offline success" (owner: "I can't tell whether offline finished").
- assert.equal(JSON.stringify(posted),JSON.stringify([{progress:2,total:2},{ok:true,error:null}]));assert(saved.every(x=>x[0]==='gearhub-offline-v2:/shops/shop-a/'));
+ assert.equal(JSON.stringify(posted),JSON.stringify([{progress:3,total:3},{ok:true,error:null}]));assert(saved.every(x=>x[0]==='gearhub-offline-v2:/shops/shop-a/'));
 });
 
 test('admin pages are installable apps whose scope includes the store and login',async()=>{

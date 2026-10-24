@@ -30,7 +30,14 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.152: Offline download progress in Settings (Claude) — in review
+### 1.1.153: Offline keeps product photos (Claude) — in review
+- Owner (installed PC app, internet off): Settings said "Offline success" but product photos (gallery 2/3, 3/3) were blank.
+- Cause: product photos are served from `/api/platform/images/<id>`, and the offline save skipped every `/api/` address (in `store.js` collect and in the `sw.js` SAVE_OFFLINE filter). Only photos already seen were in the image cache.
+- Fix: both allow `/api/platform/images/`; other `/api/` data is still not saved. Offline, the image branch of the fetch handler already falls back to `caches.match`, which finds the saved copy.
+- Files: `public/store.js`, `public/sw.js` (+ cache tag in `index.html`), `tests/tenant-install.test.js`, version files.
+- Checked locally (port 3008): the save includes the photo URL and skips `/api/products`; with the server stopped, the saved photo URL answers 200 from the cache and the store reloads with all 14 products and 6/6 photos. Real POLESTAR photos can only be checked on the live site after deploy.
+
+### 1.1.152: Offline download progress in Settings (Claude) — merged, live
 - Owner: "I can't tell whether offline has finished". Asked for "Offline" on the right of Server storage, a 1–100 % ring while downloading, and a check with "Offline success" at 100 %.
 - `public/sw.js` SAVE_OFFLINE posts `{progress,total}` after each batch of 6 files; `public/store.js` passes the percent with the `gearhub:auto-download` event; `public/settings.js` `renderOffline` draws it in `#offline-status` (replaces the storage row's chevron in `index.html`). States: Offline / N% / Offline success / Offline failed. Styles in `style.css` (`.offline-status`, `.offline-ring`, dark mode).
 - Tests: `tests/tenant-install.test.js` checks the progress messages. Version files and cache tags bumped.
