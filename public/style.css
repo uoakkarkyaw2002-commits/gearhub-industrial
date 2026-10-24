@@ -866,6 +866,11 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
 .excel-sheet tr.excel-spacer>td{padding:0;border:0;background:transparent;line-height:0;font-size:0}
 /* The sheet keeps its own place when it swaps drawn rows; the browser's scroll anchoring would move it again. */
 .excel-sheet{overflow-anchor:none}
+/* Like Excel: long text spills into empty cells beside it; rotated text; sheets with gridlines turned off. */
+.excel-sheet td.excel-spill-host{overflow:visible}.excel-spill{white-space:nowrap;overflow:hidden}
+.excel-rot{display:inline-block;white-space:nowrap;line-height:1.1}
+.excel-word{display:inline-block;max-width:100%}
+.excel-sheet table.excel-nogrid td{border-right-color:transparent;border-bottom-color:transparent}
 /* Separate borders: each cell draws its own right and bottom edge. With collapsed borders the rows
    scrolling under the sticky column letters painted their lines and text over them. */
 .excel-tabs{display:flex;gap:2px;overflow-x:auto;background:#f3f3f3;border:1px solid #c9d2cc;border-top:0;border-radius:0 0 8px 8px;padding:0 4px;-webkit-overflow-scrolling:touch}
