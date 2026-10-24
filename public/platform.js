@@ -137,8 +137,10 @@
   // No sandbox attribute: WebKit leaves attribute-sandboxed frames blank; the server's CSP header sandboxes it.
   // Phones: iPhone Safari froze the birds inside the frame and showed a dark screen for ~10 s (owner's
   // recording, 1.1.140). So the picture and flying-birds layer show at once, and the phone page's own
-  // picture, birds and grass program are then placed in this page directly (no frame) once its picture is ready.
+  // picture and grass program are then placed in this page directly (no frame) once its picture is ready,
+  // under the birds layer: its birds (an <img>) fly on iPhone, while an <svg> moved in here stayed paused in WebKit.
   const afterPictures=(el)=>{const pictures=document.querySelectorAll(".sky-picture");(pictures[pictures.length-1]||document.body.firstChild).after(el);};
+  const underBirds=(el)=>{const layer=document.querySelector(".sky-layer");layer?(layer.closest(".sky-picture")||layer).before(el):afterPictures(el);};
   const phoneScene=matchMedia("(max-width:600px)").matches;
   fetch("/scene-asset/state").then((r)=>r.ok?r.json():null).then(async (st)=>{
     if(!st)return;
@@ -154,12 +156,12 @@
     const doc=new DOMParser().parseFromString(await (await fetch("/scene-asset/phone-page"+v)).text(),"text/html");
     const src=doc.querySelector("img#art")?.getAttribute("src")||"";if(!/^data:image\//.test(src))return;
     const css=[...doc.querySelectorAll("style")].map((x)=>x.textContent).join("\n");
-    const box=document.createElement("div"),art=new Image(),svg=doc.querySelector("svg");
+    const box=document.createElement("div"),art=new Image();
     box.className="sky-frame sky-codex";box.setAttribute("aria-hidden","true");
     art.id="art";art.alt="";art.style.objectPosition=((/#art\s*\{[^}]*object-position:\s*([\d.]+%)/.exec(css)||[])[1]||"50%")+" center";
-    box.append(art);if(svg)box.append(document.importNode(svg,true));
+    box.append(art);
     art.addEventListener("load",()=>{
-      afterPictures(box);
+      underBirds(box);
       const program=document.createElement("script");program.src="/scene-asset/phone-script"+v;document.body.append(program);
       // The grass canvas is black until its first frames are drawn; the picture shows until then.
       program.addEventListener("load",()=>{let frames=0;const wait=()=>{if(box.querySelector("canvas[data-ready]")&&++frames>8)box.classList.add("drawn");else requestAnimationFrame(wait);};requestAnimationFrame(wait);},{once:true});

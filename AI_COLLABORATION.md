@@ -25,6 +25,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.143: Phone grass under the working birds layer (Claude) — in review
+- Owner's iPhone recording after 1.1.142: picture fast, but the grass didn't sway and the birds vanished once the Codex box appeared.
+- Reproduced with a WebKit (WKWebView) probe at 375px: the Codex `<svg>` moved into the page can stay paused at time 0 (`animationsPaused()`), which leaves its birds frozen off-screen. The birds `<img>` layer flies on iPhone (1.1.141).
+- `public/platform.js`: the `.sky-codex` box now holds only the picture + grass program and goes under the birds layer (`underBirds`); no SVG is moved in.
+- Local WebKit test needs `upgrade-insecure-requests` removed (WebKit upgrades http://localhost); a throwaway proxy was used, nothing changed in the app.
+- Validation: Node 22 check + tests; WebKit probe at 375px through the proxy: order picture → grass box → birds layer, grass drawn, birds move, no errors. Not verified on a real iPhone.
+
 ### 1.1.142: Swaying grass on phones without a frame (Claude) — in review
 - Owner: after 1.1.141 the birds fly on iPhone but the grass doesn't sway like PC. Owner asked to add it.
 - `public/platform.js`: on phones, after the picture + birds layer show, the stored phone page's own picture (`img#art`) and birds `<svg>` are placed in a `.sky-codex` box in this page, and its program runs from `GET /scene-asset/phone-script`. No frame, so iPhone doesn't freeze it. The grass canvas stays hidden until 8 frames are drawn (`.drawn`), so there is no black screen. PC keeps the frame.
