@@ -179,8 +179,13 @@
    for(const node of [...anchor.children].filter(n=>n.localName==='sp'||n.localName==='pic')){
     const nv=one(node,'cNvPr');if(nv?.getAttribute('hidden')==='1')continue;
     const sp=kids(node,'spPr')[0],style=kids(node,'style')[0],shape={from,to,kind:node.localName};
+    // Outer shadow as saved (blur, distance, direction, colour): Excel's picture and shape styles.
+    const sh=one(sp,'outerShdw');if(sh){const d=+(sh.getAttribute('dist')||0)/EMU,a=+(sh.getAttribute('dir')||0)/60000*Math.PI/180;
+     shape.shadowCss={x:Math.round(Math.cos(a)*d*10)/10,y:Math.round(Math.sin(a)*d*10)/10,blur:Math.round(+(sh.getAttribute('blurRad')||0)/EMU*10)/10,color:drawColor(sh)||'rgba(0,0,0,.35)'}}
     if(node.localName==='pic'){const id=one(node,'blip')?.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','embed');const media=drawRels[id];if(!media)continue;
-     try{shape.src=URL.createObjectURL(await book.read(media,true))}catch{continue}}
+     try{shape.src=URL.createObjectURL(await book.read(media,true))}catch{continue}
+     // A picture frame (Picture Styles): a line around it, drawn on its edge, half inside and half outside.
+     const ln=kids(sp,'ln')[0];if(ln&&!kids(ln,'noFill').length&&kids(ln,'solidFill')[0])shape.frame={color:drawColor(kids(ln,'solidFill')[0]),w:+(ln.getAttribute('w')||9525)/EMU}}
     else{
      const fill=kids(sp,'solidFill')[0],noFill=kids(sp,'noFill')[0];shape.fill=noFill?'':fill?drawColor(fill):style?drawColor(one(style,'fillRef')):'';
      const ln=kids(sp,'ln')[0];shape.line=ln&&!kids(ln,'noFill').length?(drawColor(kids(ln,'solidFill')[0])||'')&&{color:drawColor(kids(ln,'solidFill')[0]),w:Math.max(1,Math.round(+(ln.getAttribute('w')||9525)/EMU))}:(!ln&&style?{color:drawColor(one(style,'lnRef')),w:1}:null);
@@ -272,12 +277,19 @@
  // row draw their own left/top.
  // A merged cell's edge can differ along its length (each column/row under it has its own border, as in
  // Excel): edge.right/bottom is then '' and edge.rightParts/bottomParts list [offset px, length px, border].
- function edgeCss(b,edge){const css=[],right=edge&&'rightAll' in edge?edge.rightAll:b.right||edge?.right,bottom=edge&&'bottomAll' in edge?edge.bottomAll:b.bottom||edge?.bottom;
-  if(right)css.push('border-right:'+right);if(bottom)css.push('border-bottom:'+bottom);
-  if(edge?.firstCol&&b.left)css.push('border-left:'+b.left);if(edge?.firstRow&&b.top)css.push('border-top:'+b.top);
+ // Excel draws a thick line centred on the edge between two cells: the left/upper cell draws the first
+ // half, the right/lower cell the rest (a thick white line beside INV's blue bar only shows a sliver).
+ // Thin and double lines stay whole on the left/upper cell.
+ const half=(v,first)=>{if(!v)return '';const [w,st,...rest]=v.split(' '),n=parseFloat(w);if(st==='double'||!(n>1))return first?v:'';const k=first?Math.floor(n/2):n-Math.floor(n/2);return k?k+'px '+st+' '+rest.join(' '):''};
+ function edgeCss(b,edge){const css=[],rightV=edge&&'rightAll' in edge?edge.rightAll:b.right||edge?.right,bottomV=edge&&'bottomAll' in edge?edge.bottomAll:b.bottom||edge?.bottom;
+  const right=edge?.lastCol?rightV:half(rightV,true),bottom=edge?.lastRow?bottomV:half(bottomV,true);
+  const left=edge?.firstCol?b.left:half(edge&&'leftAll' in edge?edge.leftAll:edge?.left,false),top=edge?.firstRow?b.top:half(edge&&'topAll' in edge?edge.topAll:edge?.top,false);
+  if(right)css.push('border-right:'+right);if(bottom)css.push('border-bottom:'+bottom);if(left)css.push('border-left:'+left);if(top)css.push('border-top:'+top);
   const layers=[];
-  for(const [at,len,v] of edge?.bottomParts||[]){if(!v)continue;const [w,,col]=v.split(' ');layers.push(['linear-gradient('+col+','+col+')',len+'px '+w,at+'px 100%'])}
-  for(const [at,len,v] of edge?.rightParts||[]){if(!v)continue;const [w,,col]=v.split(' ');layers.push(['linear-gradient('+col+','+col+')',w+' '+len+'px','100% '+at+'px'])}
+  for(const [at,len,v0] of edge?.bottomParts||[]){const v=half(v0,true);if(!v)continue;const [w,,col]=v.split(' ');layers.push(['linear-gradient('+col+','+col+')',len+'px '+w,at+'px 100%'])}
+  for(const [at,len,v0] of edge?.rightParts||[]){const v=half(v0,true);if(!v)continue;const [w,,col]=v.split(' ');layers.push(['linear-gradient('+col+','+col+')',w+' '+len+'px','100% '+at+'px'])}
+  if(!edge?.firstCol)for(const [at,len,v0] of edge?.leftParts||[]){const v=half(v0,false);if(!v)continue;const [w,,col]=v.split(' ');layers.push(['linear-gradient('+col+','+col+')',w+' '+len+'px','0 '+at+'px'])}
+  if(!edge?.firstRow)for(const [at,len,v0] of edge?.topParts||[]){const v=half(v0,false);if(!v)continue;const [w,,col]=v.split(' ');layers.push(['linear-gradient('+col+','+col+')',len+'px '+w,at+'px 0'])}
   if(layers.length)css.push('background-image:'+layers.map(l=>l[0]).join(','),'background-size:'+layers.map(l=>l[1]).join(','),'background-position:'+layers.map(l=>l[2]).join(','),'background-repeat:no-repeat');
   return css}
  function cellStyle(cell,edge){
@@ -312,15 +324,29 @@
   // A cell inside a merged range takes the border of the range's first cell when it has none itself.
   const coverOf=new Map();for(const [key,mm] of merges){const [r0,c0]=key.split(',').map(Number);for(let i=0;i<mm.rs;i++)for(let j=0;j<mm.cs;j++)if(i||j)coverOf.set((r0+i)+','+(c0+j),key)}
   const sideAt=(key,side)=>bordersOf(sheet.cells.get(key))[side]||(coverOf.has(key)?bordersOf(sheet.cells.get(coverOf.get(key)))[side]:'')||'';
-  const edgeAt=(r,c,m)=>{const nc=colAfter[c+(m?m.cs:1)-1],nr=rowAfter[r+(m?m.rs:1)-1],edge={right:nc===undefined?'':sideAt(r+','+nc,'left'),bottom:nr===undefined?'':sideAt(nr+','+c,'top'),firstCol:c===visibleCols[0],firstRow:r===visibleRows[0]};
-   if(m&&(m.cs>1||m.rs>1)){const last=r+m.rs-1,parts=[];let at=0;for(let j=c;j<c+m.cs;j++){if(!colShown.has(j))continue;const w=widthOf.get(j)||0;parts.push([at,w,sideAt(last+','+j,'bottom')||(nr===undefined?'':sideAt(nr+','+j,'top'))]);at+=w}
-    if(new Set(parts.map(p=>p[2])).size>1){edge.bottomAll='';edge.bottomParts=parts}else edge.bottomAll=parts[0]?.[2]||''}
-   if(m&&(m.cs>1||m.rs>1)){const last=c+m.cs-1,parts=[];let at=0;for(let i=r;i<r+m.rs;i++){if(!rowShown.has(i))continue;const h=Math.round((sheet.heights[i]??sheet.defH)*4/3*zoom);parts.push([at,h,sideAt(i+','+last,'right')||(nc===undefined?'':sideAt(i+','+nc,'left'))]);at+=h}
-    if(new Set(parts.map(p=>p[2])).size>1){edge.rightAll='';edge.rightParts=parts}else edge.rightAll=parts[0]?.[2]||''}
+  // A neighbour inside a merged range shows the range's outer edge (Excel hides the inner lines), e.g.
+  // E53:G53 with G hidden: H's left edge is G53's right, not F53's inner one.
+  const outer=(r,c,side)=>{const k=r+','+c,o=coverOf.get(k)||(merges.has(k)?k:null);if(!o)return sideAt(k,side);const [r0,c0]=o.split(',').map(Number),mm=merges.get(o);
+   return sideAt((side==='bottom'?r0+mm.rs-1:side==='top'?r0:r)+','+(side==='right'?c0+mm.cs-1:side==='left'?c0:c),side)};
+  const rowH=i=>Math.round((sheet.heights[i]??sheet.defH)*4/3*zoom);
+  // Uneven edge of a merged cell: one part per row/column; otherwise one border for the whole side.
+  const sideParts=(list,size,valueAt,edge,key)=>{const parts=[];let at=0;for(const i of list){const len=size(i);parts.push([at,len,valueAt(i)]);at+=len}
+   if(new Set(parts.map(p=>p[2])).size>1){edge[key+'All']='';edge[key+'Parts']=parts}else edge[key+'All']=parts[0]?.[2]||''};
+  const edgeAt=(r,c,m)=>{const cs=m?m.cs:1,rs=m?m.rs:1,nc=colAfter[c+cs-1],nr=rowAfter[r+rs-1],lc=colBefore.get(c),rb=rowBefore.get(r);
+   const edge={right:nc===undefined?'':outer(r,nc,'left'),bottom:nr===undefined?'':outer(nr,c,'top'),firstCol:lc===undefined,firstRow:rb===undefined,lastCol:nc===undefined,lastRow:nr===undefined};
+   // The edge on the left / above: the neighbour's right / bottom border, else this cell's own.
+   if(lc!==undefined)edge.left=outer(r,lc,'right')||sideAt(r+','+c,'left');if(rb!==undefined)edge.top=outer(rb,c,'bottom')||sideAt(r+','+c,'top');
+   if(m&&(cs>1||rs>1)){
+    const cols=[];for(let j=c;j<c+cs;j++)if(colShown.has(j))cols.push(j);const rowsIn=[];for(let i=r;i<r+rs;i++)if(rowShown.has(i))rowsIn.push(i);
+    sideParts(cols,j=>widthOf.get(j)||0,j=>sideAt((r+rs-1)+','+j,'bottom')||(nr===undefined?'':outer(nr,j,'top')),edge,'bottom');
+    sideParts(rowsIn,rowH,i=>sideAt(i+','+(c+cs-1),'right')||(nc===undefined?'':outer(i,nc,'left')),edge,'right');
+    if(lc!==undefined)sideParts(rowsIn,rowH,i=>outer(i,lc,'right')||sideAt(i+','+c,'left'),edge,'left');
+    if(rb!==undefined)sideParts(cols,j=>widthOf.get(j)||0,j=>outer(rb,j,'bottom')||sideAt(r+','+j,'top'),edge,'top');
+   }
    return edge};
   // Cell text. Long text spills into empty cells beside it, as in Excel (left/general text to the right,
   // right-aligned to the left, centred both ways); it stops at the next cell with text or a merge.
-  const widthOf=new Map(visibleCols.map((c,i)=>[c,widths[i]])),colBefore=new Map(visibleCols.map((c,i)=>[c,visibleCols[i-1]]));
+  const widthOf=new Map(visibleCols.map((c,i)=>[c,widths[i]])),colBefore=new Map(visibleCols.map((c,i)=>[c,visibleCols[i-1]])),rowBefore=new Map(visibleRows.map((r,i)=>[r,visibleRows[i-1]]));
   const blocked=(r,c)=>{const k=r+','+c;return covered.has(k)||merges.has(k)||(sheet.cells.get(k)?.text??'')!==''};
   const spill=(r,c,dir)=>{let w=0,cc=c;for(let n=0;n<40;n++){cc=dir>0?colAfter[cc]:colBefore.get(cc);if(cc===undefined||blocked(r,cc)||(cc<frozen.c1)!==(c<frozen.c1))break;w+=widthOf.get(cc)}return w};
   const content=(cell,r,c,m)=>{
@@ -331,10 +357,10 @@
    // split it between syllables). It still breaks if it is wider than the cell.
    if(s.wrap)return t.replace(/[\u1000-\u109F\uA9E0-\uA9FF\uAA60-\uAA7F]+/g,w=>'<span class="excel-word">'+w+'</span>');
    if(m||cell.numeric)return t;
-   const own=widthOf.get(c)||0,size=((s.font?.sz||11)*4/3)*zoom;if(cell.text.length*size*0.62<own-10)return t;
+   const own=widthOf.get(c)||0,size=((s.font?.sz||11)*4/3)*zoom;if(cell.text.length*size*0.62<own-5)return t;
    const h=s.h&&s.h!=='general'?s.h:'left',R=h==='right'?0:spill(r,c,1),L=h==='left'||h==='fill'||h==='justify'?0:spill(r,c,-1);
    if(!R&&!L)return t;const E=h==='center'||h==='centerContinuous'?Math.min(L,R):0,left=h==='right'?L:E,right=h==='right'?0:h==='left'||h==='fill'||h==='justify'?R:E;
-   return '<div class="excel-spill" style="width:'+(own+left+right-11)+'px'+(left?';margin-left:-'+left+'px':'')+'">'+t+'</div>';
+   return '<div class="excel-spill" style="width:'+(own+left+right-5)+'px'+(left?';margin-left:-'+left+'px':'')+'">'+t+'</div>';
   };
   const rowHtml=r=>{
    const ht=sheet.heights[r];
@@ -461,9 +487,11 @@
    if(!host)continue;
    const el=document.createElement('div');el.className='excel-shape';el.setAttribute('aria-hidden','true');
    const hb=box(host);el.style.cssText='left:'+Math.round(x-hb.left)+'px;top:'+Math.round(y-hb.top)+'px;width:'+Math.round(w)+'px;height:'+Math.round(h)+'px';
-   if(s.kind==='pic'){const img=document.createElement('img');img.src=s.src;img.alt='';el.append(img)}
+   const shadow=s.shadowCss?s.shadowCss.x+'px '+s.shadowCss.y+'px '+s.shadowCss.blur+'px '+(s.frame?Math.round(s.frame.w/2*10)/10+'px ':'')+s.shadowCss.color:'';
+   if(s.kind==='pic'){const img=document.createElement('img');img.src=s.src;img.alt='';el.append(img);el.style.padding='0';
+    if(s.frame){const half=Math.round(s.frame.w/2*10)/10;el.style.border=half+'px solid '+s.frame.color;el.style.boxShadow='0 0 0 '+half+'px '+s.frame.color+(shadow?','+shadow:'')}else if(shadow)el.style.boxShadow=shadow}
    else{
-    if(s.fill)el.style.background=s.fill;if(s.line)el.style.border=s.line.w+'px solid '+s.line.color;if(s.round)el.style.borderRadius=Math.round(Math.min(w,h)/6)+'px';if(s.ellipse)el.style.borderRadius='50%';if(s.shadow)el.style.boxShadow='2px 2px 4px rgba(0,0,0,.35)';
+    if(s.fill)el.style.background=s.fill;if(s.line)el.style.border=s.line.w+'px solid '+s.line.color;if(s.round)el.style.borderRadius=Math.round(Math.min(w,h)/6)+'px';if(s.ellipse)el.style.borderRadius='50%';if(shadow)el.style.boxShadow=shadow;else if(s.shadow)el.style.boxShadow='2px 2px 4px rgba(0,0,0,.35)';
     el.style.justifyContent=s.vAlign==='ctr'?'center':s.vAlign==='b'?'flex-end':'flex-start';
     for(const p of s.paras){const line=document.createElement('div');line.style.textAlign=p.align==='ctr'?'center':p.align==='r'?'right':'left';
      for(const r of p.runs){const span=document.createElement('span');span.textContent=r.text;span.style.fontSize=Math.round(r.size*zoom*10)/10+'pt';if(r.b)span.style.fontWeight='700';if(r.i)span.style.fontStyle='italic';if(r.color)span.style.color=r.color;if(r.font&&!/^\+/.test(r.font))span.style.fontFamily='"'+r.font.replace(/"/g,'')+'",system-ui,sans-serif';line.append(span)}
@@ -473,6 +501,11 @@
    host.style.overflow='visible';host.classList.add('excel-shape-host');placed.push([host,el]);
   }
   placed.forEach(([host,el])=>host.append(el));
+  // Frozen cells keep their own layer (that keeps them pinned), so a box spilling right/down from one
+  // would be covered by the next frozen cell holding a box. Earlier (upper/left) ones go on top.
+  const layers=new Map();for(const [host] of placed){const tr=host.parentNode,row=tr.classList.contains('excel-frozen-row'),col=table.classList.contains('excel-cols-frozen')&&host.classList.contains('excel-frozen-col');if(!row&&!col){host.style.zIndex='';continue}
+   const base=row&&col?31:row?21:11;if(!layers.has(base))layers.set(base,[]);if(!layers.get(base).includes(host))layers.get(base).push(host)}
+  for(const [base,hosts] of layers)hosts.forEach((host,i)=>{host.style.zIndex=String(base+Math.max(0,Math.min(8,hosts.length-1-i)))});
   grid.scrollTop=keep[0];grid.scrollLeft=keep[1];
  }
  if(window.ResizeObserver)new ResizeObserver(()=>{drawRows(false);freeze()}).observe(grid);

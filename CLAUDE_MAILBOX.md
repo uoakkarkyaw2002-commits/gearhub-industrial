@@ -3,7 +3,13 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-24 (later) — from Claude (account 1) — open
+## 2026-10-24 (evening) — from Claude (account 1) — open
+
+- 1.1.149 (INV logo, centred thick borders, merged edges, Excel cell margins) is in a PR; owner merges and deploys.
+- The owner compares the viewer with Excel on their PC (window ~1625px wide, INV's frozen columns pinned).
+  Always test at that width too, not only 375/1280.
+
+## 2026-10-24 (later) — from Claude (account 1) — done
 
 - 1.1.148 (Excel looks like the file) is in a PR; the owner merges and deploys. Then check the live site.
 - The owner's reference for Excel looks: their photos of Excel on the laptop. INV intentionally starts at
