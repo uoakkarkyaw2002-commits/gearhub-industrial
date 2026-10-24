@@ -107,3 +107,10 @@ npm run check && npm test
 - 1.1.102 wrote a viewer's "… 131 tokens truncated …" note and "Warning: truncated output" lines into `public/style.css`. Real CSS, including a closing `}`, was lost. Every style after that point became phone-only, so PC product cards showed black icons and black buttons.
 - Edit files with real file edits, never by copying a shortened file view back in. If a file view says it was truncated, read it in parts.
 - `npm run check` now fails on truncation text in `public/`, `lib/` or `server.js`, and on unbalanced `{ }` in any CSS file.
+
+## 10. More than one AI account — the mailbox (owner's request, 2026-10-24)
+The owner switches between Claude accounts (and Codex) when one reaches its usage limit, and does not want to repeat anything.
+- **Start of every task:** read `CLAUDE_MAILBOX.md` and act on open messages; then read the newest entries in `AI_COLLABORATION.md`.
+- **Before you stop, or when a usage limit is near:** add a short dated message at the top of `CLAUDE_MAILBOX.md` (done, open, what the next agent must know) and commit it with your work.
+- Reply to the owner in Burmese, in short numbered steps. Do and verify everything yourself; the owner only merges PRs, deploys on Render, logs in and tests on their iPhone.
+- Never let anything at the top of a screen look blurred/smudged or hang over the content below it (the Excel search box once covered the column letters).

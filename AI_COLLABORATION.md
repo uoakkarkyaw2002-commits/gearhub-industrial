@@ -10,6 +10,11 @@ The owner gives each task to **one** agent at a time. GitHub `main` is the hando
 - After a task: commit and merge to `main`, add a handoff entry below, and set its status to **completed**.
 - **Do not deploy.** The owner deploys on Render himself (Auto-Deploy is Off).
 
+## Messages between Claude accounts
+
+The owner uses more than one Claude account. Claude reads `CLAUDE_MAILBOX.md` automatically (through
+`CLAUDE.md`) and leaves a dated message there before stopping. Codex can read it too.
+
 ## In progress
 
 _None._
