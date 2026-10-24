@@ -883,7 +883,7 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
 /* Separate borders: each cell draws its own right and bottom edge. With collapsed borders the rows
    scrolling under the sticky column letters painted their lines and text over them. */
 .excel-tabs{display:flex;gap:2px;overflow-x:auto;background:#f3f3f3;border:1px solid #c9d2cc;border-top:0;border-radius:0 0 8px 8px;padding:0 4px;-webkit-overflow-scrolling:touch}
-.excel-tab{flex:0 0 auto;padding:10px 16px;border:0;border-bottom:3px solid var(--tab-color,transparent);background:transparent;color:#444;font-weight:700;cursor:pointer;white-space:nowrap}
+.excel-tab{flex:0 0 auto;padding:10px 16px;border:0;border-bottom:3px solid transparent;background:transparent;color:#444;font-weight:700;cursor:pointer;white-space:nowrap}
 .excel-tab.active{background:#fff;color:#137333;border-bottom-color:#1a73e8}
 @media(max-width:600px){.excel-library-card.excel-sheet-open{max-height:94vh;padding:12px}.excel-sheet{max-height:58vh}.excel-tab{padding:9px 13px}}
 .excel-sheet th,.excel-sheet td{min-width:0;overflow-wrap:normal}

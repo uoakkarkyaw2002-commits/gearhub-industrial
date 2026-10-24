@@ -30,7 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.160: Excel viewer — ≡ sheet list like Google Sheets (Claude) — in review
+### 1.1.161: Excel pictures scale with zoom; tab line only on the open sheet (Claude) — in review
+- Owner (iPhone): zoomed out, INV's logo stayed big and ran over the address rows; and the coloured line under the sheet tabs should show only on the open sheet.
+- `public/excel-map.js` `placeShapes`: anchor offsets (`colOff`/`rowOff`), one-cell sizes, picture frame and shadow are stored at 100 % and are now multiplied by the sheet zoom. `renderTabs` no longer sets each tab's own colour.
+- `public/style.css`: `.excel-tab` bottom line is transparent; only `.excel-tab.active` keeps the blue line.
+- Checked in the app browser with the real workbook at 375: INV logo vs row 32 at zoom 3 (bottom 364 px, row 32 at 406 px) and 0.3 (37 / 65) — same proportions, no overlap; only the INV tab has a line.
+
+### 1.1.160: Excel viewer — ≡ sheet list like Google Sheets (Claude) — merged, live
 - Owner (Google Sheets app screenshots): add a button at the left of the sheet tabs that lists every sheet.
 - `public/excel-map.js`: `renderTabs` puts a ≡ button first in `#excel-tabs` (sticky, stays at the left while the tabs scroll). It opens `.excel-sheet-list`: a "Sheets" panel from the bottom (phones) / centred card (≥700 px) listing all sheets, the open one in green; a row opens that sheet, a tap outside or Esc closes. The open sheet's tab is now scrolled into view (it stayed off-screen before when picked far right).
 - Styles at the end of `public/style.css` (dark panel like the reference). Cache tags bumped.
