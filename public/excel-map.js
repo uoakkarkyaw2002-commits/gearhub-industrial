@@ -289,24 +289,30 @@
    merges.set(key,axis?{rs:m.rs,cs:at-c}:{rs:at-r,cs:m.cs});const k=axis?r+','+at:at+','+c;merges.set(k,axis?{rs:m.rs,cs:c+m.cs-at}:{rs:r+m.rs-at,cs:m.cs});covered.delete(k);if(!carry)split.add(k);else if(!sheet.cells.has(k)&&sheet.cells.has(key))sheet.cells.set(k,sheet.cells.get(key))}}};
   cut(0,frozen.r0,true);cut(1,frozen.c0,true);cut(0,frozen.r1,false);cut(1,frozen.c1,false);
   let html='<table style="width:'+total+'px;font-size:'+Math.round(11*zoom*10)/10+'pt;--excel-zoom:'+zoom+'"><colgroup><col class="excel-rownum-col" style="width:46px">'+widths.map(w=>'<col style="width:'+w+'px">').join('')+'</colgroup><thead><tr><th class="excel-corner"></th>'+visibleCols.map(c=>'<th data-c="'+c+'"'+(c<frozen.c1?' class="excel-frozen-col"':'')+'>'+colName(c)+'</th>').join('')+'</tr></thead><tbody>';
-  for(const r of visibleRows){
+  const rowHtml=r=>{
    const ht=sheet.heights[r];
-   html+='<tr'+(r<frozen.r1?' class="excel-frozen-row"':'')+' style="height:'+Math.round((ht??sheet.defH)*4/3*zoom)+'px"><th data-r="'+r+'">'+(r+1)+'</th>';
+   let html='<tr'+(r<frozen.r1?' class="excel-frozen-row"':'')+' style="height:'+Math.round((ht??sheet.defH)*4/3*zoom)+'px"><th data-r="'+r+'">'+(r+1)+'</th>';
    for(const c of visibleCols){const key=r+','+c;if(covered.has(key))continue;const m=merges.get(key),cell=split.has(key)?null:sheet.cells.get(key);
     let rs=1,cs=1;if(m){for(let i=1;i<m.rs;i++)if(rowShown.has(r+i))rs++;for(let i=1;i<m.cs;i++)if(colShown.has(c+i))cs++}
     html+='<td data-r="'+r+'" data-c="'+c+'"'+(c<frozen.c1?' class="excel-frozen-col"':'')+(m?(m.rs>1?' data-r2="'+(r+m.rs-1)+'"':'')+(m.cs>1?' data-c2="'+(c+m.cs-1)+'"':''):'')+(rs>1?' rowspan="'+rs+'"':'')+(cs>1?' colspan="'+cs+'"':'')+(cell?' style="'+esc(cellStyle(cell))+'"':'')+'>'+(cell?esc(cell.text):'')+'</td>'}
-   html+='</tr>';
-  }
+   return html+'</tr>';
+  };
   const keep=keepScroll&&[grid.scrollTop/(grid.scrollHeight||1),grid.scrollLeft/(grid.scrollWidth||1)];
-  grid.innerHTML=html+'</tbody></table>';renderedSheet=sheet;
+  // Opening, searching or switching sheets: the first rows show at once and the rest are added 150 rows
+  // at a time, so a big sheet never freezes the screen. Zoom keeps its place, so it draws all at once.
+  const token=++drawToken,first=keep?visibleRows.length:120;let next=first;
+  grid.innerHTML=html+visibleRows.slice(0,first).map(rowHtml).join('')+'</tbody></table>';renderedSheet=sheet;
   if(keep){grid.scrollTop=keep[0]*grid.scrollHeight;grid.scrollLeft=keep[1]*grid.scrollWidth}else{grid.scrollTop=0;grid.scrollLeft=0}
   freeze();
+  const tbody=grid.querySelector('tbody');
+  const more=()=>{if(token!==drawToken||!tbody.isConnected)return;tbody.insertAdjacentHTML('beforeend',visibleRows.slice(next,next+=150).map(rowHtml).join(''));if(next<visibleRows.length)requestAnimationFrame(more);else freeze()};
+  if(next<visibleRows.length)requestAnimationFrame(more);
   msg.textContent=(query?visibleRows.length+' of ':'')+rows+' rows'+(sheet.truncated?' (first '+MAX_ROWS+' shown)':'');
  }
  // Freeze panes saved in the file: the frozen rows stay under the column letters and the frozen
  // columns stay beside the row numbers while scrolling. Columns are frozen only when some room is
  // left to scroll the rest (on a phone they usually scroll with the sheet).
- let renderedSheet=null;
+ let renderedSheet=null,drawToken=0;
  function freeze(){
   const table=grid.querySelector('table');if(!table||!grid.clientWidth)return;
   // Offsets are measured with sticky positions off, so they are right even after scrolling.

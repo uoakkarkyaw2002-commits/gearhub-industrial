@@ -25,6 +25,14 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.144: Faster Excel viewer (Claude) — in review
+- Owner: the Excel viewer stutters and feels heavy while using it.
+- Measured with a 1500×30 CSV (45,000 cells) at 375px on a Mac: each drag/selection move rescanned every cell (20–46 ms per move, several times that on a phone); opening/searching drew the whole sheet in one block (~373 ms).
+- `public/excel-select.js`: cells and headers are indexed by position once per table (rebuilt when rows or shapes are added); selection, row select and copy use it. Drag move: ~0.1 ms.
+- `public/excel-map.js`: opening, searching and switching sheets draw the first 120 rows at once (~28 ms) and add the rest 150 rows per frame; `freeze()` runs again at the end for frozen panes and shapes. Zoom still redraws all at once so it keeps the scroll place.
+- Files: those two, `public/index.html`/`public/sw.js` cache tags, tests in `tests/excel-select.test.js`, version files.
+- Not done: zoom redraw is still one block on big sheets. Not verified on a real phone or with a styled .xlsx (CSV only).
+
 ### 1.1.143: Phone grass under the working birds layer (Claude) — in review
 - Owner's iPhone recording after 1.1.142: picture fast, but the grass didn't sway and the birds vanished once the Codex box appeared.
 - Reproduced with a WebKit (WKWebView) probe at 375px: the Codex `<svg>` moved into the page can stay paused at time 0 (`animationsPaused()`), which leaves its birds frozen off-screen. The birds `<img>` layer flies on iPhone (1.1.141).

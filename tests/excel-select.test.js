@@ -12,7 +12,7 @@ function sheet(){
  const ctx={setTimeout:f=>{timer=f;return 1},clearTimeout:()=>{timer=null},document:{elementFromPoint:()=>hit,getElementById:()=>grid,addEventListener:(n,f)=>docKeys[n]=f},addEventListener:(n,f)=>globalEvents[n]=f,MutationObserver:class{observe(){}},getSelection:()=>'',navigator:{clipboard:{writeText:async t=>{copied=t}}}};
  vm.runInNewContext(read('excel-select.js'),ctx);
  const at=(r,c)=>cells.find(x=>x.dataset.r===String(r)&&x.dataset.c===String(c));
- return{listeners,docKeys,globalEvents,at,heads,hold:()=>timer?.(),hit:cell=>{hit=cell},copied:()=>copied};
+ return{grid,listeners,docKeys,globalEvents,at,heads,hold:()=>timer?.(),hit:cell=>{hit=cell},copied:()=>copied};
 }
 
 test('click selects a cell; dragging selects a range; Ctrl/Cmd+C copies it as rows and columns',async()=>{
@@ -59,8 +59,8 @@ test('cells carry their sheet position; selection styles; script loaded and cach
  assert.match(map,/html\+='<td data-r="'\+r\+'" data-c="'\+c\+'"'/);
  assert.match(map,/'<th data-c="'\+c\+'"'\+\(c<frozen\.c1\?' class="excel-frozen-col"':''\)\+'>'\+colName\(c\)\+'<\/th>'/);
  const css=read('style.css');assert.match(css,/#excel-grid td\.xs-active\{box-shadow:inset 0 0 0 2px #1a73e8/);assert.match(css,/#excel-grid tbody th\[data-r\]\{cursor:pointer/);
- assert.match(read('index.html'),/<script src="\/excel-select\.js\?v=20261024-row-select-4"><\/script>/);
- assert.match(read('sw.js'),/"\/excel-select\.js\?v=20261024-row-select-4"/);
+ assert.match(read('index.html'),/<script src="\/excel-select\.js\?v=20261024-speed-1"><\/script>/);
+ assert.match(read('sw.js'),/"\/excel-select\.js\?v=20261024-speed-1"/);
 });
 
  test('touch hold-and-drag selects cells; quick swipes and two fingers remain scrolling/zoom gestures',()=>{
@@ -76,3 +76,20 @@ test('cells carry their sheet position; selection styles; script loaded and cach
   s.listeners.touchmove({touches:[finger(10,10),finger(70,70)],preventDefault(){prevented=true}});
   assert.equal(prevented,false);assert.ok(!s.at(2,2).classList.has('xs-sel'));
  });
+
+test('dragging does not rescan the whole sheet on every move (big sheets stuttered on phones)',()=>{
+ const s=sheet();let scans=0;
+ const grid=s.grid,orig=grid.querySelectorAll;grid.querySelectorAll=sel=>{scans++;return orig(sel)};
+ s.listeners.pointerdown({target:s.at(0,0),button:0,pointerType:'mouse'});
+ const afterDown=scans;
+ for(const [r,c] of [[0,1],[1,1],[2,2],[1,2]])s.listeners.pointerover({target:s.at(r,c),buttons:1});
+ assert.equal(scans,afterDown,'moves reuse the cell index');
+ for(const [r,c] of [[0,0],[0,1],[0,2],[1,0],[1,1],[1,2]])assert.ok(s.at(r,c).classList.has('xs-sel'),'R'+r+'C'+c);
+ assert.ok(!s.at(2,0).classList.has('xs-sel'));
+});
+test('a big sheet shows its first rows at once and adds the rest in parts; zoom draws all at once',()=>{
+ const map=read('excel-map.js');
+ assert.match(map,/const token=\+\+drawToken,first=keep\?visibleRows\.length:120;let next=first;/);
+ assert.match(map,/tbody\.insertAdjacentHTML\('beforeend',visibleRows\.slice\(next,next\+=150\)\.map\(rowHtml\)\.join\(''\)\);if\(next<visibleRows\.length\)requestAnimationFrame\(more\);else freeze\(\)/);
+ assert.match(read('excel-select.js'),/new MutationObserver\(\(\)=>\{index=null\}\)\.observe\(grid,\{childList:true,subtree:true\}\);/);
+});

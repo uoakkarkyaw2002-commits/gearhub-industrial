@@ -7,14 +7,31 @@
  const pos=cell=>({r:Number(cell.dataset.r),c:Number(cell.dataset.c),r2:Number(cell.dataset.r2??cell.dataset.r),c2:Number(cell.dataset.c2??cell.dataset.c)});
  function area(){if(!anchor||!focus)return null;return{top:Math.min(anchor.r,focus.r),left:Math.min(anchor.c,focus.c),bottom:Math.max(anchor.r2,focus.r2),right:Math.max(anchor.c2,focus.c2)}}
  function clear(){for(const node of marked)node.classList.remove('xs-sel','xs-active','xs-head');marked=[]}
+ // Cells and headers by position, built once per table: a big sheet has tens of thousands of cells,
+ // and scanning them all on every drag move made selecting stutter on phones.
+ let index=null;
+ function lookup(){
+  if(index)return index;
+  const cells=new Map(),merged=[],cols=new Map(),rows=new Map();
+  for(const cell of grid.querySelectorAll('td[data-r]')){const p=pos(cell);cells.set(p.r+','+p.c,cell);if(p.r2!==p.r||p.c2!==p.c)merged.push([cell,p])}
+  for(const head of grid.querySelectorAll('thead th[data-c],tbody th[data-r]')){if(head.dataset.c!==undefined)cols.set(Number(head.dataset.c),head);else if(head.dataset.r!==undefined)rows.set(Number(head.dataset.r),head)}
+  const sorted=keys=>[...new Set([...keys])].sort((a,b)=>a-b);
+  return index={cells,merged,cols,rows,colList:sorted([...cols.keys(),...[...cells.values()].map(cell=>pos(cell).c)]),rowList:sorted([...rows.keys(),...[...cells.values()].map(cell=>pos(cell).r)])};
+ }
+ const within=(list,lo,hi)=>list.filter(n=>n>=lo&&n<=hi);
  function paint(){
-  clear();const box=area();if(!box)return;
-  for(const cell of grid.querySelectorAll('td[data-r]')){const p=pos(cell);if(p.r2<box.top||p.r>box.bottom||p.c2<box.left||p.c>box.right)continue;cell.classList.add('xs-sel');marked.push(cell)}
-  const active=grid.querySelector('td[data-r="'+anchor.r+'"][data-c="'+anchor.c+'"]');if(active){active.classList.add('xs-active');marked.push(active)}
-  for(const head of grid.querySelectorAll('thead th[data-c],tbody th[data-r]')){const c=head.dataset.c,r=head.dataset.r;if((c!==undefined&&c>=box.left&&c<=box.right)||(r!==undefined&&r>=box.top&&r<=box.bottom)){head.classList.add('xs-head');marked.push(head)}}
+  clear();const box=area();if(!box)return;const ix=lookup();
+  const mark=(node,cls)=>{node.classList.add(cls);marked.push(node)};
+  const rows=within(ix.rowList,box.top,box.bottom),cols=within(ix.colList,box.left,box.right);
+  for(const r of rows)for(const c of cols){const cell=ix.cells.get(r+','+c);if(cell)mark(cell,'xs-sel')}
+  for(const [cell,p] of ix.merged)if(!(p.r2<box.top||p.r>box.bottom||p.c2<box.left||p.c>box.right))mark(cell,'xs-sel');
+  const active=ix.cells.get(anchor.r+','+anchor.c);if(active)mark(active,'xs-active');
+  for(const c of cols){const head=ix.cols.get(c);if(head)mark(head,'xs-head')}
+  for(const r of rows){const head=ix.rows.get(r);if(head)mark(head,'xs-head')}
  }
  function selectRow(r){
-  const cells=[...grid.querySelectorAll('td[data-r]')].filter(cell=>{const p=pos(cell);return p.r<=r&&p.r2>=r});
+  const ix=lookup(),cells=ix.colList.map(c=>ix.cells.get(r+','+c)).filter(Boolean);
+  for(const [cell,p] of ix.merged)if(p.r<r&&p.r2>=r)cells.push(cell);
   if(!cells.length)return false;
   const left=Math.min(...cells.map(cell=>pos(cell).c)),right=Math.max(...cells.map(cell=>pos(cell).c2));
   anchor={r,c:left,r2:r,c2:left};focus={r,c:right,r2:r,c2:right};dragging=false;paint();return true;
@@ -58,12 +75,14 @@
  grid.addEventListener('contextmenu',event=>{if(touch)event.preventDefault()});
  // A new sheet or search result replaces the table: the old selection goes with it.
  new MutationObserver(()=>{endTouch();dragging=false;marked=[];anchor=focus=null}).observe(grid,{childList:true});
+ // Rows added later (a big sheet is drawn in parts) or pictures placed in cells: rebuild the index.
+ new MutationObserver(()=>{index=null}).observe(grid,{childList:true,subtree:true});
  document.addEventListener('keydown',event=>{
   if(!anchor||!grid.offsetParent)return;
   if(event.key==='Escape'){clear();anchor=focus=null;return}
   if(!(event.ctrlKey||event.metaKey)||event.key.toLowerCase()!=='c'||String(getSelection?.()||'').trim())return;
   const box=area(),rows=[];
-  for(let r=box.top;r<=box.bottom;r++){const line=[];for(let c=box.left;c<=box.right;c++)line.push(grid.querySelector('td[data-r="'+r+'"][data-c="'+c+'"]')?.textContent||'');rows.push(line.join('\t'))}
+  const ix=lookup();for(let r=box.top;r<=box.bottom;r++){const line=[];for(let c=box.left;c<=box.right;c++)line.push(ix.cells.get(r+','+c)?.textContent||'');rows.push(line.join('\t'))}
   navigator.clipboard?.writeText(rows.join('\n')).catch(()=>{});event.preventDefault();
  });
 })();
