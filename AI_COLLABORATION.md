@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.150: Installed app title bar stays white (Claude) — in review
+- Owner (PC app screenshot): the dark green bar at the very top of the installed POLESTAR app should be white like the header below.
+- Cause: the page and manifest were already white (1.1.147), but `public/settings.js` `applyTheme` set `<meta name="theme-color">` back to `#183426` in light mode after load. Now `#ffffff` (dark mode keeps `#101a14`).
+- Files: `public/settings.js` (+ cache tag in `index.html`/`sw.js`), `tests/manifest.test.js`, version files.
+- Checked: after load the meta stays `#ffffff`. The owner should close and reopen the installed app.
+
 ### 1.1.149: INV like Excel — logo, centred thick lines, merged edges, cell margin (Claude) — in review
 - Owner's screenshot (PC app, wide window): INV logo cut off, borders broken, "22,854,000 DT" box cut, "***" cut.
 - Pictures/shapes: a picture's cell no longer forms its own layer (a later picture cell's white background covered the bottom of the logo); shapes sit at z 5 above cells. Frozen cells holding boxes are stacked so earlier (upper/left) ones are on top. Picture frames (`a:ln`, Excel picture styles) and saved outer shadows are drawn from the file.

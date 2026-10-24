@@ -14,7 +14,8 @@
   function applyTheme(theme) {
     const mode = theme === "dark" ? "dark" : "light";
     document.documentElement.dataset.theme = mode;
-    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", mode === "dark" ? "#101a14" : "#183426");
+    // The installed app's title bar follows this colour: white in light mode, like the page header.
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", mode === "dark" ? "#101a14" : "#ffffff");
     localStorage.setItem("gh-theme", mode);
     document.querySelectorAll("[data-theme-choice]").forEach(button => {
       const active = button.dataset.themeChoice === mode;
