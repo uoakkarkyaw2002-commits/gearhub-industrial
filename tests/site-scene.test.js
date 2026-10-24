@@ -79,7 +79,9 @@ test('Codex background page (own program): saved as HTML only, reset, served san
 test('platform page shows a Codex page in a frame (no sandbox attribute) and the zip keeps self-contained pages',()=>{
  const js=fs.readFileSync(path.join(__dirname,'..','public','platform.js'),'utf8'),css=fs.readFileSync(path.join(__dirname,'..','public','platform.css'),'utf8');
  assert.match(js,/fetch\("\/scene-asset\/state"\)/);
- assert.match(js,/kind=phone\?\(st\.phonePage\?"phone-page":st\.page&&!st\.phone\?"page":""\):st\.page\?"page":""/);
+ // Phones keep the picture + flying-birds layer (iPhone froze the birds inside the frame).
+ assert.match(js,/if\(!matchMedia\("\(max-width:600px\)"\)\.matches\)fetch\("\/scene-asset\/state"\)/);
+ assert.match(js,/const kind=st\.page\?"page":"";/);
  assert.match(js,/frame\.className="sky-frame"/);
  assert.doesNotMatch(js,/frame\.(?:sandbox|setAttribute\("sandbox")/);
  assert.match(js,/if \(keepPage\) await sceneUpload\(pageKind, new Blob\(\[htmlText\], \{ type: "text\/html" \}\), "page\.html"\);/);

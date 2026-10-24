@@ -133,12 +133,13 @@
   const sceneLayer=document.querySelector(".sky-layer");
   // (An empty-alt image that fails shows nothing anyway; this only tidies up after a real error.)
   sceneLayer?.addEventListener("error",()=>(sceneLayer.closest("picture")||sceneLayer).remove());
-  // A Codex background page (its own program, e.g. swaying grass) shows in a frame over the picture.
-  // Phones use their own page, or the PC page when they have no picture of their own.
+  // A Codex background page (its own program, e.g. swaying grass) shows in a frame over the picture on PC.
+  // Phones keep the picture and the flying-birds layer: iPhone Safari froze the birds inside the frame
+  // and showed a dark screen for ~10 s while it loaded (owner's recording, 1.1.140).
   // No sandbox attribute: WebKit leaves attribute-sandboxed frames blank; the server's CSP header sandboxes it.
-  fetch("/scene-asset/state").then((r)=>r.ok?r.json():null).then((st)=>{
+  if(!matchMedia("(max-width:600px)").matches)fetch("/scene-asset/state").then((r)=>r.ok?r.json():null).then((st)=>{
     if(!st)return;
-    const phone=matchMedia("(max-width:600px)").matches,kind=phone?(st.phonePage?"phone-page":st.page&&!st.phone?"page":""):st.page?"page":"";
+    const kind=st.page?"page":"";
     if(!kind)return;
     const frame=document.createElement("iframe");
     frame.className="sky-frame";frame.title="Background";frame.tabIndex=-1;frame.setAttribute("aria-hidden","true");

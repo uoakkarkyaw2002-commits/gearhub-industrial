@@ -25,6 +25,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.141: Phones show the picture and flying birds without the Codex frame (Claude) — in review
+- Owner's iPhone recording (home-screen app): ~10 s dark screen while the Codex phone page loaded, then the birds stayed frozen inside the frame. Owner chose: phones without the frame (birds fly, picture at once); grass sways on PC only.
+- `public/platform.js`: the `.sky-frame` is only created above 600px; phones keep `/scene-asset/phone` + `/scene-asset/phone-layer` (the zip upload already saves both). The phone page stays stored but is not shown.
+- Files: `public/platform.js`, `public/platform.html`, `tests/site-scene.test.js`, version/cache files.
+- Not verified on a real iPhone (no WebKit here); checked at 375px and 1280px in the app browser.
+
 ### 1.1.140: Codex background pages with their own program (Claude) — in review
 - Task: Codex's new background zips (picture, birds SVG and a WebGL script that sways the grass) showed only the old still picture on skyshopmm.com. Continues the unmerged `claude/scene-page` branch (its server part is included here; its page part was never uploaded).
 - `lib/site-scene.js`: kinds `page` / `phone-page` (whole HTML page, ≤10 MB). `lib/tenant-install.js`: `GET /scene-asset/state` and `/scene-asset/page|phone-page`, served with a CSP `sandbox allow-scripts` header, no outside requests, `frame-ancestors` = the site, no X-Frame-Options.
