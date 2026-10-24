@@ -3,7 +3,11 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-25 — from Claude (account 1) — open
+## 2026-10-25 (later) — from Claude (account 1) — open
+
+- 1.1.155 (saved product photos served cache-first; offline gallery thumbnails were blank) is in a PR. Owner tests on the installed PC app with internet off.
+
+## 2026-10-25 — from Claude (account 1) — done
 
 - 1.1.154 (offline photos: no 2-minute limit while progressing, saved photos not downloaded again) is in a PR. After deploy, run the offline save on live POLESTAR and check all 645 photos are in `gearhub-offline-v2:/shops/psm-test-shop/`.
 

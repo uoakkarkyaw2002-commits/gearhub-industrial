@@ -1,4 +1,4 @@
-const CACHE_NAME = "gearhub-shell-v85-1.1.154";
+const CACHE_NAME = "gearhub-shell-v85-1.1.155";
 const SHELL = ["/skyshop-splash.css?v=20261022-solid-1","/skyshop-splash.js?v=20261022-solid-1","/images/skyshop-splash-phone.jpg?v=1","/images/skyshop-splash-pc.jpg?v=1","/category-browser.js?v=20261017-speed-1","/tenant-store.js?v=20261021-order-fast-1","/excel-map.js?v=20261024-look-10","/excel-select.js?v=20261024-find-2","/excel-auto-upload.js?v=20261023-auto-1","/excel-library.js?v=20261023-folder-1","/updates.js?v=20261023-update80-1","/desktop.css?v=20261023-pcnav-2","/","/style.css?v=20261024-offline-1","/site-content.js?v=20261018-share-2","/store.js?v=20261024-offline-photos-2","/liquid-nav.js?v=20261022-nav-drag-1","/card-tilt.js?v=20261023-tilt-1","/app-install.js?v=20261020-shopsw-1","/settings.js?v=20261024-offline-1","/back-nav.js?v=20261020-back-1","/dialogs.js?v=20261017-share-1","/footer.js?v=20261012-1","/images/hero-excavator.jpg","/app.webmanifest","/app-icon.png","/icons/icon.svg","/icons/apple-touch-icon.png","/qrcode.js?v=1.4.4"];
 const ADMIN_CACHE="gearhub-admin-v1",IMAGE_CACHE="gearhub-img-v1",EXCEL_CACHE="gearhub-excel-v1";
 const shopPath=pathname=>{const m=pathname.match(/^\/shops\/([a-z0-9-]+)(?:\/|$)/);return m?'/shops/'+m[1]+'/':null;};
@@ -57,7 +57,16 @@ self.addEventListener("fetch", event => {
     })));
     return;
   }
-  if (publicImage || /\.(?:png|jpe?g|webp|gif|avif)$/.test(url.pathname) || url.pathname.startsWith("/uploads/")) {
+  // Product photos never change at their address: a saved copy shows at once (offline the network
+  // may hang instead of failing, which left gallery thumbnails blank); otherwise download it.
+  if (publicImage) {
+    event.respondWith(caches.match(request).then(saved => saved || fetch(request).then(response => {
+      if (response.ok && response.type === "basic") { const copy = response.clone(); caches.open(IMAGE_CACHE).then(async cache => { await cache.put(request, copy); const keys = await cache.keys(); for (const key of keys.slice(0, Math.max(0, keys.length - 900))) await cache.delete(key); }); }
+      return response;
+    })));
+    return;
+  }
+  if (/\.(?:png|jpe?g|webp|gif|avif)$/.test(url.pathname) || url.pathname.startsWith("/uploads/")) {
     // Photos seen once stay available offline; newer copies replace them when online.
     event.respondWith(fetch(request).then(response => {
       if (response.ok && response.type === "basic") { const copy = response.clone(); caches.open(IMAGE_CACHE).then(async cache => { await cache.put(request, copy); const keys = await cache.keys(); for (const key of keys.slice(0, Math.max(0, keys.length - 900))) await cache.delete(key); }); }
