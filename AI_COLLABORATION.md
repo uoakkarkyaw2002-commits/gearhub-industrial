@@ -30,6 +30,16 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.148: Excel looks like the file — all rows, no gridlines where off, merged borders, wrapping (Claude) — in review
+- Owner: "BC sheet doesn't show all rows" and "INV differs from the original a lot". Reference: the owner's earlier photos of Excel on the laptop (INV top and totals area).
+- BC has 2297 rows; the 1500-row cap (from before only nearby rows were drawn) cut it. `MAX_ROWS` is now Excel's 1048576 (`<col>` ranges stop 1000 columns after their start).
+- INV/YUAN/GRP/Sheet4 turn gridlines off (`showGridLines="0"`); the viewer drew them anyway → `table.excel-nogrid` hides the light lines, file borders stay.
+- Merged cells: the right/bottom edge is taken from the range's last column/row, part by part (INV H34:I34 "NO PAID" lost its red right side; D36:F36 drew D37's green top across E–F). Uneven edges are drawn as background segments.
+- Excel wraps only at spaces: Myanmar words stay whole (`.excel-word`), so "NO PAID / ငွေမရှင်းသေး" breaks like Excel.
+- Text rotation (`textRotation` 90/180/255/angles) and long text spilling into empty neighbour cells (left/right/centre, stops at text or merges) as in Excel.
+- Kept: rows above / columns left of a pane frozen low down stay hidden (owner's Excel photo, 1.1.125: INV starts at row 28 / column C).
+- Checked in WebKit with the real workbook: INV top and totals area match the Excel photos (shape colours come straight from the file, e.g. FF00FF); vertical total in O894; BC shows 2296 rows, SLM STOCK 6008 (both were cut at 1500). All 24 sheets at 440px: no gaps/jumps, zoom 3–82 ms. A `:has()` rule made INV zoom take 1.3 s in WebKit; spilled-text cells use a class instead.
+
 ### 1.1.147: White installed storefront top bar (Codex) — in review
 - Owner asked for the dark top app/browser color to become white and blend into the storefront below.
 - Cause: the root page theme-color and installed seller app manifest theme_color were both dark green; iOS standalone status style also requested a dark translucent bar.

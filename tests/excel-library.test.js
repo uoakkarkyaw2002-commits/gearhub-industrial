@@ -73,7 +73,7 @@ test('filled Excel cells keep light gridlines while workbook and conditional bor
 });
 test('empty cells and cells next to bordered cells show the shared border (BC sheet lost its lines)',()=>{
  const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8');
- assert.match(map,/const edgeAt=\(r,c,m\)=>\{const nc=colAfter\[c\+\(m\?m\.cs:1\)-1\],nr=rowAfter\[r\+\(m\?m\.rs:1\)-1\];/);
+ assert.match(map,/const edgeAt=\(r,c,m\)=>\{const nc=colAfter\[c\+\(m\?m\.cs:1\)-1\],nr=rowAfter\[r\+\(m\?m\.rs:1\)-1\],edge=/);
  const css=fs.readFileSync(path.join(__dirname,'..','public','style.css'),'utf8');
  assert.match(css,/\.excel-sheet table\{border-collapse:separate;border-spacing:0;/,'collapsed borders let scrolled rows paint over the sticky column letters');
  assert.match(css,/\.excel-sheet td\{padding:2px 5px;border:0;border-right:1px solid #e2e2e2;border-bottom:1px solid #e2e2e2;/);
@@ -83,7 +83,7 @@ test('Excel sheet opens full screen with one back arrow and exact column widths'
  const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8'),css=fs.readFileSync(path.join(__dirname,'..','public','style.css'),'utf8');
  assert.match(map,/<button class="excel-fs-back" id="excel-fs-back" type="button" aria-label="Back">←<\/button>/);
  assert.match(map,/modal\?\.classList\.toggle\('excel-fullscreen',on\)/);
- assert.match(map,/let html='<table style="width:'\+total\+'px;font-size:'\+Math\.round\(11\*zoom\*10\)\/10\+'pt;--excel-zoom:'\+zoom\+'">/,'table width = sum of column widths (column A stays narrow)');
+ assert.match(map,/let html='<table'\+\(sheet\.grid===false\?' class="excel-nogrid"':''\)\+' style="width:'\+total\+'px;font-size:'\+Math\.round\(11\*zoom\*10\)\/10\+'pt;--excel-zoom:'\+zoom\+'">/,'table width = sum of column widths (column A stays narrow)');
  assert.match(css,/\.excel-fullscreen \.excel-library-card\.excel-sheet-open\{position:fixed;inset:0;/);
  assert.match(css,/\.excel-fullscreen \.excel-preview>\.drawer-head,\.excel-fullscreen #excel-sheet-status,\.excel-fullscreen \.excel-map-panel\{display:none!important\}/);
 });
@@ -149,4 +149,21 @@ test('a border on a merged range shows on the edge next to any of its cells (INV
  const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8');
  assert.match(map,/const sideAt=\(key,side\)=>bordersOf\(sheet\.cells\.get\(key\)\)\[side\]\|\|\(coverOf\.has\(key\)\?bordersOf\(sheet\.cells\.get\(coverOf\.get\(key\)\)\)\[side\]:''\)\|\|'';/);
  assert.match(map,/right:nc===undefined\?'':sideAt\(r\+','\+nc,'left'\),bottom:nr===undefined\?'':sideAt\(nr\+','\+c,'top'\)/);
+ // INV D36:F36 is merged and only D37 below has a (green) top border: only the D part of the edge shows.
+ assert.match(map,/if\(new Set\(parts\.map\(p=>p\[2\]\)\)\.size>1\)\{edge\.bottomAll='';edge\.bottomParts=parts\}/);
+});
+test('Excel look: all rows, gridlines setting, rotated text, text spilling into empty cells, whole Myanmar words',()=>{
+ const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8'),css=fs.readFileSync(path.join(__dirname,'..','public','style.css'),'utf8');
+ assert.match(map,/const MAX_ROWS=1048576,MAX_COLS=16384;/,'BC has 2297 rows; the old 1500-row cap cut it');
+ assert.match(map,/const grid=view0\?\.getAttribute\('showGridLines'\)!=='0';/);
+ assert.match(css,/\.excel-sheet table\.excel-nogrid td\{border-right-color:transparent;border-bottom-color:transparent\}/);
+ assert.match(map,/rot:\+\(a\?\.getAttribute\('textRotation'\)\|\|0\)/);
+ assert.match(map,/s\.rot===90\?'writing-mode:vertical-rl;transform:rotate\(180deg\)'/);
+ assert.match(map,/return '<div class="excel-spill" style="width:'/);
+ assert.match(css,/\.excel-sheet td\.excel-spill-host\{overflow:visible\}/,'a class, not :has() (WebKit recalculated :has slowly on zoom)');
+ assert.match(map,/if\(s\.wrap\)return t\.replace\(\/\[\\u1000-\\u109F\\uA9E0-\\uA9FF\\uAA60-\\uAA7F\]\+\/g,w=>'<span class="excel-word">'\+w\+'<\/span>'\);/);
+ // Excel keeps rows above / columns left of a pane frozen low down hidden (owner's Excel photo of INV, 1.1.125).
+ assert.match(map,/if\(ys\)\{frozen\.r0=\+tl\[2\]-1;frozen\.r1=frozen\.r0\+ys\}/);
+ // A merged cell takes its right/bottom border from its last column/row (INV H34:I34 red box).
+ assert.match(map,/if\(m&&\(m\.cs>1\|\|m\.rs>1\)\)\{const last=c\+m\.cs-1,parts=\[\]/);
 });

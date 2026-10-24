@@ -9,7 +9,8 @@
  card.append(section);
  const grid=section.querySelector('#excel-grid'),tabs=section.querySelector('#excel-tabs'),map=section.querySelector('#excel-map-fields'),panel=section.querySelector('#excel-map-panel'),msg=section.querySelector('#excel-sheet-status'),out=section.querySelector('#excel-import-status'),title=section.querySelector('#excel-sheet-title'),search=section.querySelector('#excel-sheet-search');
  const slug=(location.pathname.match(/^\/shops\/([^/]+)/)||[])[1];
- const MAX_ROWS=1500,MAX_COLS=60;
+ // Excel's own sheet size: every row and column is shown (only rows near the screen are drawn).
+ const MAX_ROWS=1048576,MAX_COLS=16384;
  let book=null,data=null,owner=null,active=0,searchText='',searchTimer=0;
  const modal=document.getElementById('excel-library-modal');
  // Full screen like Google Sheets: only the sheet, its tabs and one back arrow.
@@ -92,7 +93,7 @@
   const fills=kids(one(st,'fills'),'fill').map(f=>{const p=one(f,'patternFill');return p&&p.getAttribute('patternType')&&p.getAttribute('patternType')!=='none'?color(one(p,'fgColor'),themeHex)||color(one(p,'bgColor'),themeHex):''});
   const WIDTH={thin:1,hair:1,dotted:1,dashed:1,medium:2,mediumDashed:2,thick:3,double:3};
   const borders=kids(one(st,'borders'),'border').map(b=>Object.fromEntries(['left','right','top','bottom'].map(side=>{const e=kids(b,side)[0],style=e?.getAttribute('style');return [side,style?`${WIDTH[style]||1}px ${style==='double'?'double':/dash|dot/.test(style)?'dashed':'solid'} ${color(one(e,'color'),themeHex)||'#000'}`:'']})));
-  const xfs=kids(one(st,'cellXfs'),'xf').map(x=>{const a=one(x,'alignment');return{fmt:fmts[x.getAttribute('numFmtId')||0]||'General',font:fonts[+x.getAttribute('fontId')||0]||{},fill:fills[+x.getAttribute('fillId')||0]||'',border:borders[+x.getAttribute('borderId')||0]||{},h:a?.getAttribute('horizontal')||'',v:a?.getAttribute('vertical')||'',wrap:a?.getAttribute('wrapText')==='1'}});
+  const xfs=kids(one(st,'cellXfs'),'xf').map(x=>{const a=one(x,'alignment');return{fmt:fmts[x.getAttribute('numFmtId')||0]||'General',font:fonts[+x.getAttribute('fontId')||0]||{},fill:fills[+x.getAttribute('fillId')||0]||'',border:borders[+x.getAttribute('borderId')||0]||{},h:a?.getAttribute('horizontal')||'',v:a?.getAttribute('vertical')||'',wrap:a?.getAttribute('wrapText')==='1',rot:+(a?.getAttribute('textRotation')||0)}});
   // Conditional-format styles (dxf): only what a rule changes (font colour/bold/italic, fill, border).
   // "Automatic" colour in a rule means black text.
   const dxfColor=el=>el?.getAttribute('auto')==='1'?'#000000':color(el,themeHex);
@@ -110,7 +111,7 @@
   if(sheet.cells)return sheet;
   const doc=xml(await book.read(sheet.path)),cells=new Map();let maxR=0,maxC=0;
   const fmt=one(doc,'sheetFormatPr'),defW=+(fmt?.getAttribute('defaultColWidth')||((+(fmt?.getAttribute('baseColWidth')||8))+0.71)),defH=+(fmt?.getAttribute('defaultRowHeight')||15);
-  const widths={};all(doc,'col').forEach(c=>{for(let i=+c.getAttribute('min');i<=+c.getAttribute('max')&&i<=MAX_COLS;i++)widths[i-1]=c.getAttribute('hidden')==='1'?0:+c.getAttribute('width')});
+  const widths={};all(doc,'col').forEach(c=>{for(let i=+c.getAttribute('min');i<=+c.getAttribute('max')&&i<=Math.min(MAX_COLS,+c.getAttribute('min')+1000);i++)widths[i-1]=c.getAttribute('hidden')==='1'?0:+c.getAttribute('width')});
   const heights={};
   for(const row of all(doc,'row')){
    const r=+row.getAttribute('r')-1;if(r>=MAX_ROWS){sheet.truncated=true;break}
@@ -132,12 +133,14 @@
   // Frozen rows/columns, as saved in Excel (View > Freeze Panes).
   // Excel freezes the rows/columns that were at the top-left when Freeze Panes was used (the sheet
   // view's topLeftCell). The rows above and the columns to the left of that cell cannot be seen.
-  const pane=one(doc,'pane'),frozen={r0:0,r1:0,c0:0,c1:0};
+  const view0=one(doc,'sheetView'),pane=one(doc,'pane'),frozen={r0:0,r1:0,c0:0,c1:0};
   if(pane&&/frozen/.test(pane.getAttribute('state')||'')){
-   const tl=/^([A-Z]+)(\d+)$/.exec(one(doc,'sheetView')?.getAttribute('topLeftCell')||'A1')||['','A','1'],ys=+(pane.getAttribute('ySplit')||0),xs=+(pane.getAttribute('xSplit')||0);
+   const tl=/^([A-Z]+)(\d+)$/.exec(view0?.getAttribute('topLeftCell')||'A1')||['','A','1'],ys=+(pane.getAttribute('ySplit')||0),xs=+(pane.getAttribute('xSplit')||0);
    if(ys){frozen.r0=+tl[2]-1;frozen.r1=frozen.r0+ys}if(xs){frozen.c0=colIndex(tl[1]);frozen.c1=frozen.c0+xs}
   }
-  Object.assign(sheet,{cells,merges,covered,widths,heights,defW,defH,maxR,maxC,frozen,tab:tab?color(tab,[]):''});
+  // View > Gridlines turned off in the file (the invoice sheets): no light cell lines.
+  const grid=view0?.getAttribute('showGridLines')!=='0';
+  Object.assign(sheet,{cells,merges,covered,widths,heights,defW,defH,maxR,maxC,frozen,grid,tab:tab?color(tab,[]):''});
   try{applyConditionalFormats(sheet,doc)}catch{}
   try{sheet.shapes=await readDrawing(sheet.path,doc)}catch{sheet.shapes=[]}
   for(const sh of sheet.shapes)sheet.maxC=Math.min(MAX_COLS-1,Math.max(sheet.maxC,sh.to.c??sh.from.c));
@@ -267,9 +270,16 @@
  // either cell beside it has a border there, and files often set only left/top, so edge holds the left
  // border of the cell to the right and the top border of the cell below. Only the first shown column and
  // row draw their own left/top.
- function edgeCss(b,edge){const css=[],right=b.right||edge?.right,bottom=b.bottom||edge?.bottom;
+ // A merged cell's edge can differ along its length (each column/row under it has its own border, as in
+ // Excel): edge.right/bottom is then '' and edge.rightParts/bottomParts list [offset px, length px, border].
+ function edgeCss(b,edge){const css=[],right=edge&&'rightAll' in edge?edge.rightAll:b.right||edge?.right,bottom=edge&&'bottomAll' in edge?edge.bottomAll:b.bottom||edge?.bottom;
   if(right)css.push('border-right:'+right);if(bottom)css.push('border-bottom:'+bottom);
-  if(edge?.firstCol&&b.left)css.push('border-left:'+b.left);if(edge?.firstRow&&b.top)css.push('border-top:'+b.top);return css}
+  if(edge?.firstCol&&b.left)css.push('border-left:'+b.left);if(edge?.firstRow&&b.top)css.push('border-top:'+b.top);
+  const layers=[];
+  for(const [at,len,v] of edge?.bottomParts||[]){if(!v)continue;const [w,,col]=v.split(' ');layers.push(['linear-gradient('+col+','+col+')',len+'px '+w,at+'px 100%'])}
+  for(const [at,len,v] of edge?.rightParts||[]){if(!v)continue;const [w,,col]=v.split(' ');layers.push(['linear-gradient('+col+','+col+')',w+' '+len+'px','100% '+at+'px'])}
+  if(layers.length)css.push('background-image:'+layers.map(l=>l[0]).join(','),'background-size:'+layers.map(l=>l[1]).join(','),'background-position:'+layers.map(l=>l[2]).join(','),'background-repeat:no-repeat');
+  return css}
  function cellStyle(cell,edge){
   const cf=cell.cf,s=cf?{...cell.style,fill:cf.fill||cell.style.fill}:cell.style,f=cf?{...(s.font||{}),...cf.font}:s.font||{},b=bordersOf(cell),css=[];
   if(s.fill)css.push('background-color:'+s.fill);if(f.color)css.push('color:'+f.color);if(f.b)css.push('font-weight:700');if(f.i)css.push('font-style:italic');if(f.u)css.push('text-decoration:underline');
@@ -295,20 +305,44 @@
   const cut=(axis,at,carry)=>{if(!at)return;for(const [key,m] of [...merges]){const [r,c]=key.split(',').map(Number),start=axis?c:r,size=axis?m.cs:m.rs;if(start<at&&start+size>at){
    merges.set(key,axis?{rs:m.rs,cs:at-c}:{rs:at-r,cs:m.cs});const k=axis?r+','+at:at+','+c;merges.set(k,axis?{rs:m.rs,cs:c+m.cs-at}:{rs:r+m.rs-at,cs:m.cs});covered.delete(k);if(!carry)split.add(k);else if(!sheet.cells.has(k)&&sheet.cells.has(key))sheet.cells.set(k,sheet.cells.get(key))}}};
   cut(0,frozen.r0,true);cut(1,frozen.c0,true);cut(0,frozen.r1,false);cut(1,frozen.c1,false);
-  let html='<table style="width:'+total+'px;font-size:'+Math.round(11*zoom*10)/10+'pt;--excel-zoom:'+zoom+'"><colgroup><col class="excel-rownum-col" style="width:46px">'+widths.map(w=>'<col style="width:'+w+'px">').join('')+'</colgroup><thead><tr><th class="excel-corner"></th>'+visibleCols.map(c=>'<th data-c="'+c+'"'+(c<frozen.c1?' class="excel-frozen-col"':'')+'>'+colName(c)+'</th>').join('')+'</tr></thead><tbody>';
+  let html='<table'+(sheet.grid===false?' class="excel-nogrid"':'')+' style="width:'+total+'px;font-size:'+Math.round(11*zoom*10)/10+'pt;--excel-zoom:'+zoom+'"><colgroup><col class="excel-rownum-col" style="width:46px">'+widths.map(w=>'<col style="width:'+w+'px">').join('')+'</colgroup><thead><tr><th class="excel-corner"></th>'+visibleCols.map(c=>'<th data-c="'+c+'"'+(c<frozen.c1?' class="excel-frozen-col"':'')+'>'+colName(c)+'</th>').join('')+'</tr></thead><tbody>';
   // Next shown column / row after a given one (hidden ones are skipped), for shared cell edges.
   const after=(list,size)=>{const next=new Array(size+1).fill(undefined);let k=list.length-1;for(let i=size;i>=0;i--){while(k>=0&&list[k]>i)k--;next[i]=list[k+1]}return next};
   const colAfter=after(visibleCols,cols),rowAfter=after(visibleRows,rows);
   // A cell inside a merged range takes the border of the range's first cell when it has none itself.
   const coverOf=new Map();for(const [key,mm] of merges){const [r0,c0]=key.split(',').map(Number);for(let i=0;i<mm.rs;i++)for(let j=0;j<mm.cs;j++)if(i||j)coverOf.set((r0+i)+','+(c0+j),key)}
   const sideAt=(key,side)=>bordersOf(sheet.cells.get(key))[side]||(coverOf.has(key)?bordersOf(sheet.cells.get(coverOf.get(key)))[side]:'')||'';
-  const edgeAt=(r,c,m)=>{const nc=colAfter[c+(m?m.cs:1)-1],nr=rowAfter[r+(m?m.rs:1)-1];return{right:nc===undefined?'':sideAt(r+','+nc,'left'),bottom:nr===undefined?'':sideAt(nr+','+c,'top'),firstCol:c===visibleCols[0],firstRow:r===visibleRows[0]}};
+  const edgeAt=(r,c,m)=>{const nc=colAfter[c+(m?m.cs:1)-1],nr=rowAfter[r+(m?m.rs:1)-1],edge={right:nc===undefined?'':sideAt(r+','+nc,'left'),bottom:nr===undefined?'':sideAt(nr+','+c,'top'),firstCol:c===visibleCols[0],firstRow:r===visibleRows[0]};
+   if(m&&(m.cs>1||m.rs>1)){const last=r+m.rs-1,parts=[];let at=0;for(let j=c;j<c+m.cs;j++){if(!colShown.has(j))continue;const w=widthOf.get(j)||0;parts.push([at,w,sideAt(last+','+j,'bottom')||(nr===undefined?'':sideAt(nr+','+j,'top'))]);at+=w}
+    if(new Set(parts.map(p=>p[2])).size>1){edge.bottomAll='';edge.bottomParts=parts}else edge.bottomAll=parts[0]?.[2]||''}
+   if(m&&(m.cs>1||m.rs>1)){const last=c+m.cs-1,parts=[];let at=0;for(let i=r;i<r+m.rs;i++){if(!rowShown.has(i))continue;const h=Math.round((sheet.heights[i]??sheet.defH)*4/3*zoom);parts.push([at,h,sideAt(i+','+last,'right')||(nc===undefined?'':sideAt(i+','+nc,'left'))]);at+=h}
+    if(new Set(parts.map(p=>p[2])).size>1){edge.rightAll='';edge.rightParts=parts}else edge.rightAll=parts[0]?.[2]||''}
+   return edge};
+  // Cell text. Long text spills into empty cells beside it, as in Excel (left/general text to the right,
+  // right-aligned to the left, centred both ways); it stops at the next cell with text or a merge.
+  const widthOf=new Map(visibleCols.map((c,i)=>[c,widths[i]])),colBefore=new Map(visibleCols.map((c,i)=>[c,visibleCols[i-1]]));
+  const blocked=(r,c)=>{const k=r+','+c;return covered.has(k)||merges.has(k)||(sheet.cells.get(k)?.text??'')!==''};
+  const spill=(r,c,dir)=>{let w=0,cc=c;for(let n=0;n<40;n++){cc=dir>0?colAfter[cc]:colBefore.get(cc);if(cc===undefined||blocked(r,cc)||(cc<frozen.c1)!==(c<frozen.c1))break;w+=widthOf.get(cc)}return w};
+  const content=(cell,r,c,m)=>{
+   const t=esc(cell.text),s=cell.style;if(!t)return '';
+   // Text rotation: 1–90 counter-clockwise, 91–180 clockwise, 255 stacked letters.
+   if(s.rot)return '<span class="excel-rot" style="'+(s.rot===255?'writing-mode:vertical-rl;text-orientation:upright':s.rot===90?'writing-mode:vertical-rl;transform:rotate(180deg)':s.rot===180?'writing-mode:vertical-rl':'transform:rotate('+(s.rot<=90?-s.rot:s.rot-90)+'deg)')+'">'+t+'</span>';
+   // Excel wraps only at spaces: a Myanmar word stays whole and moves to the next line (browsers would
+   // split it between syllables). It still breaks if it is wider than the cell.
+   if(s.wrap)return t.replace(/[\u1000-\u109F\uA9E0-\uA9FF\uAA60-\uAA7F]+/g,w=>'<span class="excel-word">'+w+'</span>');
+   if(m||cell.numeric)return t;
+   const own=widthOf.get(c)||0,size=((s.font?.sz||11)*4/3)*zoom;if(cell.text.length*size*0.62<own-10)return t;
+   const h=s.h&&s.h!=='general'?s.h:'left',R=h==='right'?0:spill(r,c,1),L=h==='left'||h==='fill'||h==='justify'?0:spill(r,c,-1);
+   if(!R&&!L)return t;const E=h==='center'||h==='centerContinuous'?Math.min(L,R):0,left=h==='right'?L:E,right=h==='right'?0:h==='left'||h==='fill'||h==='justify'?R:E;
+   return '<div class="excel-spill" style="width:'+(own+left+right-11)+'px'+(left?';margin-left:-'+left+'px':'')+'">'+t+'</div>';
+  };
   const rowHtml=r=>{
    const ht=sheet.heights[r];
    let html='<tr'+(r<frozen.r1?' class="excel-frozen-row"':'')+' style="height:'+Math.round((ht??sheet.defH)*4/3*zoom)+'px"><th data-r="'+r+'">'+(r+1)+'</th>';
    for(const c of visibleCols){const key=r+','+c;if(covered.has(key))continue;const m=merges.get(key),cell=split.has(key)?null:sheet.cells.get(key);
     let rs=1,cs=1;if(m){for(let i=1;i<m.rs;i++)if(rowShown.has(r+i))rs++;for(let i=1;i<m.cs;i++)if(colShown.has(c+i))cs++}
-    html+='<td data-r="'+r+'" data-c="'+c+'"'+(c<frozen.c1?' class="excel-frozen-col"':'')+(m?(m.rs>1?' data-r2="'+(r+m.rs-1)+'"':'')+(m.cs>1?' data-c2="'+(c+m.cs-1)+'"':''):'')+(rs>1?' rowspan="'+rs+'"':'')+(cs>1?' colspan="'+cs+'"':'')+(cell?' style="'+esc(cellStyle(cell,edgeAt(r,c,m)))+'"':(e=>e.length?' style="'+esc(e.join(';'))+'"':'')(edgeCss({},edgeAt(r,c,m))))+'>'+(cell?esc(cell.text):'')+'</td>'}
+    const inner=cell?content(cell,r,c,m):'',cls=(c<frozen.c1?'excel-frozen-col ':'')+(inner.startsWith('<div class="excel-spill"')?'excel-spill-host':'');
+    html+='<td data-r="'+r+'" data-c="'+c+'"'+(cls.trim()?' class="'+cls.trim()+'"':'')+(m?(m.rs>1?' data-r2="'+(r+m.rs-1)+'"':'')+(m.cs>1?' data-c2="'+(c+m.cs-1)+'"':''):'')+(rs>1?' rowspan="'+rs+'"':'')+(cs>1?' colspan="'+cs+'"':'')+(cell?' style="'+esc(cellStyle(cell,edgeAt(r,c,m)))+'"':(e=>e.length?' style="'+esc(e.join(';'))+'"':'')(edgeCss({},edgeAt(r,c,m))))+'>'+inner+'</td>'}
    return html+'</tr>';
   };
   const keep=keepScroll&&[grid.scrollTop/(grid.scrollHeight||1),grid.scrollLeft/(grid.scrollWidth||1)];
@@ -322,7 +356,7 @@
   const spacer=h=>'<tr class="excel-spacer" style="height:'+h+'px"><td colspan="'+(visibleCols.length+1)+'"></td></tr>';
   const frozenRows=visibleRows.filter(r=>r<frozen.r1);
   grid.innerHTML=html+'</tbody><tbody class="excel-after">'+spacer(0)+'</tbody></table>';renderedSheet=sheet;
-  view={sheet,body,index,hts,origin,rowHtml,spacer,frozenHtml:frozenRows.map(rowHtml).join(''),frozenCount:frozenRows.length,tops:null,start:0,end:0,base:0,rows:visibleRows,cols:visibleCols,widths,covered,frozenCols:visibleCols.filter(c=>c<frozen.c1).length};
+  view={sheet,body,index,hts,origin,rowHtml,spacer,frozenHtml:frozenRows.map(rowHtml).join(''),frozenCount:frozenRows.length,frozenR1:frozen.r1,tops:null,start:0,end:0,base:0,rows:visibleRows,cols:visibleCols,widths,covered,frozenCols:visibleCols.filter(c=>c<frozen.c1).length};
   sumTops();
   // Drawn from the top first: that measures where the body rows begin.
   grid.scrollTop=0;drawRows(true,0);
@@ -414,7 +448,7 @@
   const below=r=>{const last=+rows[rows.length-1].dataset.r,i=view?view.index?.get(last):undefined;if(!view||i===undefined)return 0;const j=view.body.findIndex(x=>x>=r);return(j<0?view.tops[view.body.length]:view.tops[j])-view.tops[i+1]};
   const rowAt=r=>{let i=rows.findIndex(th=>+th.dataset.r>=r);return i<0?{y:ry[ry.length-1].y+ry[ry.length-1].h+below(r),h:0,exact:false}:{...ry[i],exact:+rows[i].dataset.r===r}};
   // Only shapes whose corner is in a drawn row are placed; the rest are placed when scrolled near.
-  const frozenEnd=sheet.frozen?.r1||0,firstBody=view?view.body[view.start]:0,lastDrawn=+rows[rows.length-1].dataset.r;
+  const frozenEnd=view?.frozenR1??0,firstBody=view?view.body[view.start]:0,lastDrawn=+rows[rows.length-1].dataset.r;
   const placed=[];
   for(const s of sheet.shapes){
    if(s.from.r>lastDrawn||(s.from.r>=frozenEnd&&s.from.r<firstBody))continue;

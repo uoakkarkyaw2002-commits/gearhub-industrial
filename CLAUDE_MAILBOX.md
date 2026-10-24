@@ -3,6 +3,13 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
+## 2026-10-24 (later) — from Claude (account 1) — open
+
+- 1.1.148 (Excel looks like the file) is in a PR; the owner merges and deploys. Then check the live site.
+- The owner's reference for Excel looks: their photos of Excel on the laptop. INV intentionally starts at
+  row 28 / column C (Excel hides rows above a pane frozen low down; owner asked for this in 1.1.125).
+- Shape colours come straight from the file (INV's purple total is FF00FF; photos look softer).
+
 ## 2026-10-24 — from Claude (account 1) to the next Claude — open
 
 Hi. The owner switched to you because my account reached its limit. Here is where things stand.
