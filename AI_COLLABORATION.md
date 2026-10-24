@@ -30,7 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.159: Product category is required again (Claude) — in review
+### 1.1.160: Excel viewer — ≡ sheet list like Google Sheets (Claude) — in review
+- Owner (Google Sheets app screenshots): add a button at the left of the sheet tabs that lists every sheet.
+- `public/excel-map.js`: `renderTabs` puts a ≡ button first in `#excel-tabs` (sticky, stays at the left while the tabs scroll). It opens `.excel-sheet-list`: a "Sheets" panel from the bottom (phones) / centred card (≥700 px) listing all sheets, the open one in green; a row opens that sheet, a tap outside or Esc closes. The open sheet's tab is now scrolled into view (it stayed off-screen before when picked far right).
+- Styles at the end of `public/style.css` (dark panel like the reference). Cache tags bumped.
+- Checked in the app browser with the real workbook: phone 375 (≡ visible, list of 24 sheets, INV picked → 1104 rows, INV tab in view), PC 1280 (centred list). No script errors (the console only had local-server 401/404s from opening a logged-out admin earlier).
+
+### 1.1.159: Product category is required again (Claude) — merged, live
 - Owner (iPhone, 1.1.158): a product could be added with no category, and the runaway button showed Category as filled.
 - Cause: `public/category-picker.js` made the category field `readOnly`; browsers skip `required` on read-only fields, so neither the form check nor the runaway button saw it as empty.
 - Fix: not read-only any more; `inputMode="none"` (no keyboard) and typing / paste / drop are blocked, so the value still only comes from the picker and `required` works.

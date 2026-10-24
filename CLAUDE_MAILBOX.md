@@ -3,7 +3,11 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-25 (later still) — from Claude (account 1) — open
+## 2026-10-25 (evening 2) — from Claude (account 1) — open
+
+- 1.1.160 (Excel ≡ sheet list like Google Sheets) is in a PR.
+
+## 2026-10-25 (later still) — from Claude (account 1) — done
 
 - 1.1.159 (category required again: picker field no longer read-only) is in a PR.
 

@@ -513,8 +513,21 @@
   const rows=[];for(let r=head+1;r<=sheet.maxR;r++){const v=rowValues(r);if(v.some(x=>String(x).trim()))rows.push(v)}
   return{head:rowValues(head).map((v,i)=>String(v).trim()||'Column '+colName(i)),rows};
  }
+ // Google Sheets style: ≡ at the left of the tabs opens a "Sheets" list of every sheet.
+ const sheetList=document.createElement('div');sheetList.className='excel-sheet-list';sheetList.hidden=true;
+ sheetList.innerHTML='<div class="excel-sheet-list-card" role="dialog" aria-label="Sheets"><h4>Sheets</h4><div class="excel-sheet-list-rows" role="list"></div></div>';
+ section.append(sheetList);
+ function sheetListOpen(open){
+  if(open){sheetList.querySelector('.excel-sheet-list-rows').innerHTML=book.sheets.map((s,i)=>'<button type="button" role="listitem" class="excel-sheet-list-row'+(i===active?' active':'')+'" data-sheet="'+i+'"'+(i===active?' aria-current="true"':'')+'>'+esc(s.name)+'</button>').join('');
+   sheetList.querySelector('.active')?.scrollIntoView({block:'nearest'})}
+  sheetList.hidden=!open;
+ }
+ sheetList.addEventListener('click',e=>{const t=e.target.closest('[data-sheet]');if(t){sheetListOpen(false);if(+t.dataset.sheet!==active)showSheet(+t.dataset.sheet);return}if(e.target===sheetList)sheetListOpen(false)});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!sheetList.hidden)sheetListOpen(false)});
  function renderTabs(){
-  tabs.innerHTML=book.sheets.map((s,i)=>'<button type="button" role="tab" class="excel-tab'+(i===active?' active':'')+'" data-sheet="'+i+'" aria-selected="'+(i===active)+'"'+(s.tab?' style="--tab-color:'+esc(s.tab)+'"':'')+'>'+esc(s.name)+'</button>').join('');
+  tabs.innerHTML='<button type="button" class="excel-sheet-menu" data-sheet-menu aria-label="All sheets"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 6h16M4 10h16M4 14h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>'+book.sheets.map((s,i)=>'<button type="button" role="tab" class="excel-tab'+(i===active?' active':'')+'" data-sheet="'+i+'" aria-selected="'+(i===active)+'"'+(s.tab?' style="--tab-color:'+esc(s.tab)+'"':'')+'>'+esc(s.name)+'</button>').join('');
+  // Keep the open sheet's tab in view (e.g. INV picked from the Sheets list), clear of the ≡ button.
+  const on=tabs.querySelector('.excel-tab.active'),menu=tabs.querySelector('.excel-sheet-menu');if(on){const a=on.getBoundingClientRect(),b=tabs.getBoundingClientRect(),left=b.left+(menu?menu.offsetWidth:0);if(a.left<left||a.right>b.right)tabs.scrollLeft+=a.left-left-(b.right-left-a.width)/2}
  }
  async function showSheet(i){
   active=i;searchText='';search.value='';renderTabs();msg.textContent='Loading…';
@@ -533,7 +546,7 @@
  function setForm(hide){const form=document.getElementById('excel-upload-form');if(!form)return;if(hide){if(!form.dataset.wasHidden)form.dataset.wasHidden=String(form.hidden);form.hidden=true}else if(form.dataset.wasHidden){form.hidden=form.dataset.wasHidden==='true';delete form.dataset.wasHidden}}
  box.addEventListener('click',async e=>{
   const b=e.target.closest('[data-excel-preview]');if(!b)return;
-  section.hidden=false;box.hidden=true;setForm(true);card.classList.add('excel-sheet-open');fullScreen(true);title.textContent=b.dataset.excelName||'Spreadsheet';grid.innerHTML='';tabs.innerHTML='';panel.hidden=true;msg.textContent='Loading…';out.textContent='';
+  section.hidden=false;box.hidden=true;setForm(true);card.classList.add('excel-sheet-open');fullScreen(true);title.textContent=b.dataset.excelName||'Spreadsheet';grid.innerHTML='';tabs.innerHTML='';sheetList.hidden=true;panel.hidden=true;msg.textContent='Loading…';out.textContent='';
   try{
    const blob=await (await fetch(b.dataset.excelPreview)).blob(),name=b.dataset.excelName||'';
    if(/\.csv$/i.test(name))book=csvBook(await blob.text());else if(/\.xls[xm]$/i.test(name))book=await readBook(await blob.arrayBuffer());else throw Error('Preview supports .xlsx, .xlsm and .csv. Old .xls files can only be downloaded.');
@@ -541,7 +554,7 @@
    owner=await access();await showSheet(0);
   }catch(x){msg.textContent=x.message}
  });
- tabs.addEventListener('click',e=>{const t=e.target.closest('[data-sheet]');if(t)showSheet(+t.dataset.sheet)});
+ tabs.addEventListener('click',e=>{if(e.target.closest('[data-sheet-menu]'))return sheetListOpen(true);const t=e.target.closest('[data-sheet]');if(t)showSheet(+t.dataset.sheet)});
  // Two fingers pinch the sheet bigger or smaller (the page itself would only zoom in). The table is
  // scaled live while pinching and drawn again at the new size when the fingers lift.
  function setZoom(next,keepScroll=true){next=Math.min(ZMAX,Math.max(ZMIN,Math.round(next*100)/100));if(next===zoom)return;zoom=next;if(renderedSheet)renderSheet(renderedSheet,keepScroll)}
