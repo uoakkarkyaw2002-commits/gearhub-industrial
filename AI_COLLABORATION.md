@@ -31,7 +31,7 @@ _None._
 - Change: keep the viewer's light gridlines on unbordered edges while preserving explicit workbook and conditional-format borders.
 - Files: `public/excel-map.js`, `tests/excel-library.test.js`, version/cache files.
 - Validation: Node 22 checks and 294 tests passed. Chrome seller shop with the uploaded workbook at 375px and 1280px: INV sheet gridlines on filled cells, red workbook borders, select interactions, scroll/zoom and reload; no page errors. Original workbook used for browser verification.
-- PR: pending.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/210.
 
 ### 1.1.137: Excel cell selection and row headers (Codex) — in review
 - Task: only row-number taps select a whole row; cell taps select one cell and dragging selects a range.
