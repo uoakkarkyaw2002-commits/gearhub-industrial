@@ -25,6 +25,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.145: Excel search like Google Sheets (Claude) — in review
+- Owner (iPhone screenshots): searching hid every row without a match, so the header row disappeared; wanted it like Google Sheets.
+- `public/excel-map.js`: search no longer filters rows. `find()` lists matching cells (row by row), selects the first, scrolls it just under the header/frozen rows (and sideways past frozen columns only when they are really frozen), and ˄ ˅ buttons / Enter / Shift+Enter go to the previous/next match (wrapping). Status shows "N found" / "No match". After zoom the same match stays selected.
+- `public/excel-select.js`: an `excel-find` event selects the found cell (blue box, lit column letter and row number). A selection made on a freshly drawn table is no longer wiped by the table-replaced observer (a zoomed match kept its box when the next match was selected).
+- `public/style.css`: search bar = box + two round arrow buttons.
+- Checks: real workbook in WebKit at 375px and 1280px — BC "carrier" (60, incl. jumps to rows 1160–1168), CB "A8-Y26" (44), INV "hitachi", Fast Moving "assy" (90), DEL: match always on screen, exactly one blue box, header row stays; "No match" case. Node 22 check + tests.
+
 ### 1.1.144: Faster Excel viewer (Claude) — in review
 - Owner: the Excel viewer stutters and feels heavy. Tested with the owner's real workbook (OCT-2026 (Excavator).xlsm, 24 sheets, up to 37,000 cells per sheet; frozen rows/columns, pictures, 1,500 merges).
 - `public/excel-map.js`: only rows near the screen are drawn (1200 px above/below; frozen rows always); spacer rows stand in for the rest (bottom spacer in its own `tbody.excel-after` so cut merges end at the drawn part). A merge starts its drawn part at its first row. Drawn rows are measured with fractional heights so spacers stay exact; no spacer above the first rows (an empty row takes a pixel between collapsed borders). Shapes are placed only when their corner row is drawn. `grid.cellText` gives copy the sheet's own text.

@@ -3,7 +3,7 @@
 // Ctrl/Cmd+C copies the selection as rows and columns (pastes into Excel or Sheets); Esc clears it.
 (()=>{
  const grid=document.getElementById('excel-grid');if(!grid)return;
- let anchor=null,focus=null,dragging=false,marked=[];
+ let anchor=null,focus=null,dragging=false,marked=[],ownTable=null;
  const pos=cell=>({r:Number(cell.dataset.r),c:Number(cell.dataset.c),r2:Number(cell.dataset.r2??cell.dataset.r),c2:Number(cell.dataset.c2??cell.dataset.c)});
  function area(){if(!anchor||!focus)return null;return{top:Math.min(anchor.r,focus.r),left:Math.min(anchor.c,focus.c),bottom:Math.max(anchor.r2,focus.r2),right:Math.max(anchor.c2,focus.c2)}}
  function clear(){for(const node of marked)node.classList.remove('xs-sel','xs-active','xs-head');marked=[]}
@@ -20,7 +20,7 @@
  }
  const within=(list,lo,hi)=>list.filter(n=>n>=lo&&n<=hi);
  function paint(){
-  clear();const box=area();if(!box)return;const ix=lookup();
+  clear();const box=area();if(!box)return;const ix=lookup();ownTable=grid.firstElementChild;
   const mark=(node,cls)=>{node.classList.add(cls);marked.push(node)};
   const rows=within(ix.rowList,box.top,box.bottom),cols=within(ix.colList,box.left,box.right);
   for(const r of rows)for(const c of cols){const cell=ix.cells.get(r+','+c);if(cell)mark(cell,'xs-sel')}
@@ -48,6 +48,8 @@
   const rowHead=event.target.closest('tbody th[data-r]');
   if(rowHead?.tagName==='TH'&&!event.button)selectRow(Number(rowHead.dataset.r));
  });
+ // Search (excel-map.js) selects the cell it found, like Google Sheets.
+ grid.addEventListener('excel-find',event=>{index=null;const cell=lookup().cells.get(event.detail.r+','+event.detail.c);anchor=focus=cell?pos(cell):{r:event.detail.r,c:event.detail.c,r2:event.detail.r,c2:event.detail.c};dragging=false;paint()});
  grid.addEventListener('pointerover',event=>{
   if(!dragging||!(event.buttons&1))return;const cell=event.target.closest('td[data-r]');if(!cell)return;
   focus=pos(cell);paint();
@@ -74,7 +76,8 @@
  grid.addEventListener('touchend',endTouch);grid.addEventListener('touchcancel',endTouch);
  grid.addEventListener('contextmenu',event=>{if(touch)event.preventDefault()});
  // A new sheet or search result replaces the table: the old selection goes with it.
- new MutationObserver(()=>{endTouch();dragging=false;marked=[];anchor=focus=null}).observe(grid,{childList:true});
+ // (A selection made on the new table, e.g. a search match kept after zoom, stays.)
+ new MutationObserver(()=>{if(ownTable&&grid.firstElementChild===ownTable)return;endTouch();dragging=false;marked=[];anchor=focus=null}).observe(grid,{childList:true});
  // A scrolled big sheet draws other rows: rebuild the index and show the selection on them.
  new MutationObserver(()=>{index=null;if(anchor)paint()}).observe(grid,{childList:true,subtree:true});
  document.addEventListener('keydown',event=>{

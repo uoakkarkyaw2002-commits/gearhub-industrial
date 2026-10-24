@@ -59,8 +59,8 @@ test('cells carry their sheet position; selection styles; script loaded and cach
  assert.match(map,/html\+='<td data-r="'\+r\+'" data-c="'\+c\+'"'/);
  assert.match(map,/'<th data-c="'\+c\+'"'\+\(c<frozen\.c1\?' class="excel-frozen-col"':''\)\+'>'\+colName\(c\)\+'<\/th>'/);
  const css=read('style.css');assert.match(css,/#excel-grid td\.xs-active\{box-shadow:inset 0 0 0 2px #1a73e8/);assert.match(css,/#excel-grid tbody th\[data-r\]\{cursor:pointer/);
- assert.match(read('index.html'),/<script src="\/excel-select\.js\?v=20261024-speed-2"><\/script>/);
- assert.match(read('sw.js'),/"\/excel-select\.js\?v=20261024-speed-2"/);
+ assert.match(read('index.html'),/<script src="\/excel-select\.js\?v=20261024-find-2"><\/script>/);
+ assert.match(read('sw.js'),/"\/excel-select\.js\?v=20261024-find-2"/);
 });
 
  test('touch hold-and-drag selects cells; quick swipes and two fingers remain scrolling/zoom gestures',()=>{
@@ -99,4 +99,24 @@ test('a big sheet draws only the rows near the screen; copy reads the sheet itse
  assert.match(css,/\.excel-sheet tr\.excel-spacer>td\{padding:0;border:0;background:transparent;line-height:0;font-size:0\}/);
  assert.match(sel,/new MutationObserver\(\(\)=>\{index=null;if\(anchor\)paint\(\)\}\)\.observe\(grid,\{childList:true,subtree:true\}\);/);
  assert.match(sel,/grid\.cellText\?grid\.cellText\(r,c\)/);
+});
+test('search works like Google Sheets: rows stay, the match is selected and the arrows move between matches',()=>{
+ const map=read('excel-map.js'),sel=read('excel-select.js'),css=read('style.css');
+ assert.doesNotMatch(map,/matching\(r\)/,'search no longer hides rows (the header row disappeared)');
+ assert.match(map,/id="excel-find-prev" aria-label="Previous match"/);
+ assert.match(map,/id="excel-find-next" aria-label="Next match"/);
+ assert.match(map,/search\.addEventListener\('keydown',e=>\{if\(e\.key==='Enter'\)\{e\.preventDefault\(\);find\(e\.shiftKey\?-1:1\)\}\}\);/);
+ assert.match(map,/foundAt=\(foundAt\+step\+found\.length\)%found\.length/,'next/previous wrap around');
+ assert.match(map,/grid\.dispatchEvent\(new CustomEvent\('excel-find',\{detail:\{r,c\}\}\)\);/);
+ assert.match(sel,/grid\.addEventListener\('excel-find',event=>\{index=null;/);
+ assert.match(css,/\.excel-find-step\{flex:none;width:40px;height:40px;/);
+});
+test('the found cell gets the spreadsheet selection (blue box, lit headers)',()=>{
+ const listeners={};const cls=new Set();const cell={dataset:{r:'5',c:'2'},classList:{add:c=>cls.add(c),remove:c=>cls.delete(c),has:c=>cls.has(c)},closest:()=>null};
+ const head=(k,v)=>{const s=new Set();return{dataset:{[k]:v},classList:{add:c=>s.add(c),remove:c=>s.delete(c),has:c=>s.has(c)}}};
+ const ch=head('c','2'),rh=head('r','5');
+ const grid={addEventListener:(n,f)=>listeners[n]=f,querySelectorAll:s=>s.startsWith('td')?[cell]:[ch,rh],querySelector:()=>null,contains:()=>true,offsetParent:{}};
+ vm.runInNewContext(read('excel-select.js'),{document:{getElementById:()=>grid,addEventListener(){}},addEventListener(){},setTimeout,clearTimeout,MutationObserver:class{observe(){}},navigator:{}});
+ listeners['excel-find']({detail:{r:5,c:2}});
+ assert.ok(cls.has('xs-active')&&cls.has('xs-sel'));assert.ok(ch.classList.has('xs-head')&&rh.classList.has('xs-head'));
 });
