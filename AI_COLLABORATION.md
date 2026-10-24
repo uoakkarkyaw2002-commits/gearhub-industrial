@@ -30,6 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.149: INV like Excel — logo, centred thick lines, merged edges, cell margin (Claude) — in review
+- Owner's screenshot (PC app, wide window): INV logo cut off, borders broken, "22,854,000 DT" box cut, "***" cut.
+- Pictures/shapes: a picture's cell no longer forms its own layer (a later picture cell's white background covered the bottom of the logo); shapes sit at z 5 above cells. Frozen cells holding boxes are stacked so earlier (upper/left) ones are on top. Picture frames (`a:ln`, Excel picture styles) and saved outer shadows are drawn from the file.
+- Borders: thick lines are centred on the shared edge like Excel (left/upper cell draws the first half) — removes the white notch in INV's blue bar at row 36. A neighbour inside a merged range shows the range's outer edge (E53:G53 with G hidden showed F53's inner red line). Merged cells draw all four sides part by part (O48:Q49 drew row 48's green line on row 49 too).
+- Excel's cell margin (column width = text + 5px): `td{padding:0 2px}`; text spill widths follow. Spilling cells sit above neighbouring pinned (frozen) cells, which paint white backgrounds.
+- Checked in WebKit at the owner's window size (1625px) and phone size with the real workbook.
+
 ### 1.1.148: Excel looks like the file — all rows, no gridlines where off, merged borders, wrapping (Claude) — in review
 - Owner: "BC sheet doesn't show all rows" and "INV differs from the original a lot". Reference: the owner's earlier photos of Excel on the laptop (INV top and totals area).
 - BC has 2297 rows; the 1500-row cap (from before only nearby rows were drawn) cut it. `MAX_ROWS` is now Excel's 1048576 (`<col>` ranges stop 1000 columns after their start).

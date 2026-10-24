@@ -54,12 +54,12 @@ test('filled Excel cells keep light gridlines while workbook and conditional bor
  for(const fill of ['#FFFFFF','#00B050']){
   const style={fill,font:{},border:{left:'3px solid #FF0000'}};
   const cell={style,text:'Invoice'};
-  const css=cellStyle(cell,{firstCol:true});
+  const css=cellStyle(cell,{firstCol:true,lastCol:true,lastRow:true});
   assert.ok(css.includes('background-color:'+fill));
   assert.ok(css.includes('border-left:3px solid #FF0000'),'the first shown column draws its own left border');
   assert.doesNotMatch(cellStyle(cell),/border-left/,'elsewhere the cell to the left draws that edge (it gets it as edge.right)');
   assert.doesNotMatch(css,/border-(?:right|top|bottom)(?:-color)?:/,'unbordered edges inherit visible sheet gridlines');
-  const conditional=cellStyle({...cell,cf:{fill:'#FFFFFF',border:{bottom:'2px solid #000000'}}});
+  const conditional=cellStyle({...cell,cf:{fill:'#FFFFFF',border:{bottom:'2px solid #000000'}}},{lastRow:true});
   assert.ok(conditional.includes('border-bottom:2px solid #000000'));
   assert.doesNotMatch(conditional,/border-(?:right|top)(?:-color)?:/);
   assert.deepEqual(style,{fill,font:{},border:{left:'3px solid #FF0000'}},'rendering does not change workbook formatting');
@@ -68,15 +68,20 @@ test('filled Excel cells keep light gridlines while workbook and conditional bor
  const plain={style:{font:{},border:{}},text:'x'};
  const shared=cellStyle(plain,{right:'1px solid #000',bottom:'1px solid #000'});
  assert.ok(shared.includes('border-right:1px solid #000')&&shared.includes('border-bottom:1px solid #000'));
- const own=cellStyle({style:{font:{},border:{right:'2px solid #F00'}},text:'x'},{right:'1px solid #000'});
+ const own=cellStyle({style:{font:{},border:{right:'2px solid #F00'}},text:'x'},{right:'1px solid #000',lastCol:true});
  assert.ok(own.includes('border-right:2px solid #F00')&&!own.includes('border-right:1px'),'the cell\'s own border wins');
+ // Thick lines are centred on the edge like Excel: left/upper cell draws the first half, the other cell the rest.
+ const thickL=cellStyle({style:{font:{},border:{right:'3px solid #FFF'}},text:'x'},{});
+ const thickR=cellStyle({style:{font:{},border:{}},text:'x'},{left:'3px solid #FFF'});
+ assert.ok(thickL.includes('border-right:1px solid #FFF')&&thickR.includes('border-left:2px solid #FFF'),thickL+' | '+thickR);
+ const dbl=cellStyle({style:{font:{},border:{bottom:'3px double #000'}},text:'x'},{});assert.ok(dbl.includes('border-bottom:3px double #000'),'double lines stay whole');
 });
 test('empty cells and cells next to bordered cells show the shared border (BC sheet lost its lines)',()=>{
  const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8');
- assert.match(map,/const edgeAt=\(r,c,m\)=>\{const nc=colAfter\[c\+\(m\?m\.cs:1\)-1\],nr=rowAfter\[r\+\(m\?m\.rs:1\)-1\],edge=/);
+ assert.match(map,/const edgeAt=\(r,c,m\)=>\{const cs=m\?m\.cs:1,rs=m\?m\.rs:1,nc=colAfter\[c\+cs-1\],nr=rowAfter\[r\+rs-1\]/);
  const css=fs.readFileSync(path.join(__dirname,'..','public','style.css'),'utf8');
  assert.match(css,/\.excel-sheet table\{border-collapse:separate;border-spacing:0;/,'collapsed borders let scrolled rows paint over the sticky column letters');
- assert.match(css,/\.excel-sheet td\{padding:2px 5px;border:0;border-right:1px solid #e2e2e2;border-bottom:1px solid #e2e2e2;/);
+ assert.match(css,/\.excel-sheet td\{padding:0 2px;border:0;border-right:1px solid #e2e2e2;border-bottom:1px solid #e2e2e2;/,'Excel cell margin');
  assert.match(map,/\(cell\?' style="'\+esc\(cellStyle\(cell,edgeAt\(r,c,m\)\)\)\+'"':\(e=>e\.length\?' style="'\+esc\(e\.join\(';'\)\)\+'"':''\)\(edgeCss\(\{\},edgeAt\(r,c,m\)\)\)\)/);
 });
 test('Excel sheet opens full screen with one back arrow and exact column widths',()=>{
@@ -148,9 +153,12 @@ test('excel viewer: selection shows on filled cells; two-finger zoom smaller and
 test('a border on a merged range shows on the edge next to any of its cells (INV row 405 lost its thick line)',()=>{
  const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8');
  assert.match(map,/const sideAt=\(key,side\)=>bordersOf\(sheet\.cells\.get\(key\)\)\[side\]\|\|\(coverOf\.has\(key\)\?bordersOf\(sheet\.cells\.get\(coverOf\.get\(key\)\)\)\[side\]:''\)\|\|'';/);
- assert.match(map,/right:nc===undefined\?'':sideAt\(r\+','\+nc,'left'\),bottom:nr===undefined\?'':sideAt\(nr\+','\+c,'top'\)/);
+ assert.match(map,/right:nc===undefined\?'':outer\(r,nc,'left'\),bottom:nr===undefined\?'':outer\(nr,c,'top'\)/);
+ // A neighbour inside a merged range shows the range's outer edge (INV E53:G53, G hidden: not F53's inner red line).
+ assert.match(map,/const outer=\(r,c,side\)=>\{const k=r\+','\+c,o=coverOf\.get\(k\)\|\|\(merges\.has\(k\)\?k:null\);/);
+ assert.match(map,/if\(lc!==undefined\)sideParts\(rowsIn,rowH,i=>outer\(i,lc,'right'\)\|\|sideAt\(i\+','\+c,'left'\),edge,'left'\);/,'merged cells draw their left edge per row (O48:Q49 only has green on row 48)');
  // INV D36:F36 is merged and only D37 below has a (green) top border: only the D part of the edge shows.
- assert.match(map,/if\(new Set\(parts\.map\(p=>p\[2\]\)\)\.size>1\)\{edge\.bottomAll='';edge\.bottomParts=parts\}/);
+ assert.match(map,/if\(new Set\(parts\.map\(p=>p\[2\]\)\)\.size>1\)\{edge\[key\+'All'\]='';edge\[key\+'Parts'\]=parts\}/);
 });
 test('Excel look: all rows, gridlines setting, rotated text, text spilling into empty cells, whole Myanmar words',()=>{
  const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8'),css=fs.readFileSync(path.join(__dirname,'..','public','style.css'),'utf8');
@@ -165,5 +173,5 @@ test('Excel look: all rows, gridlines setting, rotated text, text spilling into 
  // Excel keeps rows above / columns left of a pane frozen low down hidden (owner's Excel photo of INV, 1.1.125).
  assert.match(map,/if\(ys\)\{frozen\.r0=\+tl\[2\]-1;frozen\.r1=frozen\.r0\+ys\}/);
  // A merged cell takes its right/bottom border from its last column/row (INV H34:I34 red box).
- assert.match(map,/if\(m&&\(m\.cs>1\|\|m\.rs>1\)\)\{const last=c\+m\.cs-1,parts=\[\]/);
+ assert.match(map,/sideParts\(rowsIn,rowH,i=>sideAt\(i\+','\+\(c\+cs-1\),'right'\)\|\|\(nc===undefined\?'':outer\(i,nc,'left'\)\),edge,'right'\);/);
 });
