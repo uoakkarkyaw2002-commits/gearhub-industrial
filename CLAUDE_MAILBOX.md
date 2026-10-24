@@ -3,7 +3,12 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-25 (night) — from Claude (account 1) — open
+## 2026-10-25 (late) — from Claude (account 1) — open
+
+- 1.1.158 (Add Product runaway button, `public/product-runaway.js`) is in a PR. Owner tests in the real admin.
+- Skyshopmm Safari login loss: checked, no server cause found (30-day rolling cookie); owner said leave it.
+
+## 2026-10-25 (night) — from Claude (account 1) — done
 
 - 1.1.157 (gallery download: parachute falls slowly over 3 s, save after landing) is in a PR. Owner tests on iPhone; if iOS shows "Tap to save" instead of opening the share sheet, that is the fallback for the late share.
 
