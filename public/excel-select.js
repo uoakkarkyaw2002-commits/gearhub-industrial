@@ -111,14 +111,16 @@
   const dot=event.target.closest('.xs-handle');if(dot&&anchor){touch={handle:dot.dataset.side,selecting:true};return}
   const cell=event.target.closest('td[data-r]');if(!cell)return;
   const finger=event.touches[0],p=pos(cell);touch={x:finger.clientX,y:finger.clientY,p,selecting:false,at:Date.now(),inSel:!!anchor&&inArea(p)};
-  holdTimer=setTimeout(()=>{if(!touch)return;touch.selecting=true;held=true;anchor=touch.p;focus=touch.p;paint()},350);
+  // Holding still on the selection must not shrink it to one cell (a drag there grows it instead).
+  if(!touch.inSel)holdTimer=setTimeout(()=>{if(!touch)return;touch.selecting=true;held=true;anchor=touch.p;focus=touch.p;paint()},350);
  },{passive:true});
  grid.addEventListener('touchmove',event=>{
   if(!touch)return;if(event.touches.length!==1){endTouch();return}
   const finger=event.touches[0];
-  // A drag that starts on the selection selects from that cell (a still touch there copies it instead);
-  // anywhere else a drag scrolls. Its first move is held back so the page does not start scrolling.
-  if(!touch.selecting&&touch.inSel){event.preventDefault();if(Math.hypot(finger.clientX-touch.x,finger.clientY-touch.y)<=8)return;clearTimeout(holdTimer);touch.selecting=true;held=true;anchor=touch.p;focus=touch.p}
+  // A drag that starts on the selection grows the whole selection towards the finger, like dragging its
+  // corner in Google Sheets (3 cells dragged sideways stay 3 rows tall); a still touch there copies it
+  // instead. Anywhere else a drag scrolls. Its first move is held back so the page does not scroll.
+  if(!touch.selecting&&touch.inSel){event.preventDefault();if(Math.hypot(finger.clientX-touch.x,finger.clientY-touch.y)<=8)return;clearTimeout(holdTimer);touch.selecting=true;held=true;touch.base=area()}
   if(!touch.selecting){if(Math.hypot(finger.clientX-touch.x,finger.clientY-touch.y)>8)endTouch();return}
   event.preventDefault();
   // Near an edge of the sheet the selection keeps going: the sheet scrolls under the finger (Google Sheets).
@@ -126,7 +128,9 @@
    if(finger.clientX>b.right-edge)grid.scrollLeft+=step;else if(finger.clientX<b.left+edge+46)grid.scrollLeft-=step;
    if(finger.clientY>b.bottom-edge)grid.scrollTop+=step;else if(finger.clientY<b.top+edge+30)grid.scrollTop-=step}
   const cell=document.elementFromPoint(finger.clientX,finger.clientY)?.closest('td[data-r]');
-  if(cell&&grid.contains(cell)){if(touch.handle==='start')anchor=pos(cell);else focus=pos(cell);paint()}
+  if(cell&&grid.contains(cell)){const p=pos(cell);
+   if(touch.base){const b=touch.base,top=Math.min(b.top,p.r),left=Math.min(b.left,p.c),bottom=Math.max(b.bottom,p.r2),right=Math.max(b.right,p.c2);anchor={r:top,c:left,r2:top,c2:left};focus={r:bottom,c:right,r2:bottom,c2:right}}
+   else if(touch.handle==='start')anchor=p;else focus=p;paint()}
  },{passive:false});
  // A short touch that did not move is a tap.
  grid.addEventListener('touchend',()=>{const t=touch;endTouch();if(!t||t.handle||t.selecting||!t.p||Date.now()-t.at>500)return;tapped=Date.now();tap(t.p,false)});

@@ -59,8 +59,8 @@ test('cells carry their sheet position; selection styles; script loaded and cach
  assert.match(map,/html\+='<td data-r="'\+r\+'" data-c="'\+c\+'"'/);
  assert.match(map,/'<th data-c="'\+c\+'"'\+\(c<frozen\.c1\?' class="excel-frozen-col"':''\)\+'>'\+colName\(c\)\+'<\/th>'/);
  const css=read('style.css');assert.match(css,/#excel-grid \.xs-range\{position:absolute;z-index:35;box-sizing:border-box;border:2px solid #1a73e8;/,'one outline around the selection (a box in each cell doubled the lines)');assert.match(css,/#excel-grid tbody th\[data-r\]\{cursor:pointer/);
- assert.match(read('index.html'),/<script src="\/excel-select\.js\?v=20261025-tap-4"><\/script>/);
- assert.match(read('sw.js'),/"\/excel-select\.js\?v=20261025-tap-4"/);
+ assert.match(read('index.html'),/<script src="\/excel-select\.js\?v=20261025-tap-5"><\/script>/);
+ assert.match(read('sw.js'),/"\/excel-select\.js\?v=20261025-tap-5"/);
 });
 
  test('touch hold-and-drag selects cells; quick swipes and two fingers remain scrolling/zoom gestures',()=>{
@@ -163,4 +163,11 @@ test('iPhone: the selection and its dots never pan, so a sideways drag grows the
  assert.match(css,/#excel-grid td\.xs-sel,#excel-grid \.xs-handle\{touch-action:none\}/,'iPhone decides panning at touch-down; preventDefault alone let sideways drags move the screen');
  assert.match(css,/#excel-grid\{overscroll-behavior:contain\}/);
  assert.match(sel,/if\(finger\.clientX>b\.right-edge\)grid\.scrollLeft\+=step;/,'dragging to an edge scrolls the sheet');
+});
+test('dragging a 3-cell selection sideways keeps all 3 rows, like Google Sheets (owner video)',()=>{
+ const s=sheet(),finger=(x,y)=>({clientX:x,clientY:y});
+ s.listeners.pointerdown({target:s.at(0,0),button:0,pointerType:'mouse'});s.listeners.pointerover({target:s.at(2,0),buttons:1});s.globalEvents.pointerup();
+ s.listeners.touchstart({target:s.at(1,0),touches:[finger(10,10)]});s.hit(s.at(1,2));
+ s.listeners.touchmove({touches:[finger(12,10)],preventDefault(){}});s.listeners.touchmove({touches:[finger(80,10)],preventDefault(){}});s.listeners.touchend();
+ for(let r=0;r<3;r++)for(let c=0;c<3;c++)assert.ok(s.at(r,c).classList.has('xs-sel'),'R'+r+'C'+c);
 });

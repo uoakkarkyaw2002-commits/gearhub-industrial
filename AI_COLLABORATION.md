@@ -30,7 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.165: Excel — drag the selection sideways on iPhone (Claude) — in review
+### 1.1.166: Excel — dragging a selection keeps all its rows/columns (Claude) — in review
+- Owner (Google Sheets video): with 3 cells selected, a sideways drag should grow all 3 rows; ours restarted from the touched cell (one row).
+- `public/excel-select.js`: a drag that starts on the selection now grows the whole selection towards the finger (union of the selection and the finger's cell); holding still on the selection no longer shrinks it to one cell. Handles unchanged (they can still shrink).
+- Test added; cache tag bumped.
+- Checked in the app browser at 375 with the real workbook: B7:B9 dragged sideways from B8 → B7:D9.
+
+### 1.1.165: Excel — drag the selection sideways on iPhone (Claude) — merged, live, owner confirmed
 - Owner (iPhone video): dragging down grew the selection, but a sideways drag moved the whole screen and selected nothing.
 - iPhone decides at touch-down whether a finger pans, so `preventDefault` in `touchmove` was too late for sideways drags. `public/style.css`: `#excel-grid td.xs-sel, .xs-handle {touch-action:none}` (the selection and its dots never pan), `#excel-grid{overscroll-behavior:contain}` (the sheet's scrolling never pulls the page). `public/excel-select.js`: while dragging a selection near an edge of the sheet, it scrolls (Google Sheets style).
 - Test added; cache tags bumped.
