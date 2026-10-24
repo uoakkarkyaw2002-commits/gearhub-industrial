@@ -30,7 +30,14 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.158: Add Product "runaway" button (Claude) — in review
+### 1.1.159: Product category is required again (Claude) — in review
+- Owner (iPhone, 1.1.158): a product could be added with no category, and the runaway button showed Category as filled.
+- Cause: `public/category-picker.js` made the category field `readOnly`; browsers skip `required` on read-only fields, so neither the form check nor the runaway button saw it as empty.
+- Fix: not read-only any more; `inputMode="none"` (no keyboard) and typing / paste / drop are blocked, so the value still only comes from the picker and `required` works.
+- Tests: `tests/category-parent-picker.test.js`. Version files and the picker's cache tag bumped.
+- Checked in the app browser with the real form at 375: empty category → form invalid, the button runs with "One to go — Category", typing is blocked; after a category is set → "Locked in", form valid.
+
+### 1.1.158: Add Product "runaway" button (Claude) — merged, live
 - Owner: when Add Product is pressed with required fields empty, animate like their reference video ("Runaway Login": the button will not stand still until the form is filled).
 - New `public/product-runaway.js` (loaded by `admin.html`): with SKU / Category / English name / Price / Stock empty, a tap (phones) or the mouse coming close (PCs) makes the button bolt out of its slot as a pill; a dashed outline marks the slot, a line ties it back, and a status line lists the empty fields ("N fields to fill before it stands still", "One to go — it is slowing down"). Filled required fields get a green outline + check, empty ones an orange outline. Once all are filled it returns to the slot ("Locked in. Go on then."). While saving, the button shows a spinner. Enter still submits through the existing `saveProductForm` (browser validation). Save logic is unchanged.
 - Styles at the end of `public/site-admin.css`.

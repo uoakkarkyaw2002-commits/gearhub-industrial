@@ -9,7 +9,11 @@ function clear(node){while(node.firstChild)node.removeChild(node.firstChild);}
 function button(label,className,onClick){const element=document.createElement("button");element.type="button";element.className=className;element.textContent=label;element.addEventListener("click",onClick);return element;}
 function install(input){
  if(!input||input.dataset.categoryPickerReady)return;
- input.dataset.categoryPickerReady="true";input.readOnly=true;input.autocomplete="off";input.classList.add("category-picker-trigger");input.setAttribute("aria-haspopup","dialog");input.title="Select category";
+ input.dataset.categoryPickerReady="true";input.autocomplete="off";
+ // Chosen from the picker only. Not readOnly: the browser skips "required" on read-only fields, which
+ // let products save with no category. No keyboard, and typing / pasting / dropping is ignored.
+ input.inputMode="none";for(const type of ["beforeinput","paste","drop"])input.addEventListener(type,event=>event.preventDefault());
+ input.classList.add("category-picker-trigger");input.setAttribute("aria-haspopup","dialog");input.title="Select category";
  input.addEventListener("click",()=>open(input));input.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "||event.key==="ArrowDown"){event.preventDefault();open(input);}});
 }
 async function open(input){

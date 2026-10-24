@@ -9,3 +9,9 @@ test('parent category uses the Add Product category picker',()=>{
  assert.match(picker,/Main category \(no parent\)/);
  assert.match(picker,/selected=mainSelectable\?row:null/,'Add Product still needs a subcategory click');
 });
+
+test('product category stays required: the picker input is not read-only (owner saved a product with no category)',()=>{
+ const picker=fs.readFileSync(path.join(__dirname,'..','public','category-picker.js'),'utf8');
+ assert.doesNotMatch(picker,/input\.readOnly=true/,'browsers skip "required" on read-only fields');
+ assert.match(picker,/input\.inputMode="none";for\(const type of \["beforeinput","paste","drop"\]\)input\.addEventListener\(type,event=>event\.preventDefault\(\)\);/);
+});
