@@ -475,8 +475,10 @@
   const placed=[];
   for(const s of sheet.shapes){
    if(s.from.r>lastDrawn||(s.from.r>=frozenEnd&&s.from.r<firstBody))continue;
-   const a=colAt(s.from.c),b=rowAt(s.from.r),x=a.x+(a.exact?Math.min(s.from.cOff,a.w):0),y=b.y+(b.exact?Math.min(s.from.rOff,b.h):0);
-   let w,h;if(s.to.w!=null){w=s.to.w;h=s.to.h}else{const c2=colAt(s.to.c),r2=rowAt(s.to.r);w=c2.x+(c2.exact?Math.min(s.to.cOff,c2.w):0)-x;h=r2.y+(r2.exact?Math.min(s.to.rOff,r2.h):0)-y}
+   // Offsets and sizes in the file are at 100%; scale them with the sheet zoom (zoomed out, INV's logo
+   // stayed full size and ran over the address rows).
+   const a=colAt(s.from.c),b=rowAt(s.from.r),x=a.x+(a.exact?Math.min(s.from.cOff*zoom,a.w):0),y=b.y+(b.exact?Math.min(s.from.rOff*zoom,b.h):0);
+   let w,h;if(s.to.w!=null){w=s.to.w*zoom;h=s.to.h*zoom}else{const c2=colAt(s.to.c),r2=rowAt(s.to.r);w=c2.x+(c2.exact?Math.min(s.to.cOff*zoom,c2.w):0)-x;h=r2.y+(r2.exact?Math.min(s.to.rOff*zoom,r2.h):0)-y}
    if(w<=1||h<=1)continue;
    // The cell that holds it: the drawn td covering the first visible row/column at the corner.
    const R=+rows.find(th=>+th.dataset.r>=s.from.r)?.dataset.r,C=+cols.find(th=>+th.dataset.c>=s.from.c)?.dataset.c;
@@ -484,9 +486,9 @@
    if(!host)continue;
    const el=document.createElement('div');el.className='excel-shape';el.setAttribute('aria-hidden','true');
    const hb=box(host);el.style.cssText='left:'+Math.round(x-hb.left)+'px;top:'+Math.round(y-hb.top)+'px;width:'+Math.round(w)+'px;height:'+Math.round(h)+'px';
-   const shadow=s.shadowCss?s.shadowCss.x+'px '+s.shadowCss.y+'px '+s.shadowCss.blur+'px '+(s.frame?Math.round(s.frame.w/2*10)/10+'px ':'')+s.shadowCss.color:'';
+   const zr=v=>Math.round(v*zoom*10)/10,shadow=s.shadowCss?zr(s.shadowCss.x)+'px '+zr(s.shadowCss.y)+'px '+zr(s.shadowCss.blur)+'px '+(s.frame?zr(s.frame.w/2)+'px ':'')+s.shadowCss.color:'';
    if(s.kind==='pic'){const img=document.createElement('img');img.src=s.src;img.alt='';el.append(img);el.style.padding='0';
-    if(s.frame){const half=Math.round(s.frame.w/2*10)/10;el.style.border=half+'px solid '+s.frame.color;el.style.boxShadow='0 0 0 '+half+'px '+s.frame.color+(shadow?','+shadow:'')}else if(shadow)el.style.boxShadow=shadow}
+    if(s.frame){const half=zr(s.frame.w/2);el.style.border=half+'px solid '+s.frame.color;el.style.boxShadow='0 0 0 '+half+'px '+s.frame.color+(shadow?','+shadow:'')}else if(shadow)el.style.boxShadow=shadow}
    else{
     if(s.fill)el.style.background=s.fill;if(s.line)el.style.border=s.line.w+'px solid '+s.line.color;if(s.round)el.style.borderRadius=Math.round(Math.min(w,h)/6)+'px';if(s.ellipse)el.style.borderRadius='50%';if(shadow)el.style.boxShadow=shadow;else if(s.shadow)el.style.boxShadow='2px 2px 4px rgba(0,0,0,.35)';
     el.style.justifyContent=s.vAlign==='ctr'?'center':s.vAlign==='b'?'flex-end':'flex-start';
@@ -525,7 +527,7 @@
  sheetList.addEventListener('click',e=>{const t=e.target.closest('[data-sheet]');if(t){sheetListOpen(false);if(+t.dataset.sheet!==active)showSheet(+t.dataset.sheet);return}if(e.target===sheetList)sheetListOpen(false)});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!sheetList.hidden)sheetListOpen(false)});
  function renderTabs(){
-  tabs.innerHTML='<button type="button" class="excel-sheet-menu" data-sheet-menu aria-label="All sheets"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 6h16M4 10h16M4 14h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>'+book.sheets.map((s,i)=>'<button type="button" role="tab" class="excel-tab'+(i===active?' active':'')+'" data-sheet="'+i+'" aria-selected="'+(i===active)+'"'+(s.tab?' style="--tab-color:'+esc(s.tab)+'"':'')+'>'+esc(s.name)+'</button>').join('');
+  tabs.innerHTML='<button type="button" class="excel-sheet-menu" data-sheet-menu aria-label="All sheets"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 6h16M4 10h16M4 14h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>'+book.sheets.map((s,i)=>'<button type="button" role="tab" class="excel-tab'+(i===active?' active':'')+'" data-sheet="'+i+'" aria-selected="'+(i===active)+'"'+'>'+esc(s.name)+'</button>').join('');
   // Keep the open sheet's tab in view (e.g. INV picked from the Sheets list), clear of the ≡ button.
   const on=tabs.querySelector('.excel-tab.active'),menu=tabs.querySelector('.excel-sheet-menu');if(on){const a=on.getBoundingClientRect(),b=tabs.getBoundingClientRect(),left=b.left+(menu?menu.offsetWidth:0);if(a.left<left||a.right>b.right)tabs.scrollLeft+=a.left-left-(b.right-left-a.width)/2}
  }
