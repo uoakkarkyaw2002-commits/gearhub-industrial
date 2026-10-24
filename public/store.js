@@ -23,16 +23,16 @@ async function downloadOfflineCatalog(){
  function collect(value){if(typeof value==="string"&&(/^(?:https?:\/\/|\/)/.test(value))){try{const url=new URL(value,location.origin);if(url.origin===location.origin&&!url.pathname.startsWith("/api/")&&!url.pathname.startsWith("/admin"))urls.add(url.href)}catch(_){}}else if(Array.isArray(value))value.forEach(collect);else if(value&&typeof value==="object")Object.values(value).forEach(collect)}
  collect(products);collect(categories);collect(config.site);if(!tenantStore)urls.add("/images/hero-excavator.jpg");
  const worker=registration.active;
- await new Promise((resolve,reject)=>{const channel=new MessageChannel();const timer=setTimeout(()=>reject(new Error("Offline download မပြီးသေးပါ။ Internet စစ်ပြီး ပြန်ကြိုးစားပါ။")),120000);channel.port1.onmessage=e=>{clearTimeout(timer);channel.port1.close();e.data.ok?resolve():reject(new Error(e.data.error||"Offline download မပြီးသေးပါ။"))};worker.postMessage({type:"SAVE_OFFLINE",urls:[...urls]},[channel.port2])});
+ await new Promise((resolve,reject)=>{const channel=new MessageChannel();const timer=setTimeout(()=>reject(new Error("Offline download မပြီးသေးပါ။ Internet စစ်ပြီး ပြန်ကြိုးစားပါ။")),120000);channel.port1.onmessage=e=>{if(e.data.progress!==undefined){downloadStatus("downloading",Math.round(e.data.progress/Math.max(1,e.data.total)*100));return}clearTimeout(timer);channel.port1.close();e.data.ok?resolve():reject(new Error(e.data.error||"Offline download မပြီးသေးပါ။"))};worker.postMessage({type:"SAVE_OFFLINE",urls:[...urls]},[channel.port2])});
 }
 let offlineDownloadPromise=null;
-function downloadStatus(state){window.dispatchEvent(new CustomEvent("gearhub:auto-download",{detail:{state}}))}
+function downloadStatus(state,percent){window.dispatchEvent(new CustomEvent("gearhub:auto-download",{detail:{state,percent}}))}
 function saveOfflineCatalog(){
  if(localStorage.getItem("gh-offline-mode")==="off")return Promise.resolve(false);
  if(!navigator.onLine){downloadStatus("waiting");return Promise.resolve(false)}
  if(offlineDownloadPromise)return offlineDownloadPromise;
- downloadStatus("downloading");
- offlineDownloadPromise=downloadOfflineCatalog().then(()=>{localStorage.setItem("gh-offline-downloaded-at",String(Date.now()));downloadStatus("ready");return true}).catch(error=>{downloadStatus("retry");throw error}).finally(()=>{offlineDownloadPromise=null});
+ downloadStatus("downloading",0);
+ offlineDownloadPromise=downloadOfflineCatalog().then(()=>{localStorage.setItem("gh-offline-downloaded-at",String(Date.now()));downloadStatus("ready",100);return true}).catch(error=>{downloadStatus("retry");throw error}).finally(()=>{offlineDownloadPromise=null});
  return offlineDownloadPromise;
 }
 function refreshOfflineCatalog(){saveOfflineCatalog().catch(()=>{})}

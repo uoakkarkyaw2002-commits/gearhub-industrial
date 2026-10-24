@@ -30,7 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.151: INV lines like Excel — SR box, WH-1 boxes, blue bar (Claude) — in review
+### 1.1.152: Offline download progress in Settings (Claude) — in review
+- Owner: "I can't tell whether offline has finished". Asked for "Offline" on the right of Server storage, a 1–100 % ring while downloading, and a check with "Offline success" at 100 %.
+- `public/sw.js` SAVE_OFFLINE posts `{progress,total}` after each batch of 6 files; `public/store.js` passes the percent with the `gearhub:auto-download` event; `public/settings.js` `renderOffline` draws it in `#offline-status` (replaces the storage row's chevron in `index.html`). States: Offline / N% / Offline success / Offline failed. Styles in `style.css` (`.offline-status`, `.offline-ring`, dark mode).
+- Tests: `tests/tenant-install.test.js` checks the progress messages. Version files and cache tags bumped.
+- Checked in the app browser on a local store (port 3008, no platform mode — locally the platform root redirects `/`, so its service worker cannot install): real download went 0→21→43→64→86→100 % → Offline success; PC 1280 and phone 375, no console errors, no sideways scroll.
+
+### 1.1.151: INV lines like Excel — SR box, WH-1 boxes, blue bar (Claude) — merged, live
 - Owner (PC app, ~1625px): "SR border still broken; WH-1 lines don't look good".
 - `public/excel-map.js` `edgeAt`/`edgeCss`: each line is now drawn whole inside the cell that owns it (no more half-and-half thick lines). On an edge both cells claim, the right/lower cell's line wins, as in Excel (SR's black left line over D36:F36's thick white right line); the cell that gives way hides its line and its gridline there. Merged cells do this part by part, placed from the border box so they line up with the cells beside (WH-1 top line stuck out 2px).
 - Files: `public/excel-map.js` (+ cache tag in `index.html`/`sw.js`), `tests/excel-library.test.js`, version files.
