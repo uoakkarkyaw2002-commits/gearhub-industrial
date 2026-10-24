@@ -51,6 +51,19 @@
     return `${(bytes / (1024 ** index)).toFixed(index ? 1 : 0)} ${units[index]}`;
   };
 
+  // Offline download beside Server storage: a ring with 1–100 % while saving, then ✓ Offline success.
+  function renderOffline(state, percent) {
+    const box = byId("offline-status"), text = byId("offline-status-text");
+    if (!box || !text) return;
+    box.hidden = localStorage.getItem("gh-offline-mode") === "off";
+    box.dataset.state = state;
+    const p = Math.max(1, Math.min(100, Math.round(percent || 0)));
+    box.style.setProperty("--p", state === "downloading" ? p : 0);
+    text.textContent = state === "downloading" ? p + "%" : state === "ready" ? "Offline success" : state === "retry" ? "Offline failed" : "Offline";
+  }
+  window.addEventListener("gearhub:auto-download", event => renderOffline(event.detail?.state, event.detail?.percent));
+  renderOffline(localStorage.getItem("gh-offline-downloaded-at") ? "ready" : "idle");
+
   let storageData = null, serviceData = null;
   function renderStorageUsage() {
     const label = byId("storage-usage"), meter = byId("storage-meter-fill");
