@@ -29,8 +29,8 @@ test('click selects a cell; dragging selects a range; Ctrl/Cmd+C copies it as ro
 
 test('Shift+click extends; Esc clears',()=>{
  const s=sheet();
- s.listeners.pointerdown({target:s.at(0,0),button:0,pointerType:'touch'});
- s.listeners.pointerdown({target:s.at(2,1),button:0,shiftKey:true,pointerType:'touch'});
+ s.listeners.pointerdown({target:s.at(0,0),button:0,pointerType:'mouse'});
+ s.listeners.pointerdown({target:s.at(2,1),button:0,shiftKey:true,pointerType:'mouse'});
  assert.ok(s.at(2,1).classList.has('xs-sel'));assert.ok(s.at(1,0).classList.has('xs-sel'));
  s.docKeys.keydown({key:'Escape'});assert.ok(!s.at(1,0).classList.has('xs-sel'));
 });
@@ -48,7 +48,7 @@ test('only row numbers select full rows; cells select individually on mouse and 
  s.listeners.pointerdown({target:s.at(1,2),button:0,pointerType:'mouse'});
  assert.ok(s.at(1,2).classList.has('xs-active'));
  for(const c of [0,1])assert.ok(!s.at(1,c).classList.has('xs-sel'),'cell click clears the full-row selection');
- s.listeners.pointerdown({target:s.at(2,2),button:0,pointerType:'touch'});
+ s.listeners.pointerdown({target:s.at(2,2),button:0,pointerType:'touch'});s.listeners.click({target:s.at(2,2),pointerType:'touch'});
  assert.ok(s.at(2,2).classList.has('xs-active'));
  assert.ok(!s.at(1,1).classList.has('xs-sel'));
  assert.ok(!s.at(2,1).classList.has('xs-sel'));
@@ -59,8 +59,8 @@ test('cells carry their sheet position; selection styles; script loaded and cach
  assert.match(map,/html\+='<td data-r="'\+r\+'" data-c="'\+c\+'"'/);
  assert.match(map,/'<th data-c="'\+c\+'"'\+\(c<frozen\.c1\?' class="excel-frozen-col"':''\)\+'>'\+colName\(c\)\+'<\/th>'/);
  const css=read('style.css');assert.match(css,/#excel-grid td\.xs-active\{box-shadow:inset 0 0 0 2px #1a73e8/);assert.match(css,/#excel-grid tbody th\[data-r\]\{cursor:pointer/);
- assert.match(read('index.html'),/<script src="\/excel-select\.js\?v=20261024-find-2"><\/script>/);
- assert.match(read('sw.js'),/"\/excel-select\.js\?v=20261024-find-2"/);
+ assert.match(read('index.html'),/<script src="\/excel-select\.js\?v=20261025-tap-1"><\/script>/);
+ assert.match(read('sw.js'),/"\/excel-select\.js\?v=20261025-tap-1"/);
 });
 
  test('touch hold-and-drag selects cells; quick swipes and two fingers remain scrolling/zoom gestures',()=>{
@@ -97,7 +97,7 @@ test('a big sheet draws only the rows near the screen; copy reads the sheet itse
  assert.match(map,/grid\.addEventListener\('scroll',\(\)=>drawRows\(false\),\{passive:true\}\);/);
  assert.match(map,/grid\.cellText=\(r,c\)=>renderedSheet\?\.cells\.get\(r\+','\+c\)\?\.text\?\?'';/);
  assert.match(css,/\.excel-sheet tr\.excel-spacer>td\{padding:0;border:0;background:transparent;line-height:0;font-size:0\}/);
- assert.match(sel,/new MutationObserver\(\(\)=>\{index=null;if\(anchor\)paint\(\)\}\)\.observe\(grid,\{childList:true,subtree:true\}\);/);
+ assert.match(sel,/new MutationObserver\(records=>\{if\(records\.every\(r=>\[\.\.\.r\.addedNodes,\.\.\.r\.removedNodes\]\.every\(n=>n\.classList\?\.contains\('xs-handle'\)\)\)\)return;index=null;if\(anchor\)paint\(\)\}\)\.observe\(grid,\{childList:true,subtree:true\}\);/,'moving the corner handles must not repaint in a loop');
  assert.match(sel,/grid\.cellText\?grid\.cellText\(r,c\)/);
 });
 test('search works like Google Sheets: rows stay, the match is selected and the arrows move between matches',()=>{
@@ -119,4 +119,22 @@ test('the found cell gets the spreadsheet selection (blue box, lit headers)',()=
  vm.runInNewContext(read('excel-select.js'),{document:{getElementById:()=>grid,addEventListener(){}},addEventListener(){},setTimeout,clearTimeout,MutationObserver:class{observe(){}},navigator:{}});
  listeners['excel-find']({detail:{r:5,c:2}});
  assert.ok(cls.has('xs-active')&&cls.has('xs-sel'));assert.ok(ch.classList.has('xs-head')&&rh.classList.has('xs-head'));
+});
+
+test('phones: touching a cell to scroll selects nothing; a tap selects; tapping the selection copies it (owner video)',async()=>{
+ const s=sheet();
+ s.listeners.pointerdown({target:s.at(1,1),button:0,pointerType:'touch'});
+ assert.ok(!s.at(1,1).classList.has('xs-sel'),'swipe start selects nothing');
+ s.listeners.click({target:s.at(1,1),pointerType:'touch'});
+ assert.ok(s.at(1,1).classList.has('xs-active'),'tap selects');
+ s.listeners.click({target:s.at(1,1),pointerType:'touch'});await new Promise(r=>setImmediate(r));
+ assert.equal(s.copied(),'R1C1','second tap copies');
+});
+test('mouse: clicking the selected cell again copies it; dragging from it starts a new selection',async()=>{
+ const s=sheet();
+ s.listeners.pointerdown({target:s.at(1,0),button:0,pointerType:'mouse'});s.globalEvents.pointerup();
+ s.listeners.pointerdown({target:s.at(1,0),button:0,pointerType:'mouse'});s.globalEvents.pointerup();await new Promise(r=>setImmediate(r));
+ assert.equal(s.copied(),'R1C0');assert.ok(s.at(1,0).classList.has('xs-active'),'selection kept');
+ s.listeners.pointerdown({target:s.at(1,0),button:0,pointerType:'mouse'});s.listeners.pointerover({target:s.at(2,2),buttons:1});s.globalEvents.pointerup();
+ assert.ok(s.at(2,2).classList.has('xs-sel')&&s.at(1,1).classList.has('xs-sel'),'drag from it selects a range');
 });

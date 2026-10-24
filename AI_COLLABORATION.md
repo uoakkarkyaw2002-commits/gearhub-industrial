@@ -30,7 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.161: Excel pictures scale with zoom; tab line only on the open sheet (Claude) — in review
+### 1.1.162: Excel selection like Google Sheets on phones; tap selection to copy (Claude) — in review
+- Owner (iPhone video): scrolling selected the cell under the finger. Wanted: tap where you want, then drag to select (like Google Sheets); tapping the selection again copies it.
+- `public/excel-select.js`: touch `pointerdown` no longer selects (a swipe only scrolls); a tap (`click`) selects a cell. On touch screens two blue corner handles (`.xs-handle`, placed in the grid) drag to grow/shrink the selection; hold-and-drag still works. Tapping inside the selection copies it (toast "Copied", short flash). Mouse: clicking the selected single cell again copies it; clicking a cell inside a bigger selection selects that cell; Ctrl/Cmd+C as before. The repaint observer ignores the handles moving (no loop).
+- Styles at the end of `public/style.css`. Tests in `tests/excel-select.test.js` updated and added.
+- Checked in the app browser with the real workbook: phone 375 (touch-down selects nothing, tap selects + handles, dragging the end handle selects B6:D9 with scrolling blocked, tapping inside copies 4 lines + toast), PC 1280 (drag range, click inside → single cell, click again → copied). No script errors. Not checked on a real iPhone (owner).
+
+### 1.1.161: Excel pictures scale with zoom; tab line only on the open sheet (Claude) — merged, live
 - Owner (iPhone): zoomed out, INV's logo stayed big and ran over the address rows; and the coloured line under the sheet tabs should show only on the open sheet.
 - `public/excel-map.js` `placeShapes`: anchor offsets (`colOff`/`rowOff`), one-cell sizes, picture frame and shadow are stored at 100 % and are now multiplied by the sheet zoom. `renderTabs` no longer sets each tab's own colour.
 - `public/style.css`: `.excel-tab` bottom line is transparent; only `.excel-tab.active` keeps the blue line.

@@ -1060,3 +1060,7 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
 @keyframes excel-sheet-list-up{from{transform:translateY(100%)}to{transform:none}}
 @media(min-width:700px){.excel-sheet-list{align-items:center;justify-content:center}.excel-sheet-list-card{width:min(420px,92vw);border-radius:14px;overflow:hidden}}
 @media(prefers-reduced-motion:reduce){.excel-sheet-list-card{animation:none}}
+/* Excel selection corner handles (touch screens, excel-select.js) and a flash when the selection is copied. */
+#excel-grid .xs-handle{position:absolute;z-index:36;width:14px;height:14px;margin:-7px 0 0 -7px;border:2px solid #fff;border-radius:50%;background:#1a73e8;box-shadow:0 1px 3px rgba(0,0,0,.3);touch-action:none}
+#excel-grid .xs-handle::before{content:"";position:absolute;inset:-14px}
+#excel-grid.xs-copied td.xs-sel{background-image:linear-gradient(#1a73e866,#1a73e866)}
