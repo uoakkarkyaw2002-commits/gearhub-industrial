@@ -30,7 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.163: Excel tap-to-select works on iPhone (Claude) — in review
+### 1.1.164: Excel selection polish — drag from the selection, one outline, visible "Copied" (Claude) — in review
+- Owner (iPhone, 1.1.163 works): "Copied" never showed; dragging only worked from the blue dots; selected cells showed double lines.
+- `public/excel-select.js`: a touch that starts on the selection holds back the first move (no page scroll) and, once it moves, selects from that cell; a still touch there still copies. Elsewhere a drag scrolls. The per-cell blue box is replaced by one `.xs-range` outline around the whole selection, drawn over the cell lines. "Copied" is its own `.xs-copied-note` on `document.body` above the full-screen sheet (the shop toast sat behind it). Handles + outline share `.xs-mark`, which the repaint observer ignores.
+- `public/style.css`: `.xs-range`, `.xs-copied-note`; `td.xs-active` no longer draws an inset box. Tests updated/added.
+- Checked in the app browser with the real workbook: phone 375 (drag from A4 → A4:B6, outline exactly around it, tap → 3 lines copied and "Copied" visible), PC 1280 (outline, no handles). No script errors. Real iPhone: owner.
+
+### 1.1.163: Excel tap-to-select works on iPhone (Claude) — merged, live, owner confirmed
 - Owner (iPhone, 1.1.162): tapping a cell selected nothing, so the handles and copy never appeared.
 - 1.1.162 selected on the `click` event; iPhone Safari did not deliver it there. `public/excel-select.js` now reads a tap from `touchend` (touch shorter than 500 ms that moved under 8 px, not a handle drag or hold) and ignores the click that may follow; `click` stays for pens/other pointers. Copy runs inside `touchend` (a user gesture, so the clipboard is allowed).
 - Test added in `tests/excel-select.test.js`; cache tag bumped.
