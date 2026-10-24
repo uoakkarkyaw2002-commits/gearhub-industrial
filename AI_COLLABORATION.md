@@ -30,7 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.164: Excel selection polish — drag from the selection, one outline, visible "Copied" (Claude) — in review
+### 1.1.165: Excel — drag the selection sideways on iPhone (Claude) — in review
+- Owner (iPhone video): dragging down grew the selection, but a sideways drag moved the whole screen and selected nothing.
+- iPhone decides at touch-down whether a finger pans, so `preventDefault` in `touchmove` was too late for sideways drags. `public/style.css`: `#excel-grid td.xs-sel, .xs-handle {touch-action:none}` (the selection and its dots never pan), `#excel-grid{overscroll-behavior:contain}` (the sheet's scrolling never pulls the page). `public/excel-select.js`: while dragging a selection near an edge of the sheet, it scrolls (Google Sheets style).
+- Test added; cache tags bumped.
+- Checked in the app browser at 375 with the real workbook: selected cells report `touch-action:none`, others `auto`; dragging the end dot to the right edge auto-scrolled 168 px and selected columns B–E. Real iPhone: owner.
+
+### 1.1.164: Excel selection polish — drag from the selection, one outline, visible "Copied" (Claude) — merged, live
 - Owner (iPhone, 1.1.163 works): "Copied" never showed; dragging only worked from the blue dots; selected cells showed double lines.
 - `public/excel-select.js`: a touch that starts on the selection holds back the first move (no page scroll) and, once it moves, selects from that cell; a still touch there still copies. Elsewhere a drag scrolls. The per-cell blue box is replaced by one `.xs-range` outline around the whole selection, drawn over the cell lines. "Copied" is its own `.xs-copied-note` on `document.body` above the full-screen sheet (the shop toast sat behind it). Handles + outline share `.xs-mark`, which the repaint observer ignores.
 - `public/style.css`: `.xs-range`, `.xs-copied-note`; `td.xs-active` no longer draws an inset box. Tests updated/added.

@@ -59,8 +59,8 @@ test('cells carry their sheet position; selection styles; script loaded and cach
  assert.match(map,/html\+='<td data-r="'\+r\+'" data-c="'\+c\+'"'/);
  assert.match(map,/'<th data-c="'\+c\+'"'\+\(c<frozen\.c1\?' class="excel-frozen-col"':''\)\+'>'\+colName\(c\)\+'<\/th>'/);
  const css=read('style.css');assert.match(css,/#excel-grid \.xs-range\{position:absolute;z-index:35;box-sizing:border-box;border:2px solid #1a73e8;/,'one outline around the selection (a box in each cell doubled the lines)');assert.match(css,/#excel-grid tbody th\[data-r\]\{cursor:pointer/);
- assert.match(read('index.html'),/<script src="\/excel-select\.js\?v=20261025-tap-3"><\/script>/);
- assert.match(read('sw.js'),/"\/excel-select\.js\?v=20261025-tap-3"/);
+ assert.match(read('index.html'),/<script src="\/excel-select\.js\?v=20261025-tap-4"><\/script>/);
+ assert.match(read('sw.js'),/"\/excel-select\.js\?v=20261025-tap-4"/);
 });
 
  test('touch hold-and-drag selects cells; quick swipes and two fingers remain scrolling/zoom gestures',()=>{
@@ -157,4 +157,10 @@ test('iPhone: dragging from the selected cell selects a range; elsewhere it scro
  assert.ok(s.at(1,2).classList.has('xs-sel')&&s.at(0,1).classList.has('xs-sel'),'range from the selected cell');
  prevented=false;s.listeners.touchstart({target:s.at(2,0),touches:[finger(10,10)]});s.listeners.touchmove({touches:[finger(10,60)],preventDefault(){prevented=true}});
  assert.equal(prevented,false,'outside the selection a drag scrolls');
+});
+test('iPhone: the selection and its dots never pan, so a sideways drag grows the selection',()=>{
+ const css=read('style.css'),sel=read('excel-select.js');
+ assert.match(css,/#excel-grid td\.xs-sel,#excel-grid \.xs-handle\{touch-action:none\}/,'iPhone decides panning at touch-down; preventDefault alone let sideways drags move the screen');
+ assert.match(css,/#excel-grid\{overscroll-behavior:contain\}/);
+ assert.match(sel,/if\(finger\.clientX>b\.right-edge\)grid\.scrollLeft\+=step;/,'dragging to an edge scrolls the sheet');
 });

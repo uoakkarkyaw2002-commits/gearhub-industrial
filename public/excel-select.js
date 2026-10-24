@@ -121,6 +121,10 @@
   if(!touch.selecting&&touch.inSel){event.preventDefault();if(Math.hypot(finger.clientX-touch.x,finger.clientY-touch.y)<=8)return;clearTimeout(holdTimer);touch.selecting=true;held=true;anchor=touch.p;focus=touch.p}
   if(!touch.selecting){if(Math.hypot(finger.clientX-touch.x,finger.clientY-touch.y)>8)endTouch();return}
   event.preventDefault();
+  // Near an edge of the sheet the selection keeps going: the sheet scrolls under the finger (Google Sheets).
+  if(grid.getBoundingClientRect){const b=grid.getBoundingClientRect(),edge=36,step=14;
+   if(finger.clientX>b.right-edge)grid.scrollLeft+=step;else if(finger.clientX<b.left+edge+46)grid.scrollLeft-=step;
+   if(finger.clientY>b.bottom-edge)grid.scrollTop+=step;else if(finger.clientY<b.top+edge+30)grid.scrollTop-=step}
   const cell=document.elementFromPoint(finger.clientX,finger.clientY)?.closest('td[data-r]');
   if(cell&&grid.contains(cell)){if(touch.handle==='start')anchor=pos(cell);else focus=pos(cell);paint()}
  },{passive:false});

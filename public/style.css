@@ -1067,3 +1067,8 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
 #excel-grid .xs-range{position:absolute;z-index:35;box-sizing:border-box;border:2px solid #1a73e8;pointer-events:none}
 .xs-copied-note{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));z-index:2147483000;padding:10px 18px;border-radius:999px;background:#202124;color:#fff;font-size:14px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.25);opacity:0;transform:translate(-50%,10px);transition:opacity .2s,transform .2s;pointer-events:none}
 .xs-copied-note.show{opacity:1;transform:translate(-50%,0)}
+/* iPhone decides at touch-down whether a finger pans: on the selection and its dots it never does, so a
+   drag there (any direction) grows the selection instead of moving the screen; and the sheet's own
+   scrolling never drags the whole page sideways. */
+#excel-grid td.xs-sel,#excel-grid .xs-handle{touch-action:none}
+#excel-grid{overscroll-behavior:contain}
