@@ -56,24 +56,21 @@ test('filled Excel cells keep light gridlines while workbook and conditional bor
   const cell={style,text:'Invoice'};
   const css=cellStyle(cell,{firstCol:true,lastCol:true,lastRow:true});
   assert.ok(css.includes('background-color:'+fill));
-  assert.ok(css.includes('border-left:3px solid #FF0000'),'the first shown column draws its own left border');
-  assert.doesNotMatch(cellStyle(cell),/border-left/,'elsewhere the cell to the left draws that edge (it gets it as edge.right)');
+  assert.ok(css.includes('border-left:3px solid #FF0000'),'a cell draws its own left line inside itself');
   assert.doesNotMatch(css,/border-(?:right|top|bottom)(?:-color)?:/,'unbordered edges inherit visible sheet gridlines');
   const conditional=cellStyle({...cell,cf:{fill:'#FFFFFF',border:{bottom:'2px solid #000000'}}},{lastRow:true});
   assert.ok(conditional.includes('border-bottom:2px solid #000000'));
   assert.doesNotMatch(conditional,/border-(?:right|top)(?:-color)?:/);
   assert.deepEqual(style,{fill,font:{},border:{left:'3px solid #FF0000'}},'rendering does not change workbook formatting');
  }
- // The file often sets only left/top borders; the edge shared with the next cell shows them (as in Excel).
- const plain={style:{font:{},border:{}},text:'x'};
- const shared=cellStyle(plain,{right:'1px solid #000',bottom:'1px solid #000'});
- assert.ok(shared.includes('border-right:1px solid #000')&&shared.includes('border-bottom:1px solid #000'));
- const own=cellStyle({style:{font:{},border:{right:'2px solid #F00'}},text:'x'},{right:'1px solid #000',lastCol:true});
- assert.ok(own.includes('border-right:2px solid #F00')&&!own.includes('border-right:1px'),'the cell\'s own border wins');
- // Thick lines are centred on the edge like Excel: left/upper cell draws the first half, the other cell the rest.
+ // Each line is drawn inside the cell that owns it. On a shared edge the right/lower cell's line wins
+ // (INV SR header); the left/upper cell then hides its own line and its gridline there.
+ const own=cellStyle({style:{font:{},border:{right:'2px solid #F00'}},text:'x'},{rightAll:'',rightOff:true});
+ assert.ok(own.includes('border-right-color:transparent')&&!own.includes('#F00'),own);
+ assert.ok(cellStyle({style:{font:{},border:{right:'2px solid #F00'}},text:'x'},{rightAll:'2px solid #F00'}).includes('border-right:2px solid #F00'),'with no line beside it the cell keeps its own line');
+ // Thick lines are not split between two cells (INV row 36 blue bar showed a white sliver).
  const thickL=cellStyle({style:{font:{},border:{right:'3px solid #FFF'}},text:'x'},{});
- const thickR=cellStyle({style:{font:{},border:{}},text:'x'},{left:'3px solid #FFF'});
- assert.ok(thickL.includes('border-right:1px solid #FFF')&&thickR.includes('border-left:2px solid #FFF'),thickL+' | '+thickR);
+ assert.ok(thickL.includes('border-right:3px solid #FFF'),thickL);
  const dbl=cellStyle({style:{font:{},border:{bottom:'3px double #000'}},text:'x'},{});assert.ok(dbl.includes('border-bottom:3px double #000'),'double lines stay whole');
 });
 test('empty cells and cells next to bordered cells show the shared border (BC sheet lost its lines)',()=>{
@@ -153,10 +150,10 @@ test('excel viewer: selection shows on filled cells; two-finger zoom smaller and
 test('a border on a merged range shows on the edge next to any of its cells (INV row 405 lost its thick line)',()=>{
  const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8');
  assert.match(map,/const sideAt=\(key,side\)=>bordersOf\(sheet\.cells\.get\(key\)\)\[side\]\|\|\(coverOf\.has\(key\)\?bordersOf\(sheet\.cells\.get\(coverOf\.get\(key\)\)\)\[side\]:''\)\|\|'';/);
- assert.match(map,/right:nc===undefined\?'':outer\(r,nc,'left'\),bottom:nr===undefined\?'':outer\(nr,c,'top'\)/);
+ assert.match(map,/const nextL=i=>nc===undefined\?'':outer\(i,nc,'left'\),nextT=j=>nr===undefined\?'':outer\(nr,j,'top'\);/);
  // A neighbour inside a merged range shows the range's outer edge (INV E53:G53, G hidden: not F53's inner red line).
  assert.match(map,/const outer=\(r,c,side\)=>\{const k=r\+','\+c,o=coverOf\.get\(k\)\|\|\(merges\.has\(k\)\?k:null\);/);
- assert.match(map,/if\(lc!==undefined\)sideParts\(rowsIn,rowH,i=>outer\(i,lc,'right'\)\|\|sideAt\(i\+','\+c,'left'\),edge,'left'\);/,'merged cells draw their left edge per row (O48:Q49 only has green on row 48)');
+ assert.match(map,/sideParts\(rowsIn,rowH,i=>sideAt\(i\+','\+c,'left'\),edge,'left'\);/,'merged cells draw their left edge per row (O48:Q49 only has green on row 48)');
  // INV D36:F36 is merged and only D37 below has a (green) top border: only the D part of the edge shows.
  assert.match(map,/if\(new Set\(parts\.map\(p=>p\[2\]\)\)\.size>1\)\{edge\[key\+'All'\]='';edge\[key\+'Parts'\]=parts\}/);
 });
@@ -173,5 +170,6 @@ test('Excel look: all rows, gridlines setting, rotated text, text spilling into 
  // Excel keeps rows above / columns left of a pane frozen low down hidden (owner's Excel photo of INV, 1.1.125).
  assert.match(map,/if\(ys\)\{frozen\.r0=\+tl\[2\]-1;frozen\.r1=frozen\.r0\+ys\}/);
  // A merged cell takes its right/bottom border from its last column/row (INV H34:I34 red box).
- assert.match(map,/sideParts\(rowsIn,rowH,i=>sideAt\(i\+','\+\(c\+cs-1\),'right'\)\|\|\(nc===undefined\?'':outer\(i,nc,'left'\)\),edge,'right'\);/);
+ assert.match(map,/sideParts\(rowsIn,rowH,i=>nextL\(i\)\?'':sideAt\(i\+','\+\(c\+cs-1\),'right'\),edge,'right'\);/);
+ assert.match(map,/'background-repeat:no-repeat','background-origin:border-box'\)/,'edge parts line up with the cells beside (WH-1 top line stuck out)');
 });
