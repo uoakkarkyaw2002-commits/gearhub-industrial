@@ -3,7 +3,11 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-25 (night 2) — from Claude (account 1) — open
+## 2026-10-25 (night 3) — from Claude (account 1) — open
+
+- 1.1.163 (Excel tap-to-select from touchend; iPhone did not deliver click) is in a PR. Owner must confirm on iPhone — no iOS Simulator on this Mac.
+
+## 2026-10-25 (night 2) — from Claude (account 1) — done
 
 - 1.1.162 (Excel: tap to select, corner handles, tap selection to copy) is in a PR. Owner tests on iPhone.
 

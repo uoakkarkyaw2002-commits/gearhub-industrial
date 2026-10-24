@@ -79,12 +79,14 @@
  });
  addEventListener('pointerup',()=>{dragging=false;if(pending){pending=null;copySelection()}});
  // A tap (not a swipe) selects a cell; tapping inside the selection copies it.
+ function tap(p,shift){if(anchor&&inArea(p)){copySelection();return}if(shift&&anchor)focus=p;else{anchor=p;focus=p}paint()}
+ // Touch taps are read from touchend below (iPhone Safari did not deliver these clicks); this click
+ // covers pens and other pointers, and skips the click that follows a touch tap.
+ let tapped=0;
  grid.addEventListener('click',event=>{
   if(held){held=false;return}
-  const cell=event.target.closest?.('td[data-r]');if(!cell||event.pointerType==='mouse'||lastPointer==='mouse')return;
-  const p=pos(cell);if(anchor&&inArea(p)){copySelection();return}
-  if(event.shiftKey&&anchor)focus=p;else{anchor=p;focus=p}
-  paint();
+  const cell=event.target.closest?.('td[data-r]');if(!cell||lastPointer==='mouse'||Date.now()-tapped<800)return;
+  tap(pos(cell),event.shiftKey);
  });
  addEventListener('pointercancel',()=>{dragging=false});
  // A quick swipe scrolls; hold a cell briefly before dragging to select on phones.
@@ -94,7 +96,7 @@
   endTouch();held=false;if(event.touches.length!==1)return;
   const dot=event.target.closest('.xs-handle');if(dot&&anchor){touch={handle:dot.dataset.side,selecting:true};return}
   const cell=event.target.closest('td[data-r]');if(!cell)return;
-  const finger=event.touches[0];touch={x:finger.clientX,y:finger.clientY,p:pos(cell),selecting:false};
+  const finger=event.touches[0];touch={x:finger.clientX,y:finger.clientY,p:pos(cell),selecting:false,at:Date.now()};
   holdTimer=setTimeout(()=>{if(!touch)return;touch.selecting=true;held=true;anchor=touch.p;focus=touch.p;paint()},350);
  },{passive:true});
  grid.addEventListener('touchmove',event=>{
@@ -105,7 +107,9 @@
   const cell=document.elementFromPoint(finger.clientX,finger.clientY)?.closest('td[data-r]');
   if(cell&&grid.contains(cell)){if(touch.handle==='start')anchor=pos(cell);else focus=pos(cell);paint()}
  },{passive:false});
- grid.addEventListener('touchend',endTouch);grid.addEventListener('touchcancel',endTouch);
+ // A short touch that did not move is a tap.
+ grid.addEventListener('touchend',()=>{const t=touch;endTouch();if(!t||t.handle||t.selecting||!t.p||Date.now()-t.at>500)return;tapped=Date.now();tap(t.p,false)});
+ grid.addEventListener('touchcancel',endTouch);
  grid.addEventListener('contextmenu',event=>{if(touch)event.preventDefault()});
  // A new sheet or search result replaces the table: the old selection goes with it.
  // (A selection made on the new table, e.g. a search match kept after zoom, stays.)
