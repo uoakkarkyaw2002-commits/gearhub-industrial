@@ -79,9 +79,14 @@ test('Codex background page (own program): saved as HTML only, reset, served san
 test('platform page shows a Codex page in a frame (no sandbox attribute) and the zip keeps self-contained pages',()=>{
  const js=fs.readFileSync(path.join(__dirname,'..','public','platform.js'),'utf8'),css=fs.readFileSync(path.join(__dirname,'..','public','platform.css'),'utf8');
  assert.match(js,/fetch\("\/scene-asset\/state"\)/);
- // Phones keep the picture + flying-birds layer (iPhone froze the birds inside the frame).
- assert.match(js,/if\(!matchMedia\("\(max-width:600px\)"\)\.matches\)fetch\("\/scene-asset\/state"\)/);
- assert.match(js,/const kind=st\.page\?"page":"";/);
+ // PC: the page in a frame. Phones: no frame (iPhone froze the birds inside it); the phone page's
+ // picture, birds and program are placed in the page once its picture is ready.
+ assert.match(js,/if\(!phoneScene\)\{\n\s+if\(!st\.page\)return;/);
+ assert.match(js,/frame\.src="\/scene-asset\/page"\+v;afterPictures\(frame\);/);
+ assert.match(js,/box\.className="sky-frame sky-codex";/);
+ assert.match(js,/program\.src="\/scene-asset\/phone-script"\+v;/);
+ assert.doesNotMatch(js,/frame\.src="\/scene-asset\/phone-page/);
+ assert.match(css,/\.sky-codex #art,\.sky-codex svg,\.sky-codex #grass-wind\{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;pointer-events:none\}/);
  assert.match(js,/frame\.className="sky-frame"/);
  assert.doesNotMatch(js,/frame\.(?:sandbox|setAttribute\("sandbox")/);
  assert.match(js,/if \(keepPage\) await sceneUpload\(pageKind, new Blob\(\[htmlText\], \{ type: "text\/html" \}\), "page\.html"\);/);
@@ -93,4 +98,17 @@ test('platform page shows a Codex page in a frame (no sandbox attribute) and the
  assert.equal(rule('<html><script>x()</script></html>'),true);
  assert.equal(rule('<html><img src="data:image/png;base64,AA"></html>'),false);
  assert.equal(rule('<html><script src="https://cdn.example/x.js"></script></html>'),false);
+});
+test('phones get the phone page program as a script from this site, only when a phone page exists',()=>{
+ const install=fs.readFileSync(path.join(__dirname,'..','lib','tenant-install.js'),'utf8');
+ const i=install.indexOf("app.get('/scene-asset/phone-script'");
+ assert.ok(i>0&&i<install.indexOf("app.get('/scene-asset/:kind'"),'defined before the generic route');
+ const route=install.slice(i,install.indexOf(' });',i));
+ assert.match(route,/if\(!siteScene\.load\(db\)\.phonePage\)return res\.sendStatus\(404\);/);
+ const pattern=new RegExp(/\/<script\(\?:\\s\[\^>\]\*\)\?>\(\[\\s\\S\]\*\?\)<\\\/script\\s\*>\/i/.source);
+ assert.match(route,pattern);
+ assert.match(route,/type\('application\/javascript'\)/);
+ const extract=new Function('html','return '+/const code=(.*)\?\.\[1\];/.exec(route)[1]+'?.[1]');
+ assert.equal(extract('<html><svg/><script>(()=>{grass()})();</script></html>'),'(()=>{grass()})();');
+ assert.equal(extract('<html><img src="data:image/png;base64,AA"></html>'),undefined);
 });

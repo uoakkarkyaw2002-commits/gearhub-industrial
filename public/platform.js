@@ -134,17 +134,37 @@
   // (An empty-alt image that fails shows nothing anyway; this only tidies up after a real error.)
   sceneLayer?.addEventListener("error",()=>(sceneLayer.closest("picture")||sceneLayer).remove());
   // A Codex background page (its own program, e.g. swaying grass) shows in a frame over the picture on PC.
-  // Phones keep the picture and the flying-birds layer: iPhone Safari froze the birds inside the frame
-  // and showed a dark screen for ~10 s while it loaded (owner's recording, 1.1.140).
   // No sandbox attribute: WebKit leaves attribute-sandboxed frames blank; the server's CSP header sandboxes it.
-  if(!matchMedia("(max-width:600px)").matches)fetch("/scene-asset/state").then((r)=>r.ok?r.json():null).then((st)=>{
+  // Phones: iPhone Safari froze the birds inside the frame and showed a dark screen for ~10 s (owner's
+  // recording, 1.1.140). So the picture and flying-birds layer show at once, and the phone page's own
+  // picture, birds and grass program are then placed in this page directly (no frame) once its picture is ready.
+  const afterPictures=(el)=>{const pictures=document.querySelectorAll(".sky-picture");(pictures[pictures.length-1]||document.body.firstChild).after(el);};
+  const phoneScene=matchMedia("(max-width:600px)").matches;
+  fetch("/scene-asset/state").then((r)=>r.ok?r.json():null).then(async (st)=>{
     if(!st)return;
-    const kind=st.page?"page":"";
-    if(!kind)return;
-    const frame=document.createElement("iframe");
-    frame.className="sky-frame";frame.title="Background";frame.tabIndex=-1;frame.setAttribute("aria-hidden","true");
-    frame.src="/scene-asset/"+kind+"?v="+encodeURIComponent(st.rev);
-    const pictures=document.querySelectorAll(".sky-picture");(pictures[pictures.length-1]||document.body.firstChild).after(frame);
+    const v="?v="+encodeURIComponent(st.rev);
+    if(!phoneScene){
+      if(!st.page)return;
+      const frame=document.createElement("iframe");
+      frame.className="sky-frame";frame.title="Background";frame.tabIndex=-1;frame.setAttribute("aria-hidden","true");
+      frame.src="/scene-asset/page"+v;afterPictures(frame);
+      return;
+    }
+    if(!st.phonePage)return;
+    const doc=new DOMParser().parseFromString(await (await fetch("/scene-asset/phone-page"+v)).text(),"text/html");
+    const src=doc.querySelector("img#art")?.getAttribute("src")||"";if(!/^data:image\//.test(src))return;
+    const css=[...doc.querySelectorAll("style")].map((x)=>x.textContent).join("\n");
+    const box=document.createElement("div"),art=new Image(),svg=doc.querySelector("svg");
+    box.className="sky-frame sky-codex";box.setAttribute("aria-hidden","true");
+    art.id="art";art.alt="";art.style.objectPosition=((/#art\s*\{[^}]*object-position:\s*([\d.]+%)/.exec(css)||[])[1]||"50%")+" center";
+    box.append(art);if(svg)box.append(document.importNode(svg,true));
+    art.addEventListener("load",()=>{
+      afterPictures(box);
+      const program=document.createElement("script");program.src="/scene-asset/phone-script"+v;document.body.append(program);
+      // The grass canvas is black until its first frames are drawn; the picture shows until then.
+      program.addEventListener("load",()=>{let frames=0;const wait=()=>{if(box.querySelector("canvas[data-ready]")&&++frames>8)box.classList.add("drawn");else requestAnimationFrame(wait);};requestAnimationFrame(wait);},{once:true});
+    },{once:true});
+    art.src=src;
   }).catch(()=>{});
   // Sign in opens the card as a pop-up over the scene; ×, Esc or a tap outside closes it.
   const signIn=open=>document.body.classList.toggle("signin-open",open);
