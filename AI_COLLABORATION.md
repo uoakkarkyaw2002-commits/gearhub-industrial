@@ -30,7 +30,14 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.154: Offline photos finish on big shops (Claude) — in review
+### 1.1.155: Saved product photos show at once offline (Claude) — in review
+- Owner (installed PC app, internet off, 1.1.154): Fuse Box gallery showed the big photo but thumbnails 2–11 stayed blank.
+- All 11 photos were in the offline cache (checked on live). The fetch handler tried the network first and used the cache only after the network failed; offline the network can hang instead of failing, so those requests never finished. The big photo came from the browser's own HTTP cache.
+- `public/sw.js`: product photos (`/api/platform/images/<id>`, immutable) are now served from the cache first, and downloaded (and kept, max 900) only when missing. Other images keep network-first.
+- Tests: `tests/tenant-install.test.js` (a saved photo answers even when fetch never settles). Version files bumped.
+- Checked locally: with the server up, the service worker answers a saved photo from the cache; the store's photos load, no console errors.
+
+### 1.1.154: Offline photos finish on big shops (Claude) — merged, live (645/645 saved in 128 s)
 - Live check of 1.1.153 on POLESTAR (100 products, 645 photos, ~180 KB each): after 2 minutes 393/645 photos were saved (61 %) and Settings showed "Offline failed". `store.js` gave the whole download 120 s, and every run downloaded every photo again (`cache:"reload"`).
 - `store.js`: the 120 s limit now restarts on every progress message, so it only fails when the download stalls.
 - `sw.js` SAVE_OFFLINE: a product photo (`/api/platform/images/<id>`, immutable) already in the offline cache is skipped; one already seen while browsing is copied from the other caches instead of downloaded. Later runs only fetch new photos.

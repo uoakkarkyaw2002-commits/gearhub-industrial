@@ -32,7 +32,7 @@ test('offline navigation never falls back from a tenant to root or another tenan
  const caches={open:async name=>({match:async key=>entries.get(name+' '+(typeof key==='string'?new URL(key,origin).href:key.url)),put:async()=>{}}),match:async()=>new Response('ROOT'),keys:async()=>[]};
  vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../public/sw.js'),'utf8'),{self:{location:{origin},addEventListener:(n,f)=>handlers[n]=f},caches,URL,Response,fetch:async()=>{throw Error('offline')}});
  async function navigate(p){let response;handlers.fetch({request:{url:origin+p,mode:'navigate',method:'GET'},respondWith:r=>response=r});return response;}
- entries.set('gearhub-shell-v85-1.1.154 '+origin+'/shops/shop-a/',new Response('SHOP A'));entries.set('gearhub-offline-v2:/shops/shop-b/ '+origin+'/shops/shop-b/',new Response('SHOP B'));
+ entries.set('gearhub-shell-v85-1.1.155 '+origin+'/shops/shop-a/',new Response('SHOP A'));entries.set('gearhub-offline-v2:/shops/shop-b/ '+origin+'/shops/shop-b/',new Response('SHOP B'));
  assert.equal(await(await navigate('/shops/shop-a/')).text(),'SHOP A');assert.equal(await(await navigate('/shops/shop-b/')).text(),'SHOP B');assert.equal((await navigate('/shops/shop-c/')).status,503);assert.equal(await(await navigate('/')).text(),'ROOT');
 });
 test('offline saves reject root, other tenant and admin URLs from a shop client',async()=>{
@@ -50,6 +50,13 @@ test('offline save does not download saved product photos again (POLESTAR has ~6
  vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../public/sw.js'),'utf8'),{self:{location:{origin:'https://example.test'},addEventListener:(n,f)=>handlers[n]=f},URL,Response,caches:{open:async()=>({put:async url=>saved.push(url),match:async url=>store.get(url)}),match:async url=>seen.get(url)||store.get(url)},fetch:async url=>{fetched.push(url);return new Response('ok')}});
  handlers.message({source:{url:'https://example.test/shops/shop-a/'},data:{type:'SAVE_OFFLINE',urls:['/api/platform/images/old','/api/platform/images/seen','/api/platform/images/new','/shops/shop-a/']},waitUntil:p=>pending=p,ports:[{postMessage:()=>{}}]});await pending;
  assert.deepEqual(fetched.sort(),['/api/platform/images/new','/shops/shop-a/']);assert.deepEqual(saved.sort(),['/api/platform/images/new','/api/platform/images/seen','/shops/shop-a/']);
+});
+
+test('saved product photos show at once even when the network hangs (gallery thumbnails were blank offline)',async()=>{
+ const handlers={};let answer;
+ vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../public/sw.js'),'utf8'),{self:{location:{origin:'https://example.test'},addEventListener:(n,f)=>handlers[n]=f},URL,Response,caches:{match:async()=>new Response('saved photo')},fetch:()=>new Promise(()=>{})});
+ handlers.fetch({request:{method:'GET',url:'https://example.test/api/platform/images/photo-2',mode:'no-cors'},respondWith:p=>answer=p});
+ assert.equal(await (await answer).text(),'saved photo');
 });
 
 test('admin pages are installable apps whose scope includes the store and login',async()=>{
