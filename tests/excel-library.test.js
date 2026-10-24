@@ -47,6 +47,23 @@ test('Excel viewer shows sheets like a spreadsheet: tabs, letters, row numbers, 
  assert.equal(ctx.formatNumber(384563930,'#,##0'),'384,563,930');
  assert.equal(ctx.formatNumber(0.125,'0.0%'),'12.5%');
 });
+test('filled Excel cells keep light gridlines while workbook and conditional borders retain their styles',()=>{
+ const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8');
+ const src=map.slice(map.indexOf(' function cellStyle('),map.indexOf(' // Sheet zoom'));
+ const cellStyle=new Function('const zoom=1;'+src+';return cellStyle')();
+ for(const fill of ['#FFFFFF','#00B050']){
+  const style={fill,font:{},border:{left:'3px solid #FF0000'}};
+  const cell={style,text:'Invoice'};
+  const css=cellStyle(cell);
+  assert.ok(css.includes('background-color:'+fill));
+  assert.ok(css.includes('border-left:3px solid #FF0000'));
+  assert.doesNotMatch(css,/border-(?:right|top|bottom)(?:-color)?:/,'unbordered edges inherit visible sheet gridlines');
+  const conditional=cellStyle({...cell,cf:{fill:'#FFFFFF',border:{bottom:'2px solid #000000'}}});
+  assert.ok(conditional.includes('border-bottom:2px solid #000000'));
+  assert.doesNotMatch(conditional,/border-(?:right|top)(?:-color)?:/);
+  assert.deepEqual(style,{fill,font:{},border:{left:'3px solid #FF0000'}},'rendering does not change workbook formatting');
+ }
+});
 test('Excel sheet opens full screen with one back arrow and exact column widths',()=>{
  const map=fs.readFileSync(path.join(__dirname,'..','public','excel-map.js'),'utf8'),css=fs.readFileSync(path.join(__dirname,'..','public','style.css'),'utf8');
  assert.match(map,/<button class="excel-fs-back" id="excel-fs-back" type="button" aria-label="Back">←<\/button>/);

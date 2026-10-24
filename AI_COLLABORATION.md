@@ -25,6 +25,14 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.138: Excel gridlines on filled cells (Codex) — in review
+- Task: restore visible cell lines in the Excel viewer, including on filled cells.
+- Cause: cells without explicit workbook borders had their border colour changed to match the fill, hiding gridlines.
+- Change: keep the viewer's light gridlines on unbordered edges while preserving explicit workbook and conditional-format borders.
+- Files: `public/excel-map.js`, `tests/excel-library.test.js`, version/cache files.
+- Validation: Node 22 checks and 294 tests passed. Chrome seller shop with the uploaded workbook at 375px and 1280px: INV sheet gridlines on filled cells, red workbook borders, select interactions, scroll/zoom and reload; no page errors. Original workbook used for browser verification.
+- PR: pending.
+
 ### 1.1.137: Excel cell selection and row headers (Codex) — in review
 - Task: only row-number taps select a whole row; cell taps select one cell and dragging selects a range.
 - Cause: the cell pointerdown handler called selectRow, so all ordinary cell clicks selected a row and mouse dragging started from its first column.

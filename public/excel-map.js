@@ -268,8 +268,8 @@
   if(f.sz)css.push('font-size:'+Math.round(f.sz*zoom*10)/10+'pt');if(f.name)css.push('font-family:"'+f.name.replace(/"/g,'')+'",system-ui,sans-serif');
   const h=s.h&&s.h!=='general'?(s.h==='centerContinuous'?'center':s.h):cell.numeric?'right':'left';css.push('text-align:'+h);
   css.push('vertical-align:'+(s.v==='center'?'middle':s.v==='top'?'top':'bottom'));if(s.wrap)css.push('white-space:pre-wrap');
-  // Like Excel/Sheets: a filled cell hides the light gridlines unless it has its own border.
-  for(const side of ['left','right','top','bottom'])if(b[side])css.push('border-'+side+':'+b[side]);else if(s.fill)css.push('border-'+side+'-color:'+s.fill);
+  // Keep the sheet's light gridlines visible on filled cells too; explicit workbook borders win.
+  for(const side of ['left','right','top','bottom'])if(b[side])css.push('border-'+side+':'+b[side]);
   return css.join(';');
  }
  // Sheet zoom (pinch on phones, Ctrl + wheel / trackpad pinch on PC). Excel's own zoom range.
