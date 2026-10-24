@@ -55,9 +55,40 @@ test('platform page shows the uploaded background (phone files on phones) with t
 });
 test('a Codex single-HTML package (picture inside + inline SVG) is accepted, phones get a tall cut',()=>{
  const js=fs.readFileSync(path.join(__dirname,'..','public','platform.js'),'utf8');
- assert.match(js,/const page = !picture && !layer && files\.find\(\(f\) => \/\\\.html\?\$\/i\.test\(f\.name\)\);/);
- assert.match(js,/if \(page\) \(\{ picture, layer \} = await fromHtmlPackage\(await \(await page\.read\(\)\)\.text\(\), tall\)\);/);
+ assert.match(js,/const page = !picture && !layer && htmlText;/);
+ assert.match(js,/if \(page\) \(\{ picture, layer \} = await fromHtmlPackage\(htmlText, tall\)\);/);
  assert.match(js,/doc\.querySelector\('img\[src\^="data:image\/"\]'\)/);
  assert.match(js,/const w = img\.naturalWidth, h = img\.naturalHeight, cw = Math\.round\(h \* 9 \/ 16\);/);
  assert.match(js,/accept="\.zip,application\/zip,\.html,text\/html" data-scene-zip="\$\{side\}"/);
+});
+test('Codex background page (own program): saved as HTML only, reset, served sandboxed to this site',async()=>{
+ const Database=require('better-sqlite3'),db=new Database(':memory:'),dir=fs.mkdtempSync(path.join(os.tmpdir(),'scene-'));
+ const page=Buffer.from('<!DOCTYPE html><html><body><canvas></canvas><script>/* grass */</script></body></html>');
+ assert.equal((await scene.saveFile(db,dir,'page',page)).page,true);
+ assert.equal(fs.readFileSync(path.join(scene.dirOf(dir),'page.html'),'utf8'),page.toString());
+ assert.equal((await scene.saveFile(db,dir,'phone-page',page)).phonePage,true);
+ await assert.rejects(scene.saveFile(db,dir,'page',Buffer.from('<svg/>')),/Upload an HTML page/);
+ assert.equal(scene.reset(db,dir,'page').page,false);
+ assert.ok(!fs.existsSync(path.join(scene.dirOf(dir),'page.html')));
+ fs.rmSync(dir,{recursive:true,force:true});
+ const install=fs.readFileSync(path.join(__dirname,'..','lib','tenant-install.js'),'utf8');
+ assert.match(install,/const PAGE_CSP="sandbox allow-scripts; default-src 'none';/);
+ assert.match(install,/frame-ancestors "\+\(publicOrigin\?new URL\(publicOrigin\)\.origin:"'self'"\)/);
+ assert.match(install,/res\.removeHeader\('X-Frame-Options'\);/);
+});
+test('platform page shows a Codex page in a frame (no sandbox attribute) and the zip keeps self-contained pages',()=>{
+ const js=fs.readFileSync(path.join(__dirname,'..','public','platform.js'),'utf8'),css=fs.readFileSync(path.join(__dirname,'..','public','platform.css'),'utf8');
+ assert.match(js,/fetch\("\/scene-asset\/state"\)/);
+ assert.match(js,/kind=phone\?\(st\.phonePage\?"phone-page":st\.page&&!st\.phone\?"page":""\):st\.page\?"page":""/);
+ assert.match(js,/frame\.className="sky-frame"/);
+ assert.doesNotMatch(js,/frame\.(?:sandbox|setAttribute\("sandbox")/);
+ assert.match(js,/if \(keepPage\) await sceneUpload\(pageKind, new Blob\(\[htmlText\], \{ type: "text\/html" \}\), "page\.html"\);/);
+ assert.match(js,/else await api\("\/owner\/scene\/" \+ pageKind, "DELETE"\);/);
+ assert.match(js,/data-scene-reset="\$\{pageKind\}"/);
+ assert.match(css,/body\.onboarding \.sky-frame\{display:block;position:fixed;inset:0;width:100%;height:100%;border:0;z-index:0;pointer-events:none\}/);
+ // The self-contained rule: a script, and no outside src/href.
+ const rule=t=>new Function('htmlText','return '+js.slice(js.indexOf('const keepPage = ')+17,js.indexOf('\n',js.indexOf('const keepPage = '))).replace(/;$/,''))(t);
+ assert.equal(rule('<html><script>x()</script></html>'),true);
+ assert.equal(rule('<html><img src="data:image/png;base64,AA"></html>'),false);
+ assert.equal(rule('<html><script src="https://cdn.example/x.js"></script></html>'),false);
 });

@@ -25,6 +25,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.140: Codex background pages with their own program (Claude) — in review
+- Task: Codex's new background zips (picture, birds SVG and a WebGL script that sways the grass) showed only the old still picture on skyshopmm.com. Continues the unmerged `claude/scene-page` branch (its server part is included here; its page part was never uploaded).
+- `lib/site-scene.js`: kinds `page` / `phone-page` (whole HTML page, ≤10 MB). `lib/tenant-install.js`: `GET /scene-asset/state` and `/scene-asset/page|phone-page`, served with a CSP `sandbox allow-scripts` header, no outside requests, `frame-ancestors` = the site, no X-Frame-Options.
+- `public/platform.js`: an iframe `.sky-frame` over the picture shows the page (phones: phone page, else the PC page unless the phone has its own picture). No `sandbox` attribute: WebKit leaves attribute-sandboxed frames blank; the CSP header sandboxes it. The zip upload keeps a page whole when it has a `<script>` and no outside `src`/`href`; otherwise that side's page is removed. The owner editor shows "Codex page" with a remove button. `public/platform.css`: frame placement matching the picture.
+- Files: `lib/site-scene.js`, `lib/tenant-install.js`, `public/platform.js`, `public/platform.css`, `public/platform.html`, `tests/site-scene.test.js`, version/cache files.
+- Validation: Node 22 `npm run check` and `npm test` passed (296 tests). Browser (local, `PLATFORM_ENABLED=true`, Codex's Golden_Mountain_PC and Phone_Grass pages saved straight into the local database): 1280px shows the PC page, 375px shows the phone page, birds and grass render, Sign in still opens, no failed requests. Not verified: the owner zip-upload button itself (needs an owner login), and on a real iPhone. The page is black for a few seconds while Codex's page draws its picture.
+
 ### 1.1.139: Excel row and cell selection (Codex) — in review
 - Task: only a row-number click selects the whole row; a data-cell click selects that cell, and dragging selects a range.
 - Cause addressed: pointer handling now resolves a clicked data cell before checking for a row header; the selection script cache key is bumped so deployed clients fetch the corrected behavior.
