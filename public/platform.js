@@ -28,12 +28,13 @@
   </div></details>`;
   // skyshopmm.com background (owner): a picture, an optional moving SVG layer, or a Codex-style .zip
   // holding both (the zip is opened here in the browser and its two files are uploaded).
-  const SCENE_SIDES = [["pc", "PC", "picture", "layer", "picture", "layer"], ["phone", "Phone / ဖုန်း", "phone", "phone-layer", "phone", "phoneLayer"]];
+  const SCENE_SIDES = [["pc", "PC", "picture", "layer", "picture", "layer", "page", "page"], ["phone", "Phone / ဖုန်း", "phone", "phone-layer", "phone", "phoneLayer", "phone-page", "phonePage"]];
   const sceneEditor = (st) => !st ? "" : `<details class="owner-settings splash-editor scene-editor"><summary>skyshopmm.com background / နောက်ခံပုံ <small>${st.picture ? "ကိုယ်ပိုင်ပုံ" : "မူလပုံ"}${st.phone ? " · ဖုန်းပုံ" : ""}</small></summary><div class="splash-body">
     <p class="muted">skyshopmm.com ဖွင့်ရင် နောက်မှာ ပေါ်မယ့် ပုံပါ။ Zip (Codex ပို့တဲ့ ဖိုင်) တင်ရင် ထဲက ပုံနဲ့ လှုပ်တဲ့ SVG ကို အလိုလို ထည့်ပေးပါတယ်။ ဖုန်းပုံ မထည့်ရင် ဖုန်းမှာ PC ပုံကို ပြပါတယ်။</p>
-    ${SCENE_SIDES.map(([side, title, pic, layer, picKey, layerKey]) => `<h4 class="scene-side">${title}</h4>
+    ${SCENE_SIDES.map(([side, title, pic, layer, picKey, layerKey, pageKind, pageKey]) => `<h4 class="scene-side">${title}</h4>
     <div class="scene-preview scene-preview-${side}"><img alt="" src="/scene-asset/${pic}?v=${encodeURIComponent(st.rev)}">${st[layerKey] || st.layer ? `<img alt="" src="/scene-asset/${layer}?v=${encodeURIComponent(st.rev)}">` : ""}</div>
     <div class="splash-row"><div><strong>Zip ဖိုင်</strong><small>ပုံ + SVG ပါတဲ့ zip (ဒါမှမဟုတ် Codex ရဲ့ HTML တစ်ဖိုင်တည်း)</small></div><label class="splash-file">Zip ရွေးပြီး တင်ရန်<input type="file" accept=".zip,application/zip,.html,text/html" data-scene-zip="${side}"></label></div>
+    ${st[pageKey] ? `<div class="splash-row"><div><strong>Codex page</strong><small>Codex စာမျက်နှာ (လှုပ်တဲ့ မြက်ပင် စသဖြင့်) ပြနေပါတယ်</small></div><button type="button" data-scene-reset="${pageKind}">ဖယ်ရန်</button></div>` : ""}
     <div class="splash-row"><div><strong>Picture / ပုံ</strong><small>${st[picKey] ? "ကိုယ်ပိုင်ပုံ သုံးနေပါတယ်" : side === "pc" ? "မူလပုံ" : "PC ပုံကို သုံးနေပါတယ်"}</small></div><label class="splash-file">ပုံရွေးပြီး တင်ရန် (၁၂ MB အောက်)<input type="file" accept="image/jpeg,image/png,image/webp" data-scene-upload="${pic}"></label>${st[picKey] ? `<button type="button" data-scene-reset="${pic}">ဖယ်ရန်</button>` : ""}</div>
     <div class="splash-row"><div><strong>Moving layer / လှုပ်တဲ့ SVG</strong><small>${st[layerKey] ? "ထည့်ထားပါတယ်" : side === "pc" ? "မရှိပါ" : "PC အတိုင်း"}</small></div><label class="splash-file">SVG ရွေးပြီး တင်ရန် (1.5 MB အောက်)<input type="file" accept=".svg,image/svg+xml" data-scene-upload="${layer}"></label>${st[layerKey] ? `<button type="button" data-scene-reset="${layer}">ဖယ်ရန်</button>` : ""}</div>`).join("")}
   </div></details>`;
@@ -132,6 +133,18 @@
   const sceneLayer=document.querySelector(".sky-layer");
   // (An empty-alt image that fails shows nothing anyway; this only tidies up after a real error.)
   sceneLayer?.addEventListener("error",()=>(sceneLayer.closest("picture")||sceneLayer).remove());
+  // A Codex background page (its own program, e.g. swaying grass) shows in a frame over the picture.
+  // Phones use their own page, or the PC page when they have no picture of their own.
+  // No sandbox attribute: WebKit leaves attribute-sandboxed frames blank; the server's CSP header sandboxes it.
+  fetch("/scene-asset/state").then((r)=>r.ok?r.json():null).then((st)=>{
+    if(!st)return;
+    const phone=matchMedia("(max-width:600px)").matches,kind=phone?(st.phonePage?"phone-page":st.page&&!st.phone?"page":""):st.page?"page":"";
+    if(!kind)return;
+    const frame=document.createElement("iframe");
+    frame.className="sky-frame";frame.title="Background";frame.tabIndex=-1;frame.setAttribute("aria-hidden","true");
+    frame.src="/scene-asset/"+kind+"?v="+encodeURIComponent(st.rev);
+    const pictures=document.querySelectorAll(".sky-picture");(pictures[pictures.length-1]||document.body.firstChild).after(frame);
+  }).catch(()=>{});
   // Sign in opens the card as a pop-up over the scene; ×, Esc or a tap outside closes it.
   const signIn=open=>document.body.classList.toggle("signin-open",open);
   $("signin-open")?.addEventListener("click",()=>signIn(true));
@@ -443,7 +456,7 @@
     }));
     document.querySelectorAll("[data-scene-zip]").forEach((zipInput) => zipInput.addEventListener("change", async (e) => {
       const file = e.target.files[0]; if (!file) return;
-      const [picKind, layerKind] = e.target.dataset.sceneZip === "phone" ? ["phone", "phone-layer"] : ["picture", "layer"];
+      const [picKind, layerKind, pageKind] = e.target.dataset.sceneZip === "phone" ? ["phone", "phone-layer", "phone-page"] : ["picture", "layer", "page"];
       try {
         msg("Zip ဖွင့်နေပါတယ်… / Opening zip…");
         const tall = picKind === "phone";
@@ -451,11 +464,17 @@
         let picture = files.find((f) => /\.(jpe?g|png|webp)$/i.test(f.name)), layer = files.find((f) => /\.svg$/i.test(f.name));
         picture = picture && { blob: await picture.read(), name: picture.name.split("/").pop() };
         layer = layer && { blob: new Blob([await (await layer.read()).arrayBuffer()], { type: "image/svg+xml" }), name: layer.name.split("/").pop() };
-        const page = !picture && !layer && files.find((f) => /\.html?$/i.test(f.name));
-        if (page) ({ picture, layer } = await fromHtmlPackage(await (await page.read()).text(), tall));
-        if (!picture && !layer) throw new Error("Zip ထဲမှာ ပုံ (jpg/png/webp)၊ SVG ဒါမှမဟုတ် ပုံပါတဲ့ HTML မတွေ့ပါ / No picture, SVG or picture page in this zip.");
+        const html = files.find((f) => /\.html?$/i.test(f.name)), htmlText = html && await (await html.read()).text();
+        const page = !picture && !layer && htmlText;
+        if (page) ({ picture, layer } = await fromHtmlPackage(htmlText, tall));
+        // A page with its own program (e.g. Codex's swaying grass) that needs nothing from outside is
+        // also kept whole; the picture and layer stay as the fallback. Otherwise this side's page is removed.
+        const keepPage = !!htmlText && /<script[\s>]/i.test(htmlText) && !/\b(?:src|href)\s*=\s*["']?(?:https?:)?\/\//i.test(htmlText);
+        if (!picture && !layer && !keepPage) throw new Error("Zip ထဲမှာ ပုံ (jpg/png/webp)၊ SVG ဒါမှမဟုတ် ပုံပါတဲ့ HTML မတွေ့ပါ / No picture, SVG or picture page in this zip.");
         if (picture) await sceneUpload(picKind, picture.blob, picture.name);
         if (layer) await sceneUpload(layerKind, layer.blob, layer.name);
+        if (keepPage) await sceneUpload(pageKind, new Blob([htmlText], { type: "text/html" }), "page.html");
+        else await api("/owner/scene/" + pageKind, "DELETE");
         msg("သိမ်းပြီးပါပြီ / Saved"); await load();
       } catch (err) { msg(err.message); e.target.value = ""; }
     }));
