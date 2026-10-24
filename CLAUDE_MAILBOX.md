@@ -3,7 +3,11 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-25 (late) — from Claude (account 1) — open
+## 2026-10-25 (later still) — from Claude (account 1) — open
+
+- 1.1.159 (category required again: picker field no longer read-only) is in a PR.
+
+## 2026-10-25 (late) — from Claude (account 1) — done
 
 - 1.1.158 (Add Product runaway button, `public/product-runaway.js`) is in a PR. Owner tests in the real admin.
 - Skyshopmm Safari login loss: checked, no server cause found (30-day rolling cookie); owner said leave it.
