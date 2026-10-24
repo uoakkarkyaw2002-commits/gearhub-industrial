@@ -5,7 +5,7 @@
  const box=document.getElementById('excel-library-list'),card=document.querySelector('.excel-library-card');
  if(!box||!card)return;
  const section=document.createElement('section');section.className='excel-preview';section.hidden=true;
- section.innerHTML='<button class="excel-fs-back" id="excel-fs-back" type="button" aria-label="Back">←</button><div class="drawer-head"><h3 id="excel-sheet-title">Spreadsheet</h3><button class="icon-btn" id="excel-sheet-back" type="button" aria-label="Back to files">←</button></div><p id="excel-sheet-status" class="excel-library-status"></p><label class="excel-sheet-search"><span class="sr-only">Search this Excel file</span><input id="excel-sheet-search" type="search" placeholder="Search this Excel file" autocomplete="off"></label><div id="excel-grid" class="excel-grid excel-sheet"></div><div id="excel-tabs" class="excel-tabs" role="tablist"></div><div id="excel-map-panel" class="excel-map-panel" hidden><strong>Connect data to Product Inventory</strong><p class="excel-library-help">Choose each column yourself. Same SKU updates an existing product.</p><div id="excel-map-fields" class="excel-map-fields"></div><button class="primary" id="excel-import" type="button">Import products</button><p id="excel-import-status" class="excel-library-status"></p></div>';
+ section.innerHTML='<button class="excel-fs-back" id="excel-fs-back" type="button" aria-label="Back">←</button><div class="drawer-head"><h3 id="excel-sheet-title">Spreadsheet</h3><button class="icon-btn" id="excel-sheet-back" type="button" aria-label="Back to files">←</button></div><p id="excel-sheet-status" class="excel-library-status"></p><div class="excel-sheet-search"><label><span class="sr-only">Search this Excel file</span><input id="excel-sheet-search" type="search" placeholder="Search this Excel file" autocomplete="off" enterkeyhint="search"></label><button type="button" class="excel-find-step" id="excel-find-prev" aria-label="Previous match"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></button><button type="button" class="excel-find-step" id="excel-find-next" aria-label="Next match"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></div><div id="excel-grid" class="excel-grid excel-sheet"></div><div id="excel-tabs" class="excel-tabs" role="tablist"></div><div id="excel-map-panel" class="excel-map-panel" hidden><strong>Connect data to Product Inventory</strong><p class="excel-library-help">Choose each column yourself. Same SKU updates an existing product.</p><div id="excel-map-fields" class="excel-map-fields"></div><button class="primary" id="excel-import" type="button">Import products</button><p id="excel-import-status" class="excel-library-status"></p></div>';
  card.append(section);
  const grid=section.querySelector('#excel-grid'),tabs=section.querySelector('#excel-tabs'),map=section.querySelector('#excel-map-fields'),panel=section.querySelector('#excel-map-panel'),msg=section.querySelector('#excel-sheet-status'),out=section.querySelector('#excel-import-status'),title=section.querySelector('#excel-sheet-title'),search=section.querySelector('#excel-sheet-search');
  const slug=(location.pathname.match(/^\/shops\/([^/]+)/)||[])[1];
@@ -275,10 +275,9 @@
  // Sheet zoom (pinch on phones, Ctrl + wheel / trackpad pinch on PC). Excel's own zoom range.
  let zoom=1;const ZMIN=0.3,ZMAX=3;
  function renderSheet(sheet,keepScroll){
-  const cols=sheet.maxC+1,rows=sheet.maxR+1,px=w=>Math.round(((w??sheet.defW)*7+5)*zoom),query=searchText.trim().toLocaleLowerCase();
-  const matching=r=>!query||Array.from({length:cols},(_,c)=>sheet.cells.get(r+','+c)?.text||'').some(value=>String(value).toLocaleLowerCase().includes(query));
+  const cols=sheet.maxC+1,rows=sheet.maxR+1,px=w=>Math.round(((w??sheet.defW)*7+5)*zoom);
   const frozen=sheet.frozen||{r0:0,r1:0,c0:0,c1:0};
-  const visibleRows=Array.from({length:rows},(_,r)=>r).filter(r=>r>=frozen.r0&&sheet.heights[r]!==0&&matching(r)),rowShown=new Set(visibleRows);
+  const visibleRows=Array.from({length:rows},(_,r)=>r).filter(r=>r>=frozen.r0&&sheet.heights[r]!==0),rowShown=new Set(visibleRows);
   // Hidden columns (width 0 or hidden in Excel) are left out completely, like Excel.
   const visibleCols=Array.from({length:cols},(_,c)=>c).filter(c=>c>=frozen.c0&&sheet.widths[c]!==0),colShown=new Set(visibleCols);
   const widths=visibleCols.map(c=>px(sheet.widths[c])),total=46+widths.reduce((a,b)=>a+b,0);
@@ -308,13 +307,14 @@
   const spacer=h=>'<tr class="excel-spacer" style="height:'+h+'px"><td colspan="'+(visibleCols.length+1)+'"></td></tr>';
   const frozenRows=visibleRows.filter(r=>r<frozen.r1);
   grid.innerHTML=html+'</tbody><tbody class="excel-after">'+spacer(0)+'</tbody></table>';renderedSheet=sheet;
-  view={sheet,body,index,hts,origin,rowHtml,spacer,frozenHtml:frozenRows.map(rowHtml).join(''),frozenCount:frozenRows.length,tops:null,start:0,end:0,base:0};
+  view={sheet,body,index,hts,origin,rowHtml,spacer,frozenHtml:frozenRows.map(rowHtml).join(''),frozenCount:frozenRows.length,tops:null,start:0,end:0,base:0,rows:visibleRows,cols:visibleCols,widths,covered,frozenCols:visibleCols.filter(c=>c<frozen.c1).length};
   sumTops();
   // Drawn from the top first: that measures where the body rows begin.
   grid.scrollTop=0;drawRows(true,0);
   grid.scrollLeft=keep?keep[1]*grid.scrollWidth:0;
   if(keep)drawRows(true,keep[0]*(view.base+view.tops[body.length]));
-  msg.textContent=(query?visibleRows.length+' of ':'')+rows+' rows'+(sheet.truncated?' (first '+MAX_ROWS+' shown)':'');
+  msg.textContent=rows+' rows'+(sheet.truncated?' (first '+MAX_ROWS+' shown)':'');
+  if(searchText.trim())find(0,keepScroll);
  }
  let view=null;
  const sumTops=()=>{const t=new Float64Array(view.hts.length+1);for(let i=0;i<view.hts.length;i++)t[i+1]=t[i]+view.hts[i];view.tops=t};
@@ -348,6 +348,26 @@
  grid.addEventListener('scroll',()=>drawRows(false),{passive:true});
  // Copy (excel-select.js) reads from the sheet itself, since rows away from the screen are not drawn.
  grid.cellText=(r,c)=>renderedSheet?.cells.get(r+','+c)?.text??'';
+ let found=[],foundAt=-1;
+ // step 0: a new search (first match, or the same one again after a redraw); 1 / -1: next / previous.
+ function find(step,stay){
+  if(!view)return;const query=searchText.trim().toLocaleLowerCase(),sheet=view.sheet;
+  if(step===0){
+   const keep=stay&&found[foundAt];found=[];foundAt=-1;
+   if(query)for(const r of view.rows)for(const c of view.cols){const key=r+','+c;if(!view.covered.has(key)&&String(sheet.cells.get(key)?.text??'').toLocaleLowerCase().includes(query))found.push([r,c])}
+   msg.textContent=query?(found.length?found.length+' found':'No match'):view.rows.length+' rows';
+   if(!found.length)return;foundAt=keep?Math.max(0,found.findIndex(([r,c])=>r===keep[0]&&c===keep[1])):0;
+   if(stay)return grid.dispatchEvent(new CustomEvent('excel-find',{detail:{r:found[foundAt][0],c:found[foundAt][1]}}));
+  }else{if(!found.length)return find(0);foundAt=(foundAt+step+found.length)%found.length}
+  const [r,c]=found[foundAt],i=view.index.get(r);
+  // Bring the row just under the column letters and frozen rows, and the column beside the frozen ones.
+  if(i!==undefined){const room=grid.clientHeight-view.base,y=view.tops[i];if(y<grid.scrollTop||y+view.hts[i]>grid.scrollTop+room)grid.scrollTop=Math.max(0,y-room/3)}
+  // Frozen columns only stay put when they fit (on phones they usually scroll with the sheet).
+  const k=view.cols.indexOf(c),fc=grid.querySelector('table.excel-cols-frozen')?view.frozenCols:0;if(k>=fc){const x=view.widths.slice(0,k).reduce((a,b)=>a+b,0),fixed=46+view.widths.slice(0,fc).reduce((a,b)=>a+b,0),left=x-view.widths.slice(0,fc).reduce((a,b)=>a+b,0);
+   if(46+x<grid.scrollLeft+fixed||46+x+view.widths[k]>grid.scrollLeft+grid.clientWidth)grid.scrollLeft=Math.max(0,left-8)}
+  drawRows(false);
+  grid.dispatchEvent(new CustomEvent('excel-find',{detail:{r,c}}));
+ }
  // Freeze panes saved in the file: the frozen rows stay under the column letters and the frozen
  // columns stay beside the row numbers while scrolling. Columns are frozen only when some room is
  // left to scroll the rest (on a phone they usually scroll with the sheet).
@@ -457,7 +477,12 @@
  grid.addEventListener('gesturestart',e=>e.preventDefault());
  let wheelZoom=1,wheelTimer=0;
  grid.addEventListener('wheel',e=>{if(!e.ctrlKey)return;e.preventDefault();wheelZoom*=Math.exp(-e.deltaY/200);clearTimeout(wheelTimer);wheelTimer=setTimeout(()=>{const z=wheelZoom;wheelZoom=1;setZoom(zoom*z)},120)},{passive:false});
- search.addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{searchText=search.value;const sheet=book?.sheets[active];if(sheet?.cells)renderSheet(sheet)},80)});
+ // Search like Google Sheets: every row stays; the matching cell is selected and scrolled into view,
+ // and the arrows (or Enter / Shift+Enter) go to the next or previous match.
+ search.addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{searchText=search.value;find(0)},150)});
+ search.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();find(e.shiftKey?-1:1)}});
+ section.querySelector('#excel-find-prev').addEventListener('click',()=>find(-1));
+ section.querySelector('#excel-find-next').addEventListener('click',()=>find(1));
  const leave=()=>{section.hidden=true;box.hidden=false;setForm(false);card.classList.remove('excel-sheet-open');fullScreen(false)};
  section.querySelector('#excel-sheet-back').onclick=leave;section.querySelector('#excel-fs-back').onclick=leave;
  // Closing the whole Excel panel (Escape, outside tap) also leaves full screen.
