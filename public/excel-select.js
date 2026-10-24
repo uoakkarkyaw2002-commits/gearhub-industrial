@@ -20,13 +20,16 @@
   anchor={r,c:left,r2:r,c2:left};focus={r,c:right,r2:r,c2:right};dragging=false;paint();return true;
  }
  grid.addEventListener('pointerdown',event=>{
+  const cell=event.target.closest('td[data-r]');
+  if(cell){
+   if(event.button)return;
+   const p=pos(cell);
+   if(event.shiftKey&&anchor)focus=p;else{anchor=p;focus=p}
+   if(event.pointerType==='mouse')event.preventDefault?.();
+   dragging=event.pointerType==='mouse';paint();return;
+  }
   const rowHead=event.target.closest('tbody th[data-r]');
-  if(rowHead?.tagName==='TH'&&!event.button&&selectRow(Number(rowHead.dataset.r))){event.preventDefault?.();return}
-  const cell=event.target.closest('td[data-r]');if(!cell||event.button)return;
-  const p=pos(cell);
-  if(event.shiftKey&&anchor)focus=p;else{anchor=p;focus=p}
-  if(event.pointerType==='mouse')event.preventDefault?.();
-  dragging=event.pointerType==='mouse';paint();
+  if(rowHead?.tagName==='TH'&&!event.button)selectRow(Number(rowHead.dataset.r));
  });
  grid.addEventListener('pointerover',event=>{
   if(!dragging||!(event.buttons&1))return;const cell=event.target.closest('td[data-r]');if(!cell)return;
