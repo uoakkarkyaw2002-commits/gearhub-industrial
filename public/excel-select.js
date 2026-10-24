@@ -7,22 +7,36 @@
  let anchor=null,focus=null,dragging=false,marked=[],ownTable=null,pending=null,held=false,lastPointer='';
  const pos=cell=>({r:Number(cell.dataset.r),c:Number(cell.dataset.c),r2:Number(cell.dataset.r2??cell.dataset.r),c2:Number(cell.dataset.c2??cell.dataset.c)});
  function area(){if(!anchor||!focus)return null;return{top:Math.min(anchor.r,focus.r),left:Math.min(anchor.c,focus.c),bottom:Math.max(anchor.r2,focus.r2),right:Math.max(anchor.c2,focus.c2)}}
- function clear(){for(const node of marked)node.classList.remove('xs-sel','xs-active','xs-head');marked=[];handles.forEach(h=>h.remove())}
+ function clear(){for(const node of marked)node.classList.remove('xs-sel','xs-active','xs-head');marked=[];handles.forEach(h=>h.remove());outline?.remove()}
  const inArea=p=>{const box=area();return!!box&&p.r>=box.top&&p.r2<=box.bottom&&p.c>=box.left&&p.c2<=box.right};
  // Blue dots at the selection's corners (touch screens): drag one to grow or shrink the selection.
- const handles=['start','end'].map(side=>{const dot=globalThis.document.createElement?.('i');if(dot){dot.className='xs-handle xs-handle-'+side;dot.dataset.side=side;dot.setAttribute('aria-hidden','true')}return dot}).filter(Boolean);
+ const handles=['start','end'].map(side=>{const dot=globalThis.document.createElement?.('i');if(dot){dot.className='xs-mark xs-handle xs-handle-'+side;dot.dataset.side=side;dot.setAttribute('aria-hidden','true')}return dot}).filter(Boolean);
+ // One blue outline around the whole selection, drawn over the cell lines (Google Sheets). A box inside
+ // every selected cell doubled up with the sheet's own black borders.
+ const outline=globalThis.document.createElement?.('i');if(outline){outline.className='xs-mark xs-range';outline.setAttribute('aria-hidden','true')}
  const coarse=()=>!!globalThis.matchMedia?.('(pointer:coarse)').matches;
  function placeHandles(box,ix){
-  if(!handles.length||!coarse()||!grid.getBoundingClientRect)return;
+  if(!outline||!grid.getBoundingClientRect)return;
   if(getComputedStyle(grid).position==='static')grid.style.position='relative';
   const g=grid.getBoundingClientRect(),at=(r,c)=>ix.cells.get(r+','+c)||ix.merged.find(([,p])=>p.r<=r&&r<=p.r2&&p.c<=c&&c<=p.c2)?.[0];
+  const x=v=>v-g.left+grid.scrollLeft-grid.clientLeft,y=v=>v-g.top+grid.scrollTop-grid.clientTop;
+  const first=at(box.top,box.left),last=at(box.bottom,box.right);
+  if(first&&last){const a=first.getBoundingClientRect(),b=last.getBoundingClientRect();Object.assign(outline.style,{left:x(a.left)-1+'px',top:y(a.top)-1+'px',width:b.right-a.left+1+'px',height:b.bottom-a.top+1+'px'});grid.append(outline)}
+  if(!coarse())return;
   for(const dot of handles){const end=dot.dataset.side==='end',cell=at(end?box.bottom:box.top,end?box.right:box.left);if(!cell)continue;const b=cell.getBoundingClientRect();
    dot.style.left=(end?b.right:b.left)-g.left+grid.scrollLeft-grid.clientLeft+'px';dot.style.top=(end?b.bottom:b.top)-g.top+grid.scrollTop-grid.clientTop+'px';grid.append(dot)}
+ }
+ // "Copied" shown above the full-screen sheet (the shop's own toast sits behind it).
+ let note=null,noteTimer=0;
+ function copiedNote(){
+  const doc=globalThis.document;if(!doc?.createElement||!doc.body)return;
+  if(!note){note=doc.createElement('div');note.className='xs-copied-note';note.setAttribute('role','status');doc.body.append(note)}
+  note.textContent='Copied';note.classList.add('show');clearTimeout(noteTimer);noteTimer=setTimeout(()=>note.classList.remove('show'),1400);
  }
  function copySelection(){
   const box=area();if(!box)return;const ix=lookup(),rows=[];
   for(let r=box.top;r<=box.bottom;r++){const line=[];for(let c=box.left;c<=box.right;c++)line.push((grid.cellText?grid.cellText(r,c):ix.cells.get(r+','+c)?.textContent)||'');rows.push(line.join('\t'))}
-  navigator.clipboard?.writeText(rows.join('\n')).then(()=>{globalThis.toast?.('Copied');grid.classList?.add('xs-copied');setTimeout(()=>grid.classList?.remove('xs-copied'),900)}).catch(()=>{});
+  navigator.clipboard?.writeText(rows.join('\n')).then(()=>{copiedNote();grid.classList?.add('xs-copied');setTimeout(()=>grid.classList?.remove('xs-copied'),900)}).catch(()=>{});
  }
  // Cells and headers by position, built once per table: a big sheet has tens of thousands of cells,
  // and scanning them all on every drag move made selecting stutter on phones.
@@ -96,12 +110,15 @@
   endTouch();held=false;if(event.touches.length!==1)return;
   const dot=event.target.closest('.xs-handle');if(dot&&anchor){touch={handle:dot.dataset.side,selecting:true};return}
   const cell=event.target.closest('td[data-r]');if(!cell)return;
-  const finger=event.touches[0];touch={x:finger.clientX,y:finger.clientY,p:pos(cell),selecting:false,at:Date.now()};
+  const finger=event.touches[0],p=pos(cell);touch={x:finger.clientX,y:finger.clientY,p,selecting:false,at:Date.now(),inSel:!!anchor&&inArea(p)};
   holdTimer=setTimeout(()=>{if(!touch)return;touch.selecting=true;held=true;anchor=touch.p;focus=touch.p;paint()},350);
  },{passive:true});
  grid.addEventListener('touchmove',event=>{
   if(!touch)return;if(event.touches.length!==1){endTouch();return}
   const finger=event.touches[0];
+  // A drag that starts on the selection selects from that cell (a still touch there copies it instead);
+  // anywhere else a drag scrolls. Its first move is held back so the page does not start scrolling.
+  if(!touch.selecting&&touch.inSel){event.preventDefault();if(Math.hypot(finger.clientX-touch.x,finger.clientY-touch.y)<=8)return;clearTimeout(holdTimer);touch.selecting=true;held=true;anchor=touch.p;focus=touch.p}
   if(!touch.selecting){if(Math.hypot(finger.clientX-touch.x,finger.clientY-touch.y)>8)endTouch();return}
   event.preventDefault();
   const cell=document.elementFromPoint(finger.clientX,finger.clientY)?.closest('td[data-r]');
@@ -115,7 +132,7 @@
  // (A selection made on the new table, e.g. a search match kept after zoom, stays.)
  new MutationObserver(()=>{if(ownTable&&grid.firstElementChild===ownTable)return;endTouch();dragging=false;marked=[];anchor=focus=null}).observe(grid,{childList:true});
  // A scrolled big sheet draws other rows: rebuild the index and show the selection on them.
- new MutationObserver(records=>{if(records.every(r=>[...r.addedNodes,...r.removedNodes].every(n=>n.classList?.contains('xs-handle'))))return;index=null;if(anchor)paint()}).observe(grid,{childList:true,subtree:true});
+ new MutationObserver(records=>{if(records.every(r=>[...r.addedNodes,...r.removedNodes].every(n=>n.classList?.contains('xs-mark'))))return;index=null;if(anchor)paint()}).observe(grid,{childList:true,subtree:true});
  document.addEventListener('keydown',event=>{
   if(!anchor||!grid.offsetParent)return;
   if(event.key==='Escape'){clear();anchor=focus=null;return}

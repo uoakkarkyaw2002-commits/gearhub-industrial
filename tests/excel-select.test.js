@@ -58,9 +58,9 @@ test('cells carry their sheet position; selection styles; script loaded and cach
  const map=read('excel-map.js');
  assert.match(map,/html\+='<td data-r="'\+r\+'" data-c="'\+c\+'"'/);
  assert.match(map,/'<th data-c="'\+c\+'"'\+\(c<frozen\.c1\?' class="excel-frozen-col"':''\)\+'>'\+colName\(c\)\+'<\/th>'/);
- const css=read('style.css');assert.match(css,/#excel-grid td\.xs-active\{box-shadow:inset 0 0 0 2px #1a73e8/);assert.match(css,/#excel-grid tbody th\[data-r\]\{cursor:pointer/);
- assert.match(read('index.html'),/<script src="\/excel-select\.js\?v=20261025-tap-2"><\/script>/);
- assert.match(read('sw.js'),/"\/excel-select\.js\?v=20261025-tap-2"/);
+ const css=read('style.css');assert.match(css,/#excel-grid \.xs-range\{position:absolute;z-index:35;box-sizing:border-box;border:2px solid #1a73e8;/,'one outline around the selection (a box in each cell doubled the lines)');assert.match(css,/#excel-grid tbody th\[data-r\]\{cursor:pointer/);
+ assert.match(read('index.html'),/<script src="\/excel-select\.js\?v=20261025-tap-3"><\/script>/);
+ assert.match(read('sw.js'),/"\/excel-select\.js\?v=20261025-tap-3"/);
 });
 
  test('touch hold-and-drag selects cells; quick swipes and two fingers remain scrolling/zoom gestures',()=>{
@@ -97,7 +97,7 @@ test('a big sheet draws only the rows near the screen; copy reads the sheet itse
  assert.match(map,/grid\.addEventListener\('scroll',\(\)=>drawRows\(false\),\{passive:true\}\);/);
  assert.match(map,/grid\.cellText=\(r,c\)=>renderedSheet\?\.cells\.get\(r\+','\+c\)\?\.text\?\?'';/);
  assert.match(css,/\.excel-sheet tr\.excel-spacer>td\{padding:0;border:0;background:transparent;line-height:0;font-size:0\}/);
- assert.match(sel,/new MutationObserver\(records=>\{if\(records\.every\(r=>\[\.\.\.r\.addedNodes,\.\.\.r\.removedNodes\]\.every\(n=>n\.classList\?\.contains\('xs-handle'\)\)\)\)return;index=null;if\(anchor\)paint\(\)\}\)\.observe\(grid,\{childList:true,subtree:true\}\);/,'moving the corner handles must not repaint in a loop');
+ assert.match(sel,/new MutationObserver\(records=>\{if\(records\.every\(r=>\[\.\.\.r\.addedNodes,\.\.\.r\.removedNodes\]\.every\(n=>n\.classList\?\.contains\('xs-mark'\)\)\)\)return;index=null;if\(anchor\)paint\(\)\}\)\.observe\(grid,\{childList:true,subtree:true\}\);/,'moving the corner handles must not repaint in a loop');
  assert.match(sel,/grid\.cellText\?grid\.cellText\(r,c\)/);
 });
 test('search works like Google Sheets: rows stay, the match is selected and the arrows move between matches',()=>{
@@ -147,4 +147,14 @@ test('iPhone: a short touch that does not move selects (no click needed); a seco
  assert.equal(s.copied(),'R1C1');
  s.listeners.touchstart({target:s.at(2,2),touches:[finger(10,10)]});s.listeners.touchmove({touches:[finger(10,40)],preventDefault(){}});s.listeners.touchend();
  assert.ok(!s.at(2,2).classList.has('xs-sel'),'a swipe selects nothing');
+});
+test('iPhone: dragging from the selected cell selects a range; elsewhere it scrolls',()=>{
+ const s=sheet(),finger=(x,y)=>({clientX:x,clientY:y});
+ s.listeners.touchstart({target:s.at(0,0),touches:[finger(10,10)]});s.listeners.touchend();
+ let prevented=false;s.listeners.touchstart({target:s.at(0,0),touches:[finger(10,10)]});s.hit(s.at(1,2));
+ s.listeners.touchmove({touches:[finger(12,11)],preventDefault(){prevented=true}});assert.ok(prevented,'first move is held so the page does not scroll');
+ s.listeners.touchmove({touches:[finger(60,60)],preventDefault(){}});s.listeners.touchend();
+ assert.ok(s.at(1,2).classList.has('xs-sel')&&s.at(0,1).classList.has('xs-sel'),'range from the selected cell');
+ prevented=false;s.listeners.touchstart({target:s.at(2,0),touches:[finger(10,10)]});s.listeners.touchmove({touches:[finger(10,60)],preventDefault(){prevented=true}});
+ assert.equal(prevented,false,'outside the selection a drag scrolls');
 });
