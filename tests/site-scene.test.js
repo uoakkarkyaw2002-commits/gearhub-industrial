@@ -84,6 +84,9 @@ test('platform page shows a Codex page in a frame (no sandbox attribute) and the
  assert.match(js,/if\(!phoneScene\)\{\n\s+if\(!st\.page\)return;/);
  assert.match(js,/frame\.src="\/scene-asset\/page"\+v;afterPictures\(frame\);/);
  assert.match(js,/box\.className="sky-frame sky-codex";/);
+ // The grass goes under the birds layer (<img>, flies on iPhone); a moved-in <svg> stayed paused in WebKit.
+ assert.match(js,/art\.addEventListener\("load",\(\)=>\{\n\s+underBirds\(box\);/);
+ assert.doesNotMatch(js,/importNode/);
  assert.match(js,/program\.src="\/scene-asset\/phone-script"\+v;/);
  assert.doesNotMatch(js,/frame\.src="\/scene-asset\/phone-page/);
  assert.match(css,/\.sky-codex #art,\.sky-codex svg,\.sky-codex #grass-wind\{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;pointer-events:none\}/);
