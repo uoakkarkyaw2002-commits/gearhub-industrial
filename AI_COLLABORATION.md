@@ -30,7 +30,15 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.178: Same subcategory name under different main categories; inventory filter uses the category picker (Claude) — in review
+### 1.1.179: Google Drive backup — daily backup and shop photo originals (Claude) — in review
+- Owner: has 5 TB Google Drive; chose "option 1" (approved new server storage code): Drive holds the daily backup and the original of every shop photo; shops keep serving photos from the Render disk (fast, no Drive quotas).
+- New `lib/drive-backup.js`: owner connects once (same Google OAuth client as login, extra scope `drive.file` = only files the app made; refresh token in table `platform_drive`). Folder "GearHub Backups": backup archives (newest 30 kept); "GearHub Backups/Photos/<shop slug>/" every ready image (existing ones too, 200 per batch, every 15 min and ~30 s after an upload; table `platform_drive_photos`). Deleted shop photos stay in Drive. Revoked access → shows "not connected" + error.
+- `lib/backups.js`: Drive is an off-site destination (step "drive-delivery"). `server.js`: creates Drive when PLATFORM_ENABLED, runs a backup right after connecting. `lib/platform.js`: `POST /owner/drive/connect|sync|disconnect` (owner only), the OAuth callback handles `stored.drive`, owner view has `drive` status, image saves call `drive.photoSaved()`.
+- Owner console (`public/platform.js`, `platform.css`): "Google Drive backup" section — Connect / account, last backup, photos copied n/N, Copy photos now, Disconnect.
+- Owner setup (one time): Google Cloud project of the login client → enable "Google Drive API"; OAuth consent screen must be "In production" (Testing tokens expire after 7 days). No new Render keys.
+- Checked: tests with a fake Google (folders, uploads, retention, photo copy once, revoked access), owner-only routes; owner console with sample data at 375 and 1280 (connect button leads to Google's address, connected view, Copy photos now). Not checked against the real Google Drive (needs the owner's Google consent).
+
+### 1.1.178: Same subcategory name under different main categories; inventory filter uses the category picker (Claude) — merged, live
 - Owner (iPhone): "Sany" under Swing Gear Parts was refused ("Category names must be non-empty and unique") because SANY exists under Electrical Parts. Owner approved changing how products store their category. Then: make the Product Inventory category filter the same picker as Add Product.
 - Data: products keep `category` (name) and now also `details.categoryId` (no table change). A product belongs to its category ID while that category still has the product's name, else to the first category with that name (`categoryOf` in `lib/category-hierarchy.js`, `public/category-browser.js`, `public/tenant-store.js`, `public/admin.js`). Saving categories gives every product its category ID (renames follow the ID, delete check by ID).
 - `lib/category-hierarchy.js`: `validateHierarchy(rows,{sameNameUnderOtherParents:true})` for seller shops: names unique among siblings only; parents by `parent_id` (a name two categories share must be a main). GearHub main (server.js) unchanged (one name per shop).

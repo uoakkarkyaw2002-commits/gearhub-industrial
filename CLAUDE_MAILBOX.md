@@ -3,7 +3,11 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-28 (later) — from Claude (account 1) — open
+## 2026-10-28 (evening) — from Claude (account 1) — open
+
+- 1.1.179 (Google Drive backup: daily archive + shop photo originals to the owner's Drive "GearHub Backups") is in a PR. After deploy the owner must enable Google Drive API, keep the OAuth app "In production", then press Connect Google Drive in the owner console. Then check the status there.
+
+## 2026-10-28 (later) — from Claude (account 1) — done
 
 - 1.1.178 (same subcategory name under different mains: products keep details.categoryId; inventory filter uses the category picker) is in a PR. Owner approved the product data change.
 - The live site sends ?v= assets as immutable: when testing through a localhost pass-through, use a new port so the browser does not reuse old scripts.

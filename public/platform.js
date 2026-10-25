@@ -26,6 +26,19 @@
     ${SPLASH_ITEMS.map(([kind, label, fallback]) => `<div class="splash-row"><div><strong>${label}</strong><small>${st[kind] ? "ကိုယ်ပိုင်ပုံ သုံးနေပါတယ်" : "မူလပုံ"}</small></div><img class="splash-preview" alt="" src="${st[kind] ? "/splash-asset/" + kind + "?v=" + encodeURIComponent(st.rev) : fallback}"><label class="splash-file">ပုံရွေးပြီး တင်ရန်<input type="file" accept="image/jpeg,image/png,image/webp" data-splash-upload="${kind}"></label>${st[kind] ? `<button type="button" data-splash-reset="${kind}">မူလပုံသို့ ပြန်ထား</button>` : ""}</div>`).join("")}
     <div class="splash-row"><div><strong>Sound / အသံ</strong><small>${st.sound ? "ကိုယ်ပိုင်အသံ (" + esc(st.sound) + ")" : "အသံ မရှိပါ"}</small></div>${st.sound ? `<audio controls preload="none" src="/splash-asset/sound?v=${encodeURIComponent(st.rev)}"></audio>` : ""}<label class="splash-file">အသံဖိုင်ရွေးပြီး တင်ရန် (mp3, m4a, wav, ogg · ၆ MB အောက်)<input type="file" accept="audio/mpeg,audio/mp4,audio/x-m4a,audio/wav,audio/ogg,.mp3,.m4a,.wav,.ogg" data-splash-upload="sound"></label>${st.sound ? '<button type="button" data-splash-reset="sound">အသံ ဖယ်ရန်</button>' : ""}</div>
   </div></details>`;
+  // Google Drive backup (owner): the daily backup and every shop photo's original go to the owner's
+  // Google Drive folder "GearHub Backups"; shops still show photos from the server (fast).
+  const driveEditor = (d) => !d ? "" : `<details class="owner-settings drive-editor" id="drive-settings"${new URLSearchParams(location.search).has("drive") ? " open" : ""}><summary>Google Drive backup / Drive မှာ အရန်သိမ်း <small>${d.connected ? "✓ " + esc(d.email || "connected") : "ချိတ်မထားရသေးပါ / not connected"}</small></summary>
+    <p class="muted">နေ့တိုင်း data backup နဲ့ ဆိုင်တွေရဲ့ ပုံမူရင်းတွေကို Google Drive ရဲ့ "${esc(d.folder)}" folder ထဲ အလိုလို သိမ်းပေးပါတယ်။ ဆိုင်ပုံတွေကတော့ server ပေါ်ကပဲ ပြပါတယ် (မြန်ဖို့)။</p>
+    ${!d.configured ? `<p class="drive-note">Google login is not set up on this server, so Drive cannot be connected.</p>` : d.connected ? `
+    <div class="splash-row"><div><strong>Account / Drive</strong><small>${esc(d.email)}</small></div></div>
+    <div class="splash-row"><div><strong>Last backup / နောက်ဆုံး backup</strong><small>${d.lastBackupAt ? esc(dateLabel(d.lastBackupAt)) : "မရှိသေးပါ (ချိတ်ပြီး မကြာခင် စပါမယ်) / not yet"}</small></div></div>
+    <div class="splash-row"><div><strong>Photos / ပုံမူရင်း</strong><small>${Number(d.photosCopied)} / ${Number(d.photosTotal)} copied${d.lastPhotoAt ? " · " + esc(dateLabel(d.lastPhotoAt)) : ""}</small></div><button type="button" class="secondary" data-drive-action="sync">Copy photos now / ယခု ကူးမယ်</button></div>
+    ${d.lastError ? `<p class="drive-error" role="alert">⚠ ${esc(d.lastError)}${d.lastErrorAt ? " · " + esc(dateLabel(d.lastErrorAt)) : ""}</p>` : ""}
+    <div class="splash-row"><div><small>ဖြုတ်လည်း Drive ထဲက ဖိုင်တွေ မပျက်ပါ / Files already in Drive stay there.</small></div><button type="button" class="secondary" data-drive-action="disconnect">Disconnect / ဖြုတ်မယ်</button></div>` : `
+    <div class="splash-row"><div><strong>Google Drive</strong><small>Google account နဲ့ တစ်ခါ ဝင်ပြီး "Allow" နှိပ်ပါ။ App က သူ့ဖိုင်တွေကိုပဲ မြင်ပါတယ်။</small></div><button type="button" class="primary" data-drive-action="connect">Connect Google Drive</button></div>
+    ${d.lastError ? `<p class="drive-error" role="alert">⚠ ${esc(d.lastError)}</p>` : ""}`}
+  </details>`;
   // skyshopmm.com background (owner): a picture, an optional moving SVG layer, or a Codex-style .zip
   // holding both (the zip is opened here in the browser and its two files are uploaded).
   const SCENE_SIDES = [["pc", "PC", "picture", "layer", "picture", "layer", "page", "page"], ["phone", "Phone / ဖုန်း", "phone", "phone-layer", "phone", "phoneLayer", "phone-page", "phonePage"]];
@@ -329,6 +342,7 @@
       ${policyEditor(v.policies)}
       ${splashEditor(v.splash)}
       ${sceneEditor(v.scene)}
+      ${driveEditor(v.drive)}
       <details class="owner-settings"><summary>In-app update announcement</summary><form id="release">${field("version", "Deployed version", v.release.version).replace("<input ", "<input readonly ")}${field("notes", "Update notes", v.release.notes)}<p class="muted">Updates install automatically when no checkout or file upload is in progress.</p><button>Publish</button></form></details>
     </section>`;
 
@@ -504,6 +518,16 @@
     document.querySelectorAll("[data-scene-reset]").forEach((button) => button.addEventListener("click", async () => {
       if (!confirm("မူလအတိုင်း ပြန်ထားမှာ သေချာပါသလား? / Go back to the default?")) return;
       try { await api("/owner/scene/" + button.dataset.sceneReset, "DELETE"); msg("သိမ်းပြီးပါပြီ / Saved"); await load(); } catch (err) { msg(err.message); }
+    }));
+    document.querySelectorAll("[data-drive-action]").forEach((button) => button.addEventListener("click", async () => {
+      const action = button.dataset.driveAction;
+      if (action === "disconnect" && !confirm("Google Drive ကို ဖြုတ်မှာ သေချာပါသလား? Drive ထဲက ဖိုင်တွေ မပျက်ပါ။ / Disconnect Google Drive?")) return;
+      button.disabled = true;
+      try {
+        const r = await api("/owner/drive/" + action, "POST", {});
+        if (action === "connect") { location.href = r.url; return; }
+        msg(action === "sync" ? "ပုံတွေ ကူးနေပါတယ် / Copying photos…" : "ဖြုတ်ပြီးပါပြီ / Disconnected"); await load();
+      } catch (err) { msg(err.message); button.disabled = false; }
     }));
     document.querySelectorAll("[data-splash-reset]").forEach((button) => button.addEventListener("click", async () => {
       if (!confirm("မူလအတိုင်း ပြန်ထားမှာ သေချာပါသလား? / Go back to the default?")) return;
