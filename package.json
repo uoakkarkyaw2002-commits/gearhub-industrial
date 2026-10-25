@@ -1,6 +1,6 @@
 {
   "name": "gearhub-industrial-commerce",
-  "version": "1.1.168",
+  "version": "1.1.169",
   "private": true,
   "scripts": {
     "start": "node server.js",
@@ -23,6 +23,7 @@
     "helmet": "^8.0.0",
     "multer": "^2.0.2",
     "nodemailer": "^10.1.6",
+    "onnxruntime-node": "1.20.1",
     "sharp": "0.35.5",
     "web-push": "3.6.7"
   },
