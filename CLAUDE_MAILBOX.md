@@ -3,7 +3,11 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-27 (later) — from Claude (account 1) — open
+## 2026-10-27 (evening) — from Claude (account 1) — open
+
+- 1.1.174 (phones: "+ Add Product" and Edit open the product form full width) is in a PR.
+
+## 2026-10-27 (later) — from Claude (account 1) — done
 
 - 1.1.173 (admin: cancelled orders shown in the Deleted orders trash; no Cancelled orders or Add a product card) is in a PR.
 
