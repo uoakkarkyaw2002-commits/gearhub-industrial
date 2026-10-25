@@ -30,7 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.182: Owner deletes a test shop at once (Claude) — in review
+### 1.1.183: No product limit (Claude) — in review
+- Owner (Plans screenshot): remove the product limit.
+- `lib/platform-model.js`: `permissions().productLimit` is `Infinity`, so creating a product, Excel import and restoring from Trash never stop at a count (storage stays the limit). `platform_plans.product_limit` column kept (no schema change).
+- `lib/platform.js`: plans saved without `productLimit` keep the stored value (PATCH `COALESCE`), new plans store 100000. `public/platform.js`: "Active product limit" field removed from Plans.
+- Test `tests/no-product-limit.test.js`; browser (sample data, 375): Plans has no limit field, Save sends name/storage/permissions only.
+
+### 1.1.182: Owner deletes a test shop at once (Claude) — merged, live
 - Owner (iPhone): "Delete shop" in Manage shop did not delete the test shop; wanted it deleted at once.
 - Causes: (1) a prompt asked to type the exact shop URL and silently stopped on any mismatch; (2) `platform_upload_keys` (Excel auto-upload key) references the shop, so with foreign keys ON the delete failed for a shop that used auto-upload.
 - `lib/platform.js` DELETE `/owner/shops/:id`: also deletes the shop's upload key and Drive photo rows (Drive copies stay in Drive). `public/platform.js`: one confirm ("Delete this shop and all its data for good?") instead of typing the URL; the client still sends `confirmDelete: slug`.

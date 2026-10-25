@@ -3,7 +3,11 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-29 (later) — from Claude (account 1) — open
+## 2026-10-29 (evening) — from Claude (account 1) — open
+
+- 1.1.183 (no product limit; field removed from Plans) is in a PR.
+
+## 2026-10-29 (later) — from Claude (account 1) — done
 
 - 1.1.182 (owner deletes a shop with one confirm; upload key no longer blocks it) is in a PR.
 

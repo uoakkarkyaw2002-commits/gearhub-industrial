@@ -335,7 +335,7 @@
     const appRow = (a) =>
       `<form id="a-${a.id}" class="application-row"><div><strong>${esc(a.name)}</strong><small>${esc(a.email)} · /shops/${esc(a.slug)}</small>${a.reason ? `<small>${esc(a.reason)}</small>` : ""}${a.decision_note ? `<small>Note: ${esc(a.decision_note)}</small>` : ""}</div>${a.status === "pending" ? `<button name="status" value="approved">✓ Approve</button><button name="status" value="rejected" class="reject">× Reject</button>` : ""}</form>`;
     const planForm = (p) =>
-      `<form id="plan-${p.id}" class="plan-card">${p.id === "new" ? "<h4>＋ New plan / Plan အသစ်</h4>" : ""}${field("name", "Plan name", p.name)}${storageFields(p.storage_bytes)}${field("productLimit", "Active product limit", p.product_limit, "number")}<div class="permission-checks">${["products", "orders", "uploads", "selling"].map((k) => `<label><input type="checkbox" name="${k}" ${p.permissions[k] ? "checked" : ""}> ${k}</label>`).join("")}</div><button>${p.id === "new" ? "Create plan" : "Save plan"}</button></form>`;
+      `<form id="plan-${p.id}" class="plan-card">${p.id === "new" ? "<h4>＋ New plan / Plan အသစ်</h4>" : ""}${field("name", "Plan name", p.name)}${storageFields(p.storage_bytes)}<div class="permission-checks">${["products", "orders", "uploads", "selling"].map((k) => `<label><input type="checkbox" name="${k}" ${p.permissions[k] ? "checked" : ""}> ${k}</label>`).join("")}</div><button>${p.id === "new" ? "Create plan" : "Save plan"}</button></form>`;
     $("owner").innerHTML = `<section class="seller-manager" aria-label="Manage Seller Shops">
       <div class="seller-manager-head"><div class="manager-title"><span>🏪</span><div><h2>Manage Seller Shops</h2><p>View, approve sellers and manage their subscriptions.</p></div></div><button type="button" id="new-shop" class="manager-new">＋ New Shop</button></div>
       <div class="shop-tabs" role="tablist">${tabs.map(([id, label, n]) => `<button type="button" role="tab" data-shop-filter="${id}" aria-selected="${view.tab === id}" class="${view.tab === id ? "selected" : ""}${id === "expiring" && n ? " warn" : ""}">${label} (${n})</button>`).join("")}</div>
@@ -475,7 +475,6 @@
         api("/owner/plans" + (p.id === "new" ? "" : "/" + p.id), p.id === "new" ? "POST" : "PATCH", {
           name: d.name,
           storageBytes: storage.bytes(d.storageAmount, d.storageUnit),
-          productLimit: Number(d.productLimit),
           permissions: Object.fromEntries(["products", "orders", "uploads", "selling"].map((k) => [k, d[k] === "on"])),
         }),
       );
