@@ -30,7 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.180: Drive photos sorted into category folders, named by product (Claude) — in review
+### 1.1.181: New shops open at once, up to the owner's shop limit, with the owner's MB (Claude) — in review
+- Owner: remove the "owner approves" step for new shop applications; owner sets how many shops may open (e.g. 10) and the storage per new shop (e.g. 100 MB).
+- `lib/platform.js`: table `platform_signup` (max_shops default 10, storage_mb default 100). `POST /applications` opens the shop in the same transaction while seller shops < max_shops (trial 2 months, `storage_override` = MB, application "approved", note "Opened automatically", GearHub notice has `opened:true`); otherwise it stays pending and the owner approves as before (owner-approved shops also get the MB setting). `PUT /owner/signup` (owner only, 0–10000 shops, 1–10240 MB); owner view has `signup`.
+- Owner console: "New shops / ဆိုင်အသစ် ဖွင့်ခြင်း" — shop limit (with current count) and MB per new shop. Applicant page: "Your shop opens straight away"; the waiting card says shops are full.
+- Tests: platform tests start with max_shops 0 (they test manual approval); new subtest for auto-open, limit, MB, owner-only. Checked the owner section and applicant text with sample data at 375. Not checked live (needs owner login / a new Google account).
+
+### 1.1.180: Drive photos sorted into category folders, named by product (Claude) — merged, live
 - Owner (Drive on iPhone): 1.1.179 put all 990 photos in one shop folder with ID names — too mixed. Wanted category folders.
 - `lib/drive-backup.js`: "GearHub Backups/Photos/<shop>/<main>/<sub>/<child>/<SKU> <product name> (n).jpg" (category by `categoryOf` + parent_id); photos on no product → "Other". `platform_drive_photos` gains `parent_id`, `name`; each sweep moves/renames copies whose product category or name changed (PATCH addParents/removeParents, one parent). 1.1.179's flat copies (no parent_id) are moved out of the shop folder on the first sweep after deploy (200 per batch, loops until done).
 - `lib/platform.js`: a product save triggers a sweep (~30 s), so Drive follows edits.

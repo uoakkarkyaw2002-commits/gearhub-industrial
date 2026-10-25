@@ -26,6 +26,13 @@
     ${SPLASH_ITEMS.map(([kind, label, fallback]) => `<div class="splash-row"><div><strong>${label}</strong><small>${st[kind] ? "ကိုယ်ပိုင်ပုံ သုံးနေပါတယ်" : "မူလပုံ"}</small></div><img class="splash-preview" alt="" src="${st[kind] ? "/splash-asset/" + kind + "?v=" + encodeURIComponent(st.rev) : fallback}"><label class="splash-file">ပုံရွေးပြီး တင်ရန်<input type="file" accept="image/jpeg,image/png,image/webp" data-splash-upload="${kind}"></label>${st[kind] ? `<button type="button" data-splash-reset="${kind}">မူလပုံသို့ ပြန်ထား</button>` : ""}</div>`).join("")}
     <div class="splash-row"><div><strong>Sound / အသံ</strong><small>${st.sound ? "ကိုယ်ပိုင်အသံ (" + esc(st.sound) + ")" : "အသံ မရှိပါ"}</small></div>${st.sound ? `<audio controls preload="none" src="/splash-asset/sound?v=${encodeURIComponent(st.rev)}"></audio>` : ""}<label class="splash-file">အသံဖိုင်ရွေးပြီး တင်ရန် (mp3, m4a, wav, ogg · ၆ MB အောက်)<input type="file" accept="audio/mpeg,audio/mp4,audio/x-m4a,audio/wav,audio/ogg,.mp3,.m4a,.wav,.ogg" data-splash-upload="sound"></label>${st.sound ? '<button type="button" data-splash-reset="sound">အသံ ဖယ်ရန်</button>' : ""}</div>
   </div></details>`;
+  // New shops (owner): a shop opens as soon as someone applies, up to this many seller shops, each with
+  // this much storage; over the limit applications wait for the owner (Approve, as before).
+  const signupEditor = (s) => !s ? "" : `<details class="owner-settings signup-editor"><summary>New shops / ဆိုင်အသစ် ဖွင့်ခြင်း <small>${Number(s.shops)} / ${Number(s.maxShops)} shops · ${Number(s.storageMb)} MB each</small></summary>
+    <p class="muted">လျှောက်တာနဲ့ ဆိုင်ကို ချက်ချင်း ဖွင့်ပေးပါတယ်။ ဆိုင်ဦးရေ ပြည့်ရင် လျှောက်လွှာ စောင့်နေပြီး ဒီက Applications မှာ Approve လုပ်မှ ဖွင့်ပါမယ်။ / Shops open at once until the limit; then applications wait for you.</p>
+    <form id="signup-form" class="splash-row"><label>ဆိုင် အများဆုံး / Seller shops (now ${Number(s.shops)})<input name="maxShops" type="number" min="0" max="10000" step="1" value="${esc(s.maxShops)}" required></label><label>ဆိုင်တစ်ခု storage / MB per new shop<input name="storageMb" type="number" min="1" max="10240" step="1" value="${esc(s.storageMb)}" required></label><button class="primary" type="submit">Save / သိမ်းမယ်</button></form>
+    <p class="muted">Storage က ဆိုင်အသစ်တွေအတွက်ပဲ ဖြစ်ပါတယ်။ ရှိပြီးသား ဆိုင်ကို ဆိုင်စာရင်းထဲက Storage မှာ ပြင်ပါ။ / Applies to new shops; change an existing shop in its own settings.</p>
+  </details>`;
   // Google Drive backup (owner): the daily backup and every shop photo's original go to the owner's
   // Google Drive folder "GearHub Backups"; shops still show photos from the server (fast).
   const driveEditor = (d) => !d ? "" : `<details class="owner-settings drive-editor" id="drive-settings"${new URLSearchParams(location.search).has("drive") ? " open" : ""}><summary>Google Drive backup / Drive မှာ အရန်သိမ်း <small>${d.connected ? "✓ " + esc(d.email || "connected") : "ချိတ်မထားရသေးပါ / not connected"}</small></summary>
@@ -342,6 +349,7 @@
       ${policyEditor(v.policies)}
       ${splashEditor(v.splash)}
       ${sceneEditor(v.scene)}
+      ${signupEditor(v.signup)}
       ${driveEditor(v.drive)}
       <details class="owner-settings"><summary>In-app update announcement</summary><form id="release">${field("version", "Deployed version", v.release.version).replace("<input ", "<input readonly ")}${field("notes", "Update notes", v.release.notes)}<p class="muted">Updates install automatically when no checkout or file upload is in progress.</p><button>Publish</button></form></details>
     </section>`;
@@ -480,6 +488,7 @@
       for (const [id] of POLICY_SECTIONS) sections[id] = { title: d["t_" + id] || "", subtitle: d["s_" + id] || "", body: d["b_" + id] || "" };
       return api("/owner/policies", "PUT", { phone: d.phone, email: d.email, sections });
     });
+    form("signup-form", (d) => api("/owner/signup", "PUT", { maxShops: Number(d.maxShops), storageMb: Number(d.storageMb) }));
     form("splash-seconds-form", (d) => api("/owner/splash", "PUT", { seconds: d.seconds }));
     document.querySelectorAll("[data-splash-upload]").forEach((input) => input.addEventListener("change", async () => {
       const file = input.files[0];if (!file) return;

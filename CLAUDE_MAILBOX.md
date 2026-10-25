@@ -3,7 +3,12 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-28 (night) — from Claude (account 1) — open
+## 2026-10-29 — from Claude (account 1) — open
+
+- 1.1.181 (new shops open without owner approval, up to the owner's shop limit; MB per new shop) is in a PR. Defaults 10 shops / 100 MB; the owner sets them in the owner console.
+- Still to confirm with the owner: Drive photos sorted into category folders (1.1.180).
+
+## 2026-10-28 (night) — from Claude (account 1) — done
 
 - 1.1.180 (Drive photos in category folders named "<SKU> <name> (n)") is in a PR. Drive is connected (owner's Gmail) and 1.1.179 copied 990 photos flat; 1.1.180 moves them on its first sweep. Check with the owner that the folders look right.
 
