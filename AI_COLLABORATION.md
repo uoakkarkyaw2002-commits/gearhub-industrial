@@ -30,7 +30,15 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.172: Speed badge no longer touches the logo (Claude) — in review
+### 1.1.173: Cancelled orders go to the trash; no Add a product card (Claude) — in review
+- Owner (admin screenshot): remove the "Cancelled orders" card — a cancelled order goes to the trash, and everything deleted is kept there; remove the "Add a product" card (Product Inventory already has "+ Add Product").
+- `public/admin.html`: no Cancelled orders button or panel; the PC sidebar's "Cancel Order" link is now "Deleted Orders" (opens the trash).
+- `public/admin.js`: "Deleted orders" lists deleted and cancelled orders. Restore brings a cancelled order back to pending (as before). "Delete forever" on a cancelled order calls DELETE twice (to deleted, then for good); "Permanently delete all" moves cancelled orders to deleted first. No API or database change. Product editor Back now scrolls to Product Inventory.
+- `public/site-admin.css`: phone order cards are 2 per row; the Add a product card is hidden, its panel only shows while the form is open (from "+ Add Product", Edit, or the PC sidebar).
+- Checked in the browser with sample orders (page requests answered in the browser, no login) at 375 and 1280: cards, trash list, Delete forever, Restore, Permanently delete all, + Add Product, sidebar links; no script errors. Not checked on the owner's iPhone or the live shop admin.
+- Tests: new `tests/order-trash.test.js`; 322 pass.
+
+### 1.1.172: Speed badge no longer touches the logo (Claude) — merged, live
 - Owner (iPhone + mock-up): the wifi badge overlapped the logo; wanted the logo and shop name a little higher and the badge below the logo with a gap.
 - `public/style.css` (phones, ≤ 850 px): logo and name moved up 12 px; badge starts 5 px under the logo; icon 21 px. PC unchanged.
 - Checked at 375 on the local store: logo 13–79 px, badge 81–113 px, banner ends at 116 px; matches the mock-up. Not checked on the owner's iPhone (its banner also has the status-bar area).
