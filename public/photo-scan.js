@@ -60,10 +60,11 @@
   '<button type="button" class="photo-scanner-torch" aria-label="Flashlight" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8v3l-2 3v11a2 2 0 0 1-2 2 2 2 0 0 1-2-2V9L8 6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button><span></span></div>';
  document.body.append(view);
  const video=view.querySelector('video'),hint=view.querySelector('.photo-scanner-hint'),torch=view.querySelector('.photo-scanner-torch'),frame=view.querySelector('.photo-scanner-frame');
- let stream=null,loop=0,last=null;
- function stop(){clearTimeout(loop);loop=0;stream?.getTracks().forEach(tr=>tr.stop());stream=null;video.srcObject=null;view.hidden=true;document.documentElement.classList.remove('photo-scanner-open')}
+ let stream=null,loop=0,last=null,pageY=0;
+ // Closing the scanner returns to where the page was (iPhone forgets it while the page is locked).
+ function stop(){clearTimeout(loop);loop=0;stream?.getTracks().forEach(tr=>tr.stop());stream=null;video.srcObject=null;const wasOpen=!view.hidden;view.hidden=true;document.documentElement.classList.remove('photo-scanner-open');if(wasOpen)scrollTo(0,pageY)}
  async function open(){
-  view.hidden=false;document.documentElement.classList.add('photo-scanner-open');hint.textContent=t('Point the camera at the part','ကင်မရာကို ပစ္စည်းဆီ ချိန်ပါ');last=null;
+  pageY=scrollY;view.hidden=false;document.documentElement.classList.add('photo-scanner-open');hint.textContent=t('Point the camera at the part','ကင်မရာကို ပစ္စည်းဆီ ချိန်ပါ');last=null;
   try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false})}
   catch(_){hint.textContent=t('Camera not allowed. Choose a photo instead.','ကင်မရာ ခွင့်မပြုထားပါ။ ပုံကို ရွေးပါ။');return}
   if(view.hidden){stream.getTracks().forEach(tr=>tr.stop());stream=null;return}

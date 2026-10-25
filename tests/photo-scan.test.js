@@ -15,7 +15,7 @@ test('the scan button runs a live camera scanner and asks the shop server; the b
  assert.doesNotMatch(scan,/first time only|loadGraphModel/,'no on-phone model and no first-time message');
  assert.doesNotMatch(store,/photoScanIds/);
  assert.ok(!fs.existsSync(path.join(root,'public','vendor','tf.min.js')),'the on-phone model is gone');
- assert.match(index,/<script src="\/photo-scan\.js\?v=20261026-server-scan-1"><\/script>/);
+ assert.match(index,/<script src="\/photo-scan\.js\?v=20261026-keep-scroll-1"><\/script>/);
 });
 
 test('the photo-search API is public per shop, rate limited, takes a picture and stays inside the shop',()=>{
@@ -47,4 +47,13 @@ test('the server finds the product whose photo looks like the scan (real model r
  assert.equal(r.ready,true);assert.deepEqual(r.matches.map(m=>m.id),['1','2']);assert.ok(r.matches[0].score>r.matches[1].score);
  assert.ok(fs.existsSync(path.join(media,'7','.photo-looks','img1.dinov2s.f32')),'looks are kept next to the photos');
  fs.rmSync(media,{recursive:true,force:true});
+});
+
+test('closing a product (✕ or Back) keeps the shop where it was (iPhone jumped to the top)',()=>{
+ const back=read('public/back-nav.js'),store=read('public/store.js'),dialogs=read('public/dialogs.js');
+ assert.match(back,/if\('scrollRestoration' in history\)history\.scrollRestoration='manual';/,'the browser restored the scroll it saved while the page was locked (0)');
+ assert.match(store,/if\(!document\.body\.classList\.contains\("gallery-open"\)\)galleryScrollY=scrollY;/);
+ assert.match(store,/if\(wasOpen\)scrollTo\(0,galleryScrollY\)/);
+ assert.match(dialogs,/target\?\.focus\(\{preventScroll:true\}\)/);
+ assert.match(dialogs,/const opener=entry\.opener!==document\.body&&entry\.opener;/,'never focus the page itself');
 });

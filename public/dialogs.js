@@ -7,8 +7,10 @@
  function sync(entry){
   const open=entry.node.classList.contains('open');entry.node.inert=!open;entry.node.setAttribute('aria-hidden',String(!open));
   if(open===entry.open)return;entry.open=open;
-  if(open){entry.opener=document.activeElement;requestAnimationFrame(()=>{if(entry.open)(focusable(entry.node)[0]||entry.node).focus();});}
-  else{const fallback=document.getElementById('cart-open')||document.querySelector('.bottom-nav-item');const target=visible(entry.opener)?entry.opener:visible(fallback)?fallback:null;target?.focus();}
+  // Focus moves without scrolling: on iPhone a tapped button does not take focus, so the opener was the
+  // page itself, and focusing it on close jumped the shop back to the top.
+  if(open){entry.opener=document.activeElement;requestAnimationFrame(()=>{if(entry.open)(focusable(entry.node)[0]||entry.node).focus({preventScroll:true});});}
+  else{const fallback=document.getElementById('cart-open')||document.querySelector('.bottom-nav-item');const opener=entry.opener!==document.body&&entry.opener;const target=visible(opener)?opener:visible(fallback)?fallback:null;target?.focus({preventScroll:true});}
  }
  for(const entry of dialogs){
   entry.node.setAttribute('role','dialog');entry.node.setAttribute('aria-modal','true');entry.node.tabIndex=-1;

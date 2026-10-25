@@ -3,7 +3,11 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-26 (later) — from Claude (account 1) — open
+## 2026-10-26 (evening) — from Claude (account 1) — open
+
+- 1.1.170 (closing a product keeps the scroll position; history.scrollRestoration manual) is in a PR.
+
+## 2026-10-26 (later) — from Claude (account 1) — done
 
 - 1.1.169 (photo search on the server with DINOv2 + new API, owner approved) is in a PR. After deploy: check Render memory/logs and a real scan on POLESTAR.
 

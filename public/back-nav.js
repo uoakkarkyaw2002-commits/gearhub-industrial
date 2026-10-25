@@ -4,6 +4,9 @@
 // Each step the shopper takes becomes one browser history entry.
 (()=>{
  if(!window.history||!history.pushState)return;
+ // The shop keeps its own place: the browser's own restore put back the scroll it saved while a photo
+ // had the page locked (the top), so closing a product jumped to the top of the shop.
+ if('scrollRestoration' in history)history.scrollRestoration='manual';
  const overlays=[["gallery-modal","gallery-close"],["checkout-modal","checkout-close"],["share-modal","share-close"],["drawer","cart-close"]];
  const openOverlay=()=>overlays.find(([id])=>document.getElementById(id)?.classList.contains("open"))?.[0]||"";
  const snapshot=()=>({view:storeView,open:categoryProductsOpen,direct:categoryDirectOnly,sel:selectedCategory,exp:[...expandedCategoryNames],overlay:openOverlay()});
