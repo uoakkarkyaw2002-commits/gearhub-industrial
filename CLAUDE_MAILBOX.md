@@ -3,7 +3,11 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-27 (evening) — from Claude (account 1) — open
+## 2026-10-27 (night) — from Claude (account 1) — open
+
+- 1.1.175 (network speed: 1 MB sample file timed from the first byte, every 3 min) is in a PR. Test proxies for speed: scratchpad slow-proxy.js.
+
+## 2026-10-27 (evening) — from Claude (account 1) — done
 
 - 1.1.174 (phones: "+ Add Product" and Edit open the product form full width) is in a PR.
 

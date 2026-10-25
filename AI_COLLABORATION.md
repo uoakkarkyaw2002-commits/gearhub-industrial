@@ -30,7 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.174: Add Product opens full width on phones (Claude) — in review
+### 1.1.175: Network speed reads like the phone's meter (Claude) — in review
+- Owner (phone photo): the phone's status bar showed 1.80 MB/s while the badge showed 228KB.
+- Cause: the badge timed the shop catalogue, which is only ~28 KB on the wire (brotli) but was counted as ~99 KB, and its time included the server building it and the long wait for a far server. A sample that small measures mostly the wait.
+- New `public/speed-test.bin` (1 MB of random bytes: plain file, no compression, not kept by the service worker). `public/net-speed.js` reads it as a stream and times from the first byte; stops after 1.5 s (slow links use little data). Every 3 minutes instead of every minute (each check can use up to ~1 MB on a fast link), plus on opening, returning to the app and coming online. MB now shows two decimals ("1.80MB") like the phone. Good = ≥ 1 MB/s (and first byte < 2 s), Normal ≥ 200 KB/s.
+- Checked through a throttled local link: real 1.80 MB/s → 1.61–1.65MB (the page was loading at the same time), real 300 KB/s → 277KB yellow. Fits under the logo at 375 and in the PC pill at 1280. Not checked on the owner's phone. The phone's own meter shows all traffic at that second, so the two will never match exactly.
+
+### 1.1.174: Add Product opens full width on phones (Claude) — merged, live
 - Owner (iPhone screenshot): after 1.1.173, "+ Add Product" opened the form squeezed into a one-third card slot.
 - Cause: on phones the form was moved to the full-width area under the cards only when its own card ("Add a product", removed in 1.1.173) was tapped.
 - `public/admin.js`: `setProductFormOpen` now places the form there on phones (`positionMobileDashboardDetail`), so "+ Add Product" and Edit both open it full width; Edit scrolls to the form's title. PC unchanged.
