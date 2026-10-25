@@ -30,7 +30,15 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.175: Network speed reads like the phone's meter (Claude) — in review
+### 1.1.176: Recycle Bin looks like the owner's reference photo (Claude) — in review
+- Owner (reference photo + iPhone screenshots): redesign the inside of Deleted orders like the photo; the dashboard card must not be a "delete" (❌) icon — call it "Recycle Bin".
+- `public/admin.html`: card "🗑️ Recycle Bin" (PC sidebar link too). Panel header: red bin in a pink circle, "DELETED", "Deleted orders", red "Delete all" button, note.
+- `public/admin.js`: each order is a card — Order ID and Customer on the left, Total and Order date (date / time) in the middle, dark-green Restore on the right, icons as in the photo. As in the photo there is no per-order "Delete forever" any more; "Delete all" empties the bin. The PC sidebar link only opens the bin (a second tap closed it into a blank page).
+- `public/tenant-admin.js`: seller shops no longer hide "Delete all" (the platform `/trash` route empties that shop only).
+- `public/site-admin.css`: `#deleted-panel .bin-*` styles; phones ≤ 480 px tighter spacing, numbers stay on one line, middle column 126 px so cards line up.
+- Checked with sample orders at 375 (no overflow, Restore, Delete all) and 1280 (sidebar link twice, Restore cards). Not checked on the owner's iPhone.
+
+### 1.1.175: Network speed reads like the phone's meter (Claude) — merged, live
 - Owner (phone photo): the phone's status bar showed 1.80 MB/s while the badge showed 228KB.
 - Cause: the badge timed the shop catalogue, which is only ~28 KB on the wire (brotli) but was counted as ~99 KB, and its time included the server building it and the long wait for a far server. A sample that small measures mostly the wait.
 - New `public/speed-test.bin` (1 MB of random bytes: plain file, no compression, not kept by the service worker). `public/net-speed.js` reads it as a stream and times from the first byte; stops after 1.5 s (slow links use little data). Every 3 minutes instead of every minute (each check can use up to ~1 MB on a fast link), plus on opening, returning to the app and coming online. MB now shows two decimals ("1.80MB") like the phone. Good = ≥ 1 MB/s (and first byte < 2 s), Normal ≥ 200 KB/s.
