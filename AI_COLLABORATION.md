@@ -30,7 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.181: New shops open at once, up to the owner's shop limit, with the owner's MB (Claude) — in review
+### 1.1.182: Owner deletes a test shop at once (Claude) — in review
+- Owner (iPhone): "Delete shop" in Manage shop did not delete the test shop; wanted it deleted at once.
+- Causes: (1) a prompt asked to type the exact shop URL and silently stopped on any mismatch; (2) `platform_upload_keys` (Excel auto-upload key) references the shop, so with foreign keys ON the delete failed for a shop that used auto-upload.
+- `lib/platform.js` DELETE `/owner/shops/:id`: also deletes the shop's upload key and Drive photo rows (Drive copies stay in Drive). `public/platform.js`: one confirm ("Delete this shop and all its data for good?") instead of typing the URL; the client still sends `confirmDelete: slug`.
+- Test: a shop with an upload key is deleted (owner only). Browser (sample data, 375): one confirm, DELETE sent, shop gone from the list.
+
+### 1.1.181: New shops open at once, up to the owner's shop limit, with the owner's MB (Claude) — merged, live
 - Owner: remove the "owner approves" step for new shop applications; owner sets how many shops may open (e.g. 10) and the storage per new shop (e.g. 100 MB).
 - `lib/platform.js`: table `platform_signup` (max_shops default 10, storage_mb default 100). `POST /applications` opens the shop in the same transaction while seller shops < max_shops (trial 2 months, `storage_override` = MB, application "approved", note "Opened automatically", GearHub notice has `opened:true`); otherwise it stays pending and the owner approves as before (owner-approved shops also get the MB setting). `PUT /owner/signup` (owner only, 0–10000 shops, 1–10240 MB); owner view has `signup`.
 - Owner console: "New shops / ဆိုင်အသစ် ဖွင့်ခြင်း" — shop limit (with current count) and MB per new shop. Applicant page: "Your shop opens straight away"; the waiting card says shops are full.
