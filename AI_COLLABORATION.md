@@ -30,7 +30,14 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.166: Excel — dragging a selection keeps all its rows/columns (Claude) — in review
+### 1.1.167: Photo search in the shop (scan button in the search bar) (Claude) — in review
+- Owner: a scan button at the right of the search bar; take a photo or pick one from the gallery, and products that look the same are shown (owner chose "photo look", not part-number text).
+- New `public/photo-scan.js`: the button opens the iPhone camera / photo library (`<input type=file accept=image/*>`). On the phone, TensorFlow.js + MobileNet v2 0.5 (`public/vendor/`, served from this site because the CSP allows only same-origin scripts; weights re-packed to uint8, 2.0 MB) turns each picture into 1280 numbers. The shop's photos are turned once and kept in IndexedDB (first scan shows "Learning the shop's photos… n / N"); model files are kept with the Cache API, so it works offline after the first use. Matching: the shop-wide average is taken away (white background), the photo is compared whole and at two closer centre crops, best photo per product; top 12 products replace the list (most similar first) until ✕. `public/store.js` `renderProducts` reads `window.photoScanIds`.
+- TF.js assigns `regeneratorRuntime` and falls back to `Function()` (blocked by CSP) when the global is missing; the script creates it first.
+- Accuracy check with POLESTAR's own photos (30 products, each photo turned into 4 simulated phone shots — rotated, on coloured surfaces, darker): right product first 66 %, in the top 3 92 %. Photos taken from a very different angle, or of the box, match less well. End-to-end at 375: simulated phone photo of RELAY → "Closest match: RELAY", list shows it first; ✕ restores all; PC 1280 button in place. Not checked on a real iPhone camera (owner).
+- Files: `public/photo-scan.js`, `public/vendor/` (+ README), `public/store.js`, `public/style.css`, `public/index.html`, `public/sw.js`, `tests/photo-scan.test.js`, version files.
+
+### 1.1.166: Excel — dragging a selection keeps all its rows/columns (Claude) — merged, live
 - Owner (Google Sheets video): with 3 cells selected, a sideways drag should grow all 3 rows; ours restarted from the touched cell (one row).
 - `public/excel-select.js`: a drag that starts on the selection now grows the whole selection towards the finger (union of the selection and the finger's cell); holding still on the selection no longer shrinks it to one cell. Handles unchanged (they can still shrink).
 - Test added; cache tag bumped.
