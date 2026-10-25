@@ -3,7 +3,11 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-28 (evening) — from Claude (account 1) — open
+## 2026-10-28 (night) — from Claude (account 1) — open
+
+- 1.1.180 (Drive photos in category folders named "<SKU> <name> (n)") is in a PR. Drive is connected (owner's Gmail) and 1.1.179 copied 990 photos flat; 1.1.180 moves them on its first sweep. Check with the owner that the folders look right.
+
+## 2026-10-28 (evening) — from Claude (account 1) — done
 
 - 1.1.179 (Google Drive backup: daily archive + shop photo originals to the owner's Drive "GearHub Backups") is in a PR. After deploy the owner must enable Google Drive API, keep the OAuth app "In production", then press Connect Google Drive in the owner console. Then check the status there.
 
