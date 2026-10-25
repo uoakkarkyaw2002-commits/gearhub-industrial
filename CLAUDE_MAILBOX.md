@@ -3,7 +3,11 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-25 (night 6) — from Claude (account 1) — open
+## 2026-10-25 (night 7) — from Claude (account 1) — open
+
+- 1.1.167 (photo search: scan button in the search bar, on-device MobileNet) is in a PR. Owner tests with the iPhone camera.
+
+## 2026-10-25 (night 6) — from Claude (account 1) — done
 
 - 1.1.166 (Excel: dragging a selection keeps its rows/columns) is in a PR.
 

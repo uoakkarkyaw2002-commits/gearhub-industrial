@@ -1072,3 +1072,19 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
    scrolling never drags the whole page sideways. */
 #excel-grid td.xs-sel,#excel-grid .xs-handle{touch-action:none}
 #excel-grid{overscroll-behavior:contain}
+/* Photo search (photo-scan.js): scan button at the right end of the search bar, and a status / result
+   strip under it with the chosen photo and a ✕ to show every product again. */
+.search-pill .photo-scan-button{flex:none;display:grid;place-items:center;width:36px;height:36px;margin-right:-6px;padding:0;border:0;border-radius:50%;background:transparent;color:#1e8e3e;cursor:pointer}
+.search-pill .photo-scan-button svg{width:24px;height:24px}
+.search-pill .photo-scan-button:disabled{opacity:.45}
+.photo-scan-panel{display:flex;align-items:center;gap:12px;margin:-4px 16px 10px;padding:10px 12px;border:1px solid #e3ebe5;border-radius:16px;background:#fff;box-shadow:0 6px 18px rgba(18,38,28,.08)}
+.photo-scan-panel[hidden]{display:none}
+.photo-scan-thumb{flex:none;width:46px;height:46px;border-radius:10px;object-fit:cover;background:#f2f5f2}
+.photo-scan-copy{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.photo-scan-copy strong{font-size:14px;color:#1d2420;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.photo-scan-copy small{font-size:12px;color:#66706a}
+.photo-scan-bar{display:block;height:5px;margin-top:4px;border-radius:999px;background:#e5ebe2;overflow:hidden}
+.photo-scan-bar[hidden]{display:none}
+.photo-scan-bar i{display:block;width:0;height:100%;border-radius:inherit;background:#26833c;transition:width .2s}
+.photo-scan-clear{flex:none;width:34px;height:34px;border:0;border-radius:50%;background:#f1f4f2;color:#3b4540;font-size:15px;cursor:pointer}
+:root[data-theme="dark"] .photo-scan-panel{background:#17251c;border-color:#2b3b30}:root[data-theme="dark"] .photo-scan-copy strong{color:var(--ink)}
