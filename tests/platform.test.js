@@ -59,6 +59,9 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
       }),
     }),
   );
+  // Most of this file tests the owner's manual approval (used once the shop limit is full), so new shops
+  // start with no free places; the auto-open test below raises the limit.
+  db.prepare("INSERT INTO platform_signup(id,max_shops,storage_mb) VALUES(1,0,100) ON CONFLICT(id) DO UPDATE SET max_shops=0").run();
   t.after(async () => {
     await new Promise((r) => server.close(r));
     db.close();
@@ -145,7 +148,7 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
     assert.ok(responses.every(r=>r.status===200));
     const shop=(await first.me()).shop;
     assert.equal(shop.ends_at,model.addCalendarMonths(shop.starts_at,2));
-    assert.equal(shop.limits.storageLimit,50*1024*1024);
+    assert.equal(shop.limits.storageLimit,100*1024*1024,'a shop the owner approves gets the "MB per new shop" setting');
     assert.equal(db.prepare("SELECT COUNT(*) n FROM platform_shops WHERE owner_id=?").get(shop.owner_id).n,1);
     assert.equal((await owner.call("/owner/applications/"+one.id,"PATCH",{status:"approved"})).status,200);
     assert.equal((await first.me()).shop.starts_at,shop.starts_at);
@@ -731,6 +734,23 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
     assert.equal(r.status,200);assert.equal(r.data.custom,true);assert.equal(r.data.sections.intro.title,'GearHub rules');
     assert.equal((await owner.call('/owner/policies','PUT',{email:'bad',sections:current.sections})).status,400);
     assert.equal((await owner.call('/owner/policies','PUT',{reset:true})).data.custom,false);
+  });
+  await t.test('applying opens the shop at once while the owner\'s shop limit allows it, with the owner\'s MB',async()=>{
+    const shops=()=>db.prepare("SELECT COUNT(*) n FROM platform_shops WHERE legacy=0").get().n,first=new Client(),second=new Client();
+    assert.equal((await b.call('/owner/signup','PUT',{maxShops:99,storageMb:5})).status,403,'only the owner sets the limits');
+    assert.equal((await owner.call('/owner/signup','PUT',{maxShops:-1,storageMb:100})).status,400);
+    assert.equal((await owner.call('/owner/signup','PUT',{maxShops:10,storageMb:0})).status,400);
+    const set=await owner.call('/owner/signup','PUT',{maxShops:shops()+1,storageMb:120});assert.equal(set.status,200);assert.equal(set.data.signup.storageMb,120);
+    assert.deepEqual((await owner.call('/owner')).data.signup,{maxShops:shops()+1,storageMb:120,shops:shops()});
+    await first.login('autoopen1');await second.login('autoopen2');
+    const opened=await first.call('/applications','POST',{name:'Auto open shop'});assert.equal(opened.status,201);assert.equal(opened.data.status,'approved');
+    const shop=(await first.me()).shop;assert.ok(shop,'no owner approval needed');assert.equal(shop.subscription_status,'trial');assert.equal(shop.ends_at,model.addCalendarMonths(shop.starts_at,2));
+    assert.equal(shop.limits.storageLimit,120*1024*1024);assert.equal((await first.me()).application.status,'approved');
+    assert.equal(appliedNotices.at(-1).opened,true,'GearHub is still told about the new shop');
+    // The limit is now reached: the next application waits for the owner, as before.
+    const waiting=await second.call('/applications','POST',{name:'Over the limit'});assert.equal(waiting.data.status,'pending');assert.equal((await second.me()).shop,null);
+    assert.equal((await owner.call('/owner/applications/'+(await second.me()).application.id,'PATCH',{status:'approved'})).status,200);assert.ok((await second.me()).shop);
+    assert.equal((await owner.call('/owner/signup','PUT',{maxShops:0,storageMb:100})).status,200);
   });
   await t.test('only the GearHub owner can connect, sync or disconnect Google Drive backup',async()=>{
     for(const action of ['connect','sync','disconnect'])assert.equal((await b.call('/owner/drive/'+action,'POST',{})).status,403);
