@@ -1083,6 +1083,7 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
 .photo-scan-copy{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .photo-scan-copy strong{font-size:14px;color:#1d2420;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .photo-scan-copy small{font-size:12px;color:#66706a}
+.photo-scan-panel{flex-wrap:wrap}.photo-scan-copy strong{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.photo-scan-step[hidden]{display:none}.photo-scan-why{flex:0 0 100%;margin-top:-2px;padding:7px 2px 0;border-top:1px solid #edf2ee;font-size:12px;line-height:1.4;color:#2f6b45}.photo-scan-why:empty{display:none}
 .photo-scan-clear{flex:none;width:34px;height:34px;border:0;border-radius:50%;background:#f1f4f2;color:#3b4540;font-size:15px;cursor:pointer}
 :root[data-theme="dark"] .photo-scan-panel{background:#17251c;border-color:#2b3b30}:root[data-theme="dark"] .photo-scan-copy strong{color:var(--ink)}
 /* The matched product card is highlighted like an Excel search match. */

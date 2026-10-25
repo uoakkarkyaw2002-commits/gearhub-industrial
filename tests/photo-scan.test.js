@@ -8,14 +8,14 @@ test('the scan button runs a live camera scanner and asks the shop server; the b
  assert.match(scan,/navigator\.mediaDevices\.getUserMedia\(\{video:\{facingMode:\{ideal:'environment'\}/,'the scan button opens the camera at once');
  assert.match(scan,/const API='\/api\/platform\/store\/'\+encodeURIComponent\(decodeURIComponent\(slug\)\)\+'\/photo-search';/);
  assert.match(scan,/'X-CSRF-Token':await csrf\(\)/);
- assert.match(scan,/const SURE=0\.6,LEAD=0\.03;/,'blank or blurred frames (~0.35) never count');
+ assert.match(scan,/const SURE=0\.6,LEAD=0\.03,/,'blank or blurred frames (~0.35) never count');
  assert.match(scan,/if\(sure&&last===a\.id\)/,'the same product sure twice in a row');
  assert.match(scan,/el\.classList\.add\('photo-match'\)/);
  assert.match(scan,/gallery\.type='file';gallery\.accept='image\/\*'/,'photos from the gallery');
  assert.doesNotMatch(scan,/first time only|loadGraphModel/,'no on-phone model and no first-time message');
  assert.doesNotMatch(store,/photoScanIds/);
  assert.ok(!fs.existsSync(path.join(root,'public','vendor','tf.min.js')),'the on-phone model is gone');
- assert.match(index,/<script src="\/photo-scan\.js\?v=20261026-keep-scroll-1"><\/script>/);
+ assert.match(index,/<script src="\/photo-scan\.js\?v=20261027-scan-timer-1"><\/script>/);
 });
 
 test('the photo-search API is public per shop, rate limited, takes a picture and stays inside the shop',()=>{
@@ -45,6 +45,7 @@ test('the server finds the product whose photo looks like the scan (real model r
  await ps.learn(shop);
  const r=await ps.search(shop,scan);
  assert.equal(r.ready,true);assert.deepEqual(r.matches.map(m=>m.id),['1','2']);assert.ok(r.matches[0].score>r.matches[1].score);
+ assert.deepEqual({photo:r.matches[0].photo,photos:r.matches[0].photos},{photo:1,photos:1},'says which of the product\'s photos matched (the reason)');assert.ok([0,1,2].includes(r.matches[0].view));
  assert.ok(fs.existsSync(path.join(media,'7','.photo-looks','img1.dinov2s.f32')),'looks are kept next to the photos');
  fs.rmSync(media,{recursive:true,force:true});
 });
@@ -56,4 +57,16 @@ test('closing a product (✕ or Back) keeps the shop where it was (iPhone jumped
  assert.match(store,/if\(wasOpen\)scrollTo\(0,galleryScrollY\)/);
  assert.match(dialogs,/target\?\.focus\(\{preventScroll:true\}\)/);
  assert.match(dialogs,/const opener=entry\.opener!==document\.body&&entry\.opener;/,'never focus the page itself');
+});
+
+test('the scanner counts seconds, stops after 15 s with "No match found", and says why it matches',()=>{
+ const scan=read('public/photo-scan.js'),css=read('public/style.css');
+ assert.match(scan,/const SURE=0\.6,LEAD=0\.03,LIMIT=15000;/);
+ assert.match(scan,/clock=setInterval\(\(\)=>\{if\(started\)looking\(\)\},1000\)/,'a seconds count while it looks');
+ assert.match(scan,/if\(elapsed\(\)\*1000>=LIMIT\)\{const seconds=elapsed\(\),thumb=URL\.createObjectURL\(blob\);stop\(\);none\(thumb,seconds,bestSeen\);return\}/,'never looks forever');
+ assert.match(scan,/say\(t\('No match found','တူတာ မရှိပါ'\)/);
+ assert.match(scan,/t\('found in ',''\)\+secs\(took\)/,'how many seconds it took');
+ assert.match(scan,/why\(m,at===0\?matches\[1\]:null\)/,'each match says why');
+ assert.match(scan,/if\(isSure\(a,b\)\)found\(r\.matches,thumb,seconds\);else none\(/,'a saved photo with no sure match says so too');
+ assert.match(css,/\.photo-scan-panel\{flex-wrap:wrap\}/);assert.match(css,/\.photo-scan-why\{flex:0 0 100%;/,'the reason is a full-width line under the result');
 });

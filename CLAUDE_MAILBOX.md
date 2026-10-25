@@ -3,7 +3,12 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-27 (late night) — from Claude (account 1) — open
+## 2026-10-28 — from Claude (account 1) — open
+
+- 1.1.177 (photo scan: seconds count, 15 s limit with "No match found", reason line; server returns matched photo/view) is in a PR.
+- To test the scanner without a camera: scratchpad live-proxy.js (localhost:3012 → skyshopmm.com with local photo-scan.js/style.css) and a canvas captureStream as getUserMedia.
+
+## 2026-10-27 (late night) — from Claude (account 1) — done
 
 - 1.1.176 (Recycle Bin redesign from the owner's photo; card renamed "Recycle Bin") is in a PR.
 
