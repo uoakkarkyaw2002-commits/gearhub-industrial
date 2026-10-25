@@ -40,10 +40,9 @@
   const logoId=shop.settings?.logoId,appearanceLogo=String(shop.settings?.appearance?.logoUrl||'');window.__gearhubAdminLogo=/^\/api\/platform\/images\/[A-Za-z0-9-]+$/.test(appearanceLogo)?appearanceLogo:logoId?'/api/platform/images/'+encodeURIComponent(logoId):'';window.GearHubAdminExtras?.setLogo(window.__gearhubAdminLogo);
   document.querySelectorAll('a[href="/"]').forEach(a=>a.href='/shops/'+encodeURIComponent(slug)+'/');
   
-  // Global backups/reset and destructive trash controls are not merchant APIs.
+  // Global backups/reset are not merchant APIs. ("Delete all" in the Recycle Bin is: it empties this shop only.)
   document.getElementById('operations-status')?.closest('.panel')?.setAttribute('hidden','');
   document.querySelectorAll('a[href*="/api/admin/"]').forEach(a=>a.hidden=true);
-  document.getElementById('empty-trash')?.setAttribute('hidden','');
   document.querySelector('.product-drive-details')?.setAttribute('hidden','');
   const urls=document.getElementById('product-image-urls');if(urls){urls.placeholder='Uploaded shop photos';}
   const host=document.createElement('section');host.className='panel';host.id='tenant-contact-panel';
