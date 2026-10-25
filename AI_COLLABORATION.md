@@ -30,7 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.169: Photo scan on the server (DINOv2) — accurate matches (Claude) — in review
+### 1.1.170: Closing a product keeps the shop where it was (Claude) — in review
+- Owner (iPhone): after looking at a product's photos and closing them, the shop jumped back to the top.
+- Cause (reproduced in WebKit on the live site: 1470 px → 0): `back-nav.js` adds a history step when photos open and steps back with `history.go` on ✕/Back; the browser then restored the scroll it had saved for that step while `body.gallery-open` locked the page — 0.
+- Fix: `back-nav.js` sets `history.scrollRestoration='manual'`; `store.js` remembers the scroll when photos open and returns there on close (focus inside the photos is dropped first); `dialogs.js` returns focus with `preventScroll` and never to `<body>` (iPhone taps don't focus buttons, so the "opener" was the page); `photo-scan.js` returns to the same place when the scanner closes.
+- Checked in WebKit (iPhone user agent) on the local store: ✕ and Back both keep the position at 375 (1581 → 1581) and 1280 (1393 → 1393). Test added. Not checked on the owner's iPhone.
+
+### 1.1.169: Photo scan on the server (DINOv2) — accurate matches (Claude) — merged, live, owner confirmed
 - Owner (iPhone, 1.1.168): scanning a VALVE PLATE highlighted SHOE PLATE. Owner allowed a new server API and AI model.
 - Why 1.1.168 failed: the on-phone MobileNet v2 0.5 gave the right photo only 0.46, while blank/blurred camera frames scored 0.56–0.65, so the scanner locked onto junk before the part was in view; parts shot from another angle were first only ~10 % of the time.
 - New `lib/photo-search.js`: DINOv2-small (Meta, Apache-2.0; `models/dinov2-small-q8.onnx`, 24 MB uint8 ONNX from Hugging Face Xenova/dinov2-small) via `onnxruntime-node` 1.20.1 (CPU, one picture at a time). Every photo of every active product is turned into 384 numbers once and kept next to the photo (`platform-media/<shop>/.photo-looks/<id>.dinov2s.f32`); all shops are learned 20 s after the server starts; new photos are learned on the next scan; unreadable photos are skipped. Queries are compared whole and at 70 % / 50 % centre views; best photo per product; top 5 returned.
