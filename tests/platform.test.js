@@ -732,6 +732,10 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
     assert.equal((await owner.call('/owner/policies','PUT',{email:'bad',sections:current.sections})).status,400);
     assert.equal((await owner.call('/owner/policies','PUT',{reset:true})).data.custom,false);
   });
+  await t.test('only the GearHub owner can connect, sync or disconnect Google Drive backup',async()=>{
+    for(const action of ['connect','sync','disconnect'])assert.equal((await b.call('/owner/drive/'+action,'POST',{})).status,403);
+    assert.equal((await owner.call('/owner/drive/connect','POST',{})).status,503,'no Google sign-in in this test server');
+  });
   await t.test('only the GearHub owner sets the opening screen (seconds, pictures, sound) every shop shows',async()=>{
     const goodPng=await require('sharp')({create:{width:8,height:8,channels:3,background:'#3366ff'}}).png().toBuffer();
     const first=(await owner.call('/owner')).data.splash;assert.equal(first.seconds,3);assert.equal(first.pc,false);assert.equal(first.sound,'');

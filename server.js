@@ -309,9 +309,12 @@ app.use(session({
 const orderPush=createOrderPush({db,subject:publicOrigin,log:logError});
 app.locals.orderPush=orderPush;
 // Opt-in additive platform migration; legacy tables/routes remain unchanged.
+// Google Drive copy of the daily backup and of every shop photo (the owner connects it once in the owner console).
+let drive=null;
 if(process.env.PLATFORM_ENABLED==='true'){
+ drive=require('./lib/drive-backup').createDrive({db,clientId:process.env.GOOGLE_CLIENT_ID,clientSecret:process.env.GOOGLE_CLIENT_SECRET,media:path.join(dataDir,'platform-media'),log:(event,detail)=>console.error(JSON.stringify({event,detail}))});
  const {createPlatform}=require('./lib/platform');
- app.use('/api/platform',createPlatform({db,dataDir,publicOrigin,orderPush,notifyApplication:details=>notifications.application(details)}));
+ app.use('/api/platform',createPlatform({db,dataDir,publicOrigin,orderPush,drive,notifyApplication:details=>notifications.application(details)}));
  require('./lib/tenant-install').installTenantApps(app,{db,dataDir,publicDir:path.join(__dirname,'public'),publicOrigin});
 }
 app.get('/api/app-release', (_req,res)=>{
@@ -1041,7 +1044,9 @@ async function addInitialEnginePartsStock(){
 }
 
 const notifications=createNotifications({db,dataDir});
-const backupService=createBackupService({db,dataDir,uploadDir,receiptDir,notifications});
+const backupService=createBackupService({db,dataDir,uploadDir,receiptDir,notifications,drive});
+// The first backup goes to Drive right after the owner connects it.
+drive?.whenConnected(()=>backupService.run().catch(()=>{}));
 app.get("/api/admin/operations", adminOnly, (_req,res)=>res.json({...backupService.status(),notifications:notifications.status()}));
 app.post("/api/admin/backup/run", rateLimit({windowMs:60000,limit:2,standardHeaders:true,legacyHeaders:false}), adminOnly, async (_req,res,next)=>{try{res.json(await backupService.run())}catch(error){next(error)}});
 app.get("/api/health", (_req,res)=>{
@@ -1078,7 +1083,7 @@ app.use((err,req,res,next)=>{
 let server;
 ensureAdmin().then(removeMachineryDemoProducts).then(addInitialEnginePartsStock).then(()=>{
  notifications.start();
- backupService.start();
+ backupService.start();drive?.start();
  server=app.listen(PORT,()=>console.log(`GearHub running at http://localhost:${PORT}`));
 }).catch(err=>{logError("startup_failure",err);process.exit(1);});
 function shutdown(){notifications.stop();backupService.stop();if(!server)return;const timeout=setTimeout(()=>process.exit(1),10000).unref();server.close(()=>{clearTimeout(timeout);db.close();process.exit(0)});}
