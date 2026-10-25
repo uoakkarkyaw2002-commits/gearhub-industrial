@@ -30,7 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.179: Google Drive backup — daily backup and shop photo originals (Claude) — in review
+### 1.1.180: Drive photos sorted into category folders, named by product (Claude) — in review
+- Owner (Drive on iPhone): 1.1.179 put all 990 photos in one shop folder with ID names — too mixed. Wanted category folders.
+- `lib/drive-backup.js`: "GearHub Backups/Photos/<shop>/<main>/<sub>/<child>/<SKU> <product name> (n).jpg" (category by `categoryOf` + parent_id); photos on no product → "Other". `platform_drive_photos` gains `parent_id`, `name`; each sweep moves/renames copies whose product category or name changed (PATCH addParents/removeParents, one parent). 1.1.179's flat copies (no parent_id) are moved out of the shop folder on the first sweep after deploy (200 per batch, loops until done).
+- `lib/platform.js`: a product save triggers a sweep (~30 s), so Drive follows edits.
+- Tests: fake Drive with move/rename; exact paths for Main/Sub, Other, the two-"Sany" move, old flat copies sorted. Not run against the real Drive yet: after deploy the owner opens Drive → GearHub Backups → Photos → psm-test-shop (sorting starts about a minute after the deploy).
+
+### 1.1.179: Google Drive backup — daily backup and shop photo originals (Claude) — merged, live; owner connected Drive, 990/990 photos copied
 - Owner: has 5 TB Google Drive; chose "option 1" (approved new server storage code): Drive holds the daily backup and the original of every shop photo; shops keep serving photos from the Render disk (fast, no Drive quotas).
 - New `lib/drive-backup.js`: owner connects once (same Google OAuth client as login, extra scope `drive.file` = only files the app made; refresh token in table `platform_drive`). Folder "GearHub Backups": backup archives (newest 30 kept); "GearHub Backups/Photos/<shop slug>/" every ready image (existing ones too, 200 per batch, every 15 min and ~30 s after an upload; table `platform_drive_photos`). Deleted shop photos stay in Drive. Revoked access → shows "not connected" + error.
 - `lib/backups.js`: Drive is an off-site destination (step "drive-delivery"). `server.js`: creates Drive when PLATFORM_ENABLED, runs a backup right after connecting. `lib/platform.js`: `POST /owner/drive/connect|sync|disconnect` (owner only), the OAuth callback handles `stored.drive`, owner view has `drive` status, image saves call `drive.photoSaved()`.
