@@ -30,7 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.171: Network speed under the shop logo (Claude) — in review
+### 1.1.172: Speed badge no longer touches the logo (Claude) — in review
+- Owner (iPhone + mock-up): the wifi badge overlapped the logo; wanted the logo and shop name a little higher and the badge below the logo with a gap.
+- `public/style.css` (phones, ≤ 850 px): logo and name moved up 12 px; badge starts 5 px under the logo; icon 21 px. PC unchanged.
+- Checked at 375 on the local store: logo 13–79 px, badge 81–113 px, banner ends at 116 px; matches the mock-up. Not checked on the owner's iPhone (its banner also has the status-bar area).
+
+### 1.1.171: Network speed under the shop logo (Claude) — merged, live
 - Owner (iPhone mock-up): a wifi icon under the logo showing the real network speed — green good, yellow normal, red low.
 - New `public/net-speed.js`: iPhone Safari does not report the speed, so it is measured: a tiny request (`/api/platform/me`) gives the delay, then the shop's catalogue (`/api/platform/store/<slug>`, no-store, ~100 KB for POLESTAR; `/api/products` on the main store) gives bytes per second. Good ≥ 1 MB/s with delay < 600 ms, Normal ≥ 200 KB/s with delay < 1.5 s, else Low; grey "Offline". Shown as e.g. "1MB" / "350KB". Measured 1.5 s after opening, every minute while the app is on screen, on coming back online and on returning to the app (about 100 KB per minute).
 - `public/style.css`: under the logo on phones (white text, coloured icon); a small white pill under the small logo on PC (≥ 851 px).

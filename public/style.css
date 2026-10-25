@@ -1117,3 +1117,10 @@ html.photo-scanner-open,html.photo-scanner-open body{overflow:hidden}
 .net-speed[data-level="offline"],.net-speed[data-level="checking"]{color:#c7ccc9}
 /* PC header: the logo is small, so the speed sits as a small white pill just under it. */
 @media(min-width:851px){.settings-profile-avatar>.net-speed{left:50%;top:calc(100% - 8px);flex-direction:row;gap:2px;padding:2px 6px 2px 3px;border-radius:999px;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.18);transform:translateX(-50%)}.net-speed svg{width:14px;height:14px;stroke-width:3;filter:none}.net-speed small{margin:0;color:#33413a;font-size:10px;text-shadow:none}}
+/* Phones: logo and shop name sit a little higher, and the speed sits under the logo with a small gap
+   (owner's mock-up: not touching the logo). */
+@media(max-width:850px){
+ .home-profile-banner .settings-profile-avatar,.home-profile-banner .settings-profile-copy{transform:translateY(-12px)}
+ .settings-profile-avatar>.net-speed{top:calc(100% + 5px)}
+ .settings-profile-avatar>.net-speed svg{width:21px;height:21px}
+}
