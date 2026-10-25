@@ -12,3 +12,8 @@ test('the shop measures its real speed and shows a coloured wifi icon under the 
  assert.match(index,/<script src="\/net-speed\.js\?v=20261026-net-speed-2"><\/script>/);
  assert.match(sw,/"\/net-speed\.js\?v=20261026-net-speed-2"/);
 });
+test('phones: logo and name sit higher and the speed is under the logo with a gap (owner mock-up)',()=>{
+ const css=read('style.css');
+ assert.match(css,/\.home-profile-banner \.settings-profile-avatar,\.home-profile-banner \.settings-profile-copy\{transform:translateY\(-12px\)\}/);
+ assert.match(css,/\.settings-profile-avatar>\.net-speed\{top:calc\(100% \+ 5px\)\}/);
+});
