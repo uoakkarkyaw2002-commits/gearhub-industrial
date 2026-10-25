@@ -60,9 +60,7 @@ function renderProducts(){
  if(!products.length){$("products").innerHTML=`<p>${safeTranslation(tr(catalogLoaded?"noMatchingProducts":"loadingProducts"))}</p>`;return}
  const q=$("search").value.toLowerCase(),c=$("category").value,sort=$("sort").value;
  let list=products.filter(p=>(productName(p)+" "+p.name_en+" "+p.name_my+" "+p.sku+" "+(p.part_no||"")+" "+p.category_en+" "+p.category_my+" "+categoryName(p)).toLowerCase().includes(q)&&(!c||String(p.category_en).toLowerCase()===c.toLowerCase()));
- // Photo search (photo-scan.js): its matches, most similar first, replace the list until cleared.
- const scan=window.photoScanIds;if(scan){const rank=new Map(scan.map((id,i)=>[id,i]));list=products.filter(p=>rank.has(p.id)).sort((a,b)=>rank.get(a.id)-rank.get(b.id))}
- else{if(sort==="low")list.sort((a,b)=>salePrice(a)-salePrice(b));if(sort==="high")list.sort((a,b)=>salePrice(b)-salePrice(a))}$("product-total").textContent=list.length;
+ if(sort==="low")list.sort((a,b)=>salePrice(a)-salePrice(b));if(sort==="high")list.sort((a,b)=>salePrice(b)-salePrice(a));$("product-total").textContent=list.length;
  $("products").innerHTML=list.map(productCardHtml).join("")||`<p>${safeTranslation(tr("noMatchingProducts"))}</p>`;
  applySiteLayout(activeSiteLayout)
 }
