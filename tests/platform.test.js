@@ -752,6 +752,18 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
     assert.equal((await owner.call('/owner/applications/'+(await second.me()).application.id,'PATCH',{status:'approved'})).status,200);assert.ok((await second.me()).shop);
     assert.equal((await owner.call('/owner/signup','PUT',{maxShops:0,storageMb:100})).status,200);
   });
+  await t.test('the owner deletes a test shop at once, also one that used Excel auto-upload',async()=>{
+    const seller=new Client();await seller.login('deleteme');
+    await seller.call('/applications','POST',{name:'Delete me shop'});
+    await owner.call('/owner/applications/'+(await seller.me()).application.id,'PATCH',{status:'approved'});
+    const shop=(await seller.me()).shop;assert.ok(shop);
+    db.prepare("INSERT INTO platform_upload_keys(shop_id,key_hash) VALUES(?,?)").run(shop.id,'hash-'+shop.id);
+    assert.equal((await seller.call('/owner/shops/'+shop.id,'DELETE',{confirmDelete:shop.slug})).status,403,'only the owner');
+    const r=await owner.call('/owner/shops/'+shop.id,'DELETE',{confirmDelete:shop.slug});assert.equal(r.status,200,JSON.stringify(r.data));
+    assert.equal(db.prepare('SELECT id FROM platform_shops WHERE id=?').get(shop.id),undefined);
+    assert.equal(db.prepare('SELECT shop_id FROM platform_upload_keys WHERE shop_id=?').get(shop.id),undefined);
+    assert.equal((await seller.me()).shop,null);
+  });
   await t.test('only the GearHub owner can connect, sync or disconnect Google Drive backup',async()=>{
     for(const action of ['connect','sync','disconnect'])assert.equal((await b.call('/owner/drive/'+action,'POST',{})).status,403);
     assert.equal((await owner.call('/owner/drive/connect','POST',{})).status,503,'no Google sign-in in this test server');

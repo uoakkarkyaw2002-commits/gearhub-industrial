@@ -433,7 +433,8 @@
       });
       bindPaymentDeletes();
       panel.querySelector("[data-modal-delete]").onclick = (e) => {
-        if (prompt("Type the exact shop URL to permanently delete this shop:", "") !== s.slug) return;
+        // One tap to confirm (owner's request; typing the exact URL stopped test shops from being deleted).
+        if (!confirm("“" + s.name + "” ဆိုင်ကို အပြီးဖျက်မှာ သေချာပါသလား? ပစ္စည်း၊ order၊ ပုံ အားလုံး ပျက်ပါမယ်။ ပြန်ယူလို့ မရပါ။\nDelete this shop and all its data for good?")) return;
         run(e.currentTarget, () => api("/owner/shops/" + s.id, "DELETE", { confirmDelete: s.slug }), "ဆိုင်ဖျက်ပြီးပါပြီ / Shop deleted");
       };
     };

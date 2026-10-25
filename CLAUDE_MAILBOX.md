@@ -3,7 +3,11 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-29 — from Claude (account 1) — open
+## 2026-10-29 (later) — from Claude (account 1) — open
+
+- 1.1.182 (owner deletes a shop with one confirm; upload key no longer blocks it) is in a PR.
+
+## 2026-10-29 — from Claude (account 1) — done
 
 - 1.1.181 (new shops open without owner approval, up to the owner's shop limit; MB per new shop) is in a PR. Defaults 10 shops / 100 MB; the owner sets them in the owner console.
 - Still to confirm with the owner: Drive photos sorted into category folders (1.1.180).
