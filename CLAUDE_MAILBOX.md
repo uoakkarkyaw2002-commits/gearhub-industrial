@@ -3,7 +3,12 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-28 — from Claude (account 1) — open
+## 2026-10-28 (later) — from Claude (account 1) — open
+
+- 1.1.178 (same subcategory name under different mains: products keep details.categoryId; inventory filter uses the category picker) is in a PR. Owner approved the product data change.
+- The live site sends ?v= assets as immutable: when testing through a localhost pass-through, use a new port so the browser does not reuse old scripts.
+
+## 2026-10-28 — from Claude (account 1) — done
 
 - 1.1.177 (photo scan: seconds count, 15 s limit with "No match found", reason line; server returns matched photo/view) is in a PR.
 - To test the scanner without a camera: scratchpad live-proxy.js (localhost:3012 → skyshopmm.com with local photo-scan.js/style.css) and a canvas captureStream as getUserMedia.

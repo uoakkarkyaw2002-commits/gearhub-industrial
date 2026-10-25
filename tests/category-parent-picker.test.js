@@ -5,7 +5,7 @@ test('parent category uses the Add Product category picker',()=>{
  assert.doesNotMatch(admin,/<select data-category-value="parent_en"/,'the native dropdown is gone');
  assert.match(admin,/<input readonly class="category-picker-trigger" aria-haspopup="dialog" data-category-command="pick-parent"/);
  assert.match(admin,/window\.GearHubCategoryPicker\?\.open\(\{rows:categoryRows,value:c\.parent_en,allowed:row=>choices\.has\(row\),allowNone:true,mainSelectable:true/);
- assert.match(picker,/window\.GearHubCategoryPicker=\{open:openPicker\}/);
+ assert.match(picker,/window\.GearHubCategoryPicker=\{open:openPicker,/);
  assert.match(picker,/Main category \(no parent\)/);
  assert.match(picker,/selected=mainSelectable\?row:null/,'Add Product still needs a subcategory click');
 });
