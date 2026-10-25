@@ -30,7 +30,14 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.176: Recycle Bin looks like the owner's reference photo (Claude) — in review
+### 1.1.177: Photo scan counts seconds, stops with "No match found", says why (Claude) — in review
+- Owner (iPhone): the scanner kept "Looking…" forever when nothing matched. Wanted: say there is no match; count seconds and say how long it took; say why the photo matches.
+- `public/photo-scan.js`: "Looking… 3 s" count while scanning (paused while the shop's photos are still being learned). A sure match (same product twice) shows "found in 3.4 s" and a reason line: "Why: 81% alike in shape, colour and surface to its photo 2 of 4 (close-up of the middle); next closest product 69%". After 15 s without one it stops: "No match found · Searched 15.x s" and why (closest only N% alike, needs 60% / seen only for a moment, hold still / two products look the same). A saved photo now also says "No match found" instead of showing a weak closest product. The product name is the top line ("Best match" moved to the line under it); ˄ ˅ hidden when there is nothing to step through.
+- `lib/photo-search.js`: each match also returns `photo` / `photos` (which of the product's photos matched) and `view` (0 whole picture, 1–2 closer views). Same API, extra fields.
+- `public/style.css`: the reason is a full-width line under the result; name up to two lines.
+- Checked at 375 on the live POLESTAR catalogue through a local pass-through (scratchpad live-proxy.js serves the new script/CSS, everything else from skyshopmm.com) with a fake camera: product photo → "SWITCH STARTER", found in 3.4–6.1 s, reason shown; coloured blocks → stopped at 16.2 s, "No match found", "closest, Drive Shaft, only 21% alike". 1280: bar fits. The "photo n of N" part needs the new server (verified by the real-model test). Not checked with the owner's iPhone camera.
+
+### 1.1.176: Recycle Bin looks like the owner's reference photo (Claude) — merged, live
 - Owner (reference photo + iPhone screenshots): redesign the inside of Deleted orders like the photo; the dashboard card must not be a "delete" (❌) icon — call it "Recycle Bin".
 - `public/admin.html`: card "🗑️ Recycle Bin" (PC sidebar link too). Panel header: red bin in a pink circle, "DELETED", "Deleted orders", red "Delete all" button, note.
 - `public/admin.js`: each order is a card — Order ID and Customer on the left, Total and Order date (date / time) in the middle, dark-green Restore on the right, icons as in the photo. As in the photo there is no per-order "Delete forever" any more; "Delete all" empties the bin. The PC sidebar link only opens the bin (a second tap closed it into a blank page).
