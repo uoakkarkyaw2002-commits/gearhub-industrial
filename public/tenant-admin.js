@@ -26,7 +26,7 @@
   await init();return fetch(base()+suffix,{...options,credentials:'same-origin',cache:'no-store',headers:{...options.headers,'X-CSRF-Token':token}});
  }
  const details=p=>{try{return JSON.parse(p.details||'{}');}catch{return {};}};
- function product(p){const d=details(p);return {...p,name_en:p.name,name_my:d.nameMy||p.name,category_en:p.category,category_my:d.categoryMy||p.category,description_en:p.description,description_my:d.descriptionMy||'',image_emoji:d.imageEmoji||'⚙',promotion_price:d.promotionPrice??null,part_no:d.partNo||'',imageUrls:(d.imageIds||[p.image_id].filter(Boolean)).map(id=>'/api/platform/images/'+encodeURIComponent(id))};}
+ function product(p){const d=details(p);return {...p,name_en:p.name,name_my:d.nameMy||p.name,category_en:p.category,category_id:d.categoryId??null,category_my:d.categoryMy||p.category,description_en:p.description,description_my:d.descriptionMy||'',image_emoji:d.imageEmoji||'⚙',promotion_price:d.promotionPrice??null,part_no:d.partNo||'',imageUrls:(d.imageIds||[p.image_id].filter(Boolean)).map(id=>'/api/platform/images/'+encodeURIComponent(id))};}
  function order(o){const d=details(o);return {...o,...d,order_code:o.code,customer_name:o.customer,invoice_no:o.invoice,hasReceipt:!!o.receipt_id,items:o.items.map(i=>({...i,nameEn:i.name}))};}
  async function snapshot(){const r=await call('');if(!r.ok)throw Error((await r.json()).error);return r.json();}
  function setup(shop){
@@ -98,7 +98,7 @@
     if(/^\/products(?:\/\d+)?$/.test(suffix)&&['POST','PATCH'].includes(method)){
      const b=JSON.parse(options.body),ids=[];
      const photos=[...(b.imageUrls||[])];if(Number.isInteger(Number(b.coverIndex))&&photos[Number(b.coverIndex)])photos.unshift(...photos.splice(Number(b.coverIndex),1));for(const url of photos){const m=url.match(/^\/api\/platform\/images\/([^/?#]+)$/);if(!m)return json({error:'Upload images to this shop first.'},400);ids.push(m[1]);}
-     return await call(suffix,{...options,body:JSON.stringify({name:b.nameEn,nameMy:b.nameMy,sku:b.sku,description:b.descriptionEn,descriptionMy:b.descriptionMy,category:b.categoryEn,categoryMy:b.categoryMy,imageEmoji:b.emoji,price:b.price,promotionPrice:b.promotionPrice,partNo:b.partNo,stock:b.stock,expectedStock:b.expectedStock,active:b.active!==false&&b.active!=='0',imageId:ids[0]||null,imageIds:ids})});
+     return await call(suffix,{...options,body:JSON.stringify({name:b.nameEn,nameMy:b.nameMy,sku:b.sku,description:b.descriptionEn,descriptionMy:b.descriptionMy,category:b.categoryEn,categoryId:b.categoryId===''||b.categoryId==null?undefined:Number(b.categoryId),categoryMy:b.categoryMy,imageEmoji:b.emoji,price:b.price,promotionPrice:b.promotionPrice,partNo:b.partNo,stock:b.stock,expectedStock:b.expectedStock,active:b.active!==false&&b.active!=='0',imageId:ids[0]||null,imageIds:ids})});
     }
     if(suffix==='/uploads'&&method==='POST'){
      const urls=[];for(const f of options.body.getAll('images')){const form=new FormData();form.append('file',f);const r=await call('/files',{method:'POST',body:form});const d=await r.json();if(!r.ok)return json(d,r.status);urls.push('/api/platform/images/'+d.id);}return json({imageUrls:urls});

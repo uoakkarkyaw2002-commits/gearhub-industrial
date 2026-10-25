@@ -335,6 +335,25 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
       assert.equal((await a.call(endpoint+'/products/'+id+'/delete-permanently','POST',{confirmPermanent:true})).status,409);await a.call(endpoint+'/products/'+id+'/trash','POST',{});assert.equal((await b.call(endpoint+'/products/'+id+'/delete-permanently','POST',{confirmPermanent:true})).status,404);assert.equal((await a.call(endpoint+'/products/'+id+'/delete-permanently','POST',{})).status,400);assert.equal((await a.call(endpoint+'/products/'+id+'/delete-permanently','POST',{confirmPermanent:true})).status,200);assert.equal(db.prepare('SELECT id FROM platform_products WHERE id=?').get(id),undefined);
     }finally{if(id)db.prepare('DELETE FROM platform_products WHERE id=?').run(id);assert.equal((await a.call(endpoint+'/categories','PUT',{categories:original})).status,200);}
   });
+  await t.test('a subcategory name may repeat under another main category and each keeps its own products',async()=>{
+    const endpoint='/shops/'+aid,original=(await a.call(endpoint+'/categories')).data;let id;
+    try{
+      let saved=await a.call(endpoint+'/categories','PUT',{categories:[...original,{category_en:'DUP-ELECTRIC'},{category_en:'DUP-SWING'},{category_en:'Sany',parent_en:'DUP-ELECTRIC'}]});assert.equal(saved.status,200);
+      const tree=saved.data.categories,swing=tree.find(c=>c.category_en==='DUP-SWING'),first=tree.find(c=>c.category_en==='Sany');
+      assert.equal((await a.call(endpoint+'/products','POST',{name:'Dup fixture',sku:'DUP-FIX',category:'Sany',stock:1,price:10})).status,200);id=(await a.call(endpoint)).data.products.find(p=>p.sku==='DUP-FIX').id;
+      // The owner's case: "Sany" again under another main category saves, and the existing product stays put.
+      saved=await a.call(endpoint+'/categories','PUT',{categories:[...tree,{category_en:'Sany',parent_en:'DUP-SWING',parent_id:swing.id}]});assert.equal(saved.status,200);
+      const second=saved.data.categories.find(c=>c.category_en==='Sany'&&c.parent_id===swing.id);assert.ok(second&&second.id!==first.id);
+      assert.equal(saved.data.categories.find(c=>c.id===first.id).product_count,1);assert.equal(second.product_count,0);
+      assert.equal(JSON.parse(db.prepare('SELECT details FROM platform_products WHERE id=?').get(id).details).categoryId,first.id);
+      assert.equal((await a.call(endpoint+'/categories','PUT',{categories:[...saved.data.categories,{category_en:'sany',parent_en:'DUP-SWING',parent_id:swing.id}]})).status,400,'never twice under one main category');
+      // Moving the product to the second "Sany" by ID, then renaming the first, leaves the product where it is.
+      assert.equal((await a.call(endpoint+'/products/'+id,'PATCH',{name:'Dup fixture',sku:'DUP-FIX',category:'Sany',categoryId:second.id,stock:1,expectedStock:1,price:10})).status,200);
+      const cats=(await a.call(endpoint+'/categories')).data;assert.equal(cats.find(c=>c.id===second.id).product_count,1);assert.equal(cats.find(c=>c.id===first.id).product_count,0);
+      assert.equal((await a.call(endpoint+'/categories','PUT',{categories:cats.map(c=>c.id===first.id?{...c,category_en:'SANY OLD'}:c)})).status,200);
+      assert.equal(db.prepare('SELECT category FROM platform_products WHERE id=?').get(id).category,'Sany');
+    }finally{if(id)db.prepare('DELETE FROM platform_products WHERE id=?').run(id);assert.equal((await a.call(endpoint+'/categories','PUT',{categories:original})).status,200);}
+  });
   await t.test(
     "each shop scopes settings/products and cannot read or mutate another shop",
     async () => {
