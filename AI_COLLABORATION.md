@@ -30,7 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.170: Closing a product keeps the shop where it was (Claude) — in review
+### 1.1.171: Network speed under the shop logo (Claude) — in review
+- Owner (iPhone mock-up): a wifi icon under the logo showing the real network speed — green good, yellow normal, red low.
+- New `public/net-speed.js`: iPhone Safari does not report the speed, so it is measured: a tiny request (`/api/platform/me`) gives the delay, then the shop's catalogue (`/api/platform/store/<slug>`, no-store, ~100 KB for POLESTAR; `/api/products` on the main store) gives bytes per second. Good ≥ 1 MB/s with delay < 600 ms, Normal ≥ 200 KB/s with delay < 1.5 s, else Low; grey "Offline". Shown as e.g. "1MB" / "350KB". Measured 1.5 s after opening, every minute while the app is on screen, on coming back online and on returning to the app (about 100 KB per minute).
+- `public/style.css`: under the logo on phones (white text, coloured icon); a small white pill under the small logo on PC (≥ 851 px).
+- Checked in the app browser on the local store at 375 and 1280. Not checked: real numbers on the owner's iPhone over Wi-Fi / mobile data.
+
+### 1.1.170: Closing a product keeps the shop where it was (Claude) — merged, live
 - Owner (iPhone): after looking at a product's photos and closing them, the shop jumped back to the top.
 - Cause (reproduced in WebKit on the live site: 1470 px → 0): `back-nav.js` adds a history step when photos open and steps back with `history.go` on ✕/Back; the browser then restored the scroll it had saved for that step while `body.gallery-open` locked the page — 0.
 - Fix: `back-nav.js` sets `history.scrollRestoration='manual'`; `store.js` remembers the scroll when photos open and returns there on close (focus inside the photos is dropped first); `dialogs.js` returns focus with `preventScroll` and never to `<body>` (iPhone taps don't focus buttons, so the "opener" was the page); `photo-scan.js` returns to the same place when the scanner closes.
