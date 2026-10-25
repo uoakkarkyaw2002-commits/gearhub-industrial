@@ -30,7 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.173: Cancelled orders go to the trash; no Add a product card (Claude) — in review
+### 1.1.174: Add Product opens full width on phones (Claude) — in review
+- Owner (iPhone screenshot): after 1.1.173, "+ Add Product" opened the form squeezed into a one-third card slot.
+- Cause: on phones the form was moved to the full-width area under the cards only when its own card ("Add a product", removed in 1.1.173) was tapped.
+- `public/admin.js`: `setProductFormOpen` now places the form there on phones (`positionMobileDashboardDetail`), so "+ Add Product" and Edit both open it full width; Edit scrolls to the form's title. PC unchanged.
+- Checked locally with sample data at 375 (Add, Back, Edit: 355 px wide, title at the top) and 1280 (Add, Edit). Not checked on the owner's iPhone.
+
+### 1.1.173: Cancelled orders go to the trash; no Add a product card (Claude) — merged, live
 - Owner (admin screenshot): remove the "Cancelled orders" card — a cancelled order goes to the trash, and everything deleted is kept there; remove the "Add a product" card (Product Inventory already has "+ Add Product").
 - `public/admin.html`: no Cancelled orders button or panel; the PC sidebar's "Cancel Order" link is now "Deleted Orders" (opens the trash).
 - `public/admin.js`: "Deleted orders" lists deleted and cancelled orders. Restore brings a cancelled order back to pending (as before). "Delete forever" on a cancelled order calls DELETE twice (to deleted, then for good); "Permanently delete all" moves cancelled orders to deleted first. No API or database change. Product editor Back now scrolls to Product Inventory.

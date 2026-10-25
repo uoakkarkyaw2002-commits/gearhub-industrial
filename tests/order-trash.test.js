@@ -15,3 +15,10 @@ test('cancelled orders go to the one trash; no Cancelled or Add a product card',
  assert.match(css,/#product-form-panel:not\(:has\(#product-form-content:not\(\.hidden\)\)\)\{display:none!important\}/);
  assert.match(html,/id="inventory-add-product"/,'products are still added from Product Inventory');
 });
+
+test('Add Product and Edit open the form full width on phones (it opened inside a card slot)',()=>{
+ const js=read('public/admin.js');
+ assert.match(js,/function setProductFormOpen\(open\)\{[^}]*positionMobileDashboardDetail\("product-form-content"\)\}/);
+ assert.match(js,/const panel=form\.closest\("\.panel"\)\|\|\$\("product-form-content"\);/);
+ assert.match(js,/setProductFormOpen\(true\);\$\("product-form-content"\)\?\.scrollIntoView/);
+});
