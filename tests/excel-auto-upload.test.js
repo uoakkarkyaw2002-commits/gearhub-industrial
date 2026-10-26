@@ -47,6 +47,46 @@ test('the downloaded Windows program: picks the file, watches it, uploads after 
  assert.match(bat,/'\/api\/platform\/spreadsheets\/auto-upload'/);
  assert.match(bat,/Start-Sleep -Seconds 60/);
  const html=fs.readFileSync(path.join(__dirname,'..','public','index.html'),'utf8');
- assert.match(html,/<script src="\/excel-auto-upload\.js\?v=20261023-auto-1"><\/script><script src="\/excel-library\.js\?v=20261023-folder-1"><\/script>/);
+ assert.match(html,/<script src="\/excel-auto-upload\.js\?v=1\.1\.191"><\/script><script src="\/excel-library\.js\?v=1\.1\.191"><\/script>/);
  assert.match(html,/id="excel-auto-upload" class="excel-auto-upload" hidden/);
+});
+
+test('Mac download is an executable command ZIP with safely quoted shop names and valid shell syntax',()=>{
+ const ctx={window:{},TextEncoder};vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../public/excel-auto-upload.js'),'utf8'),ctx);
+ const options={key:'ghk_'+'c3'.repeat(24),origin:'https://skyshopmm.com',shop:"Ko's $(printf unsafe) shop",slug:'polestar'};
+ const api=ctx.window.GearHubExcelAutoUpload,script=api.buildMac(options),zip=Buffer.from(api.macArchive(options));
+ const {spawnSync}=require('node:child_process');
+ assert.equal(spawnSync('/bin/bash',['-n'],{input:script,encoding:'utf8'}).status,0);
+ const assignment=script.split('\n').find(line=>line.startsWith('shop='));
+ assert.equal(spawnSync('/bin/bash',['-c',assignment+'\nprintf "%s" "$shop"'],{encoding:'utf8'}).stdout,options.shop);
+ const nameLength=zip.readUInt16LE(26),name=zip.subarray(30,30+nameLength).toString(),size=zip.readUInt32LE(18);
+ assert.equal(name,'SkyShop-Excel-AutoUpload-polestar.command');
+ assert.equal(zip.subarray(30+nameLength,30+nameLength+size).toString(),script);
+ const central=30+nameLength+size;assert.equal(zip.readUInt32LE(central),0x02014b50);
+ assert.equal(zip.readUInt32LE(central+38)>>>16,0o100755,'the Mac command is executable after unzipping');
+ assert.match(script,/launchctl bootstrap/);assert.match(script,/<key>RunAtLoad<\/key><true\/>/);
+});
+
+test('Mac watcher retries a failed upload, preserves the workbook and sends its shop key and origin',async t=>{
+ const {spawn}=require('node:child_process'),http=require('node:http');
+ const ctx={window:{},TextEncoder};vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../public/excel-auto-upload.js'),'utf8'),ctx);
+ const root=fs.mkdtempSync(path.join(os.tmpdir(),'gh-mac-watch-'));let child,server;
+ t.after(async()=>{if(child?.exitCode===null){const exited=once(child,'exit');child.kill('SIGTERM');await exited;}if(server)await new Promise(r=>server.close(r));fs.rmSync(root,{recursive:true,force:true});});
+ const requests=[];server=http.createServer((req,res)=>{const chunks=[];req.on('data',v=>chunks.push(v));req.on('end',()=>{requests.push({headers:req.headers,body:Buffer.concat(chunks).toString(),url:req.url});res.writeHead(requests.length===1?500:201);res.end('{}');});});server.listen(0,'127.0.0.1');await once(server,'listening');
+ const origin='http://127.0.0.1:'+server.address().port,key='ghk_'+'c3'.repeat(24),file=path.join(root,'Daily "quoted"; sheet.xlsm');
+ const workbook=Buffer.from('fixture-workbook');fs.writeFileSync(file,workbook);
+ const script=ctx.window.GearHubExcelAutoUpload.buildMac({key,origin,shop:'Fixture',slug:'fixture'});
+ const watcher=script.match(/<<'SKYSHOP_WATCHER'\n([\s\S]*?)SKYSHOP_WATCHER\n/)[1];
+ fs.writeFileSync(path.join(root,'watch.sh'),watcher);fs.writeFileSync(path.join(root,'file'),file);fs.writeFileSync(path.join(root,'key'),key);fs.writeFileSync(path.join(root,'origin'),origin);
+ const bin=path.join(root,'bin');fs.mkdirSync(bin);
+ fs.writeFileSync(path.join(bin,'stat'),'#!/bin/sh\nprintf "stable-stamp"\n',{mode:0o755});
+ fs.writeFileSync(path.join(bin,'sleep'),'#!/bin/sh\nexec /bin/sleep 0.05\n',{mode:0o755});
+ let stderr='';child=spawn('/bin/bash',[path.join(root,'watch.sh')],{env:{...process.env,PATH:bin+path.delimiter+process.env.PATH},stdio:['ignore','ignore','pipe']});child.stderr.on('data',chunk=>{stderr+=chunk});
+ const deadline=Date.now()+15000;
+ while(!fs.existsSync(path.join(root,'last.txt'))&&child.exitCode===null&&Date.now()<deadline)await new Promise(r=>setTimeout(r,50));
+ assert.ok(fs.existsSync(path.join(root,'last.txt')),'watcher must complete its retry: '+stderr);
+ assert.equal(fs.readFileSync(path.join(root,'last.txt'),'utf8'),'stable-stamp');
+ await new Promise(r=>setTimeout(r,120));assert.equal(requests.length,2,'failed request retried; unchanged successful file is not uploaded again');
+ for(const r of requests){assert.equal(r.url,'/api/platform/spreadsheets/auto-upload');assert.equal(r.headers['x-upload-key'],key);assert.equal(r.headers.origin,origin);assert.match(r.body,/fixture-workbook/);assert.match(r.body,/name="file"/);}
+ assert.deepEqual(fs.readFileSync(file),workbook,'source workbook is never modified');
 });
