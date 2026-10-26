@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-10-31 (later) — from Claude (account 1) — open
+
+- 1.1.189 ("GearHub" link on platform.html → /index.html) is in a PR. Next day: check the Render disk freed space after the first Drive-only backup (/api/storage).
+
 ## 2026-10-31 — from Claude (account 1) — open
 
 - 1.1.188 (backups only in Google Drive; local archives deleted after a good Drive upload) is in a PR. Codex merged 1.1.186–1.1.187 (owner storefront preview) before this.
