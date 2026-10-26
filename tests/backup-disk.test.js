@@ -1,11 +1,11 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const os=require('node:os');const path=require('node:path');const Database=require('better-sqlite3');const {createBackupService}=require('../lib/backups');
-function setup(t,env){
+function setup(t,env,drive){
  const root=fs.mkdtempSync(path.join(os.tmpdir(),'gearhub-disk-test-'));for(const n of ['uploads','receipts'])fs.mkdirSync(path.join(root,n));
  fs.writeFileSync(path.join(root,'uploads','photo.bin'),Buffer.alloc(4096,7));
  const db=new Database(path.join(root,'gearhub.sqlite'));db.exec('CREATE TABLE example(id INTEGER)');
  const previous={};for(const [k,v]of Object.entries(env)){previous[k]=process.env[k];if(v===undefined)delete process.env[k];else process.env[k]=v;}
  const sent=[];const notifications={backup:async a=>sent.push(a),alert:async()=>{}};
- const service=createBackupService({db,dataDir:root,uploadDir:path.join(root,'uploads'),receiptDir:path.join(root,'receipts'),notifications});
+ const service=createBackupService({db,dataDir:root,uploadDir:path.join(root,'uploads'),receiptDir:path.join(root,'receipts'),notifications,drive});
  t.after(()=>{service.stop();db.close();fs.rmSync(root,{recursive:true,force:true});for(const k of Object.keys(env)){if(previous[k]===undefined)delete process.env[k];else process.env[k]=previous[k];}});
  const count=()=>fs.readdirSync(path.join(root,'backups')).filter(n=>n.endsWith('.tar.gz')).length;
  return {service,count,sent};
@@ -35,4 +35,13 @@ test('the admin panel status names the off-site destinations without secrets',t=
  const state=service.status();
  assert.deepEqual(state.offsiteDestinations,['Cloudflare R2 (gearhub-backups)']);assert.equal(state.retainedLocalCopies,3);
  assert.ok(!JSON.stringify(state).includes('key-id-value'));assert.ok(!JSON.stringify(state).includes('abc.r2'));
+});
+test('with Google Drive connected, no backup stays on the Render disk; if Drive fails, the local copy stays',async t=>{
+ const uploaded=[];let fail=false;const drive={connected:()=>true,backup:async(file,name)=>{if(fail)throw Object.assign(Error('Drive down'),{code:'ECONNRESET'});uploaded.push([name,fs.statSync(file).size]);}};
+ const {service,count}=setup(t,{BACKUP_EMAIL_ENABLED:undefined,BACKUP_S3_BUCKET:undefined,BACKUP_RETENTION:'7',BACKUP_LOCAL_KEEP:undefined,BACKUP_MIN_FREE_MB:'50'},drive);
+ for(let i=0;i<3;i++){await service.run();await tick();}
+ assert.equal(count(),0,'Drive has them; the small disk keeps none');assert.equal(uploaded.length,3);assert.ok(uploaded.every(([,size])=>size>0));
+ assert.equal(service.status().retainedLocalCopies,0);assert.ok(service.status().last_offsite_success);
+ fail=true;await assert.rejects(service.run());assert.equal(count(),1,'not lost when Drive is down');
+ fail=false;await service.run();assert.equal(count(),0,'the next good upload clears it');
 });

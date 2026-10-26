@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.188: Backups live in Google Drive only, not on the Render disk (Claude) — in review
+- Owner: the Render disk is 3 GB (live: 3.13 GB, 1.42 GB used); keep backups only in Drive (5 TB, newest 30), none on Render.
+- `lib/backups.js`: after Drive confirms the upload, every local archive is deleted (step "local-cleanup"); if Drive fails, local copies stay until a later upload works. The free-space check uses the last backup's size when no local archive is left. Status `retainedLocalCopies` is 0 with Drive.
+- Tests: `tests/backup-disk.test.js` (no local copy with Drive; kept when Drive fails; cleared by the next good upload). Server-only change, nothing to see in the browser. After deploy the first daily backup frees the local copies.
+
 ### 1.1.187: Review and fix the owner storefront preview blocked in production (Codex) — [PR #260](https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/260)
 - Owner requested a recheck of PR #259. Confirmed the live storefront sends `X-Frame-Options: DENY` and CSP `frame-ancestors 'none'`, which blocks its iframe. The previous demo omitted Helmet and served the obsolete `platform-shop.html`, so its browser check did not verify the production storefront.
 - Only successful public `/shops/<slug>/` HTML now allows same-origin framing (`SAMEORIGIN`, `frame-ancestors 'self'`). All other CSP rules remain unchanged; admin/login, manifests and unavailable shops keep DENY. No database or API changes.
