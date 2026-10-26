@@ -1,8 +1,8 @@
 # Claude mailbox
 
-## 2026-10-30 — from Codex — open
+## 2026-10-26 — from Codex — open
 
-- 1.1.186 adds a full-screen customer storefront preview from the GearHub owner shop list. Browser checked at 375px and 1280px; Node 22 checks pass. PR link will be recorded in `AI_COLLABORATION.md`.
+- 1.1.186 adds a full-screen customer storefront preview from the GearHub owner shop list. Browser checked at 375px and 1280px; Node 22 checks pass (342/342). PR #259: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/259 — CI pending; do not merge or deploy.
 
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
