@@ -30,7 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.183: No product limit (Claude) — in review
+### 1.1.184: New seller shops without GearHub's hero, gear logo and default texts; default navigation picture (Claude) — in review
+- Owner (new shop "treebird" on iPhone): no hero (gear picture, "INDUSTRIAL SUPPLY · BUILT FOR WORK", "Browse our products.", "Browse equipment"), no gear in the logo circle, no "Industrial equipment" / "Find what you need, from motors to safety supplies."; the navigation background must be the owner's picture (factory skyline) for every shop by default.
+- New `public/images/shop-nav-default.jpg` (owner's picture, 1320×429, 84 KB). `public/store.js`: seller shop navigation = its own navigation picture, else the default (GearHub main unchanged); empty logo circle instead of ⚙; `hideShopDefaults()` hides `.hero` without the shop's own hero picture and the catalogue heading/text unless the shop wrote its own (GearHub's default sentence does not count). `public/style.css`: `[hidden]` rules.
+- Checked with live data through a localhost pass-through (http localhost rejects images in `checkedImageUrl`; relaxed in the test page only): treebird 375/1280 — nothing listed shows, navigation shows the picture; POLESTAR keeps its logo, its navigation picture and the EXCAVATOR hero, "Industrial equipment" hidden.
+- Still GearHub defaults on new shops (not asked): the three cards "Industrial selection / Bank, mobile transfer / Purchase support".
+
+### 1.1.183: No product limit (Claude) — merged, live
 - Owner (Plans screenshot): remove the product limit.
 - `lib/platform-model.js`: `permissions().productLimit` is `Infinity`, so creating a product, Excel import and restoring from Trash never stop at a count (storage stays the limit). `platform_plans.product_limit` column kept (no schema change).
 - `lib/platform.js`: plans saved without `productLimit` keep the stored value (PATCH `COALESCE`), new plans store 100000. `public/platform.js`: "Active product limit" field removed from Plans.
