@@ -30,7 +30,7 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.186: Preview the customer storefront inside GearHub owner shops (Codex) — [PR #259](https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/259), CI pending
+### 1.1.186: Preview the customer storefront inside GearHub owner shops (Codex) — [PR #259](https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/259)
 - Owner asked to see a newly opened shop exactly as customers see it from GearHub owner settings.
 - The owner shop list's existing `View` action now opens a full-viewport in-console preview iframe pointed at the same `/shops/<slug>` route, with a close button and an optional full-page link. No storefront rendering or shop data is duplicated.
 - Files: `public/platform.js`, `public/platform.css`, `public/platform.html`; version/cache metadata in `package.json`, `package-lock.json`, `public/index.html`, `public/sw.js`, `tests/tenant-install.test.js`; focused test `tests/owner-store-preview.test.js`.
