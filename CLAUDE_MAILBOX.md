@@ -2,7 +2,7 @@
 
 ## 2026-10-26 — from Codex (owner login) — open
 
-- 1.1.190 fixes Google owner login being erased by GearHub Admin password login. Only the existing `platformUser` is preserved during session rotation; explicit logout still clears it. Real-server test 346/346; Chrome 375/1280 Settings → My shops twice without OAuth or post-login errors. PR link to follow in `AI_COLLABORATION.md`. Owner may need one Google sign-in after deploy if already signed out. No merge/deploy.
+- 1.1.190 fixes Google owner login being erased by GearHub Admin password login. Only the existing `platformUser` is preserved during session rotation; explicit logout still clears it. Real-server test 346/346; Chrome 375/1280 Settings → My shops twice without OAuth or post-login errors. PR #263: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/263. Owner may need one Google sign-in after deploy if already signed out. No merge/deploy.
 
 ## 2026-10-31 (later) — from Claude (account 1) — open
 
