@@ -1125,3 +1125,5 @@ html.photo-scanner-open,html.photo-scanner-open body{overflow:hidden}
  .settings-profile-avatar>.net-speed{top:calc(100% + 5px)}
  .settings-profile-avatar>.net-speed svg{width:21px;height:21px}
 }
+/* Seller shops without their own hero / catalogue heading hide GearHub's defaults (store.js hideShopDefaults). */
+.hero[hidden],[data-i18n="featured"][hidden],[data-i18n="featuredText"][hidden]{display:none!important}
