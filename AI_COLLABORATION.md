@@ -30,12 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.186: Preview the customer storefront inside GearHub owner shops (Codex) — PR pending
+### 1.1.186: Preview the customer storefront inside GearHub owner shops (Codex) — [PR #259](https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/259), CI pending
 - Owner asked to see a newly opened shop exactly as customers see it from GearHub owner settings.
 - The owner shop list's existing `View` action now opens a full-viewport in-console preview iframe pointed at the same `/shops/<slug>` route, with a close button and an optional full-page link. No storefront rendering or shop data is duplicated.
 - Files: `public/platform.js`, `public/platform.css`, `public/platform.html`; version/cache metadata in `package.json`, `package-lock.json`, `public/index.html`, `public/sw.js`, `tests/tenant-install.test.js`; focused test `tests/owner-store-preview.test.js`.
 - Verified on local-only fixtures in Chrome at 1280×900 and 375×812: clicked the actual View and Close buttons; the preview filled the viewport and its iframe showed the fixture shop's public storefront. `npm run check` and `npm test` passed on Node 22 (342/342 tests). The empty demo shop returned 404s for absent image/media fixtures; preview UI and app code produced no reported exceptions.
-- PR link to add after opening; do not merge or deploy.
+- Do not merge or deploy; owner handles deployment after review.
 
 ### 1.1.185: No GearHub info cards in seller shops (Claude) — in review
 - Owner: remove "🏭 Industrial selection / 💸 Bank / mobile transfer / 🧰 Purchase support" from all seller shops, new and old.
