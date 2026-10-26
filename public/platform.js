@@ -397,11 +397,17 @@
     const closePanel = () => { panel.hidden = true; panel.innerHTML = ""; };
     panel.onclick = (e) => { if (e.target === panel) closePanel(); };
     document.onkeydown = (e) => { if (e.key === "Escape" && !panel.hidden) closePanel(); };
-    const openDialog = (label, html) => {
+    const openDialog = (label, html, dialogClass = "") => {
       panel.hidden = false;
-      panel.innerHTML = `<div class="manage-dialog" role="dialog" aria-modal="true" aria-label="${esc(label)}"><button type="button" class="dialog-close" aria-label="Close">×</button>${html}</div>`;
+      panel.innerHTML = `<div class="manage-dialog ${esc(dialogClass)}" role="dialog" aria-modal="true" aria-label="${esc(label)}"><button type="button" class="dialog-close" aria-label="Close">×</button>${html}</div>`;
       panel.querySelector(".dialog-close").onclick = closePanel;
       panel.querySelector(".dialog-close").focus();
+    };
+    const showStorePreview = (slug) => {
+      const s = sellerShops.find((shop) => shop.slug === slug);
+      if (!s) return;
+      const url = "/shops/" + encodeURIComponent(s.slug);
+      openDialog("Customer preview — " + s.name, `<div class="store-preview-head"><div><h3>Customer preview</h3><p>This is the same live shop customers open.</p></div><a class="manage-link" href="${url}" target="_blank" rel="noopener">Open full page ↗</a></div><iframe class="store-preview-frame" src="${url}" title="${esc(s.name)} customer storefront"></iframe>`, "store-preview-dialog");
     };
     const run = async (button, work, done) => {
       button.disabled = true;
@@ -459,7 +465,7 @@
       panel.querySelectorAll("[data-overview-manage]").forEach((b) => (b.onclick = () => showManager(b.dataset.overviewManage)));
     };
     document.querySelectorAll("[data-manage-shop]").forEach((b) => (b.onclick = () => showManager(b.dataset.manageShop)));
-    document.querySelectorAll("[data-view-shop]").forEach((b) => (b.onclick = () => window.open("/shops/" + encodeURIComponent(b.dataset.viewShop), "_blank", "noopener")));
+    document.querySelectorAll("[data-view-shop]").forEach((b) => (b.onclick = () => showStorePreview(b.dataset.viewShop)));
     document.querySelectorAll("[data-open-panel]").forEach((b) => (b.onclick = () => showOverview(b.dataset.openPanel)));
     if (view.reopen) { const id = view.reopen; delete view.reopen; showManager(id); }
 
