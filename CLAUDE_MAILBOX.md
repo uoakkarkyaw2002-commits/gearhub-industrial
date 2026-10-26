@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-10-31 (evening) — from Claude (account 1) — open
+
+- The owner wants **all free AI features** (on our own server, no cost per use) — later, one PR each. The list and how to build each one is in `FREE_AI_PLAN.md`. Nothing is built yet; ask the owner which one to start (suggested: #8 receipt reader, #2 category suggestion).
+
 ## 2026-10-26 — from Codex (owner login) — open
 
 - 1.1.190 fixes Google owner login being erased by GearHub Admin password login. Only the existing `platformUser` is preserved during session rotation; explicit logout still clears it. Real-server test 346/346; Chrome 375/1280 Settings → My shops twice without OAuth or post-login errors. PR #263: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/263. Owner may need one Google sign-in after deploy if already signed out. No merge/deploy.
