@@ -81,7 +81,7 @@ test('access removed in the Google account shows "not connected" and the error',
 
 test('backups, uploads and the owner console use Drive; only the GearHub owner connects it',()=>{
  const backups=read('lib/backups.js'),platform=read('lib/platform.js'),ui=read('public/platform.js'),server=read('server.js');
- assert.match(backups,/if\(drive\?\.connected\(\)\)\{step="drive-delivery";await drive\.backup\(archive,name\);offsite=true;\}/);
+ assert.match(backups,/if\(drive\?\.connected\(\)\)\{\n    step="drive-delivery";await drive\.backup\(archive,name\);offsite=true;/);
  assert.match(platform,/if \(kind === "image"\) drive\?\.photoSaved\(\);/);
  assert.match(platform,/router\.post\('\/owner\/drive\/connect',wrap\(\(req,res\)=>\{\n    owner\(req\);/);
  assert.match(platform,/scope:\["openid","email",drive\.SCOPE\],state,access_type:"offline",prompt:"consent"/);
