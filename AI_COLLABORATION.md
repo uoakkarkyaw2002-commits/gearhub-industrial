@@ -30,7 +30,7 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.191: Excel library matches the owner's photo; open the whole file card (Codex) — PR pending
+### 1.1.191: Excel library matches the owner's photo; open the whole file card (Codex) — [PR #265](https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/265)
 - Owner: match the supplied Excel files photo, make every part of an uploaded workbook card open it, compare the actual result and send a screenshot.
 - Cause: only the old View link carried the existing viewer action; the library used the old horizontal upload form and Windows-only download UI. Each workbook is now one native accessible button with its existing viewer data, an Excel icon, filename and size. Icon/name/padding and Enter open the same viewer. The dialog has the pictured full-width file chooser, green Upload button, dashed automatic-upload panel and Windows/Mac download buttons. No viewer, product/order data, database, route or permission changes.
 - Mac download is a ZIP preserving the .command executable bit; it uses the native file picker, curl and a per-shop user LaunchAgent. It snapshots a stable workbook, sends the existing shop key/origin, retries failures and leaves the source file intact. Windows generation is unchanged. No installer was installed on the test host and no Windows machine or physical iPhone was used.
