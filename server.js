@@ -795,10 +795,13 @@ app.post("/api/admin/login", async (req,res) => {
  if (!password || Buffer.byteLength(password,"utf8") > 72 || password.includes("\0")) return wrong();
  const user = db.prepare("SELECT * FROM admins WHERE username=?").get(username);
  if (!user || !(await bcrypt.compare(password,user.password_hash))) return wrong();
+ // Rotate the password session without discarding an already verified Google login.
+ const platformUser = req.session.platformUser;
  req.session.regenerate(err => {
   if (err) return res.status(500).json({error:"Could not create session."});
   const current=db.prepare("SELECT password_hash,auth_version FROM admins WHERE id=?").get(user.id);
   if (!current || current.password_hash!==user.password_hash) return req.session.destroy(() => res.status(401).json({error:"Password changed. Sign in again."}));
+  if (Number.isSafeInteger(platformUser)) req.session.platformUser = platformUser;
   req.session.admin = {id:user.id,username:user.username,authVersion:current.auth_version};
   loginGuard.success();
   const token=csrfToken(req);

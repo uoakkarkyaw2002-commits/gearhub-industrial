@@ -30,6 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.190: Keep Google owner login when signing into GearHub Admin (Codex) — PR pending
+- Owner: Settings → My shops repeatedly required Google owner login after signing into GearHub Admin with its password; the owner confirmed this trigger.
+- Cause reproduced against the real server: `/api/admin/login` regenerated the shared session and retained only `admin`, discarding the existing verified `platformUser`. `server.js` now preserves only that server-side Google identity during rotation. Session ID/CSRF rotation and explicit logout remain intact; password login by itself never creates a Google identity or owner role.
+- Added `tests/owner-login.test.js`: existing owner survives password login and server restart; old session ID revoked; password-only visitor is not a platform owner; seller stays a seller; explicit logout clears both identities. Fixtures seed verified Google state only in a temporary SQLite session, with no app authentication bypass.
+- Node 22 baseline 345/345; final `npm run check` and `npm test` 346/346. Real-server Chrome at 375×812 and 1280×812: typed Admin password, clicked Settings → My shops twice, returned through GearHub link, reloaded owner page; no OAuth requests or post-login console errors. Seller page retained its branding and did not gain My shops. No iPhone device test performed.
+- Files: `server.js`, new regression test; required version/cache metadata in `package.json`, `package-lock.json`, `public/index.html`, `public/sw.js`, `tests/tenant-install.test.js`. No storefront layout, product/order data or schema changes. If the previous version already lost the Google session, sign in once after deploy; subsequent Admin password logins retain it. PR link to follow. No merge/deploy.
+
 ### 1.1.189: "GearHub" link on the My shop page opens GearHub's store (Claude) — in review
 - Owner: clicking "GearHub" (top left of skyshopmm.com/platform.html) no longer showed the shop.
 - Cause: since 1.1.130 "/" redirects to /platform.html (owner's request) and GearHub's store is at /index.html; the link still pointed to "/", so it reloaded the same page.
