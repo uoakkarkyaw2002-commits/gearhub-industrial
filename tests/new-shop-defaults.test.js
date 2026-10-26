@@ -10,7 +10,7 @@ test('new seller shops hide GearHub defaults and get the default navigation pict
  assert.match(store,/checkedImageUrl\(site\.navigationBackgroundUrl\)\|\|\(tenantStore\?SHOP_NAV_DEFAULT:wallpaper\|\|heroImage\)/,'a shop picture first, else the default; GearHub itself unchanged');
  assert.match(store,/if\(homeFallback\)homeFallback\.hidden=!!logo\|\|tenantStore/,'no gear in a shop without a logo');
  assert.match(store,/if\(hero\)hero\.hidden=!heroImage;/,'no hero without the shop\'s own hero picture');
- assert.match(store,/v&&v!==String\(defaults\[l\]\?\.\[key\]\|\|""\)\.trim\(\)/,'GearHub\'s own sentence never counts as the shop\'s text');
+ assert.match(store,/const own=key=>\["en","my"\]\.some\(l=>String\(site\.translations\?\.\[l\]\?\.\[key\]\|\|""\)\.trim\(\)\);/,'any text a shop saved (POLESTAR) stays');
  assert.match(store,/applyLanguage\(\);applySiteLayout\(activeSiteLayout\);if\(tenantStore\)hideShopDefaults\(site,heroImage\);/);
  assert.match(css,/\.hero\[hidden\],\[data-i18n="featured"\]\[hidden\],\[data-i18n="featuredText"\]\[hidden\]\{display:none!important\}/);
  const jpg=fs.readFileSync(path.join(__dirname,'..','public','images','shop-nav-default.jpg'));assert.equal(jpg[0],0xff);assert.equal(jpg[1],0xd8);assert.ok(jpg.length<200000);
