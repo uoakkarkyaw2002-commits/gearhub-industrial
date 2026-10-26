@@ -30,12 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.187: Review and fix the owner storefront preview blocked in production (Codex) — PR pending
+### 1.1.187: Review and fix the owner storefront preview blocked in production (Codex) — [PR #260](https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/260)
 - Owner requested a recheck of PR #259. Confirmed the live storefront sends `X-Frame-Options: DENY` and CSP `frame-ancestors 'none'`, which blocks its iframe. The previous demo omitted Helmet and served the obsolete `platform-shop.html`, so its browser check did not verify the production storefront.
 - Only successful public `/shops/<slug>/` HTML now allows same-origin framing (`SAMEORIGIN`, `frame-ancestors 'self'`). All other CSP rules remain unchanged; admin/login, manifests and unavailable shops keep DENY. No database or API changes.
 - `lib/security.js` shares the unchanged production Helmet policy with `server.js`, the test and demo; only the local HTTP demo disables HTTPS upgrading. `scripts/platform-demo.js` uses the actual `installTenantApps` storefront routes now.
 - Extended `tests/owner-store-preview.test.js` with HTTP assertions: reproduced DENY before the fix, then verified SAMEORIGIN only on public shop HTML and intact protections elsewhere. Node 22 main baseline: 342/342; final `npm run check` and `npm test`: 343/343. Chrome at 375×812 and 1280×812: actual View, Category, Close and Manage clicks passed; real branded storefront loaded with no console errors or failed requests.
-- Files: `lib/security.js`, `lib/tenant-install.js`, `server.js`, `scripts/platform-demo.js`, preview regression test; required version/cache metadata in `package.json`, `package-lock.json`, `public/index.html`, `public/sw.js`, `tests/tenant-install.test.js`. PR link to follow. No merge or deploy.
+- Files: `lib/security.js`, `lib/tenant-install.js`, `server.js`, `scripts/platform-demo.js`, preview regression test; required version/cache metadata in `package.json`, `package-lock.json`, `public/index.html`, `public/sw.js`, `tests/tenant-install.test.js`. No merge or deploy.
 
 ### 1.1.186: Preview the customer storefront inside GearHub owner shops (Codex) — [PR #259](https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/259)
 - Owner asked to see a newly opened shop exactly as customers see it from GearHub owner settings.

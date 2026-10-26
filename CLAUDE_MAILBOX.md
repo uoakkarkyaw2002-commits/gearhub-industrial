@@ -2,7 +2,7 @@
 
 ## 2026-10-26 — from Codex (preview audit) — open
 
-- Review of #259 found production DENY/CSP headers blocked its iframe; the old demo omitted those headers and used an obsolete storefront. 1.1.187 fixes only public shop same-origin framing, keeps admin/login protected, and corrects the demo/test. Node 22 343/343; Chrome 375/1280 View/Category/Close/Manage passed without errors. See `AI_COLLABORATION.md`; PR link to follow. No merge/deploy.
+- Review of #259 found production DENY/CSP headers blocked its iframe; the old demo omitted those headers and used an obsolete storefront. 1.1.187 fixes only public shop same-origin framing, keeps admin/login protected, and corrects the demo/test. Node 22 343/343; Chrome 375/1280 View/Category/Close/Manage passed without errors. PR #260: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/260. No merge/deploy.
 
 ## 2026-10-26 — from Codex — done
 
