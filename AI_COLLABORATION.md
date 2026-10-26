@@ -30,7 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.188: Backups live in Google Drive only, not on the Render disk (Claude) — in review
+### 1.1.189: "GearHub" link on the My shop page opens GearHub's store (Claude) — in review
+- Owner: clicking "GearHub" (top left of skyshopmm.com/platform.html) no longer showed the shop.
+- Cause: since 1.1.130 "/" redirects to /platform.html (owner's request) and GearHub's store is at /index.html; the link still pointed to "/", so it reloaded the same page.
+- `public/platform.html`: link → `/index.html`. Test `tests/gearhub-link.test.js`. Live /index.html checked (200, GearHub store).
+
+### 1.1.188: Backups live in Google Drive only, not on the Render disk (Claude) — merged, live
 - Owner: the Render disk is 3 GB (live: 3.13 GB, 1.42 GB used); keep backups only in Drive (5 TB, newest 30), none on Render.
 - `lib/backups.js`: after Drive confirms the upload, every local archive is deleted (step "local-cleanup"); if Drive fails, local copies stay until a later upload works. The free-space check uses the last backup's size when no local archive is left. Status `retainedLocalCopies` is 0 with Drive.
 - Tests: `tests/backup-disk.test.js` (no local copy with Drive; kept when Drive fails; cleared by the next good upload). Server-only change, nothing to see in the browser. After deploy the first daily backup frees the local copies.
