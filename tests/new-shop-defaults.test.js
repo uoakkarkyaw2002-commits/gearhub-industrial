@@ -15,3 +15,10 @@ test('new seller shops hide GearHub defaults and get the default navigation pict
  assert.match(css,/\.hero\[hidden\],\[data-i18n="featured"\]\[hidden\],\[data-i18n="featuredText"\]\[hidden\]\{display:none!important\}/);
  const jpg=fs.readFileSync(path.join(__dirname,'..','public','images','shop-nav-default.jpg'));assert.equal(jpg[0],0xff);assert.equal(jpg[1],0xd8);assert.ok(jpg.length<200000);
 });
+
+test("GearHub's three info cards never show in a seller shop, new or old",()=>{
+ const store=read('public/store.js'),css=read('public/style.css'),index=read('public/index.html');
+ assert.match(store,/function hideShopDefaults\(site,heroImage\)\{[^}]*document\.documentElement\.classList\.add\("seller-shop"\);/);
+ assert.match(css,/\.seller-shop \.benefits\{display:none!important\}/);
+ assert.match(index,/<section class="wrap benefits" id="about" data-home-content><article><span>🏭<\/span><h3 data-i18n="industrial">/,'GearHub keeps them on its own store');
+});

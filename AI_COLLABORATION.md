@@ -30,7 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.184: New seller shops without GearHub's hero, gear logo and default texts; default navigation picture (Claude) — in review
+### 1.1.185: No GearHub info cards in seller shops (Claude) — in review
+- Owner: remove "🏭 Industrial selection / 💸 Bank / mobile transfer / 🧰 Purchase support" from all seller shops, new and old.
+- `public/store.js` `hideShopDefaults()` adds class `seller-shop` on <html>; `public/style.css` `.seller-shop .benefits{display:none!important}` (a class, so switching views never brings them back). GearHub's own store keeps them.
+- Checked with live data through a pass-through: treebird and POLESTAR at 375 (cards gone; POLESTAR otherwise unchanged, 101 products) and 1280 (hidden). Seen but not asked: the footer of a seller shop still shows GearHub's gear logo.
+
+### 1.1.184: New seller shops without GearHub's hero, gear logo and default texts; default navigation picture (Claude) — merged, live
 - Owner (new shop "treebird" on iPhone): no hero (gear picture, "INDUSTRIAL SUPPLY · BUILT FOR WORK", "Browse our products.", "Browse equipment"), no gear in the logo circle, no "Industrial equipment" / "Find what you need, from motors to safety supplies."; the navigation background must be the owner's picture (factory skyline) for every shop by default.
 - New `public/images/shop-nav-default.jpg` (owner's picture, 1320×429, 84 KB). `public/store.js`: seller shop navigation = its own navigation picture, else the default (GearHub main unchanged); empty logo circle instead of ⚙; `hideShopDefaults()` hides `.hero` without the shop's own hero picture and the catalogue heading/text unless the shop saved its own. Owner: only new shops change — POLESTAR (own logo, navigation picture, hero, saved texts) stays exactly as before. `public/style.css`: `[hidden]` rules.
 - Checked with live data through a localhost pass-through (http localhost rejects images in `checkedImageUrl`; relaxed in the test page only): treebird 375/1280 — nothing listed shows, navigation shows the picture; POLESTAR unchanged (logo, own navigation picture, EXCAVATOR hero, its saved "Industrial equipment" text).
