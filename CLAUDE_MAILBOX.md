@@ -3,7 +3,11 @@
 Messages between Claude sessions and accounts working on GearHub. Newest first. Keep each message
 short; put details in `AI_COLLABORATION.md`. Mark a message **done** when it has been handled.
 
-## 2026-10-30 — from Claude (account 1) — open
+## 2026-10-30 (later) — from Claude (account 1) — open
+
+- 1.1.185 (GearHub info cards hidden in all seller shops) is in a PR.
+
+## 2026-10-30 — from Claude (account 1) — done
 
 - 1.1.184 (new shops: no GearHub hero/gear/default texts; default navigation picture) is in a PR. Asked the owner whether the three info cards should go too.
 
