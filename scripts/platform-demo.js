@@ -5,7 +5,8 @@ const Database = require("better-sqlite3");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
-const { originGuard } = require("../lib/security");
+const { originGuard, pageSecurity } = require("../lib/security");
+const { installTenantApps } = require("../lib/tenant-install");
 const { createPlatform } = require("../lib/platform");
 const model = require("../lib/platform-model");
 const root = fs.mkdtempSync(path.join(os.tmpdir(), "gearhub-platform-demo-"));
@@ -14,6 +15,7 @@ db.pragma("foreign_keys=ON");
 const app = express(),
   port = 8870,
   origin = "http://127.0.0.1:" + port;
+app.use(pageSecurity({localHttp:true}));
 app.use(express.json());
 app.use(
   session({
@@ -68,11 +70,7 @@ app.get("/demo/choose", (req, res) => {
 app.get("/api/app-release", (_req, res) =>
   res.json({ ...model.release(db), platformEnabled: true }),
 );
-app.get("/shops/:slug", (req, res) =>
-  req.params.slug === "gearhub"
-    ? res.redirect("/platform.html")
-    : res.sendFile(path.join(__dirname, "..", "public", "platform-shop.html")),
-);
+installTenantApps(app, { db, dataDir: root, publicDir: path.join(__dirname, "..", "public"), publicOrigin: origin });
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 app.get("/", (_req, res) => res.redirect("/platform.html"));
 app.use(express.static(path.join(__dirname, "..", "public")));

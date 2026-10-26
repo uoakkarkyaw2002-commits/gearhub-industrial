@@ -1,7 +1,6 @@
 require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
-const helmet = require("helmet");
 const compression = require("compression");
 const rateLimit = require("express-rate-limit");
 const bcrypt = require("bcryptjs");
@@ -15,7 +14,7 @@ const { promisify } = require("util");
 const execFileAsync = promisify(execFile);
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
-const {passwordError, csrfToken, validToken, originGuard} = require("./lib/security");
+const {passwordError, csrfToken, validToken, originGuard, pageSecurity} = require("./lib/security");
 const {createBackupService} = require("./lib/backups");
 const {createNotifications} = require("./lib/notifications");
 const {createLoginGuard} = require("./lib/login-guard");
@@ -189,7 +188,7 @@ app.use((req,res,next)=>{
 // Gzip text responses (HTML, JS, CSS, JSON); images are already compressed.
 app.use(compression({ threshold: 1024 }));
 app.use(require('./lib/canonical-host').canonicalRedirect(publicOrigin));
-app.use(helmet({contentSecurityPolicy:{directives:{defaultSrc:["'self'"],scriptSrc:["'self'"],styleSrc:["'self'","'unsafe-inline'"],imgSrc:["'self'","data:","blob:","https:"],fontSrc:["'self'","data:","https:"],connectSrc:["'self'"],formAction:["'self'"],baseUri:["'self'"],objectSrc:["'none'"],frameAncestors:["'none'"]}},frameguard:{action:"deny"}}));
+app.use(pageSecurity());
 // Turn off browser features the shops never use, so injected code cannot ask for them.
 const permissionsPolicy="camera=(), microphone=(), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), hid=(), midi=(), magnetometer=(), gyroscope=(), accelerometer=(), display-capture=(), browsing-topics=()";
 app.use((_req,res,next)=>{res.setHeader("Permissions-Policy",permissionsPolicy);next();});
