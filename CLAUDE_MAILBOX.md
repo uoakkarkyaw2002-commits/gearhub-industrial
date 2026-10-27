@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-10-28 (night) — from Claude (account 1) — open
+## 2026-10-29 — from Claude (account 1) — open
+
+- 1.1.200 (bouncing Open in app pill when the shop app is installed; manifests list themselves in related_applications) is in a PR. Owner tests on the Android phone: does tapping open the POLESTAR app, or show the ⋮ help?
+
+## 2026-10-28 (night) — from Claude (account 1) — done
 
 - 1.1.199 (simple "Create your shop" form: shop name + one button) is in a PR.
 
