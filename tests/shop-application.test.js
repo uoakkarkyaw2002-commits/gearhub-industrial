@@ -19,7 +19,7 @@ test('visitor motion respects reduced motion and the new artwork and assets are 
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{body\.visitor\.signin-open #account \.glass-signin-card\{animation:none\}\}/);
  assert.match(css,/body\.visitor\.signin-open #account\{[^}]*backdrop-filter:none/,'the whole scene is not blurred');
  assert.match(css,/body\.visitor>\.signin-scene/,'new background is confined to the visitor view');
- assert.match(script,/if\(!me\.user&&!me\.isOwner&&scene&&!scene\.getAttribute\('src'\)\)scene\.src=scene\.dataset\.src/,'owner pages do not load the visitor artwork');
+ assert.match(script,/if\(landing&&scene&&!scene\.getAttribute\('src'\)\)scene\.src=scene\.dataset\.src/,'owner console and Create pages do not load the visitor artwork');
  for(const asset of ['signin.css','platform.js','shop-application.js','images/signin-scene.webp']){
   const tag=html.match(new RegExp('/'+asset.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\?v=[^" ]+'))?.[0];
   assert.ok(tag,asset+' is loaded');assert.ok(sw.includes('"'+tag+'"'),asset+' offline version matches');

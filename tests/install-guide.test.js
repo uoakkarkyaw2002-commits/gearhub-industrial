@@ -18,11 +18,16 @@ test('the Home Screen helper is loaded in the admin, cached offline, and never o
  assert.match(js,/if\(prompt\)return \[/,'Android and PC use the browser install prompt when there is one');
 });
 
-test('1.1.196: a seller who already has a shop goes into it; the owner has one-tap Google Sign in',()=>{
- const platform=read('public/platform.js'),css=read('public/platform.css');
- assert.match(platform,/if\(Date\.now\(\)-last>60000\)\{[^\n]*location\.replace\("\/shops\/"\+encodeURIComponent\(me\.shop\.slug\)\+"\/admin"/,'at most once a minute, so it cannot loop');
- assert.match(platform,/me\.isOwner \? '<a class="owner-google-signin" href="\/platform\.html\?visitor">Skyshop<\/a>'/,'1.1.197: the owner opens the new-seller page');
- assert.match(platform,/if \(new URLSearchParams\(location\.search\)\.has\("visitor"\)\) me = \{ \.\.\.me, user: null, isOwner: false, shop: null, application: null \};/);
+test('1.1.204: Home is the login card for everyone; a signed-in account gets one button into its own place',()=>{
+ const platform=read('public/platform.js'),app=require('../public/shop-application.js'),css=read('public/platform.css'),server=read('lib/platform.js');
+ assert.doesNotMatch(platform,/gh-into-shop/,'no automatic jump into a shop (owner: a POLESTAR phone always landed in POLESTAR)');
+ const base={user:{email:'s@example.test'},application:null,shop:null,isOwner:false};
+ assert.match(app.account({...base,shop:{slug:'pole star',name:'POLESTAR <b>'}}),/href="\/shops\/pole%20star\/admin"><svg[^]*POLESTAR &lt;b&gt; ဆိုင်ထဲ သွားမယ်/);
+ assert.match(app.account(base),/href="\/platform\.html\?view=create"/);
+ assert.match(app.account({...base,isOwner:true}),/href="\/platform\.html\?view=console">[^]*Owner console/);
+ for(const html of [app.account(base),app.account({...base,isOwner:true})]){assert.match(html,/id="google-login">တခြား account နဲ့ ဝင်မယ်<\/button><button type="button" id="account-logout">Logout<\/button>/)}
+ assert.match(server,/res\.redirect\(model\.isOwner\(db,u,ownerEmail\) \? '\/platform\.html\?view=console' : approved \? '\/shops\/'\+encodeURIComponent\(approved\.slug\)\+'\/admin' : '\/platform\.html\?view=create'\);/);
+ assert.match(platform,/'<a class="owner-google-signin" href="\/platform\.html">Skyshop<\/a>'/);
  assert.match(css,/body\.onboarding:not\(\.visitor\) \.site-brand,body\.onboarding:not\(\.visitor\) \.site-nav a\{white-space:nowrap\}/);
 });
 

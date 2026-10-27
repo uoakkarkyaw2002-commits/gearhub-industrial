@@ -176,7 +176,7 @@
   });
   byId("notifications-toggle")?.addEventListener("change", event => enableNotifications(event.currentTarget.checked));
   byId("my-shops-action")?.addEventListener("click", () => {
-    location.href = "/platform.html";
+    location.href = "/platform.html?view=console";
   });
   // Share My Store: QR code plus a copyable link to this shop's own address.
   function storeLink() {

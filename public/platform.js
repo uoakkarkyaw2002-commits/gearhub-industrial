@@ -211,24 +211,25 @@
   async function load() {
     me = await api("/me");
     csrf = me.csrfToken;
-    // Owner 1.1.197: the "Skyshop" button shows the page a new seller sees (Sign in → open a shop),
-    // without signing the owner out; signing in there switches the Google account.
-    if (new URLSearchParams(location.search).has("visitor")) me = { ...me, user: null, isOwner: false, shop: null, application: null };
-    document.body.classList.toggle("onboarding",!me.isOwner);
-    // Visitors (not signed in) see the scene and the top menu; the sign-in card opens from "Sign in".
-    document.body.classList.toggle("visitor",!me.user&&!me.isOwner);
-    const scene=$("signin-scene");if(!me.user&&!me.isOwner&&scene&&!scene.getAttribute('src'))scene.src=scene.dataset.src;
-    $("site-nav").hidden=!!me.isOwner;
-    $("signin-open").hidden=!!me.user;
-    $("logout").hidden = !me.user;
-    $("account").hidden=!!me.user&&!me.isOwner;
+    // Owner 1.1.204: skyshopmm.com always opens on the login card, signed in or not; a signed-in account gets
+    // one button into its own place (?view=console for GearHub, ?view=create for an account without a shop).
+    const params = new URLSearchParams(location.search), view = params.has("visitor") ? "" : params.get("view") || (params.has("drive") ? "console" : "");
+    const landing = !(view === "console" && me.isOwner) && !(view === "create" && me.user && !me.shop && !me.isOwner);
+    document.body.classList.toggle("onboarding",!me.isOwner||landing);
+    // The landing page shows the scene and the top menu; the card opens by itself and again from "Sign in".
+    document.body.classList.toggle("visitor",landing);
+    const scene=$("signin-scene");if(landing&&scene&&!scene.getAttribute('src'))scene.src=scene.dataset.src;
+    $("site-nav").hidden=!!me.isOwner&&!landing;
+    $("signin-open").hidden=!landing;$("signin-open").textContent=me.user?"Account":"Sign in";
+    $("logout").hidden = landing || !me.user;
+    $("account").hidden=!landing&&!!me.user&&!me.isOwner;
     $("owner").innerHTML = "";
     $("shop").innerHTML = "";
     $("application").innerHTML = "";
-    $("account").innerHTML = me.user
-      ? `<p>${esc(me.user.name)} · ${esc(me.user.email)}</p>${me.isOwner ? '<a class="owner-google-signin" href="/platform.html?visitor">Skyshop</a>' : ""}`
-      : window.GearHubApplication.login(me.oauthReady);
-    if(!me.user)$("account").querySelector(".login-application")?.insertAdjacentHTML("afterbegin",'<button type="button" class="signin-close" id="signin-close" aria-label="Close">×</button>');
+    $("account").innerHTML = landing
+      ? (me.user ? window.GearHubApplication.account(me) : window.GearHubApplication.login(me.oauthReady))
+      : `<p>${esc(me.user.name)} · ${esc(me.user.email)}</p>${me.isOwner ? '<a class="owner-google-signin" href="/platform.html">Skyshop</a>' : ""}`;
+    if(landing)$("account").querySelector(".login-application")?.insertAdjacentHTML("afterbegin",'<button type="button" class="signin-close" id="signin-close" aria-label="Close">×</button>');
     $("google-login")?.addEventListener("click", async () => {
       try {
         location.href = (await api("/auth/start", "POST", {})).url;
@@ -236,7 +237,8 @@
         msg(e.message);
       }
     });
-    if (!me.user) return;
+    $("account-logout")?.addEventListener("click", () => $("logout").onclick());
+    if (landing) { signIn(true); return; }
     if (!me.shop && !me.isOwner) {
       $("application").innerHTML = window.GearHubApplication.render(me);
       $("application-message")?.addEventListener("input",e=>$("application-counter").textContent=e.target.value.length+" / 500");
@@ -250,13 +252,7 @@
       });
     } else if (me.shop) {
       if(me.isOwner)await shop(me.shop.id);
-      else {
-        $("application").innerHTML=window.GearHubApplication.render(me);
-        // Owner 1.1.196: a seller with a shop goes straight into it (once a minute at most, so a shop admin
-        // that sends the seller back here cannot loop).
-        const key="gh-into-shop";let last=0,done=null;try{last=Number(sessionStorage.getItem(key)||0);done=localStorage.getItem("gh-install-guide-done:"+me.shop.slug)}catch{}
-        if(Date.now()-last>60000){try{sessionStorage.setItem(key,String(Date.now()))}catch{}location.replace("/shops/"+encodeURIComponent(me.shop.slug)+"/admin"+(me.application?.decision_note==="Opened automatically"&&!done?"?welcome=1":""));return;}
-      }
+      else $("application").innerHTML=window.GearHubApplication.render(me);
     }
     $("check-approval")?.addEventListener("click",()=>load().catch(e=>msg(e.message)));
     if (me.isOwner) await owner();
