@@ -189,10 +189,25 @@
     art.src=src;
   }).catch(()=>{});
   // Sign in opens the card as a pop-up over the scene; ×, Esc or a tap outside closes it.
-  const signIn=open=>document.body.classList.toggle("signin-open",open);
+  const signIn=open=>{
+    const card=$("account").querySelector('.glass-signin-card');
+    if(!open)card?.getAnimations().forEach(animation=>animation.cancel());
+    document.body.classList.toggle("signin-open",open);
+    $("signin-open")?.setAttribute('aria-expanded',String(open));
+    if(open)card?.focus({preventScroll:true});
+    else $("signin-open")?.focus({preventScroll:true});
+  };
   $("signin-open")?.addEventListener("click",()=>signIn(true));
   $("account").addEventListener("click",e=>{if(e.target.id==="signin-close"||e.target===$("account"))signIn(false)});
-  document.addEventListener("keydown",e=>{if(e.key==="Escape")signIn(false)});
+  document.addEventListener("keydown",e=>{
+    if(!document.body.classList.contains('signin-open'))return;
+    if(e.key==='Escape'){signIn(false);return;}
+    if(e.key!=='Tab')return;
+    const card=$("account").querySelector('.glass-signin-card');if(!card)return;
+    const buttons=[...card.querySelectorAll('button:not(:disabled),a[href]')],first=buttons[0],last=buttons.at(-1);
+    if(e.shiftKey&&(document.activeElement===first||document.activeElement===card)){e.preventDefault();last?.focus();}
+    else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}
+  });
   async function load() {
     me = await api("/me");
     csrf = me.csrfToken;
@@ -202,6 +217,7 @@
     document.body.classList.toggle("onboarding",!me.isOwner);
     // Visitors (not signed in) see the scene and the top menu; the sign-in card opens from "Sign in".
     document.body.classList.toggle("visitor",!me.user&&!me.isOwner);
+    const scene=$("signin-scene");if(!me.user&&!me.isOwner&&scene&&!scene.getAttribute('src'))scene.src=scene.dataset.src;
     $("site-nav").hidden=!!me.isOwner;
     $("signin-open").hidden=!!me.user;
     $("logout").hidden = !me.user;
