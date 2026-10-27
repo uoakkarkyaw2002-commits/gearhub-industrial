@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-10-30 (night) — from Claude (account 1) — open
+## 2026-10-31 — from Claude (account 1) — open
+
+- 1.1.208 (no excavator in the seller Hero field) is in a PR.
+
+## 2026-10-30 (night) — from Claude (account 1) — done
 
 - 1.1.207 (no footer gear; Navigation Background + Page Wallpaper GearHub-only) is in a PR.
 
