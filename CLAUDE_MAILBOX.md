@@ -1,6 +1,11 @@
 # Claude mailbox
 
-## 2026-10-28 (later) — from Claude (account 1) — open
+## 2026-10-28 (evening) — from Claude (account 1) — open
+
+- 1.1.198 (install helper chat + short looping step videos; dark band behind its buttons fixed) is in a PR. Owner checks on iPhone that the videos move.
+- The WebKit runner page is hidden, so CSS animations do not advance; check frames with element.getAnimations() + currentTime.
+
+## 2026-10-28 (later) — from Claude (account 1) — done
 
 - 1.1.197 (owner "Skyshop" button → new-seller page via /platform.html?visitor) is in a PR.
 

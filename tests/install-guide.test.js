@@ -25,3 +25,12 @@ test('1.1.196: a seller who already has a shop goes into it; the owner has one-t
  assert.match(platform,/if \(new URLSearchParams\(location\.search\)\.has\("visitor"\)\) me = \{ \.\.\.me, user: null, isOwner: false, shop: null, application: null \};/);
  assert.match(css,/body\.onboarding:not\(\.visitor\) \.site-brand,body\.onboarding:not\(\.visitor\) \.site-nav a\{white-space:nowrap\}/);
 });
+
+test('1.1.198: the helper talks like a chat and every iPhone Safari step has a short looping video',()=>{
+ const js=read('public/install-guide.js'),css=read('public/install-guide.css');
+ assert.match(js,/const reply='<div class="ig-msg ig-me"><p>ပြီးပြီ ✓ \/ Done<\/p><\/div>';/);
+ assert.match(js,/setTimeout\(\(\)=>\{if\(mine===typing\)end\(\)\},900\);/,'the robot types, then replies by itself');
+ for(const scene of ['ios-share','ios-add','ios-confirm','home'])assert.ok(js.includes("scene:'"+scene+"'"),scene);
+ for(const name of ['ig-f-share','ig-f-add','ig-f-confirm','ig-f-home'])assert.match(css,new RegExp('@keyframes '+name+'\\{'));
+ assert.doesNotMatch(js,/<footer>/,'the admin page footer style must not paint the buttons');
+});
