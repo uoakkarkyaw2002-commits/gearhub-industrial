@@ -15,7 +15,7 @@ test('the scan button runs a live camera scanner and asks the shop server; the b
  assert.doesNotMatch(scan,/first time only|loadGraphModel/,'no on-phone model and no first-time message');
  assert.doesNotMatch(store,/photoScanIds/);
  assert.ok(!fs.existsSync(path.join(root,'public','vendor','tf.min.js')),'the on-phone model is gone');
- assert.match(index,/<script src="\/photo-scan\.js\?v=20261027-scan-timer-1"><\/script>/);
+ assert.match(index,/<script src="\/photo-scan\.js\?v=20261031-free-ai-1"><\/script>/);
 });
 
 test('the photo-search API is public per shop, rate limited, takes a picture and stays inside the shop',()=>{

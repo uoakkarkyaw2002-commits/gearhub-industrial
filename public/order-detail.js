@@ -82,7 +82,7 @@
    +'<div class="od-facts">'+kv("Order Date",dayTime(order.created_at))+kv("Order Status",pill(order.status))+kv("Payment",pill(order.payment_status))+kv("Confirm Date",plainDate(order.confirmation_date))+kv("Admin Note",esc(order.admin_note||"-"))+'</div></section>'
    +'<section class="od-card od-items"><div class="od-items-head"><h3>Items ('+items.length+')</h3><span class="od-count">'+odIcon.cart+'<b>'+qty+'</b></span></div><ol>'+(items.map(itemMarkup).join("")||'<li class="order-page-empty">No items found.</li>')+'</ol>'
    +'<div class="od-total"><p>Total Items <i>:</i> <b>'+qty+'</b></p><i class="od-rule" aria-hidden="true"></i><div class="od-total-amount"><small>Total Amount</small><b>'+ks(order.total)+'</b></div></div>'
-   +'<form class="order-page-form od-form" id="'+formId+'"><div class="od-actions"><a class="od-btn od-received"'+receiptHref+'>'+odIcon.doc+'<span>View Received</span></a><button type="submit" class="od-btn od-save">'+odIcon.save+'<span>Save</span></button><button type="button" class="od-btn od-edit-open" data-order-edit>'+odIcon.edit+'<span>Edit</span></button><button type="button" class="od-btn od-delete order-page-delete" data-order-delete>'+odIcon.trash+'<span>Delete</span></button></div></form></section></section>';
+   +'<form class="order-page-form od-form" id="'+formId+'"><div class="od-actions"><a class="od-btn od-received"'+receiptHref+'>'+odIcon.doc+'<span>View Received</span></a><button type="submit" class="od-btn od-save">'+odIcon.save+'<span>Save</span></button><button type="button" class="od-btn od-edit-open" data-order-edit>'+odIcon.edit+'<span>Edit</span></button><button type="button" class="od-btn od-delete order-page-delete" data-order-delete>'+odIcon.trash+'<span>Delete</span></button></div>'+(order.hasReceipt?'<p class="od-ai-receipt" data-ai-receipt="'+Number(order.id)+'" hidden></p>':'')+'</form></section></section>';
  }
  // Exposed for tests only.
  window.GearHubOrderDetail={detail,setCatalog:c=>{catalog=c}};
@@ -96,7 +96,21 @@
   const fresh=orders.filter(order=>order.status==="pending"),html=selected&&active?detail(active):'<div class="order-invoice-list">'+(fresh.length?fresh.map(listCard).join(""):'<p class="order-page-empty">No new orders. ဘာမှ အတည်မပြုရသေးတဲ့ အော်ဒါ မရှိပါ။</p>')+'</div>';
   const ours=host.querySelector(".order-invoice-list,.order-page");
   if(!force&&ours){const field=document.activeElement;if(html===shown||host.querySelector(".order-page.is-editing")||(field&&host.contains(field)&&field.matches("input,select,textarea")))return}
-  shown=html;host.innerHTML=html;
+  shown=html;host.innerHTML=html;readReceipt(host);
+ }
+ // Free AI #8 (FREE_AI_PLAN.md): the shop server reads the payment screenshot (amount, transaction ID)
+ // and says whether the amount matches the order total. Advice for the owner; nothing changes by it.
+ const receiptKs=n=>Number(n).toLocaleString("en-US")+" Ks";
+ async function readReceipt(host){
+  const line=host.querySelector("[data-ai-receipt]"),read=window.GearHubTenantAdmin?.receiptRead;if(!line||!read)return;
+  const order=orders.find(o=>Number(o.id)===Number(line.dataset.aiReceipt));if(!order)return;
+  line.hidden=false;line.className="od-ai-receipt";line.textContent="🧾 AI က ပြေစာကို ဖတ်နေပါတယ်… / Reading the receipt…";
+  try{const r=await read(order);if(!line.isConnected)return;
+   const id=r.transactionId?" · ID "+r.transactionId:"";
+   if(r.amount==null){line.classList.add("od-ai-warn");line.textContent="🧾 AI: ပြေစာမှာ ငွေပမာဏ မဖတ်နိုင်ပါ။ ကိုယ်တိုင် စစ်ပါ။ / Could not read an amount — check the receipt yourself."+id;}
+   else if(r.matches){line.classList.add("od-ai-ok");line.textContent="🧾 AI: "+receiptKs(r.amount)+id+" — ✓ order total နဲ့ ကိုက်ညီပါတယ် / matches the order total";}
+   else{line.classList.add("od-ai-warn");line.textContent="🧾 AI: ပြေစာမှာ "+receiptKs(r.amount)+" ပါပြီး order က "+receiptKs(r.total)+" ဖြစ်ပါတယ်။ စစ်ပါ။ / The receipt shows "+receiptKs(r.amount)+", the order is "+receiptKs(r.total)+"."+id;}
+  }catch(_){if(line.isConnected)line.hidden=true}
  }
  async function render(){
   const host=document.getElementById("orders-table");if(!host||loading)return;loading=true;
