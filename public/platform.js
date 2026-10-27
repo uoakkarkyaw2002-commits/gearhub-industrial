@@ -207,7 +207,7 @@
     $("shop").innerHTML = "";
     $("application").innerHTML = "";
     $("account").innerHTML = me.user
-      ? `<p>${esc(me.user.name)} · ${esc(me.user.email)}</p>`
+      ? `<p>${esc(me.user.name)} · ${esc(me.user.email)}</p>${me.isOwner ? '<button type="button" class="owner-google-signin" id="google-login">Google Sign in</button>' : ""}`
       : window.GearHubApplication.login(me.oauthReady);
     if(!me.user)$("account").querySelector(".login-application")?.insertAdjacentHTML("afterbegin",'<button type="button" class="signin-close" id="signin-close" aria-label="Close">×</button>');
     $("google-login")?.addEventListener("click", async () => {
@@ -231,7 +231,13 @@
       });
     } else if (me.shop) {
       if(me.isOwner)await shop(me.shop.id);
-      else $("application").innerHTML=window.GearHubApplication.render(me);
+      else {
+        $("application").innerHTML=window.GearHubApplication.render(me);
+        // Owner 1.1.196: a seller with a shop goes straight into it (once a minute at most, so a shop admin
+        // that sends the seller back here cannot loop).
+        const key="gh-into-shop";let last=0,done=null;try{last=Number(sessionStorage.getItem(key)||0);done=localStorage.getItem("gh-install-guide-done:"+me.shop.slug)}catch{}
+        if(Date.now()-last>60000){try{sessionStorage.setItem(key,String(Date.now()))}catch{}location.replace("/shops/"+encodeURIComponent(me.shop.slug)+"/admin"+(me.application?.decision_note==="Opened automatically"&&!done?"?welcome=1":""));return;}
+      }
     }
     $("check-approval")?.addEventListener("click",()=>load().catch(e=>msg(e.message)));
     if (me.isOwner) await owner();

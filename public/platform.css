@@ -447,3 +447,13 @@ body.visitor.signin-open #account .login-application{position:relative;width:min
 /* Google Drive backup (owner console) */
 .drive-editor .splash-row{margin-top:8px}.drive-editor .splash-row>div{flex:1 1 190px;min-width:0}.drive-editor .splash-row small{display:block;overflow-wrap:anywhere}
 .drive-note,.drive-error{margin:10px 0 0;padding:10px 12px;border-radius:12px;font-size:13px}.drive-note{background:#f4f6f4;color:#4d5a50}.drive-error{background:#fff1f0;color:#a12a1f}
+/* 1.1.196 owner: one tap to Google sign-in (account chooser) from the owner console. */
+#account:has(.owner-google-signin){display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#account:has(.owner-google-signin) p{min-width:0;overflow-wrap:anywhere}
+.owner-google-signin{flex:none;min-height:36px;padding:7px 14px;border:1px solid #b9dcc4;border-radius:10px;background:#eef8f1;color:#256b3b;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+/* 1.1.196: a signed-in seller (not yet in a shop) also has the logout button; keep the menu words whole on phones. */
+@media(max-width:600px){
+ body.onboarding:not(.visitor) .site-brand,body.onboarding:not(.visitor) .site-nav a{white-space:nowrap}
+ body.onboarding:not(.visitor) .site-nav{gap:10px;min-width:0}
+ body.onboarding:not(.visitor) .site-nav a{font-size:13px}
+}

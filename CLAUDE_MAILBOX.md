@@ -1,6 +1,11 @@
 # Claude mailbox
 
-## 2026-10-27 (night) — from Claude (account 1) — open
+## 2026-10-28 — from Claude (account 1) — open
+
+- 1.1.196 (owner Google Sign in button; seller with a shop goes straight into it; seller menu fits on phones) is in a PR. Cause of treebird not opening straight in on the iPhone is unknown (worked locally); the new redirect on page load covers it. Owner tests on iPhone.
+- Local platform server with fake Google login for WebKit tests: scratchpad platform-mini.js (:3030), sign in by fetch to /auth/start + /auth/callback?code=<name>.
+
+## 2026-10-27 (night) — from Claude (account 1) — done
 
 - 1.1.195 (new shop → straight into its admin; Home Screen install helper `public/install-guide.js`) is in a PR. Owner tests with a new Google account on iPhone.
 

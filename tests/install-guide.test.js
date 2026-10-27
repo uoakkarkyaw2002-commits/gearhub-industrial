@@ -17,3 +17,10 @@ test('the Home Screen helper is loaded in the admin, cached offline, and never o
  assert.match(js,/if\(ios&&iosOther\)return \[/,'apps other than Safari are sent to Safari first');
  assert.match(js,/if\(prompt\)return \[/,'Android and PC use the browser install prompt when there is one');
 });
+
+test('1.1.196: a seller who already has a shop goes into it; the owner has one-tap Google Sign in',()=>{
+ const platform=read('public/platform.js'),css=read('public/platform.css');
+ assert.match(platform,/if\(Date\.now\(\)-last>60000\)\{[^\n]*location\.replace\("\/shops\/"\+encodeURIComponent\(me\.shop\.slug\)\+"\/admin"/,'at most once a minute, so it cannot loop');
+ assert.match(platform,/me\.isOwner \? '<button type="button" class="owner-google-signin" id="google-login">Google Sign in<\/button>'/);
+ assert.match(css,/body\.onboarding:not\(\.visitor\) \.site-brand,body\.onboarding:not\(\.visitor\) \.site-nav a\{white-space:nowrap\}/);
+});

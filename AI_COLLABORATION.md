@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.196: Owner Google Sign in button; seller with a shop goes straight in; seller menu fits (Claude)
+- Owner: a button on the owner console to go straight to Google sign-in. `platform.js` adds "Google Sign in" (owner only) on the name/email line; it uses the existing `/auth/start` (Google account chooser). Styles at the end of `platform.css`.
+- Owner: a new shop (treebird) did not open straight in on the iPhone, although the shop was made on live. Locally (fake Google server, WebKit 375) Submit → `/shops/<slug>/admin?welcome=1` and the install helper worked, so the cause on the phone is unknown. Now `platform.html` also sends any signed-in seller who has a shop straight to its admin (at most once a minute via sessionStorage, so an admin that sends them back cannot loop); `?welcome=1` while the auto-opened shop has not finished the install helper.
+- Seller menu on phones: with the logout button the words broke apart ("GearHu b", "Hom e"); for signed-in non-owners on phones the brand/links stay on one line (13px, 10px gap). Fits at 375.
+- Tests: re-applying after the owner deletes the shop opens a new shop at once (`platform.test.js`); `install-guide.test.js` pins the redirect, button and menu. Node 22 check + 361/361. WebKit 375/1280 on a local platform server with fake Google login.
+
 ### 1.1.195: New shop goes straight into its admin + Home Screen install helper (Claude)
 - Owner: after applying with Google the seller should land in their shop at once, then get step-by-step help to add it to the Home Screen.
 - `public/platform.js`: when `POST /applications` returns a slug (shop opened), go to `/shops/<slug>/admin?welcome=1`. Shops that wait for the owner (limit reached) behave as before. `public/shop-application.js`: removed the old "opens only after owner approval" lines.
