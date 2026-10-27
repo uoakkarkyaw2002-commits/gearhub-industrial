@@ -726,3 +726,14 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
 /* Inventory category filter opens the Add Product category picker (the select only shows the choice). */
 .inventory-filter-wrap #inventory-category-filter{pointer-events:none}
 .inventory-category-open{position:absolute;inset:0;z-index:2;width:100%;height:100%;margin:0;padding:0;border:0;border-radius:inherit;background:transparent;cursor:pointer}
+
+/* Free AI under "Choose photos" (product-ai.js): advice only. */
+.product-ai{display:grid;gap:8px;margin:10px 0 0;padding:12px;border:1px solid #dfe8df;border-radius:12px;background:#fbfdfb;font-size:13px;line-height:1.45}
+.product-ai[hidden]{display:none}
+.product-ai p{margin:0}
+.product-ai-busy,.product-ai-note{color:#5d6673}.product-ai-ok{color:#1f7a3f;font-weight:700}
+.product-ai-warn{padding:8px 10px;border-radius:10px;background:#fff6e5;color:#7a4b00}
+.product-ai-cats{display:grid;gap:6px}.product-ai-cats>p{font-weight:800;color:#1d2b22}
+.product-ai-cats button{display:grid;gap:2px;width:100%;padding:9px 12px;border:1px solid #cfe3d3;border-radius:10px;background:#fff;color:#1d2b22;text-align:left;cursor:pointer}
+.product-ai-cats button small{color:#5d6673;font-size:12px}
+.product-ai-cats button.chosen{border-color:#1f7a3f;background:#eaf7ee}
