@@ -13,7 +13,8 @@ async function shopWithPhotos(){
  const photos={};
  for(const [pid,svg,cat,cid] of [[1,gear,'Gears',2],[2,shaft,'Shafts',3]]){const id='img'+pid;photos[pid]=await shape(svg);fs.writeFileSync(path.join(media,'7',id+'.jpg'),photos[pid]);db.prepare('INSERT INTO platform_products VALUES(?,7,?,?,?,?,?,1)').run(pid,'SKU-'+pid,pid===1?'Gear wheel':'Drive shaft',cat,id,JSON.stringify({imageIds:[id],categoryId:cid}));db.prepare("INSERT INTO platform_files VALUES(?,7,'image',1,?)").run(id,id+'.jpg')}
  const shop={id:7,settings:JSON.stringify(settings)},ps=createPhotoSearch({db,media});await ps.learn(shop);
- return {ps,shop,shape,gear,photos,done:()=>fs.rmSync(media,{recursive:true,force:true})};
+ const add=async(pid,svg,bg)=>{const id='img'+pid;fs.writeFileSync(path.join(media,'7',id+'.jpg'),await shape(svg,bg));db.prepare('INSERT INTO platform_products VALUES(?,7,?,?,?,?,?,1)').run(pid,'SKU-'+pid,'Part '+pid,'Gears',id,JSON.stringify({imageIds:[id]}));db.prepare("INSERT INTO platform_files VALUES(?,7,'image',1,?)").run(id,id+'.jpg');await ps.learn(shop)};
+ return {ps,shop,shape,gear,photos,add,done:()=>fs.rmSync(media,{recursive:true,force:true})};
 }
 
 test('#2 #3 #4 a new product photo: category of its look-alikes, the same part already in the shop, dark or blurred',async()=>{
@@ -50,4 +51,17 @@ test('#5 smarter search finds spelling mistakes, any word order and codes withou
  assert.match(store,/if\(window\.GearHubSmartSearch&&q\.trim\(\)\.length>=3\)\{const seen=new Set\(list\);list=list\.concat\(/,'exact matches first, then the smart ones');
  assert.match(index,/<script src="\/smart-search\.js\?v=([^"]+)"><\/script><script src="\/store\.js\?v=\1"><\/script>/);
  assert.match(sw,/"\/smart-search\.js\?v=20261031-free-ai-1"/);
+});
+
+test('#6 similar parts: the product that looks most alike comes first; a product is never similar to itself',async()=>{
+ const {ps,shop,gear,add,done}=await shopWithPhotos();
+ try{
+  await add(3,'<g transform="rotate(20 200 200) scale(.9) translate(20 20)">'+gear+'</g>','#f2f2f2');
+  const r=await ps.similar(shop,1);
+  assert.equal(r.ready,true);assert.equal(r.products[0].id,'3','the other gear');assert.ok(!r.products.some(p=>p.id==='1'));
+  assert.ok(r.products.every((p,i,a)=>i===0||a[i-1].score>=p.score));
+  const platform=read('lib/platform.js'),ui=read('public/similar-parts.js');
+  assert.match(platform,/"\/store\/:slug\/similar\/:product"/);
+  assert.match(ui,/window\.openGallery=function\(id,index\)\{open\(id,index\);/,"shown each time a product's photos open");
+ }finally{done()}
 });
