@@ -737,3 +737,8 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
 .product-ai-cats button{display:grid;gap:2px;width:100%;padding:9px 12px;border:1px solid #cfe3d3;border-radius:10px;background:#fff;color:#1d2b22;text-align:left;cursor:pointer}
 .product-ai-cats button small{color:#5d6673;font-size:12px}
 .product-ai-cats button.chosen{border-color:#1f7a3f;background:#eaf7ee}
+/* Free AI #8: the receipt line under an order's buttons (order-detail.js). */
+.od-ai-receipt{margin:10px 0 0;padding:10px 12px;border-radius:12px;background:#f4f6f4;color:#3b4740;font-size:13px;line-height:1.45;overflow-wrap:anywhere}
+.od-ai-receipt[hidden]{display:none}
+.od-ai-receipt.od-ai-ok{background:#eaf7ee;color:#1f6b37}
+.od-ai-receipt.od-ai-warn{background:#fff6e5;color:#7a4b00}
