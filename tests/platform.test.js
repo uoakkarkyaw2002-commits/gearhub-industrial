@@ -763,6 +763,12 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
     assert.equal(db.prepare('SELECT id FROM platform_shops WHERE id=?').get(shop.id),undefined);
     assert.equal(db.prepare('SELECT shop_id FROM platform_upload_keys WHERE shop_id=?').get(shop.id),undefined);
     assert.equal((await seller.me()).shop,null);
+    // Owner 1.1.196: the same Google account applies again and its new shop opens at once.
+    assert.equal((await owner.call('/owner/signup','PUT',{maxShops:99,storageMb:100})).status,200);
+    const again=await seller.call('/applications','POST',{name:'Delete me shop'});
+    assert.equal(again.status,201,JSON.stringify(again.data));assert.equal(again.data.status,'approved');assert.ok(again.data.slug);
+    assert.equal((await seller.me()).shop.slug,again.data.slug);
+    assert.equal((await owner.call('/owner/signup','PUT',{maxShops:0,storageMb:100})).status,200);
   });
   await t.test('only the GearHub owner can connect, sync or disconnect Google Drive backup',async()=>{
     for(const action of ['connect','sync','disconnect'])assert.equal((await b.call('/owner/drive/'+action,'POST',{})).status,403);
