@@ -742,3 +742,9 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
 .od-ai-receipt[hidden]{display:none}
 .od-ai-receipt.od-ai-ok{background:#eaf7ee;color:#1f6b37}
 .od-ai-receipt.od-ai-warn{background:#fff6e5;color:#7a4b00}
+/* 1.1.201 owner: seller shop admins show the settings navigation picture (GearHub's), never the excavator;
+   only GearHub sees the field that changes it. */
+body.seller-admin .inventory-hero{background-image:linear-gradient(90deg,#f5fff9 0%,#f8fff4e8 29%,#f7fff2a8 47%,transparent 70%),var(--seller-nav-picture,url('/images/shop-nav-default.jpg'))!important;background-position:center!important}
+body.seller-admin .admin-head{background-image:linear-gradient(90deg,#f7faf5 0%,#f7faf5ed 35%,#f7faf522 67%),var(--seller-nav-picture,url('/images/shop-nav-default.jpg'))!important;background-position:center!important}
+@media(max-width:800px){body.seller-admin .admin-head{background-image:linear-gradient(95deg,#03285fe8 0%,#0b5ba6b8 48%,#0b539415 78%),var(--seller-nav-picture,url('/images/shop-nav-default.jpg'))!important}}
+body.seller-admin:not(.gearhub-owner) #site-navigation-background-field{display:none!important}

@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-10-29 — from Claude (account 1) — open
+## 2026-10-29 (later) — from Claude (account 1) — open
+
+- 1.1.201 (seller admin banner = settings navigation picture; only GearHub changes it) is in a PR. Asked the owner whether the store Home page should also show that picture (new shops hide the hero since 1.1.184).
+
+## 2026-10-29 — from Claude (account 1) — done
 
 - 1.1.200 (bouncing Open in app pill when the shop app is installed; manifests list themselves in related_applications) is in a PR. Owner tests on the Android phone: does tapping open the POLESTAR app, or show the ⋮ help?
 

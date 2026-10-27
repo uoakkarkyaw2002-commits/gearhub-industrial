@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.201: Seller admin banner = settings navigation picture; only GearHub changes it (Claude)
+- Owner (kaizen): seller shops must not show the excavator admin picture; the admin home must use the settings navigation picture, which sellers cannot change (only GearHub).
+- `lib/tenant-install.js` marks seller admin pages `body.seller-admin`; `site-admin.css` paints `.inventory-hero` (PC) and `.admin-head` (phone) with `var(--seller-nav-picture, url(/images/shop-nav-default.jpg))`; `admin.js` `setSellerNavPicture()` sets the variable from the shop's navigationBackgroundUrl (no more heroImageUrl/excavator for seller shops). `tenant-admin.js` (public) adds `gearhub-owner` for the platform owner; the Navigation background field is hidden for everyone else.
+- Server: `shopFor()` also returns `isOwner`; `PUT /shops/:id/appearance` keeps the stored navigationBackgroundUrl unless GearHub saves (internal change, no new API). Applies to every seller shop, POLESTAR included (its admin banner now shows its own navigation picture on PC too).
+- Tests: platform.test.js (seller cannot set, GearHub can, seller save keeps it). WebKit 375/1280 on the local fake-Google server (kaizen-like new shop). Node 22 check + 364/364.
+
 ### 1.1.200: Bouncing "Open in app" when the shop app is installed (Claude)
 - Owner (Android photo): POLESTAR app is on the Home Screen but the admin was open in Chrome; show a bouncing "Open in app" note. `lib/tenant-install.js`: shop and admin manifests now list themselves in `related_applications` (platform webapp, absolute manifest URL; added after display_override so the title-bar test keeps its order). New `public/open-in-app.js` (admin.html + index.html, in the sw SHELL): in a browser tab, `navigator.getInstalledRelatedApps()` → bouncing green pill above the bottom nav with ×; Android tap tries an `intent://` hand-off with `S.browser_fallback_url=...#open-in-app`, and if Chrome keeps the page it shows "⋮ → Open in app"; PC shows the address-bar Open in app hint. iPhone Safari has no such API: nothing shows there.
 - WebKit 375/1280 with a faked installed app (WebKit lacks the API): pill/help placement, no sideways scroll. Not verified on a real Android: whether the intent opens the installed app or falls back to the help. Node 22 check + 364/364.

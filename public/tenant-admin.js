@@ -14,6 +14,8 @@
     if(saved){context=saved;token='';if(!setupDone)setup(context);setupDone=true;return context;}throw e;}
    const me=await r.json();
    if(!r.ok||!me.user)throw Error('Google login required.');
+   // Only GearHub changes a seller shop's navigation picture (1.1.201).
+   document.body.classList.toggle('gearhub-owner',!!me.isOwner);
    let shop=me.shop&&me.shop.slug===slug?me.shop:null;
    // GearHub controls every shop: the platform owner may open any seller admin.
    if(!shop&&me.isOwner){const o=await fetch('/api/platform/owner',{cache:'no-store'});const v=await o.json().catch(()=>({}));shop=o.ok&&(v.shops||[]).find(x=>x.slug===slug&&!x.legacy)||null;if(shop)shop.managedByOwner=true;}
