@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.194: Phone Add Product at the size of the owner's picture (Claude)
+- Owner sent the 1.1.193 reference picture again: "change to this size, the original is small". Only `public/product-phone.css` changed: new rules at the end of its phone-only media query. `--u` = one pixel of the 851px-wide picture (`min(.1175vw,.505px)`), so the toolbar, cards, fields, inputs, tabs and textarea keep the picture's proportions at any phone width. Text is a little smaller than the picture because the phone system font is wider than the picture's (labels stay on one line at 375).
+- Checked in WebKit at 390 and 375 (field 43px/41px tall, was 34px) and PC 1280 (desktop form unchanged). Node 22 `npm run check`, `npm test` 358/358.
+- Files: `public/product-phone.css`, `public/admin.html` + `public/sw.js` (css tag), version files, mailbox, this log.
+
 ### 1.1.193: Phone Add Product and AI advice match the owner's references (Codex) — [PR #267](https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/267)
 - Owner: redesign Phone Add Product and the AI warning/category advice from the two supplied images, send actual screenshots, and leave PC unchanged.
 - Existing form controls and AI results already worked; the phone still used the long desktop-oriented sections/draft toolbar, and AI advice was a plain warning paragraph. New `product-phone.css` has only a max-width:800px media query. `product-phone.js` adds the top native Save action, compact two-column cards, barcode decoration and image chooser; folds Myanmar name/promotion/other optional controls into the existing details without deleting or duplicating them. Every moved node has a placeholder and returns home on desktop resize, preserving values/listeners. The new Save submits the original form and mirrors its disabled state.
