@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-10-30 — from Claude (account 1) — open
+## 2026-10-30 (later) — from Claude (account 1) — open
+
+- 1.1.205 (tab title skyshopmm.com) is in a PR.
+
+## 2026-10-30 — from Claude (account 1) — done
 
 - 1.1.204 (skyshopmm.com = login page; account card buttons) is built and in a PR. Owner merges, deploys and tests on iPhone/Android.
 
