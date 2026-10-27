@@ -20,6 +20,8 @@
  // Why a product matches: how alike the picture is to which of its photos (the server's image model
  // compares shape, colour and surface), and how far ahead of the next product it is.
  function why(m,next){
+  // Free AI #7: found by the code on its label.
+  if(m.label)return t('Why: the label says '+m.label+' — its '+(m.field==='sku'?'SKU':'Part No.'),'ဘာကြောင့်: label ပေါ်မှာ '+m.label+' လို့ ပါလို့ ('+(m.field==='sku'?'SKU':'Part No.')+')');
   const photo=m.photo?(my()?'ပုံ '+m.photo+'/'+m.photos+' နဲ့ ':' to its photo '+m.photo+' of '+m.photos):'',close=m.view?t(' (close-up of the middle)',' (အလယ်ကို အနီးကပ်)'):'';
   const lead=next?t('; next closest product '+pct(next.score),'။ ဒုတိယ အတူဆုံး '+pct(next.score)):'';
   return t('Why: '+pct(m.score)+' alike in shape, colour and surface'+photo+close+lead,'ဘာကြောင့်: '+photo+'ပုံသဏ္ဌာန်၊ အရောင်၊ မျက်နှာပြင် '+pct(m.score)+' တူ'+close+lead);
@@ -78,7 +80,7 @@
  view.innerHTML='<video playsinline muted autoplay></video><div class="photo-scanner-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>'+
   '<button type="button" class="photo-scanner-close" aria-label="Close">✕</button><p class="photo-scanner-hint"></p>'+
   '<div class="photo-scanner-bar"><button type="button" class="photo-scanner-gallery" aria-label="Choose from photos"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="10" r="1.8" fill="currentColor"/><path d="m4 17 5-5 4 4 3-3 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button>'+
-  '<button type="button" class="photo-scanner-torch" aria-label="Flashlight" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8v3l-2 3v11a2 2 0 0 1-2 2 2 2 0 0 1-2-2V9L8 6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button><span></span></div>';
+  '<button type="button" class="photo-scanner-torch" aria-label="Flashlight" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8v3l-2 3v11a2 2 0 0 1-2 2 2 2 0 0 1-2-2V9L8 6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button><button type="button" class="photo-scanner-label" aria-label="Read the label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V4h8l10 10-8 8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="7.5" cy="8.5" r="1.6" fill="currentColor"/></svg><small>Part No.</small></button><span></span></div>';
  document.body.append(view);
  const video=view.querySelector('video'),hint=view.querySelector('.photo-scanner-hint'),torch=view.querySelector('.photo-scanner-torch'),frame=view.querySelector('.photo-scanner-frame');
  let stream=null,loop=0,last=null,pageY=0,started=0,clock=0,bestSeen=null;
@@ -116,6 +118,22 @@
   loop=setTimeout(tick,wait);
  }
  view.querySelector('.photo-scanner-close').addEventListener('click',stop);
+ // Free AI #7: read the part number on the label in the frame and open that product.
+ const LABEL='/api/platform/store/'+encodeURIComponent(decodeURIComponent(slug))+'/read-label';
+ view.querySelector('.photo-scanner-label').addEventListener('click',async e=>{
+  const button=e.currentTarget,region=frameRegion();if(!region||button.disabled)return;button.disabled=true;
+  const before=hint.textContent;hint.textContent=t('Reading the label…','Label ကို ဖတ်နေပါတယ်…');
+  try{
+   const c=document.createElement('canvas'),k=Math.min(1,1280/Math.max(region[2],region[3]));c.width=Math.round(region[2]*k);c.height=Math.round(region[3]*k);c.getContext('2d').drawImage(video,...region,0,0,c.width,c.height);
+   const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.92)),begin=performance.now();
+   const send=async()=>fetch(LABEL,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'image/jpeg','X-CSRF-Token':await csrf()},body:blob});
+   let r=await send();if(r.status===403){token=null;r=await send()}
+   const d=await r.json();if(!r.ok)throw Error(d.error);
+   if(d.matches?.length){const thumb=URL.createObjectURL(blob);stop();found(d.matches.map(m=>({id:m.id,score:1,label:m.code,field:m.field})),thumb,(performance.now()-begin)/1000);return}
+   hint.textContent=d.codes?.length?t('No product has '+d.codes.slice(0,2).join(' / '),d.codes.slice(0,2).join(' / ')+' နဲ့ ပစ္စည်း မရှိပါ'):t('No part number on the label. Hold it closer.','Label မှာ part number မတွေ့ပါ။ ပိုနီးနီး ချိန်ပါ။');
+  }catch(_){hint.textContent=before}
+  finally{button.disabled=false}
+ });
  view.querySelector('.photo-scanner-gallery').addEventListener('click',()=>gallery.click());
  torch.addEventListener('click',async()=>{const track=stream?.getVideoTracks()[0];if(!track)return;const on=!torch.classList.contains('on');try{await track.applyConstraints({advanced:[{torch:on}]});torch.classList.toggle('on',on)}catch(_){}});
  button.addEventListener('click',()=>{if(navigator.mediaDevices?.getUserMedia)open();else gallery.click()});

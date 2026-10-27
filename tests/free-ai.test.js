@@ -65,3 +65,21 @@ test('#6 similar parts: the product that looks most alike comes first; a product
   assert.match(ui,/window\.openGallery=function\(id,index\)\{open\(id,index\);/,"shown each time a product's photos open");
  }finally{done()}
 });
+
+test('#7 #8 reading text: part numbers on a label, amount and transaction ID on a payment receipt',async()=>{
+ const sharp=require('sharp'),{createOcr,labelCodes,matchCodes,readReceipt}=require('../lib/ocr');
+ const page=lines=>sharp(Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="900" height="'+(80+lines.length*70)+'"><rect width="100%" height="100%" fill="#fff"/>'+lines.map((l,i)=>'<text x="40" y="'+(80+i*70)+'" font-family="Arial, Helvetica, sans-serif" font-size="44" fill="#111">'+l+'</text>').join('')+'</svg>')).png().toBuffer();
+ const ocr=createOcr();
+ const label=await ocr.read(await page(['POLESTAR PARTS','PART NO: K1001858A']));
+ assert.deepEqual(matchCodes(labelCodes(label),[{id:6,sku:'K1001858A',partNo:'K1001858A'},{id:7,sku:'300426-00202'}]).map(m=>m.id),['6']);
+ // OCR swaps (O/0, I/1) and codes printed inside longer ones still match.
+ assert.deepEqual(matchCodes(['K1OO1858A','XX300426002O2'],[{id:6,sku:'K1001858A'},{id:7,sku:'300426-00202'}]).map(m=>m.id),['6','7']);
+ const receipt=readReceipt(await ocr.read(await page(['Transfer Successful','-55,000.00 Ks','Transaction ID 01003984529183745','To 09 123 456 789'])),55000);
+ assert.equal(receipt.amount,55000);assert.equal(receipt.matches,true);assert.equal(receipt.transactionId,'01003984529183745');
+ assert.equal(readReceipt('Amount 50,000 MMK\nTransaction No. 9876543210123',55000).matches,false,'a different amount is flagged');
+ const platform=read('lib/platform.js'),scan=read('public/photo-scan.js');
+ assert.match(platform,/"\/store\/:slug\/read-label"/);
+ assert.match(platform,/"\/shops\/:id\/orders\/:order\/receipt-read"[\s\S]{0,200}const \{ shop \} = shopFor\(req, "orders"\);/,'only the shop (or GearHub owner) reads its receipts');
+ assert.match(platform,/if \(d\.receiptRead\?\.receiptId === o\.receipt_id\) return res\.json\(d\.receiptRead\);/,'each receipt is read once');
+ assert.match(scan,/class="photo-scanner-label"/);
+});
