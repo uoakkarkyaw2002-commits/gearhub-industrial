@@ -196,6 +196,9 @@
   async function load() {
     me = await api("/me");
     csrf = me.csrfToken;
+    // Owner 1.1.197: the "Skyshop" button shows the page a new seller sees (Sign in → open a shop),
+    // without signing the owner out; signing in there switches the Google account.
+    if (new URLSearchParams(location.search).has("visitor")) me = { ...me, user: null, isOwner: false, shop: null, application: null };
     document.body.classList.toggle("onboarding",!me.isOwner);
     // Visitors (not signed in) see the scene and the top menu; the sign-in card opens from "Sign in".
     document.body.classList.toggle("visitor",!me.user&&!me.isOwner);
@@ -207,7 +210,7 @@
     $("shop").innerHTML = "";
     $("application").innerHTML = "";
     $("account").innerHTML = me.user
-      ? `<p>${esc(me.user.name)} · ${esc(me.user.email)}</p>${me.isOwner ? '<button type="button" class="owner-google-signin" id="google-login">Google Sign in</button>' : ""}`
+      ? `<p>${esc(me.user.name)} · ${esc(me.user.email)}</p>${me.isOwner ? '<a class="owner-google-signin" href="/platform.html?visitor">Skyshop</a>' : ""}`
       : window.GearHubApplication.login(me.oauthReady);
     if(!me.user)$("account").querySelector(".login-application")?.insertAdjacentHTML("afterbegin",'<button type="button" class="signin-close" id="signin-close" aria-label="Close">×</button>');
     $("google-login")?.addEventListener("click", async () => {

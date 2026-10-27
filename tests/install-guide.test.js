@@ -21,6 +21,7 @@ test('the Home Screen helper is loaded in the admin, cached offline, and never o
 test('1.1.196: a seller who already has a shop goes into it; the owner has one-tap Google Sign in',()=>{
  const platform=read('public/platform.js'),css=read('public/platform.css');
  assert.match(platform,/if\(Date\.now\(\)-last>60000\)\{[^\n]*location\.replace\("\/shops\/"\+encodeURIComponent\(me\.shop\.slug\)\+"\/admin"/,'at most once a minute, so it cannot loop');
- assert.match(platform,/me\.isOwner \? '<button type="button" class="owner-google-signin" id="google-login">Google Sign in<\/button>'/);
+ assert.match(platform,/me\.isOwner \? '<a class="owner-google-signin" href="\/platform\.html\?visitor">Skyshop<\/a>'/,'1.1.197: the owner opens the new-seller page');
+ assert.match(platform,/if \(new URLSearchParams\(location\.search\)\.has\("visitor"\)\) me = \{ \.\.\.me, user: null, isOwner: false, shop: null, application: null \};/);
  assert.match(css,/body\.onboarding:not\(\.visitor\) \.site-brand,body\.onboarding:not\(\.visitor\) \.site-nav a\{white-space:nowrap\}/);
 });
