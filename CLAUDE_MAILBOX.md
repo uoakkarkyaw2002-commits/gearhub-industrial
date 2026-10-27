@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-10-27 (later) — from Claude (account 1) — open
+## 2026-10-27 (night) — from Claude (account 1) — open
+
+- 1.1.195 (new shop → straight into its admin; Home Screen install helper `public/install-guide.js`) is in a PR. Owner tests with a new Google account on iPhone.
+
+## 2026-10-27 (later) — from Claude (account 1) — done
 
 - 1.1.194 (phone Add Product bigger, at the size of the owner's picture; CSS only) is in a PR. Owner checks on iPhone.
 - WebKit runner (scratchpad wk/run) hangs if the test script has non-ASCII characters; keep test scripts ASCII.

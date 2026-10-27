@@ -1,0 +1,34 @@
+/* 1.1.195 Home Screen install helper in a seller shop admin (public/install-guide.js). */
+.install-guide{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(10,30,22,.45)}
+.install-guide[hidden]{display:none}
+body.install-guide-open{overflow:hidden}
+.install-guide-card{width:min(440px,100%);max-height:calc(100dvh - 32px);overflow:auto;padding:18px 18px 16px;border-radius:20px;background:#fff;color:#102b27;box-shadow:0 18px 50px rgba(8,40,25,.28);box-sizing:border-box}
+.install-guide-card header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.install-guide-card header img{flex:none;width:54px;height:auto}
+.install-guide-card header div{flex:1;min-width:0}
+.install-guide-card h2{margin:0;font-size:18px;line-height:1.5;color:#102b27}
+.install-guide-card header p{margin:0;color:#6b7b77;font-size:12px}
+.install-guide-close{flex:none;width:36px;height:36px;border:0;border-radius:50%;background:#f1f5f3;color:#3d504b;font-size:24px;line-height:1;cursor:pointer}
+.install-guide-count{margin:0 0 8px;color:#138637;font-size:13px;font-weight:700}
+.install-guide-step{display:flex;align-items:flex-start;gap:12px}
+.install-guide-art{flex:none;display:grid;place-items:center;width:58px;height:58px;border-radius:16px;background:#e7f6eb;color:#0f8a37}
+.install-guide-art svg{width:32px;height:32px}
+.install-guide-bubble{flex:1;min-width:0;padding:12px 14px;border:1px solid #cfe9d8;border-radius:4px 16px 16px 16px;background:#f3fbf6;animation:install-guide-in .25s ease-out}
+.install-guide-bubble p{margin:0 0 6px;font-size:16px;line-height:1.75}
+.install-guide-bubble small{display:block;color:#5d6e6a;font-size:13px;line-height:1.5}
+.install-guide-action{display:block;width:100%;margin-top:12px;min-height:46px;border:0;border-radius:12px;background:linear-gradient(115deg,#079234,#04852c);color:#fff;font:inherit;font-size:15px;font-weight:700;cursor:pointer;overflow-wrap:anywhere}
+.install-guide-dots{display:flex;justify-content:center;gap:6px;margin:16px 0 12px}
+.install-guide-dots span{width:8px;height:8px;border-radius:50%;background:#d6e2dd}
+.install-guide-dots span.done{background:#8fd0a5}
+.install-guide-dots span.on{width:22px;border-radius:4px;background:#0f8a37}
+.install-guide-card footer{display:flex;gap:10px}
+.install-guide-card footer button{flex:1;min-height:46px;border-radius:12px;font:inherit;font-size:15px;font-weight:700;cursor:pointer}
+.install-guide-back{border:1px solid #d3e3dc;background:#fff;color:#28433c}
+.install-guide-back[hidden]{display:none}
+.install-guide-next{border:0;background:#0f8a37;color:#fff}
+@keyframes install-guide-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(max-width:600px){
+ .install-guide{align-items:flex-end;padding:0}
+ .install-guide-card{width:100%;max-height:88dvh;border-radius:22px 22px 0 0;padding:18px 16px calc(16px + env(safe-area-inset-bottom))}
+}
+@media(prefers-reduced-motion:reduce){.install-guide-bubble{animation:none}}
