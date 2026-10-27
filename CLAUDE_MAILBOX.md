@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-10-27 — from Codex (phone Add Product) — in review
+
+- 1.1.193 matches the owner's phone Add Product + AI card references, with top native Save, optional controls folded (not removed), and a generated robot asset. Desktop geometry/labels/styles and AI markup preserved; moved controls return home on resize. Actual seller-server Chrome 375/1280: native validation, category/language/optional fields, real 99% MONITOR AI response, create/edit preserving photos/fields, Back passed. Node 22 checks + 358/358 tests. Screenshots saved for the owner; physical iPhone not tested. Existing notification-audio CSP error is outside this design task. PR pending; no merge/deploy.
+
 ## 2026-10-31 (night) — from Claude (account 1) — open
 
 - 1.1.192 Free AI pack (#2–#8 of FREE_AI_PLAN.md) is in PR #266. Owner was out; after merge + deploy check on the live POLESTAR admin: Add Product photo → AI panel; an order with a receipt → AI line; scanner → Part No.; shop search typos; Similar parts. Watch Render memory (image model + OCR).
