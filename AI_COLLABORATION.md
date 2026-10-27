@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.198: Install helper as a chat with short step videos (Claude)
+- Owner: show short videos instead of pictures, like someone teaching in front of you, with auto replies. `public/install-guide.js`: chat thread (robot types ~0.9 s, then the step; the seller taps "ပြီးပြီ ✓ / Done", their reply bubble appears and the robot answers with the next step; earlier steps stay above, shortened). Each iPhone Safari/Chrome and Android step has a drawn 5 s looping video (`install-guide.css`: phone screen mock, finger, menus/sheets moving; iOS 26 Safari ≡ → Share → Add to Home Screen → Open as Web App/Add → Home Screen icon). PC steps keep icons. These are CSS animations, not screen recordings (no iOS Simulator here).
+- Fixed: the admin page `footer` style painted a dark band behind the helper buttons (now a div). The bubble no longer fades in from opacity 0 (the hidden WebKit test page does not run animations, so a fade left it invisible).
+- WebKit 375 (frames paused at each tap: finger inside its target in all 4 iPhone steps) and 1280; Node 22 check + 362/362. Animations can only be seen moving on a real phone.
+
 ### 1.1.197: Owner "Skyshop" button opens the new-seller page (Claude)
 - Owner: rename "Google Sign in" to "Skyshop"; tapping it shows the Skyshop new-shop page. It is now a link to `/platform.html?visitor`; with `?visitor` `platform.js` renders the visitor page (scene, Sign in → Continue with Google) while the owner stays signed in. Signing in there switches the Google account.
 - WebKit 375/1280 on the local fake-Google platform server: link on the name line, visitor page shown, owner session kept. Node 22 check + 361/361.

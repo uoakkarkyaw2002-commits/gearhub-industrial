@@ -1,34 +1,129 @@
-/* 1.1.195 Home Screen install helper in a seller shop admin (public/install-guide.js). */
+/* 1.1.195 Home Screen install helper in a seller shop admin (public/install-guide.js).
+   1.1.198: chat layout and short looping step videos (drawn phone screens + a finger). */
 .install-guide{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(10,30,22,.45)}
 .install-guide[hidden]{display:none}
 body.install-guide-open{overflow:hidden}
-.install-guide-card{width:min(440px,100%);max-height:calc(100dvh - 32px);overflow:auto;padding:18px 18px 16px;border-radius:20px;background:#fff;color:#102b27;box-shadow:0 18px 50px rgba(8,40,25,.28);box-sizing:border-box}
-.install-guide-card header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.install-guide-card header img{flex:none;width:54px;height:auto}
-.install-guide-card header div{flex:1;min-width:0}
+.install-guide-card{display:flex;flex-direction:column;width:min(460px,100%);max-height:calc(100dvh - 32px);padding:16px 16px 14px;border-radius:20px;background:#fff;color:#102b27;box-shadow:0 18px 50px rgba(8,40,25,.28);box-sizing:border-box}
+.install-guide-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.install-guide-top img{flex:none;width:54px;height:auto}
+.install-guide-top div{flex:1;min-width:0}
 .install-guide-card h2{margin:0;font-size:18px;line-height:1.5;color:#102b27}
-.install-guide-card header p{margin:0;color:#6b7b77;font-size:12px}
+.install-guide-top p{margin:0;color:#6b7b77;font-size:12px}
 .install-guide-close{flex:none;width:36px;height:36px;border:0;border-radius:50%;background:#f1f5f3;color:#3d504b;font-size:24px;line-height:1;cursor:pointer}
-.install-guide-count{margin:0 0 8px;color:#138637;font-size:13px;font-weight:700}
-.install-guide-step{display:flex;align-items:flex-start;gap:12px}
-.install-guide-art{flex:none;display:grid;place-items:center;width:58px;height:58px;border-radius:16px;background:#e7f6eb;color:#0f8a37}
-.install-guide-art svg{width:32px;height:32px}
-.install-guide-bubble{flex:1;min-width:0;padding:12px 14px;border:1px solid #cfe9d8;border-radius:4px 16px 16px 16px;background:#f3fbf6;animation:install-guide-in .25s ease-out}
-.install-guide-bubble p{margin:0 0 6px;font-size:16px;line-height:1.75}
-.install-guide-bubble small{display:block;color:#5d6e6a;font-size:13px;line-height:1.5}
-.install-guide-action{display:block;width:100%;margin-top:12px;min-height:46px;border:0;border-radius:12px;background:linear-gradient(115deg,#079234,#04852c);color:#fff;font:inherit;font-size:15px;font-weight:700;cursor:pointer;overflow-wrap:anywhere}
-.install-guide-dots{display:flex;justify-content:center;gap:6px;margin:16px 0 12px}
+.install-guide-body{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:10px;padding:2px 2px 4px}
+.ig-msg{display:flex;align-items:flex-end;gap:8px}
+.ig-avatar{flex:none;width:34px;height:auto;margin-bottom:2px}
+.ig-bot .install-guide-bubble{flex:1;min-width:0;padding:10px 12px;border:1px solid #cfe9d8;border-radius:16px 16px 16px 4px;background:#f3fbf6}
+.ig-live .install-guide-bubble{animation:install-guide-in .25s ease-out}
+.ig-old .install-guide-bubble{opacity:.7}
+.ig-old .install-guide-bubble small{display:none}
+.install-guide-count{margin:0 0 4px!important;color:#138637;font-size:12px!important;font-weight:700}
+.install-guide-bubble p{margin:0 0 4px;font-size:15px;line-height:1.7}
+.install-guide-bubble small{display:block;color:#5d6e6a;font-size:12.5px;line-height:1.5}
+.ig-me{justify-content:flex-end}
+.ig-me p{margin:0;padding:8px 14px;border-radius:16px 16px 4px 16px;background:#0f8a37;color:#fff;font-size:14px;font-weight:600}
+.ig-typing{display:flex!important;flex:none!important;gap:5px;padding:14px 16px!important}
+.ig-typing i{width:7px;height:7px;border-radius:50%;background:#6fae86;animation:ig-dot 1s infinite}
+.ig-typing i:nth-child(2){animation-delay:.15s}.ig-typing i:nth-child(3){animation-delay:.3s}
+.install-guide-art{display:grid;place-items:center;width:52px;height:52px;margin-top:8px;border-radius:14px;background:#e7f6eb;color:#0f8a37}
+.install-guide-art svg{width:30px;height:30px}
+.install-guide-action{display:block;width:100%;margin-top:10px;min-height:44px;border:0;border-radius:12px;background:linear-gradient(115deg,#079234,#04852c);color:#fff;font:inherit;font-size:15px;font-weight:700;cursor:pointer;overflow-wrap:anywhere}
+.install-guide-dots{display:flex;justify-content:center;gap:6px;margin:12px 0 10px}
 .install-guide-dots span{width:8px;height:8px;border-radius:50%;background:#d6e2dd}
 .install-guide-dots span.done{background:#8fd0a5}
 .install-guide-dots span.on{width:22px;border-radius:4px;background:#0f8a37}
-.install-guide-card footer{display:flex;gap:10px}
-.install-guide-card footer button{flex:1;min-height:46px;border-radius:12px;font:inherit;font-size:15px;font-weight:700;cursor:pointer}
+.install-guide-foot{display:flex;gap:10px;margin:0;padding:0;background:none}
+.install-guide-foot button{flex:1;min-height:46px;border-radius:12px;font:inherit;font-size:15px;font-weight:700;cursor:pointer}
 .install-guide-back{border:1px solid #d3e3dc;background:#fff;color:#28433c}
 .install-guide-back[hidden]{display:none}
 .install-guide-next{border:0;background:#0f8a37;color:#fff}
-@keyframes install-guide-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.install-guide-next:disabled{opacity:.55;cursor:default}
+@keyframes install-guide-in{from{transform:translateY(6px)}to{transform:none}}
+@keyframes ig-dot{0%,60%,100%{opacity:.35;transform:none}30%{opacity:1;transform:translateY(-3px)}}
+
+/* ---- Step videos: a 200px phone screen, 5 s loop ---- */
+.ig-video{position:relative;height:200px;margin-top:10px;border:1px solid #dbe4e0;border-radius:16px;overflow:hidden;background:#eef1f4;font:600 11px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#1d2a26;-webkit-user-select:none;user-select:none}
+.ig-video *{box-sizing:border-box}
+.ig-video svg{width:14px;height:14px;flex:none}
+.ig-page{position:absolute;inset:44px 14px 46px;display:grid;align-content:start;gap:8px}
+.ig-page b{height:34px;border-radius:8px;background:#cfe3d6}
+.ig-page span{height:9px;border-radius:5px;background:#dde3e7}.ig-page span:nth-child(3){width:75%}.ig-page span:nth-child(4){width:55%}
+.ig-finger{position:absolute;left:50%;top:50%;width:28px;height:28px;margin:-14px 0 0 -14px;border:2px solid #0f8a37;border-radius:50%;background:rgba(15,138,55,.28);opacity:0;z-index:5;pointer-events:none}
+.ig-pop,.ig-drop,.ig-sheet .ig-list,.ig-dialog{background:#fff}
+.ig-pop p,.ig-drop p,.ig-list p{display:flex;align-items:center;gap:6px;height:26px;margin:0;padding:0 10px;border-bottom:1px solid #edf0f2;font-size:11px;line-height:26px}
+.ig-key,.ig-hit{border-radius:6px}
+/* iPhone Safari: ≡ in the address bar, then Share */
+.ig-bar{position:absolute;left:6%;right:6%;bottom:8px;display:flex;align-items:center;gap:6px}
+.ig-round{display:grid;place-items:center;flex:none;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 4px #0002;font-size:13px}
+.ig-pill{flex:1;display:flex;align-items:center;gap:6px;height:26px;padding:0 8px;border-radius:13px;background:#fff;box-shadow:0 1px 4px #0002;font-size:10.5px;white-space:nowrap;overflow:hidden}
+.ig-pill .ig-key{display:grid;place-items:center;width:18px;height:18px;font-style:normal;font-size:12px}
+.ig-pop{position:absolute;left:18%;bottom:44px;width:60%;border-radius:12px;box-shadow:0 6px 20px #0003;overflow:hidden;opacity:0;transform-origin:20% 100%}
+/* iPhone: share sheet with Add to Home Screen */
+.ig-sheet{position:absolute;left:0;right:0;top:50px;bottom:0;border-radius:16px 16px 0 0;background:#f5f6f8;box-shadow:0 -4px 18px #0002;overflow:hidden;transform:translateY(100%)}
+.ig-sheet .ig-list{margin:8px 10px;border-radius:12px}
+/* iPhone: Add to Home Screen form */
+.ig-form{position:absolute;inset:0;background:#f2f2f7}
+.ig-head{display:flex;justify-content:space-between;align-items:center;height:34px;padding:0 10px;background:#fff;border-bottom:1px solid #e4e4ea;font-size:10.5px}
+.ig-head span{color:#0a6cff;padding:3px 5px}.ig-head b{font-size:11px}
+.ig-app{display:flex;align-items:center;gap:10px;margin:14px 10px;padding:10px;border-radius:12px;background:#fff}
+.ig-appicon{display:block;flex:none;width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#0f8a37,#56c27a);box-shadow:inset 0 0 0 9px #ffffff33}
+.ig-switch{display:flex;justify-content:space-between;align-items:center;margin:0 10px;padding:10px;border-radius:12px;background:#fff;font-size:11px}
+.ig-switch i{position:relative;width:34px;height:20px;border-radius:10px;background:#d8d8dd}
+.ig-switch i::after{content:"";position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0003}
+/* Android Chrome */
+.ig-top{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:8px;height:34px;padding:0 8px;background:#fff;border-bottom:1px solid #e2e6ea}
+.ig-top .ig-pill{box-shadow:none;background:#eef1f4}
+.ig-top .ig-key{display:grid;place-items:center;width:22px;height:22px;font-style:normal;font-size:16px}
+.ig-drop{position:absolute;right:4%;top:40px;width:62%;border-radius:10px;box-shadow:0 6px 20px #0003;overflow:hidden;opacity:0;transform-origin:100% 0}
+.ig-dialog{position:absolute;left:10%;right:10%;top:22%;padding:12px;border-radius:14px;box-shadow:0 8px 26px #0003;opacity:0}
+.ig-dialog>b{font-size:12px}.ig-dialog .ig-app{margin:10px 0;padding:0}
+.ig-dialog>p{display:flex;justify-content:flex-end;gap:14px;margin:0;color:#0b57d0;font-size:11px}.ig-dialog>p span{padding:4px 6px}
+/* Home Screen with the new icon */
+.ig-home{position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr);align-content:start;gap:16px 0;padding:22px 8px;background:linear-gradient(160deg,#4b6cb7,#9b6fc4 60%,#f3a26b)}
+.ig-home>i{justify-self:center;width:38px;height:38px;border-radius:10px;background:#ffffffb8}
+.ig-new{justify-self:center;display:grid;justify-items:center;gap:3px;color:#fff;font-size:9.5px;text-shadow:0 1px 2px #0006;transform:scale(0)}
+
+/* Animations run only on the newest step. */
+.ig-play .ig-finger{animation:5s ease-in-out infinite both}
+.ig-play.ig-ios-share .ig-finger{animation-name:ig-f-share}
+.ig-play.ig-ios-share .ig-key{animation:ig-flash1 5s infinite}
+.ig-play.ig-ios-share .ig-pop{animation:ig-pop 5s infinite}
+.ig-play.ig-ios-share .ig-hit,.ig-play.ig-and-menu .ig-hit{animation:ig-flash2 5s infinite}
+.ig-play.ig-ios-add .ig-sheet{animation:ig-sheet 5s infinite}
+.ig-play.ig-ios-add .ig-list{animation:ig-scroll 5s infinite}
+.ig-play.ig-ios-add .ig-hit{animation:ig-flash3 5s infinite}
+.ig-play.ig-ios-add .ig-finger{animation-name:ig-f-add}
+.ig-play.ig-ios-confirm .ig-finger{animation-name:ig-f-confirm}
+.ig-play.ig-ios-confirm .ig-switch i{animation:ig-switch 5s infinite}
+.ig-play.ig-ios-confirm .ig-switch i::after{animation:ig-knob 5s infinite}
+.ig-play.ig-ios-confirm .ig-head .ig-key{animation:ig-flash2 5s infinite}
+.ig-play.ig-and-menu .ig-finger{animation-name:ig-f-menu}
+.ig-play.ig-and-menu .ig-top .ig-key{animation:ig-flash1 5s infinite}
+.ig-play.ig-and-menu .ig-drop{animation:ig-pop 5s infinite}
+.ig-play.ig-and-install .ig-dialog{animation:ig-pop 5s infinite}
+.ig-play.ig-and-install .ig-key{animation:ig-flash2 5s infinite}
+.ig-play.ig-and-install .ig-finger{animation-name:ig-f-install}
+.ig-play.ig-home .ig-new{animation:ig-new 5s infinite}
+.ig-play.ig-home .ig-finger{animation-name:ig-f-home}
+@keyframes ig-flash1{0%,10%,26%,100%{background:transparent}13%,22%{background:#bfe6cc}}
+@keyframes ig-flash2{0%,50%,72%,100%{background:transparent}54%,68%{background:#bfe6cc}}
+@keyframes ig-flash3{0%,56%,76%,100%{background:transparent}60%,72%{background:#bfe6cc}}
+@keyframes ig-pop{0%,22%{opacity:0;transform:scale(.85)}30%,86%{opacity:1;transform:none}94%,100%{opacity:0;transform:scale(.95)}}
+@keyframes ig-sheet{0%,4%{transform:translateY(100%)}18%,88%{transform:none}97%,100%{transform:translateY(100%)}}
+@keyframes ig-scroll{0%,24%{transform:none}44%,100%{transform:translateY(-52px)}}
+@keyframes ig-switch{0%,26%{background:#d8d8dd}32%,100%{background:#34c759}}
+@keyframes ig-knob{0%,26%{transform:none}32%,100%{transform:translateX(14px)}}
+@keyframes ig-new{0%,18%{transform:scale(0)}30%{transform:scale(1.15)}36%,100%{transform:scale(1)}}
+/* Finger paths (left/top in % of the screen); scale(.8) is the tap. */
+@keyframes ig-f-share{0%{left:55%;top:55%;opacity:0}8%{opacity:1}12%{left:22%;top:89%;transform:none}15%{transform:scale(.8)}19%{transform:none}46%{left:34%;top:46%;transform:none}54%{transform:scale(.8)}60%{transform:none;opacity:1}80%{left:34%;top:46%;opacity:0}100%{left:55%;top:55%;opacity:0}}
+@keyframes ig-f-add{0%,20%{left:60%;top:85%;opacity:0}26%{opacity:1}30%{left:60%;top:80%}44%{left:60%;top:50%}52%{left:40%;top:61%;transform:none}60%{transform:scale(.8)}66%{transform:none;opacity:1}82%,100%{left:40%;top:61%;opacity:0}}
+@keyframes ig-f-confirm{0%{left:55%;top:40%;opacity:0}10%{opacity:1}22%{left:86%;top:73%;transform:none}26%{transform:scale(.8)}30%{transform:none}48%{left:90%;top:9%;transform:none}55%{transform:scale(.8)}61%{transform:none;opacity:1}80%,100%{left:90%;top:9%;opacity:0}}
+@keyframes ig-f-menu{0%{left:60%;top:50%;opacity:0}6%{opacity:1}12%{left:93%;top:9%;transform:none}15%{transform:scale(.8)}19%{transform:none}46%{left:70%;top:53%;transform:none}54%{transform:scale(.8)}60%{transform:none;opacity:1}80%,100%{left:70%;top:53%;opacity:0}}
+@keyframes ig-f-install{0%,28%{left:50%;top:90%;opacity:0}34%{opacity:1}48%{left:76%;top:72%;transform:none}54%{transform:scale(.8)}60%{transform:none;opacity:1}80%,100%{left:76%;top:72%;opacity:0}}
+@keyframes ig-f-home{0%,34%{left:50%;top:90%;opacity:0}42%{opacity:1}56%{left:88%;top:47%;transform:none}62%{transform:scale(.8)}68%{transform:none;opacity:1}84%,100%{left:88%;top:47%;opacity:0}}
+
 @media(max-width:600px){
  .install-guide{align-items:flex-end;padding:0}
- .install-guide-card{width:100%;max-height:88dvh;border-radius:22px 22px 0 0;padding:18px 16px calc(16px + env(safe-area-inset-bottom))}
+ .install-guide-card{width:100%;max-height:90dvh;border-radius:22px 22px 0 0;padding:16px 14px calc(14px + env(safe-area-inset-bottom))}
 }
-@media(prefers-reduced-motion:reduce){.install-guide-bubble{animation:none}}
+@media(prefers-reduced-motion:reduce){.ig-live .install-guide-bubble,.ig-play *,.ig-typing i{animation:none!important}.ig-play .ig-pop,.ig-play .ig-drop,.ig-play .ig-dialog{opacity:1}.ig-play .ig-sheet{transform:none}.ig-play .ig-new{transform:none}}
