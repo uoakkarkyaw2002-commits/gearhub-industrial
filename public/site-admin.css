@@ -756,3 +756,5 @@ body.seller-admin:not(.gearhub-owner) #site-navigation-background-field{display:
  body.seller-admin .admin-head h1{margin:3px 0 4px;font-size:26px;line-height:1.15}
  body.seller-admin .admin-head p,body.seller-admin .admin-head .muted{font-size:13px;line-height:1.45}
 }
+/* 1.1.207 owner: Navigation Background and Page Wallpaper are GearHub's; sellers do not see them. */
+body.seller-admin:not(.gearhub-owner) .gearhub-only{display:none!important}
