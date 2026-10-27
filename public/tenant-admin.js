@@ -61,6 +61,8 @@
   const quota=document.createElement('p');quota.textContent=`Storage ${(shop.limits.usedBytes/1048576).toFixed(2)} / ${(shop.limits.storageLimit/1048576).toFixed(0)} MB · ${shop.limits.subscriptionState} · ${shop.starts_at||''} → ${shop.ends_at||'No expiry'}`;host.prepend(quota);
  }
  window.GearHubTenantAdmin={
+  // Free AI calls (product-ai.js, order receipt reader) go to this shop's platform API.
+  ai:(suffix,options={})=>call('/ai'+suffix,options),
   nameDraftFields:()=>{
    window.GearHubTenantAdmin.draftReady=true;
    document.querySelectorAll('[data-site-text]').forEach(e=>e.name='text.'+e.dataset.language+'.'+e.dataset.siteText);
