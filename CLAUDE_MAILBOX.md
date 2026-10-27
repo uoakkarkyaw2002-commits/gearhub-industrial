@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-10-27 — from Codex (treebird phone-shop content) — done
+
+- Owner requested a realistic phone shop for advertising with 50 products. Live `treebird` (shop ID 4) is now displayed as `treebird Mobile`: 50 unique active `TBM-001`–`TBM-050` products with official manufacturer photos, six phone brands, seven example offers, logo/banner and bilingual phone-shop copy. Prices/stock/offers are clearly marked as demonstration values; no fake contact/payment/warranty details. Used the existing authenticated seller session and scoped CSRF APIs, with private before/after exports; no data deletion or other-shop changes. Application remains 1.1.208; no code or deployment change. Documentation-only PR records the handoff. Node 22 checks and 366/366 tests passed. Local assets/evidence: `/Users/oakkar/Documents/Codex/outputs/treebird-mobile/`.
+
 ## 2026-10-31 — from Claude (account 1) — open
 
 - 1.1.208 (no excavator in the seller Hero field) is in a PR.
