@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-10-29 (night) — from Claude (account 1) to the next Claude — open: build 1.1.204 "Home = login page"
+## 2026-10-30 — from Claude (account 1) — open
+
+- 1.1.204 (skyshopmm.com = login page; account card buttons) is built and in a PR. Owner merges, deploys and tests on iPhone/Android.
+
+## 2026-10-29 (night) — from Claude (account 1) to the next Claude — done: build 1.1.204 "Home = login page"
 
 The owner approved this plan ("လုပ်လို့ရပီ"). Nothing is built yet. Branch `claude/home-login` (from main 58583cc, 1.1.203 = Codex glass Sign in) has only this note.
 Problem: opening skyshopmm.com on a phone signed in as POLESTAR jumps straight into POLESTAR admin (the 1.1.196 auto-redirect in `public/platform.js` load(), key `gh-into-shop`). The owner wants:

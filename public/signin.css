@@ -57,3 +57,8 @@ body.visitor .glass-signin-card button:focus-visible,body.visitor .nav-signin:fo
  body.visitor .glass-signin-card .application-help{font-size:11px;margin-top:13px}
 }
 @media(prefers-reduced-motion:reduce){body.visitor.signin-open #account .glass-signin-card{animation:none}}
+/* 1.1.204 owner: the signed-in card's small "other account" and "Logout" text buttons. */
+body.visitor .glass-signin-card a.application-primary{text-decoration:none;box-sizing:border-box}
+body.visitor .glass-signin-card .account-switch{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 20px;margin:16px 0 0}
+body.visitor .glass-signin-card .account-switch button{padding:6px 4px;border:0;background:none;color:#0b5a39;font:inherit;font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+body.visitor #account .glass-signin-card.account-card .application-intro{margin:6px 0 18px!important}

@@ -20,5 +20,13 @@
  <ul class="login-benefits"><li>${icon('shop')}<span><b>Your own shop</b><small>Your name, your logo</small></span></li><li>${icon('note')}<span><b>Add products</b><small>Photos, prices and stock</small></span></li><li>${icon('mail')}<span><b>Receive orders</b><small>Orders and payment receipts</small></span></li></ul>
  <button id="google-login" class="application-primary" ${ready?'':'disabled'}>${googleIcon}<span>Continue with Google</span></button>
  <p class="application-help">${ready?'Sign in, name your shop and get started.':'Google login မပြင်ဆင်ရသေးပါ။ / Google login is not configured yet.'}</p></div>`;
- const api={render,login};root.GearHubApplication=api;if(typeof module!=='undefined')module.exports=api;
+ // Owner 1.1.204: the login card of a signed-in account: one button into its own place, then switch account / Logout.
+ function account(me){
+  const shop=me.shop,pending=me.application?.status==='pending';
+  const main=me.isOwner?`<a class="application-primary" href="/platform.html?view=console">${icon('shop')}<span>Owner console</span></a>`
+   :shop?`<a class="application-primary" href="/shops/${encodeURIComponent(shop.slug)}/admin">${icon('shop')}<span>${esc(shop.name)} ဆိုင်ထဲ သွားမယ်</span></a>`
+   :`<a class="application-primary" href="/platform.html?view=create">${icon('shop')}<span>${pending?'အခြေအနေ ကြည့်မယ် / Check status':'ဆိုင်ဖွင့်မယ် / Create your shop'}</span></a>`;
+  return `<div class="application-card login-application glass-signin-card account-card" role="dialog" aria-modal="true" aria-labelledby="signin-title" tabindex="-1"><span class="heading-icon">${icon('shop')}</span><h2 id="signin-title">ပြန်လည် ကြိုဆိုပါတယ်<br><span>Welcome back</span></h2><p class="application-intro">${esc(me.user?.email||'')} နဲ့ ဝင်ထားပါတယ်</p>${main}<p class="account-switch"><button type="button" id="google-login">တခြား account နဲ့ ဝင်မယ်</button><button type="button" id="account-logout">Logout</button></p></div>`;
+ }
+ const api={render,login,account};root.GearHubApplication=api;if(typeof module!=='undefined')module.exports=api;
 })(globalThis);

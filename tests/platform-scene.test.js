@@ -11,10 +11,11 @@ test('platform page shows the sunset scene behind the application card',()=>{
  assert.ok(!/<script/i.test(svg),'no scripts inside the picture');
 });
 
-test('visitors get the top menu; the sign-in card opens only from Sign in',()=>{
+test('visitors get the top menu; 1.1.204: the sign-in card opens by itself on the Home page and again from Sign in',()=>{
  const html=read('platform.html'),css=read('platform.css'),js=read('platform.js');
  assert.match(html,/<nav class="site-nav" id="site-nav" aria-label="Main" hidden><a href="\/platform\.html" data-platform-link>Home<\/a><a href="#about">About<\/a><a href="#service">Service<\/a><a href="#contact">Contact<\/a><button type="button" class="nav-signin" id="signin-open" aria-expanded="false" aria-controls="account">Sign in<\/button><\/nav>/);
- assert.match(js,/document\.body\.classList\.toggle\("visitor",!me\.user&&!me\.isOwner\);/);
+ assert.match(js,/document\.body\.classList\.toggle\("visitor",landing\);/);
+ assert.match(js,/if \(landing\) \{ signIn\(true\); return; \}/);
  assert.match(js,/\$\("signin-open"\)\?\.addEventListener\("click",\(\)=>signIn\(true\)\);/);
  assert.match(css,/body\.visitor #account\{display:none\}/);
  assert.match(css,/body\.visitor\.signin-open #account\{display:grid;position:fixed;inset:0/);
