@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-10-29 (later) — from Claude (account 1) — open
+## 2026-10-29 (evening) — from Claude (account 1) — open
+
+- 1.1.202 (new shop Home shows the settings navigation picture with the shop name) is in a PR.
+
+## 2026-10-29 (later) — from Claude (account 1) — done
 
 - 1.1.201 (seller admin banner = settings navigation picture; only GearHub changes it) is in a PR. Asked the owner whether the store Home page should also show that picture (new shops hide the hero since 1.1.184).
 

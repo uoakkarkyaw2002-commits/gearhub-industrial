@@ -9,7 +9,9 @@ test('new seller shops hide GearHub defaults and get the default navigation pict
  assert.match(store,/const SHOP_NAV_DEFAULT="\/images\/shop-nav-default\.jpg";/);
  assert.match(store,/checkedImageUrl\(site\.navigationBackgroundUrl\)\|\|\(tenantStore\?SHOP_NAV_DEFAULT:wallpaper\|\|heroImage\)/,'a shop picture first, else the default; GearHub itself unchanged');
  assert.match(store,/if\(homeFallback\)homeFallback\.hidden=!!logo\|\|tenantStore/,'no gear in a shop without a logo');
- assert.match(store,/if\(hero\)hero\.hidden=!heroImage;/,'no hero without the shop\'s own hero picture');
+ assert.match(store,/hero\.classList\.toggle\("seller-nav-hero",!heroImage\);/,'1.1.202 owner: without its own hero photo a shop shows its navigation picture');
+ assert.match(store,/hero\.style\.setProperty\("--seller-nav-picture","url\("\+JSON\.stringify\(checkedImageUrl\(site\.navigationBackgroundUrl\)\|\|SHOP_NAV_DEFAULT\)\+"\)"\)/);
+ assert.match(css,/\.hero\.seller-nav-hero>:not\(\.seller-nav-title\)[^{]*\{display:none!important\}/,'no GearHub texts in it');
  assert.match(store,/const own=key=>\["en","my"\]\.some\(l=>String\(site\.translations\?\.\[l\]\?\.\[key\]\|\|""\)\.trim\(\)\);/,'any text a shop saved (POLESTAR) stays');
  assert.match(store,/applyLanguage\(\);applySiteLayout\(activeSiteLayout\);if\(tenantStore\)hideShopDefaults\(site,heroImage\);/);
  assert.match(css,/\.hero\[hidden\],\[data-i18n="featured"\]\[hidden\],\[data-i18n="featuredText"\]\[hidden\]\{display:none!important\}/);

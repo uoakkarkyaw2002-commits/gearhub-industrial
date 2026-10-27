@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.202: New shop Home shows the settings navigation picture (Claude)
+- Owner chose "1": a seller shop without its own hero photo now shows its settings navigation picture (GearHub default `/images/shop-nav-default.jpg`, or the picture GearHub set) on Home, with only the shop name (no GearHub texts). `store.js` `hideShopDefaults` adds `.seller-nav-hero` + `--seller-nav-picture`; `style.css` styles it (240px PC, 170px phone with 16px side margins). Shops with their own hero photo (POLESTAR) unchanged.
+- Tags: style.css, store.js and smart-search.js → 1.1.202 (store/smart-search must share a tag). Tests updated on purpose (new-shop-defaults, free-ai sw tag). WebKit 375/1280 on the local server; Node 22 check + 364/364.
+
 ### 1.1.201: Seller admin banner = settings navigation picture; only GearHub changes it (Claude)
 - Owner (kaizen): seller shops must not show the excavator admin picture; the admin home must use the settings navigation picture, which sellers cannot change (only GearHub).
 - `lib/tenant-install.js` marks seller admin pages `body.seller-admin`; `site-admin.css` paints `.inventory-hero` (PC) and `.admin-head` (phone) with `var(--seller-nav-picture, url(/images/shop-nav-default.jpg))`; `admin.js` `setSellerNavPicture()` sets the variable from the shop's navigationBackgroundUrl (no more heroImageUrl/excavator for seller shops). `tenant-admin.js` (public) adds `gearhub-owner` for the platform owner; the Navigation background field is hidden for everyone else.
