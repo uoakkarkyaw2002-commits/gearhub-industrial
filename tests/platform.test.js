@@ -264,6 +264,16 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
     assert.equal('brandName' in blankSaved,false);assert.equal('siteTitle' in blankSaved,false);assert.equal('logoUrl' in blankSaved,false);
     const shown=(await a.call(endpoint+'/appearance')).data;assert.equal(shown.brandName,'Alice store');assert.equal(shown.siteTitle,'Alice store');
     assert.equal((await a.call(endpoint+'/appearance','PUT',appearance)).status,200);
+    // Owner 1.1.201: only GearHub sets a seller shop's navigation picture; the seller's save keeps GearHub's.
+    db.prepare("INSERT INTO platform_files(id,shop_id,kind,mime,bytes,filename,ready) VALUES('navpic1',?,'image','image/jpeg',10,'navpic1.jpg',1)").run(aid);
+    const navPic={...appearance,navigationBackgroundUrl:'/api/platform/images/navpic1'};
+    assert.equal((await a.call(endpoint+'/appearance','PUT',navPic)).status,200);
+    assert.equal((await a.call('/store/alice-store')).data.settings.appearance.navigationBackgroundUrl,'','the seller cannot set it');
+    assert.equal((await owner.call(endpoint+'/appearance','PUT',navPic)).status,200);
+    assert.equal((await a.call('/store/alice-store')).data.settings.appearance.navigationBackgroundUrl,'/api/platform/images/navpic1','GearHub can');
+    assert.equal((await a.call(endpoint+'/appearance','PUT',appearance)).status,200);
+    assert.equal((await a.call('/store/alice-store')).data.settings.appearance.navigationBackgroundUrl,'/api/platform/images/navpic1','a seller save keeps GearHub\'s picture');
+    assert.equal((await owner.call(endpoint+'/appearance','PUT',appearance)).status,200);db.prepare("DELETE FROM platform_files WHERE id='navpic1'").run();
     const ownerSet={storageBytes:5*1024**3,endsAt:'2027-02-14T23:59:59+06:30'};
     assert.equal((await owner.call('/owner/shops/'+aid,'PATCH',ownerSet)).status,200);
     const service=(await a.call('/store/alice-store')).data.service;
