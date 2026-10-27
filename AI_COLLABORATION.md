@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.195: New shop goes straight into its admin + Home Screen install helper (Claude)
+- Owner: after applying with Google the seller should land in their shop at once, then get step-by-step help to add it to the Home Screen.
+- `public/platform.js`: when `POST /applications` returns a slug (shop opened), go to `/shops/<slug>/admin?welcome=1`. Shops that wait for the owner (limit reached) behave as before. `public/shop-application.js`: removed the old "opens only after owner approval" lines.
+- New `public/install-guide.js` + `.css` (loaded in `admin.html`, in the sw SHELL): robot helper, one step at a time with Back/Next and dots, for iPhone Safari, iPhone Chrome, other iPhone apps (copy link → Safari), Android (install prompt or ⋮ menu) and PC. Opens on `?welcome=1`, and on phones until Done; Close hides it for the session; never inside the installed app. The installed iOS app has its own cookies, so the last step says Google sign-in may be asked once.
+- Checked in WebKit at 375 and 1280 on a test page at a shop admin address (auto open, welcome removed from the URL, 4 steps, Done; no sideways scroll). The full admin with a faked sign-in froze the WebKit runner, so the guide was not seen inside the real admin page. Node 22 check + 360/360.
+
 ### 1.1.194: Phone Add Product at the size of the owner's picture (Claude)
 - Owner sent the 1.1.193 reference picture again: "change to this size, the original is small". Only `public/product-phone.css` changed: new rules at the end of its phone-only media query. `--u` = one pixel of the 851px-wide picture (`min(.1175vw,.505px)`), so the toolbar, cards, fields, inputs, tabs and textarea keep the picture's proportions at any phone width. Text is a little smaller than the picture because the phone system font is wider than the picture's (labels stay on one line at 375).
 - Checked in WebKit at 390 and 375 (field 43px/41px tall, was 34px) and PC 1280 (desktop form unchanged). Node 22 `npm run check`, `npm test` 358/358.

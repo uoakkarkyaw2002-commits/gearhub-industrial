@@ -221,7 +221,14 @@
     if (!me.shop && !me.isOwner) {
       $("application").innerHTML = window.GearHubApplication.render(me);
       $("application-message")?.addEventListener("input",e=>$("application-counter").textContent=e.target.value.length+" / 500");
-      form("apply", (d) => api("/applications", "POST", d));
+      // A shop that opens at once takes the seller straight into its admin (owner, 1.1.195).
+      form("apply", async (d) => {
+        const r = await api("/applications", "POST", d);
+        if (r.slug) {
+          location.href = "/shops/" + encodeURIComponent(r.slug) + "/admin?welcome=1";
+          await new Promise(() => {});
+        }
+      });
     } else if (me.shop) {
       if(me.isOwner)await shop(me.shop.id);
       else $("application").innerHTML=window.GearHubApplication.render(me);
