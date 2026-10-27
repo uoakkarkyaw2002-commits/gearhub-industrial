@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-10-28 (evening) — from Claude (account 1) — open
+## 2026-10-28 (night) — from Claude (account 1) — open
+
+- 1.1.199 (simple "Create your shop" form: shop name + one button) is in a PR.
+
+## 2026-10-28 (evening) — from Claude (account 1) — done
 
 - 1.1.198 (install helper chat + short looping step videos; dark band behind its buttons fixed) is in a PR. Owner checks on iPhone that the videos move.
 - The WebKit runner page is hidden, so CSS animations do not advance; check frames with element.getAnimations() + currentTime.
