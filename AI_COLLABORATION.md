@@ -30,7 +30,7 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 2026-10-27: treebird Mobile advertising catalogue (Codex) — documentation only
+### 2026-10-27: treebird Mobile advertising catalogue (Codex) — [PR #284](https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/284), documentation only
 - Owner requested converting the existing `treebird` shop into a realistic phone-shop example for advertising, with 50 products. This is a live content task, not an application release: public URL remains `https://skyshopmm.com/shops/treebird/`, shop ID 4, displayed name `treebird Mobile`.
 - Used the owner's authenticated Chrome seller session and the existing shop-scoped, CSRF-protected APIs. No cookies, passwords or tokens were exported. Exported the initially empty shop before changes and again afterwards to private local files; no existing products/orders were removed.
 - Saved 50 active, unique SKUs `TBM-001`–`TBM-050`, each with its own manufacturer product photo: Apple iPhone 10; Samsung Galaxy 12; Xiaomi / POCO 10; OPPO 6; vivo 6; realme 6. Six brand categories, 7 illustrative promotions, bilingual descriptions and phone-shop copy, teal/navy colours, a new bird/phone logo and homepage banner. Prices, offers and stock are explicitly labelled advertising examples in the storefront and product descriptions. No invented contact, location, warranty or payment details; bank settings remain unconfigured.
