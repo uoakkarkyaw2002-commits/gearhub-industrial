@@ -30,7 +30,7 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.193: Phone Add Product and AI advice match the owner's references (Codex) — PR pending
+### 1.1.193: Phone Add Product and AI advice match the owner's references (Codex) — [PR #267](https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/267)
 - Owner: redesign Phone Add Product and the AI warning/category advice from the two supplied images, send actual screenshots, and leave PC unchanged.
 - Existing form controls and AI results already worked; the phone still used the long desktop-oriented sections/draft toolbar, and AI advice was a plain warning paragraph. New `product-phone.css` has only a max-width:800px media query. `product-phone.js` adds the top native Save action, compact two-column cards, barcode decoration and image chooser; folds Myanmar name/promotion/other optional controls into the existing details without deleting or duplicating them. Every moved node has a placeholder and returns home on desktop resize, preserving values/listeners. The new Save submits the original form and mirrors its disabled state.
 - `product-ai.js` keeps its desktop HTML and existing API/category-ID action; phone results use the red robot warning and green bulb/category card. Scores/names/category paths come from the real response, including 99% MONITOR (300426-00202), Electrical Parts › Doosan in the local fixture. No fake response, threshold, backend, schema or API changes.
