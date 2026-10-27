@@ -1151,7 +1151,9 @@ html.photo-scanner-open,html.photo-scanner-open body{overflow:hidden}
 .photo-scanner-label:disabled{opacity:.6}
 .photo-scanner-bar>span:empty{display:none}
 /* 1.1.202 owner: a seller shop's Home shows its settings navigation picture (GearHub's) with the shop name only. */
-.hero.seller-nav-hero{display:flex!important;align-items:flex-end;min-height:240px;padding:28px 32px;background:linear-gradient(90deg,#08263fd9 0%,#08263f80 45%,#08263f10 80%),var(--seller-nav-picture) center/cover no-repeat!important}
+.hero.seller-nav-hero{align-items:flex-end;min-height:240px;padding:28px 32px;background:linear-gradient(90deg,#08263fd9 0%,#08263f80 45%,#08263f10 80%),var(--seller-nav-picture) center/cover no-repeat!important}
 .hero.seller-nav-hero>:not(.seller-nav-title),.hero.seller-nav-hero::before,.hero.seller-nav-hero::after{display:none!important}
 .seller-nav-title{color:#fff;font-size:40px;line-height:1.15;font-weight:800;letter-spacing:-.02em;text-shadow:0 2px 12px #0006;overflow-wrap:anywhere}
 @media(max-width:700px){.hero.seller-nav-hero{width:auto;min-height:170px;margin-left:16px;margin-right:16px;padding:20px 20px}.seller-nav-title{font-size:30px}}
+/* 1.1.206: the banner is Home-only; on Settings/Category/Promotion the page's own hiding wins. */
+.hero.seller-nav-hero:not(.store-view-hidden){display:flex!important}

@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.206: One picture on Settings; smaller phone admin banner (Claude)
+- Owner (treebird, Android): Settings showed two pictures — the 1.1.202 Home banner `.hero.seller-nav-hero{display:flex!important}` beat `.store-view-hidden{display:none!important}` (higher specificity). Now `.hero.seller-nav-hero:not(.store-view-hidden){display:flex!important}`.
+- Owner: phone admin banner too big; make it the navigation picture size. `site-admin.css` (max-width:800px, body.seller-admin): min-height 116px, padding 14px 20px, h1 26px, text 13px → 126px tall at 375 (was 214px). PC unchanged.
+- WebKit 375 on the local server: Home banner flex, Settings none, admin banner 126px. Node 22 check + 366/366.
+
 ### 1.1.205: Tab title "skyshopmm.com" (Claude)
 - Owner: the browser tab of skyshopmm.com (platform.html) said "GearHub ဆိုင်စီမံခန့်ခွဲမှု"; now `<title>skyshopmm.com</title>`. Test line in platform-scene.test.js. Node 22 check + 366/366.
 

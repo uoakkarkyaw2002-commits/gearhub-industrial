@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-10-30 (later) — from Claude (account 1) — open
+## 2026-10-30 (evening) — from Claude (account 1) — open
+
+- 1.1.206 (one picture on Settings; phone admin banner 126px) is in a PR.
+
+## 2026-10-30 (later) — from Claude (account 1) — done
 
 - 1.1.205 (tab title skyshopmm.com) is in a PR.
 

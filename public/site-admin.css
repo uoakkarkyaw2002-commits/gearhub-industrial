@@ -748,3 +748,11 @@ body.seller-admin .inventory-hero{background-image:linear-gradient(90deg,#f5fff9
 body.seller-admin .admin-head{background-image:linear-gradient(90deg,#f7faf5 0%,#f7faf5ed 35%,#f7faf522 67%),var(--seller-nav-picture,url('/images/shop-nav-default.jpg'))!important;background-position:center!important}
 @media(max-width:800px){body.seller-admin .admin-head{background-image:linear-gradient(95deg,#03285fe8 0%,#0b5ba6b8 48%,#0b539415 78%),var(--seller-nav-picture,url('/images/shop-nav-default.jpg'))!important}}
 body.seller-admin:not(.gearhub-owner) #site-navigation-background-field{display:none!important}
+/* 1.1.206 owner: on phones the seller admin banner is the size of the settings navigation picture (116px). */
+@media(max-width:800px){
+ body.seller-admin .admin-head{min-height:116px;padding:14px 20px;border-radius:18px}
+ body.seller-admin .admin-head>div:first-child{max-width:78%}
+ body.seller-admin .admin-head .eyebrow{font-size:13px}
+ body.seller-admin .admin-head h1{margin:3px 0 4px;font-size:26px;line-height:1.15}
+ body.seller-admin .admin-head p,body.seller-admin .admin-head .muted{font-size:13px;line-height:1.45}
+}
