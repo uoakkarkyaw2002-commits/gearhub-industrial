@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.197: Owner "Skyshop" button opens the new-seller page (Claude)
+- Owner: rename "Google Sign in" to "Skyshop"; tapping it shows the Skyshop new-shop page. It is now a link to `/platform.html?visitor`; with `?visitor` `platform.js` renders the visitor page (scene, Sign in → Continue with Google) while the owner stays signed in. Signing in there switches the Google account.
+- WebKit 375/1280 on the local fake-Google platform server: link on the name line, visitor page shown, owner session kept. Node 22 check + 361/361.
+
 ### 1.1.196: Owner Google Sign in button; seller with a shop goes straight in; seller menu fits (Claude)
 - Owner: a button on the owner console to go straight to Google sign-in. `platform.js` adds "Google Sign in" (owner only) on the name/email line; it uses the existing `/auth/start` (Google account chooser). Styles at the end of `platform.css`.
 - Owner: a new shop (treebird) did not open straight in on the iPhone, although the shop was made on live. Locally (fake Google server, WebKit 375) Submit → `/shops/<slug>/admin?welcome=1` and the install helper worked, so the cause on the phone is unknown. Now `platform.html` also sends any signed-in seller who has a shop straight to its admin (at most once a minute via sessionStorage, so an admin that sends them back cannot loop); `?welcome=1` while the auto-opened shop has not finished the install helper.
