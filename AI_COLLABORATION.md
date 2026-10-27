@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.199: Simple "Create your shop" form (Claude)
+- Owner: remove the steps and texts from the shop application; pressing "Create your shop" makes the shop at once. `public/shop-application.js` form: heading, required shop name, one "ဆိုင်ဖွင့်မယ် / Create your shop" button and a one-line Seller Rules link (kept: sellers still agree to the rules). Removed: 1-2-3 steps, rejected note, Gmail field, About field/counter, help lines. Server unchanged (it already opens the shop at once while the owner's shop limit allows; then 1.1.195 goes to the admin with the install helper). Pending/approved cards unchanged.
+- `tests/shop-application.test.js` updated on purpose for the new form. WebKit 375/1280 on the local fake-Google server: form, then Create → `/shops/<slug>/admin` with the helper. Node 22 check + 362/362.
+
 ### 1.1.198: Install helper as a chat with short step videos (Claude)
 - Owner: show short videos instead of pictures, like someone teaching in front of you, with auto replies. `public/install-guide.js`: chat thread (robot types ~0.9 s, then the step; the seller taps "ပြီးပြီ ✓ / Done", their reply bubble appears and the robot answers with the next step; earlier steps stay above, shortened). Each iPhone Safari/Chrome and Android step has a drawn 5 s looping video (`install-guide.css`: phone screen mock, finger, menus/sheets moving; iOS 26 Safari ≡ → Share → Add to Home Screen → Open as Web App/Add → Home Screen icon). PC steps keep icons. These are CSS animations, not screen recordings (no iOS Simulator here).
 - Fixed: the admin page `footer` style painted a dark band behind the helper buttons (now a div). The bubble no longer fades in from opacity 0 (the hidden WebKit test page does not run animations, so a fade left it invisible).
