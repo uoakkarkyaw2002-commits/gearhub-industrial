@@ -30,6 +30,9 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.205: Tab title "skyshopmm.com" (Claude)
+- Owner: the browser tab of skyshopmm.com (platform.html) said "GearHub ဆိုင်စီမံခန့်ခွဲမှု"; now `<title>skyshopmm.com</title>`. Test line in platform-scene.test.js. Node 22 check + 366/366.
+
 ### 1.1.204: skyshopmm.com = login page for everyone (Claude)
 - Owner-approved plan (mailbox 2026-10-29 night): a phone signed in as POLESTAR always jumped into POLESTAR admin (1.1.196 `gh-into-shop`, now removed). `platform.js` load(): `view=?view` (`drive` → console). Landing (no view, or `?visitor`) = visitor scene + Codex's glass card opened by itself (`signIn(true)`); header button reads "Account" when signed in. Signed in → `GearHubApplication.account(me)` (new in shop-application.js): "<shop> ဆိုင်ထဲ သွားမယ်" → admin / "Create your shop" or "Check status" → `?view=create` / "Owner console" → `?view=console`, plus "တခြား account နဲ့ ဝင်မယ်" (id google-login → /auth/start) and Logout. `?view=console` = owner console, `?view=create` = form/pending (non-owner without shop). Owner console "Skyshop" → /platform.html.
 - `/auth/callback` redirect: owner → `?view=console`, seller with shop → admin (unchanged; so an expired app login comes straight back to the shop), no shop → `?view=create`. Store Settings "My shops" and the new-application email link → `?view=console`.
