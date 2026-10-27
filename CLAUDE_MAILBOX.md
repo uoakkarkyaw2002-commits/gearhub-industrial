@@ -1,5 +1,21 @@
 # Claude mailbox
 
+## 2026-10-29 (night) — from Claude (account 1) to the next Claude — open: build 1.1.204 "Home = login page"
+
+The owner approved this plan ("လုပ်လို့ရပီ"). Nothing is built yet. Branch `claude/home-login` (from main 58583cc, 1.1.203 = Codex glass Sign in) has only this note.
+Problem: opening skyshopmm.com on a phone signed in as POLESTAR jumps straight into POLESTAR admin (the 1.1.196 auto-redirect in `public/platform.js` load(), key `gh-into-shop`). The owner wants:
+1. **skyshopmm.com always shows the login page** (Codex's glass Sign in card, opened automatically over the scene) — for everyone, signed in or not. Remove the 1.1.196 `gh-into-shop` redirect. Keep the redirect right after "Create your shop" (`/admin?welcome=1`).
+2. **Signed in → the card shows ONE main button** by account (plus the email "… နဲ့ ဝင်ထားပါတယ်"):
+   - seller with a shop → "<shop name> ဆိုင်ထဲ သွားမယ်" → `/shops/<slug>/admin`
+   - no shop → "ဆိုင်ဖွင့်မယ် / Create your shop" → `/platform.html?view=create` (existing form / pending card from `GearHubApplication.render(me)`)
+   - GearHub owner → "Owner console" → `/platform.html?view=console` (existing owner console)
+   - not signed in → existing "Continue with Google".
+3. **Under it two small text buttons**: "တခြား account နဲ့ ဝင်မယ်" (reuse id `google-login` → `/auth/start`, Google account chooser) and "Logout" (same as header `#logout`).
+4. **App login comes back straight**: already true for sellers — `/auth/callback` in `lib/platform.js` (~line 366) redirects a seller with a shop to `/shops/<slug>/admin`, and `tenant-admin.js` sends an expired app login to `/platform.html`. Only change the other branch: owner → `/platform.html?view=console`, no shop → `/platform.html?view=create`.
+How (suggested): in `platform.js` load(): `view=params.get('view')||(params.has('drive')?'console':'')` (Drive OAuth returns `?drive=connected#drive-settings` and must open the console). Landing = no view (or `?visitor`): render the visitor scene (`body.visitor`), put the new account card (add `account(me)` to `shop-application.js`, same `glass-signin-card` markup/classes so `signin.css` styles it) in `#account`, and call `signIn(true)` to open it. The owner console's "Skyshop" button (1.1.197) can link to `/platform.html`. Styles for the two small buttons go in `signin.css` (`body.visitor .glass-signin-card …`). Bump `signin.css`, `platform.js`, `shop-application.js` tags (platform.html + sw.js SHELL) and the version files.
+Owner pros/cons already discussed: one extra tap for sellers/owner from the browser (the Home Screen app still opens the admin directly; Android app shares Chrome login, iPhone app asks Google once).
+Test: local fake-Google server (scratchpad `platform-mini.js` style: express + createPlatform with `identityProvider`, `installTenantApps`, static public) and WebKit 375/1280; update `tests/install-guide.test.js` (pins the 1.1.196 `gh-into-shop` redirect) on purpose.
+
 ## 2026-10-27 — from Codex (glass Sign in motion) — in review
 
 - Owner first wanted an image only (earlier code edits restored, no push), then explicitly authorized adding the approved glass design + supplied video's floating entrance to the app. 1.1.203: visitor-only scene/card, no obsolete login review steps, 1400 ms gentle drop/tilt, replay/close/focus/reduced-motion; original OAuth/Create/pending/owner flows preserved. Node 22 checks + 366/366 tests. Real local Chrome 375/1280 motion samples and buttons passed without console errors; fake-Google → shop creation → admin passed; owner visitor preview keeps login. Actual screenshots/GIF in outputs; no live Google/iPhone test. PR #277: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/277; no merge/deploy.
