@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.207: No footer gear; Navigation Background and Page Wallpaper are GearHub-only (Claude)
+- Owner (treebird, Android): remove the gear at the bottom; remove Navigation Background and Page Wallpaper from sellers — only the owner changes them.
+- `store.js` hideShopDefaults hides `.footer-logo` when the shop has no own logo (`style.css` `.footer-logo[hidden]`). `admin.html`: both appearance sections get `gearhub-only`; `site-admin.css` hides them unless `body.gearhub-owner`. Server `PUT /appearance` now keeps both navigationBackgroundUrl and wallpaperUrl unless GearHub saves (platform.test.js extended).
+- WebKit 375 on the local server: seller sees neither section; kaizen footer logo hidden. Tags style/store/smart-search 1.1.207, site-admin 1.1.207. Node 22 check + 366/366.
+
 ### 1.1.206: One picture on Settings; smaller phone admin banner (Claude)
 - Owner (treebird, Android): Settings showed two pictures — the 1.1.202 Home banner `.hero.seller-nav-hero{display:flex!important}` beat `.store-view-hidden{display:none!important}` (higher specificity). Now `.hero.seller-nav-hero:not(.store-view-hidden){display:flex!important}`.
 - Owner: phone admin banner too big; make it the navigation picture size. `site-admin.css` (max-width:800px, body.seller-admin): min-height 116px, padding 14px 20px, h1 26px, text 13px → 126px tall at 375 (was 214px). PC unchanged.

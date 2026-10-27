@@ -266,9 +266,10 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
     assert.equal((await a.call(endpoint+'/appearance','PUT',appearance)).status,200);
     // Owner 1.1.201: only GearHub sets a seller shop's navigation picture; the seller's save keeps GearHub's.
     db.prepare("INSERT INTO platform_files(id,shop_id,kind,mime,bytes,filename,ready) VALUES('navpic1',?,'image','image/jpeg',10,'navpic1.jpg',1)").run(aid);
-    const navPic={...appearance,navigationBackgroundUrl:'/api/platform/images/navpic1'};
+    const navPic={...appearance,navigationBackgroundUrl:'/api/platform/images/navpic1',wallpaperUrl:'/api/platform/images/navpic1'};
     assert.equal((await a.call(endpoint+'/appearance','PUT',navPic)).status,200);
     assert.equal((await a.call('/store/alice-store')).data.settings.appearance.navigationBackgroundUrl,'','the seller cannot set it');
+    assert.equal((await a.call('/store/alice-store')).data.settings.appearance.wallpaperUrl,'','1.1.207: nor the page wallpaper');
     assert.equal((await owner.call(endpoint+'/appearance','PUT',navPic)).status,200);
     assert.equal((await a.call('/store/alice-store')).data.settings.appearance.navigationBackgroundUrl,'/api/platform/images/navpic1','GearHub can');
     assert.equal((await a.call(endpoint+'/appearance','PUT',appearance)).status,200);
