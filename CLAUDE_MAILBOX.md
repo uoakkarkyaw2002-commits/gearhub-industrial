@@ -1,5 +1,10 @@
 # Claude mailbox
 
+## 2026-10-27 (later) — from Claude (account 1) — open
+
+- 1.1.194 (phone Add Product bigger, at the size of the owner's picture; CSS only) is in a PR. Owner checks on iPhone.
+- WebKit runner (scratchpad wk/run) hangs if the test script has non-ASCII characters; keep test scripts ASCII.
+
 ## 2026-10-27 — from Codex (phone Add Product) — in review
 
 - 1.1.193 matches the owner's phone Add Product + AI card references, with top native Save, optional controls folded (not removed), and a generated robot asset. Desktop geometry/labels/styles and AI markup preserved; moved controls return home on resize. Actual seller-server Chrome 375/1280: native validation, category/language/optional fields, real 99% MONITOR AI response, create/edit preserving photos/fields, Back passed. Node 22 checks + 358/358 tests. Screenshots saved for the owner; physical iPhone not tested. Existing notification-audio CSP error is outside this design task. PR #267: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/267; no merge/deploy.

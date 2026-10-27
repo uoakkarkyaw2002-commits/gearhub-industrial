@@ -57,4 +57,38 @@
  .product-ai-phone-cats>.product-ai-bulb{grid-column:1;grid-row:1/span 2;width:26px;height:34px;color:#0ea246}.product-ai-phone-cats>.product-ai-bulb svg{width:100%;height:100%}
  .product-ai-phone-cats>p{grid-column:2;color:#123725;font-size:12px;line-height:1.5;font-weight:800}.product-ai-phone-cats>button{grid-column:2;display:grid;gap:2px;width:100%;padding:9px;border:1px solid #50b97b;border-radius:9px;background:#e9f9f0;color:#102a21;text-align:left;font:inherit;cursor:pointer}
  .product-ai-phone-cats>button b{font-size:12px;line-height:1.5}.product-ai-phone-cats>button small{font-size:11px;color:#677b86}.product-ai-phone-cats>button.chosen{box-shadow:0 0 0 1px #159348;background:#dff4e7}
+ /* 1.1.194 owner: phone Add Product at the size of the owner's reference picture (851px wide).
+    --u is one pixel of that picture, so every phone width keeps the same proportions. */
+ #product-form-content.phone-product-editor:not(.hidden){--u:min(.1175vw,.505px);padding-inline:calc(17*var(--u))}
+ .phone-product-editor .product-editor-toolbar{gap:calc(22*var(--u));margin:0 calc(-17*var(--u));padding:calc(18*var(--u)) calc(21*var(--u)) calc(24*var(--u))}
+ .phone-product-editor .product-editor-toolbar h2{font-size:calc(48*var(--u))}
+ .phone-product-editor .product-editor-back{width:calc(83*var(--u));height:calc(85*var(--u));border-radius:calc(18*var(--u));font-size:calc(52*var(--u))}
+ .phone-product-editor .product-phone-save{min-height:calc(85*var(--u));gap:calc(14*var(--u));padding:0 calc(32*var(--u));border-radius:calc(20*var(--u));font-size:calc(36*var(--u))}
+ .phone-product-editor .product-phone-save svg{width:calc(38*var(--u));height:calc(38*var(--u))}
+ .phone-product-editor .product-entry-card{margin-bottom:calc(22*var(--u));padding:calc(26*var(--u)) calc(23*var(--u));border-radius:calc(24*var(--u))}
+ .phone-product-editor .product-entry-card:first-of-type{padding-bottom:calc(22*var(--u))}
+ .phone-product-editor #product-form>.product-entry-card:nth-of-type(2){padding-block:calc(26*var(--u))}
+ .phone-product-editor .product-field-grid{gap:calc(30*var(--u)) calc(27*var(--u))}
+ .phone-product-editor #product-form .product-entry-card label:not(.product-upload-zone){font-size:calc(29*var(--u));letter-spacing:-.01em}
+ .phone-product-editor .product-input-wrap{margin-top:calc(12*var(--u));border-radius:calc(14*var(--u))}
+ .phone-product-editor #product-form .product-input-wrap input{height:calc(93*var(--u));padding:0 calc(16*var(--u));font-size:calc(30*var(--u));border-radius:calc(14*var(--u))}
+ .phone-product-editor #product-form .product-input-wrap:has(.product-phone-field-icon) input{padding-right:calc(56*var(--u))}
+ .phone-product-editor #product-form [name=partNo]{font-size:calc(28*var(--u))}
+ .phone-product-editor .product-phone-field-icon{right:calc(18*var(--u));width:calc(34*var(--u))!important;height:calc(40*var(--u))}
+ .phone-product-editor .product-extra-fields{margin-top:calc(26*var(--u));border-radius:calc(16*var(--u))}
+ .phone-product-editor .product-extra-fields summary{gap:calc(18*var(--u));padding:calc(20*var(--u)) calc(16*var(--u));font-size:calc(21.5*var(--u))}
+ .phone-product-editor .product-extra-plus{width:calc(56*var(--u));height:calc(56*var(--u));font-size:calc(52*var(--u))}
+ .phone-product-editor .product-extra-fields summary>svg{width:calc(28*var(--u));height:calc(28*var(--u))}
+ .phone-product-editor .phone-product-images{grid-template-columns:calc(73*var(--u)) minmax(0,1fr) calc(269*var(--u));column-gap:calc(18*var(--u));row-gap:calc(6*var(--u));padding-block:calc(26*var(--u))}
+ .phone-product-editor .phone-product-images>.product-card-heading>span{width:calc(73*var(--u));height:calc(84*var(--u));border-radius:calc(16*var(--u))}
+ .phone-product-editor .phone-product-images>.product-card-heading>span svg{width:calc(50*var(--u));height:calc(50*var(--u))}
+ .phone-product-editor .phone-product-images h3{font-size:calc(40*var(--u))}
+ .phone-product-editor .phone-product-images .product-card-heading p{font-size:calc(23*var(--u));line-height:1.6}
+ .phone-product-editor #product-form .product-upload-zone{min-height:calc(97*var(--u));gap:calc(12*var(--u));margin-bottom:calc(36*var(--u));border-radius:calc(16*var(--u))}
+ .phone-product-editor .upload-cloud{width:calc(54*var(--u));height:calc(48*var(--u))}
+ .phone-product-editor .product-upload-zone strong{font-size:calc(25*var(--u))}
+ .phone-product-editor .product-upload-zone small:last-of-type{margin-top:calc(8*var(--u));font-size:calc(16*var(--u))}
+ .phone-product-editor .product-description-tabs{margin-bottom:calc(14*var(--u));padding:calc(4*var(--u));border-radius:calc(18*var(--u))}
+ .phone-product-editor .product-description-tabs button{min-height:calc(80*var(--u));font-size:calc(36*var(--u));border-radius:calc(16*var(--u))}
+ .phone-product-editor #product-form .product-entry-card textarea{min-height:calc(365*var(--u));padding:calc(24*var(--u)) calc(26*var(--u));border-radius:calc(16*var(--u));font-size:calc(31*var(--u))}
 }
