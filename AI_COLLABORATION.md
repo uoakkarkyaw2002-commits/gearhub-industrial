@@ -30,6 +30,9 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.208: No excavator in the seller Hero field (Claude)
+- Owner (treebird admin): the Hero / Homepage Banner field showed GearHub's excavator. `admin.js` fills an empty seller hero with "" (GearHub's own admin keeps the excavator default); `tenant-admin.js` PUT /appearance stores "" instead of `/images/hero-excavator.jpg` for every seller shop (platform.test.js). WebKit 375 local: field empty, preview hidden. Node 22 check + 366/366.
+
 ### 1.1.207: No footer gear; Navigation Background and Page Wallpaper are GearHub-only (Claude)
 - Owner (treebird, Android): remove the gear at the bottom; remove Navigation Background and Page Wallpaper from sellers — only the owner changes them.
 - `store.js` hideShopDefaults hides `.footer-logo` when the shop has no own logo (`style.css` `.footer-logo[hidden]`). `admin.html`: both appearance sections get `gearhub-only`; `site-admin.css` hides them unless `body.gearhub-owner`. Server `PUT /appearance` now keeps both navigationBackgroundUrl and wallpaperUrl unless GearHub saves (platform.test.js extended).

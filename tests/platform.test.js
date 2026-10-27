@@ -270,6 +270,8 @@ test("Google approval, tenant isolation, owner roles, quotas, subscriptions and 
     assert.equal((await a.call(endpoint+'/appearance','PUT',navPic)).status,200);
     assert.equal((await a.call('/store/alice-store')).data.settings.appearance.navigationBackgroundUrl,'','the seller cannot set it');
     assert.equal((await a.call('/store/alice-store')).data.settings.appearance.wallpaperUrl,'','1.1.207: nor the page wallpaper');
+    assert.equal((await a.call(endpoint+'/appearance','PUT',{...appearance,heroImageUrl:'/images/hero-excavator.jpg'})).status,200);
+    assert.equal((await a.call('/store/alice-store')).data.settings.appearance.heroImageUrl,'','1.1.208: never GearHub\'s excavator');
     assert.equal((await owner.call(endpoint+'/appearance','PUT',navPic)).status,200);
     assert.equal((await a.call('/store/alice-store')).data.settings.appearance.navigationBackgroundUrl,'/api/platform/images/navpic1','GearHub can');
     assert.equal((await a.call(endpoint+'/appearance','PUT',appearance)).status,200);
