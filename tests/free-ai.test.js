@@ -83,3 +83,11 @@ test('#7 #8 reading text: part numbers on a label, amount and transaction ID on 
  assert.match(platform,/if \(d\.receiptRead\?\.receiptId === o\.receipt_id\) return res\.json\(d\.receiptRead\);/,'each receipt is read once');
  assert.match(scan,/class="photo-scanner-label"/);
 });
+
+test('#8 the receipt line under an order is styled and only shown when the order has a receipt',()=>{
+ const od=read('public/order-detail.js'),css=read('public/site-admin.css'),tenant=read('public/tenant-admin.js');
+ assert.match(od,/\(order\.hasReceipt\?'<p class="od-ai-receipt" data-ai-receipt="'\+Number\(order\.id\)\+'" hidden><\/p>':''\)/);
+ assert.match(od,/shown=html;host\.innerHTML=html;readReceipt\(host\);/);
+ assert.match(css,/\.od-ai-receipt\.od-ai-warn\{background:#fff6e5;color:#7a4b00\}/);
+ assert.match(tenant,/receiptRead:async o=>\{const r=await call\('\/orders\/'\+encodeURIComponent\(o\.id\)\+'\/receipt-read'\);/);
+});

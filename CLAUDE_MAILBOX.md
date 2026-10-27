@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-10-31 (night) — from Claude (account 1) — open
+
+- 1.1.192 Free AI pack (#2–#8 of FREE_AI_PLAN.md) is in PR #266. Owner was out; after merge + deploy check on the live POLESTAR admin: Add Product photo → AI panel; an order with a receipt → AI line; scanner → Part No.; shop search typos; Similar parts. Watch Render memory (image model + OCR).
+
 ## 2026-10-26 — from Codex (Excel photo) — in review
 
 - 1.1.191: Excel library matches the owner's reference; whole workbook card opens the existing viewer, full-width Upload and Windows/Mac download buttons. Mac installer ZIP/watcher uses existing shop-key APIs. Node 22 check passed, 349/349 tests; real Chrome 375/1280 card clicks, Enter, upload, downloads and owner/visitor roles passed. Screenshots saved for the owner. No installer installed on the host, no physical-device test. PR #265: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/265; no merge/deploy. Keep unrelated UI and the free AI plan unchanged.

@@ -8,13 +8,13 @@ GearHub server (Render), like Photo scan, with no outside AI service and no cost
 | # | AI | ဘာလုပ်ပေးလဲ | How (for the next Claude/Codex) | Status |
 |---|----|------------|---------------------------------|--------|
 | 1 | 📷 Photo scan | ပုံနဲ့ ပစ္စည်းရှာ | DINOv2-small ONNX, `lib/photo-search.js` | ✅ done (1.1.169–1.1.177) |
-| 2 | 🗂️ Category suggestion | ပစ္စည်းပုံ တင်ရင် "Electrical Parts → SANY ဖြစ်နိုင်တယ် (85% တူ)" အကြံပေး၊ တစ်ချက်နှိပ် ဖြည့် | Reuse the photo-search looks: compare the new photo with the shop's photos, vote by their products' `categoryId`; button in Add Product next to Category | ☐ next |
-| 3 | ♻️ Duplicate photo check | ပစ္စည်းတစ်ခုတည်း ၂ ခါ ထည့်မိရင် သတိပေး | Same looks; score ≥ 0.95 with a photo of another product → warning before Save | ☐ |
-| 4 | 🔍 Photo quality check | ပုံ ဝါး/မှောင်ရင် "ပြန်ရိုက်ပါ" | `sharp` stats on upload: blur (Laplacian variance) and brightness; warning only, never blocks | ☐ |
-| 5 | ⌨️ Smarter search | စာလုံးပေါင်းမှားလည်း၊ အဓိပ္ပာယ်တူလည်း ရှာတွေ့ | Fuzzy matching (edit distance) + small multilingual text-embedding ONNX model (e.g. MiniLM ~25–120 MB, check disk) for product names/SKU | ☐ |
-| 6 | 🧩 Similar products | ပစ္စည်းကြည့်ရင် ဆင်တူတာ ပြ | Nearest products by photo look (+ text embedding when #5 exists); "Similar parts" row in the product view | ☐ |
-| 7 | 🏷️ Part No. reader | Label ကို ကင်မရာနဲ့ ဖတ်ပြီး part number နဲ့ ရှာ | OCR: `tesseract.js` (eng) on the server; read text → match `partNo`/SKU; button in the scanner | ☐ |
-| 8 | 🧾 Payment receipt reader | KBZPay/WavePay screenshot ထဲက ငွေပမာဏ၊ transaction ID ဖတ်ပြီး order နဲ့ တိုက်စစ် | OCR (`tesseract.js` eng + mya) on the uploaded receipt; show "Ks 55,000 · ID …" next to the order total, mark match/mismatch; admin confirms | ☐ |
+| 2 | 🗂️ Category suggestion | ပစ္စည်းပုံ တင်ရင် "Electrical Parts → SANY ဖြစ်နိုင်တယ် (85% တူ)" အကြံပေး၊ တစ်ချက်နှိပ် ဖြည့် | Reuse the photo-search looks: compare the new photo with the shop's photos, vote by their products' `categoryId`; button in Add Product next to Category | ✅ 1.1.192 |
+| 3 | ♻️ Duplicate photo check | ပစ္စည်းတစ်ခုတည်း ၂ ခါ ထည့်မိရင် သတိပေး | Same looks; score ≥ 0.95 with a photo of another product → warning before Save | ✅ 1.1.192 |
+| 4 | 🔍 Photo quality check | ပုံ ဝါး/မှောင်ရင် "ပြန်ရိုက်ပါ" | `sharp` stats on upload: blur (Laplacian variance) and brightness; warning only, never blocks | ✅ 1.1.192 |
+| 5 | ⌨️ Smarter search | စာလုံးပေါင်းမှားလည်း၊ အဓိပ္ပာယ်တူလည်း ရှာတွေ့ | Built as fuzzy matching in the phone (`public/smart-search.js`: spelling mistakes, any word order, codes without dashes). A text-embedding model was left out for the 3 GB disk / memory; add later if needed | ✅ 1.1.192 |
+| 6 | 🧩 Similar products | ပစ္စည်းကြည့်ရင် ဆင်တူတာ ပြ | Nearest products by photo look (+ text embedding when #5 exists); "Similar parts" row in the product view | ✅ 1.1.192 |
+| 7 | 🏷️ Part No. reader | Label ကို ကင်မရာနဲ့ ဖတ်ပြီး part number နဲ့ ရှာ | OCR: `tesseract.js` (eng) on the server; read text → match `partNo`/SKU; button in the scanner | ✅ 1.1.192 |
+| 8 | 🧾 Payment receipt reader | KBZPay/WavePay screenshot ထဲက ငွေပမာဏ၊ transaction ID ဖတ်ပြီး order နဲ့ တိုက်စစ် | OCR (`tesseract.js` eng + mya) on the uploaded receipt; show "Ks 55,000 · ID …" next to the order total, mark match/mismatch; admin confirms | ✅ 1.1.192 |
 
 Notes / သတိပြုရန်
 - Render disk is 3 GB (≈0.4 GB used after 1.1.188). Check model sizes before adding (#5, #7, #8).

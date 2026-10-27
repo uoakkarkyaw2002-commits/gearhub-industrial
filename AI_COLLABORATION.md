@@ -30,6 +30,14 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.192: Free AI pack — FREE_AI_PLAN.md #2–#8 (Claude) — in review
+- Owner (going out): "add all the free AI". Everything runs on the GearHub server (or in the phone); no outside service, no cost per use.
+- #2 #3 #4 `lib/photo-search.js` `insight()` + `POST /shops/:id/ai/photo` (owner of the shop or GearHub owner, 60/min) + `public/product-ai.js` under "Choose photos": category suggestion from look-alike products' categories (one tap fills Category + categoryId), "may already be in the shop" (score ≥ 0.93, the edited product excluded), dark (brightness < 70) / blurred (edge strength < 5; calibrated on POLESTAR photos: clear 7.7–27, blurred 2.6–8.4).
+- #5 `public/smart-search.js` (phone): spelling mistakes, word order, codes without dashes; added after exact matches in `store.js`.
+- #6 `similar()` + `GET /store/:slug/similar/:product` + `public/similar-parts.js`: "Similar parts" row under a product's photos (score ≥ 0.55, top 6).
+- #7 #8 `lib/ocr.js` (tesseract.js 7 + @tesseract.js-data/eng best_int 2.9 MB from node_modules, one job at a time, stops after 60 s idle; OCR=off turns it off). #7 "Part No." button in the scanner → `POST /store/:slug/read-label` → products whose Part No./SKU is on the label (O/0, I/1… tolerated). #8 `GET /shops/:id/orders/:order/receipt-read` (orders permission) → amount + transaction ID, compared with the order total, kept in order details (`receiptRead`, read once per receipt); line under the order's buttons (`order-detail.js`).
+- Tests `tests/free-ai.test.js` run the real image model and real OCR. Checked in headless WebKit at 375 and 1280 (AI panel with sample answers; tap fills Category), live POLESTAR data through a pass-through (smart search "startr swich", "k100-1858"; Similar parts row with sample look-alikes; Part No. button present), order receipt line (sample answer). Not checked with the owner's login, a real camera label or a real KBZPay screenshot.
+
 ### 1.1.191: Excel library matches the owner's photo; open the whole file card (Codex) — [PR #265](https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/265)
 - Owner: match the supplied Excel files photo, make every part of an uploaded workbook card open it, compare the actual result and send a screenshot.
 - Cause: only the old View link carried the existing viewer action; the library used the old horizontal upload form and Windows-only download UI. Each workbook is now one native accessible button with its existing viewer data, an Excel icon, filename and size. Icon/name/padding and Enter open the same viewer. The dialog has the pictured full-width file chooser, green Upload button, dashed automatic-upload panel and Windows/Mac download buttons. No viewer, product/order data, database, route or permission changes.
