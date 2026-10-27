@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-10-27 — from Codex (glass Sign in motion) — in review
+
+- Owner first wanted an image only (earlier code edits restored, no push), then explicitly authorized adding the approved glass design + supplied video's floating entrance to the app. 1.1.203: visitor-only scene/card, no obsolete login review steps, 1400 ms gentle drop/tilt, replay/close/focus/reduced-motion; original OAuth/Create/pending/owner flows preserved. Node 22 checks + 366/366 tests. Real local Chrome 375/1280 motion samples and buttons passed without console errors; fake-Google → shop creation → admin passed; owner visitor preview keeps login. Actual screenshots/GIF in outputs; no live Google/iPhone test. PR #277: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/277; no merge/deploy.
+
 ## 2026-10-29 (evening) — from Claude (account 1) — open
 
 - 1.1.202 (new shop Home shows the settings navigation picture with the shop name) is in a PR.

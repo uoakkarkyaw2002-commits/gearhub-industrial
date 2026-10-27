@@ -1,0 +1,59 @@
+/* The owner's approved glass mockup. Scoped to the visitor Sign in screen. */
+.signin-scene{display:none}
+body.visitor{background:#4277be}
+body.visitor>.signin-scene{display:block;position:fixed;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;pointer-events:none;z-index:0}
+body.visitor .sky-picture,body.visitor .sky-frame{display:none!important}
+body.visitor header.site-head{max-width:1160px;padding:16px 28px}
+body.visitor .site-brand{display:inline-flex;align-items:center;gap:12px;color:#073d2b;font-size:27px;font-weight:800;text-shadow:0 0 22px #ffffffa6}
+body.visitor .site-brand::before{content:"";width:38px;height:38px;flex:none;background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230b6844' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 10V5h18v5M4 10v11h16V10M9 21v-7h6v7M2 5l2-3h16l2 3M3 10c0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0'/%3E%3C/svg%3E")}
+body.visitor .site-nav{padding:10px 16px;border:1px solid #ffffff73;border-radius:14px;background:#ffffff59;box-shadow:0 0 26px #ffffff40;backdrop-filter:blur(4px)}
+body.visitor .site-nav a{color:#123d32;text-shadow:none;opacity:1;font-size:14px}
+body.visitor .site-nav a:first-child{border-bottom:2px solid #2a7452;padding-bottom:5px}
+body.visitor .nav-signin{border-color:#ffffffa6;border-radius:9px;background:#ffffff3d;color:#113e31;backdrop-filter:none}
+body.visitor.signin-open{overflow:hidden}
+body.visitor.signin-open #account{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;inset:0;height:100dvh;box-sizing:border-box;padding:28px 16px;background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;perspective:1200px;overflow:auto}
+body.visitor.signin-open #account .glass-signin-card{position:relative;flex:none;width:min(490px,100%);min-height:0;margin:auto;padding:28px 28px 24px;box-sizing:border-box;text-align:center;color:#092f26;border:1px solid #ffffffbf;border-radius:25px;background:linear-gradient(145deg,#ffffff7a,#f4fbff61);box-shadow:0 14px 50px #1824442b,inset 0 1px 2px #fff;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transform-origin:50% 0;animation:signin-float-in 1400ms cubic-bezier(.22,.7,.2,1) both}
+.glass-signin-card:focus{outline:none}
+body.visitor .glass-signin-card>.heading-icon{width:68px;height:68px;margin:0 auto 16px;border-radius:50%;border:1px solid #ffffffb3;background:#ffffff61;color:#086b46}
+body.visitor .glass-signin-card>.heading-icon .app-icon{width:35px;height:35px}
+body.visitor .glass-signin-card h2{margin:0 0 10px;font-size:25px;line-height:1.55;letter-spacing:-.6px;color:#082e24}
+body.visitor .glass-signin-card h2>span{font-size:29px;line-height:1.4;font-weight:800;letter-spacing:-.8px}
+body.visitor .glass-signin-card .application-intro{margin:0;color:#24463d;font-size:15px;line-height:1.6}
+body.visitor .glass-signin-card .login-benefits{display:grid;gap:10px;margin:24px 0;padding:0;list-style:none;text-align:left}
+body.visitor .glass-signin-card .login-benefits li{display:flex;align-items:center;gap:15px;min-height:66px;padding:10px 12px;border:1px solid #ffffff99;border-radius:16px;background:#ffffff30;box-shadow:inset 0 1px 0 #ffffff40}
+body.visitor .glass-signin-card .login-benefits .app-icon{box-sizing:content-box;flex:none;width:25px;height:25px;padding:10px;border-radius:50%;background:#ffffff91;color:#08744d}
+body.visitor .glass-signin-card .login-benefits b{font-size:16px;line-height:1.5;font-weight:750;color:#082f25}
+body.visitor .glass-signin-card .login-benefits small{font-size:13px;line-height:1.6;color:#24463d}
+body.visitor .glass-signin-card .application-primary{display:flex;align-items:center;justify-content:center;gap:13px;width:100%;min-height:58px;margin:0;padding:12px 15px;border:1px solid #ffffff9e;border-radius:14px;background:linear-gradient(110deg,#106844,#005137);box-shadow:0 0 10px #ffffff4d,inset 0 1px 2px #ffffff33;color:#fff;font-size:16px;font-weight:750;cursor:pointer}
+body.visitor .glass-signin-card .application-primary:hover{background:linear-gradient(110deg,#0b5a39,#00462f)}
+body.visitor .glass-signin-card .application-primary:disabled{opacity:.6;cursor:not-allowed}
+body.visitor .glass-signin-card .google-signin-icon{width:26px;height:26px}
+body.visitor .glass-signin-card .application-help{margin:15px 0 0;font-size:12px;line-height:1.6;color:#163c30}
+body.visitor .glass-signin-card .signin-close{position:absolute;top:15px;right:15px;width:30px;height:30px;margin:0;padding:0;border:0;border-radius:50%;background:#ffffff1f;color:#36554a;font-size:25px;line-height:1;cursor:pointer}
+body.visitor .glass-signin-card .signin-close:hover{background:#ffffff66}
+body.visitor .glass-signin-card button:focus-visible,body.visitor .nav-signin:focus-visible{outline:3px solid #0c5d3b;outline-offset:4px}
+@keyframes signin-float-in{
+ 0%{opacity:0;transform:translate3d(0,-180px,0) rotateX(-16deg) rotateY(-28deg) rotateZ(-6deg) scale(.88)}
+ 38%{opacity:1;transform:translate3d(0,-38px,0) rotateX(4deg) rotateY(12deg) rotateZ(2.5deg) scale(.98)}
+ 72%{opacity:1;transform:translate3d(0,7px,0) rotateX(-1deg) rotateY(-3deg) rotateZ(-.8deg) scale(1.005)}
+ 100%{opacity:1;transform:translate3d(0,0,0) rotateX(0) rotateY(0) rotateZ(0) scale(1)}
+}
+@media(max-width:600px){
+ body.visitor header.site-head{padding:14px 16px}
+ body.visitor .site-brand{font-size:23px;gap:9px}body.visitor .site-brand::before{width:29px;height:29px}
+ body.visitor .site-nav a{font-size:12px;margin-right:16px}
+ body.visitor>.signin-scene{object-position:70% center}
+ body.visitor.signin-open #account{padding:16px 12px calc(16px + env(safe-area-inset-bottom))}
+ body.visitor.signin-open #account .glass-signin-card{width:100%;padding:36px 18px 22px;border-radius:23px}
+ body.visitor .glass-signin-card>.heading-icon{width:58px;height:58px;margin-bottom:12px}
+ body.visitor .glass-signin-card>.heading-icon .app-icon{width:29px;height:29px}
+ body.visitor .glass-signin-card h2{font-size:20px;line-height:1.55;margin-bottom:9px}.glass-signin-card h2>span{font-size:24px!important}
+ body.visitor .glass-signin-card .application-intro{font-size:13px}
+ body.visitor .glass-signin-card .login-benefits{margin:20px 0;gap:9px}
+ body.visitor .glass-signin-card .login-benefits li{min-height:60px;gap:11px;padding:9px 10px;border-radius:14px}
+ body.visitor .glass-signin-card .login-benefits .app-icon{width:22px;height:22px;padding:9px}
+ body.visitor .glass-signin-card .login-benefits b{font-size:14px}.glass-signin-card .login-benefits small{font-size:12px!important}
+ body.visitor .glass-signin-card .application-primary{min-height:53px;font-size:14px}
+ body.visitor .glass-signin-card .application-help{font-size:11px;margin-top:13px}
+}
+@media(prefers-reduced-motion:reduce){body.visitor.signin-open #account .glass-signin-card{animation:none}}
