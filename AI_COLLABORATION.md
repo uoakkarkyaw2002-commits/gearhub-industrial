@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.200: Bouncing "Open in app" when the shop app is installed (Claude)
+- Owner (Android photo): POLESTAR app is on the Home Screen but the admin was open in Chrome; show a bouncing "Open in app" note. `lib/tenant-install.js`: shop and admin manifests now list themselves in `related_applications` (platform webapp, absolute manifest URL; added after display_override so the title-bar test keeps its order). New `public/open-in-app.js` (admin.html + index.html, in the sw SHELL): in a browser tab, `navigator.getInstalledRelatedApps()` → bouncing green pill above the bottom nav with ×; Android tap tries an `intent://` hand-off with `S.browser_fallback_url=...#open-in-app`, and if Chrome keeps the page it shows "⋮ → Open in app"; PC shows the address-bar Open in app hint. iPhone Safari has no such API: nothing shows there.
+- WebKit 375/1280 with a faked installed app (WebKit lacks the API): pill/help placement, no sideways scroll. Not verified on a real Android: whether the intent opens the installed app or falls back to the help. Node 22 check + 364/364.
+
 ### 1.1.199: Simple "Create your shop" form (Claude)
 - Owner: remove the steps and texts from the shop application; pressing "Create your shop" makes the shop at once. `public/shop-application.js` form: heading, required shop name, one "ဆိုင်ဖွင့်မယ် / Create your shop" button and a one-line Seller Rules link (kept: sellers still agree to the rules). Removed: 1-2-3 steps, rejected note, Gmail field, About field/counter, help lines. Server unchanged (it already opens the shop at once while the owner's shop limit allows; then 1.1.195 goes to the admin with the install helper). Pending/approved cards unchanged.
 - `tests/shop-application.test.js` updated on purpose for the new form. WebKit 375/1280 on the local fake-Google server: form, then Create → `/shops/<slug>/admin` with the helper. Node 22 check + 362/362.
