@@ -30,7 +30,7 @@ _None._
 
 ## Handoff entries (newest first)
 
-### 1.1.203: Approved glass Sign in screen and gentle floating entrance (Codex) — PR pending
+### 1.1.203: Approved glass Sign in screen and gentle floating entrance (Codex) — [PR #277](https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/277)
 - Owner clarified the previous request was image-only, so all uncommitted 1.1.200 design edits were restored and the unused branch deleted without a push/PR. Then supplied an 8.33-second video as a motion-only reference and explicitly authorized implementing the approved generated glass design in the app.
 - Cause: visitor login still rendered the obsolete Apply/Review/Approved progress and an opaque card over a page-wide blur. `shop-application.js` now renders the approved bilingual title, three English feature rows, Google CTA and helper text in a glass dialog, without the review step. The existing one-field Create your shop form, pending/approved fallback states, Google readiness and all server logic remain intact.
 - New visitor-only `signin.css` recreates the approved artwork/card, clear scene, green Google button and header. Entrance is a 1400 ms gentle downward/3D tilt-and-settle animation, informed by the video's entrance around 2.4–3.4 s. Reopens replay it; X/outside/Escape cancel it; reduced-motion users get the settled card immediately. `platform.js` preserves the original auth/start handler and adds dialog focus/Tab cycling and aria-expanded. No sound added.
