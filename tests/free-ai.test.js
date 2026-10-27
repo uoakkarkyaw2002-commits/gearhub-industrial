@@ -41,3 +41,13 @@ test('the shop admin asks the server (seller shops only) and shows advice under 
  assert.match(ui,/if\(id\)id\.value=c\.id\?\?"";/,'one tap fills the category with its ID');
  assert.match(admin,/<script src="\/product-ai\.js\?v=[^"]+"><\/script>/);
 });
+
+test('#5 smarter search finds spelling mistakes, any word order and codes without dashes',()=>{
+ const {matches}=require('../public/smart-search.js'),t='switch starter k1001858a electrical parts sany';
+ for(const q of ['startr swich','starter switch','k100-1858','k1001858','electrcal'])assert.equal(matches(t,q),true,q);
+ for(const q of ['pump','gear wheel'])assert.equal(matches(t,q),false,q);
+ const store=read('public/store.js'),index=read('public/index.html'),sw=read('public/sw.js');
+ assert.match(store,/if\(window\.GearHubSmartSearch&&q\.trim\(\)\.length>=3\)\{const seen=new Set\(list\);list=list\.concat\(/,'exact matches first, then the smart ones');
+ assert.match(index,/<script src="\/smart-search\.js\?v=([^"]+)"><\/script><script src="\/store\.js\?v=\1"><\/script>/);
+ assert.match(sw,/"\/smart-search\.js\?v=20261031-free-ai-1"/);
+});

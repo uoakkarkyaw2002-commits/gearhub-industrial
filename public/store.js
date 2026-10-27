@@ -67,7 +67,11 @@ function renderProducts(){
  if(!products.length&&catalogLoaded&&tenantStore){$("products").innerHTML='<p>ပစ္စည်းမတင်ရသေးပါ။ / No products yet.</p><a href="/platform.html#shop">ဆိုင်ရှင် — ပထမပစ္စည်းတင်ရန် / Seller: add your first product</a>';return}
  if(!products.length){$("products").innerHTML=`<p>${safeTranslation(tr(catalogLoaded?"noMatchingProducts":"loadingProducts"))}</p>`;return}
  const q=$("search").value.toLowerCase(),c=$("category").value,sort=$("sort").value;
- let list=products.filter(p=>(productName(p)+" "+p.name_en+" "+p.name_my+" "+p.sku+" "+(p.part_no||"")+" "+p.category_en+" "+p.category_my+" "+categoryName(p)).toLowerCase().includes(q)&&(!c||(categories.length?String(productCategory(p)?.id):String(p.category_en).toLowerCase())===(categories.length?c:c.toLowerCase())));
+ const inCategory=p=>!c||(categories.length?String(productCategory(p)?.id):String(p.category_en).toLowerCase())===(categories.length?c:c.toLowerCase()),haystack=p=>(productName(p)+" "+p.name_en+" "+p.name_my+" "+p.sku+" "+(p.part_no||"")+" "+p.category_en+" "+p.category_my+" "+categoryName(p)).toLowerCase();
+ let list=products.filter(p=>haystack(p).includes(q)&&inCategory(p));
+ // Free AI #5 (smarter search): spelling mistakes and words in any order ("startr swich" finds SWITCH
+ // STARTER, "k1001858" finds K1001858A) come after the exact matches.
+ if(window.GearHubSmartSearch&&q.trim().length>=3){const seen=new Set(list);list=list.concat(products.filter(p=>!seen.has(p)&&inCategory(p)&&window.GearHubSmartSearch.matches(haystack(p),q)))}
  if(sort==="low")list.sort((a,b)=>salePrice(a)-salePrice(b));if(sort==="high")list.sort((a,b)=>salePrice(b)-salePrice(a));$("product-total").textContent=list.length;
  $("products").innerHTML=list.map(productCardHtml).join("")||`<p>${safeTranslation(tr("noMatchingProducts"))}</p>`;
  applySiteLayout(activeSiteLayout)
