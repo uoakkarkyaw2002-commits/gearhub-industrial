@@ -63,6 +63,7 @@
  window.GearHubTenantAdmin={
   // Free AI calls (product-ai.js, order receipt reader) go to this shop's platform API.
   ai:(suffix,options={})=>call('/ai'+suffix,options),
+  receiptRead:async o=>{const r=await call('/orders/'+encodeURIComponent(o.id)+'/receipt-read');const d=await r.json();if(!r.ok)throw Error(d.error||'Could not read the receipt.');return d;},
   nameDraftFields:()=>{
    window.GearHubTenantAdmin.draftReady=true;
    document.querySelectorAll('[data-site-text]').forEach(e=>e.name='text.'+e.dataset.language+'.'+e.dataset.siteText);
