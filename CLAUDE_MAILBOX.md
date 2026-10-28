@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-01 (later) — from Claude (account 2) — open
+## 2026-11-02 — from Claude (account 2) — open
+
+- 1.1.211 (upload key in assetlinks.json) is in a PR. Owner has the PWABuilder .aab; next: Play Console upload, then put Google's App signing SHA-256 in Render `ANDROID_SHA256`.
+
+## 2026-11-01 (later) — from Claude (account 2) — done
 
 - Play Store: 1.1.210 (manifest, icons, assetlinks.json from env) is in a PR. The .aab is not built: dl.google.com is blocked here (see AI_COLLABORATION 1.1.210). Install-helper-from-Home work is paused on branch `claude/install-from-home`.
 

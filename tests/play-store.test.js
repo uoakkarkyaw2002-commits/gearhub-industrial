@@ -10,9 +10,9 @@ test('skyshopmm.com has an installable manifest with 192/512 and maskable PNG ic
  for(const i of m.icons)assert.ok(fs.existsSync(path.join(__dirname,'../public',i.src)),i.src);
  assert.match(html,/<link rel="manifest" href="\/skyshop\.webmanifest" \/>/);
 });
-test('assetlinks.json is built from ANDROID_PACKAGE and ANDROID_SHA256 and is 404 without a fingerprint',()=>{
+test('assetlinks.json names the PWABuilder upload key plus ANDROID_SHA256',()=>{
  const server=read('server.js');
  assert.match(server,/app\.get\("\/\.well-known\/assetlinks\.json"/);
- assert.match(server,/if\(!fingerprints\.length\)return res\.sendStatus\(404\);/);
+ assert.ok(server.includes('"60:A4:18:25:73:64:2E:C3:5E:2A:6E:51:14:93:BD:FA:69:B5:C1:04:33:93:00:E8:82:B5:FF:55:3F:3F:1F:5F"'),'upload key');
  assert.match(server,/delegate_permission\/common\.handle_all_urls/);
 });
