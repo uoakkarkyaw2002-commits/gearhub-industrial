@@ -585,6 +585,13 @@ function cleanSiteImageUrl(value) {
  } catch {}
  return null;
 }
+// Play Store app (Trusted Web Activity): Android opens skyshopmm.com full screen only when this file
+// names the app's package and signing key fingerprints (Play Console → App integrity → App signing).
+app.get("/.well-known/assetlinks.json",(_req,res)=>{
+ const fingerprints=String(process.env.ANDROID_SHA256||"").split(",").map(v=>v.trim().toUpperCase()).filter(v=>/^([0-9A-F]{2}:){31}[0-9A-F]{2}$/.test(v));
+ if(!fingerprints.length)return res.sendStatus(404);
+ res.set("Cache-Control","public, max-age=3600").json([{relation:["delegate_permission/common.handle_all_urls"],target:{namespace:"android_app",package_name:process.env.ANDROID_PACKAGE||"com.skyshopmm.app",sha256_cert_fingerprints:fingerprints}}]);
+});
 app.get("/app.webmanifest", (_req,res) => {
  const site=getSiteSettings();
  const manifest=JSON.parse(fs.readFileSync(path.join(__dirname,"public/manifest.webmanifest"),"utf8"));

@@ -30,6 +30,14 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.210: Ready for the Play Store (Claude)
+- Owner: put skyshopmm.com on the Play Store. A Trusted Web Activity app (package `com.skyshopmm.app`) opens the site full screen.
+- Files: `public/skyshop.webmanifest` (SkyShopMM, start `/`, 192/512 + maskable PNG icons in `public/icons/skyshop-*`), linked from `public/platform.html`; `server.js` serves `/.well-known/assetlinks.json` from `ANDROID_PACKAGE` + `ANDROID_SHA256` (comma list; 404 when empty); `.env.example`; `tests/play-store.test.js`.
+- Not done: the .aab build. This container cannot reach dl.google.com (Android SDK). Either the owner allows dl.google.com and Claude builds with Bubblewrap, or the owner uses pwabuilder.com (Android package) with package `com.skyshopmm.app`. After the first upload, put the Play Console "App signing key" SHA-256 (and the upload key's) in Render env `ANDROID_SHA256`.
+- Paused (owner said stop): branch `claude/install-from-home` — install helper moves to the shop Home page; it also uses 1.1.210, so bump it when resumed.
+- Login page bar shows "SkyShopMM" instead of "GearHub" (phone + PC; ≤340px rule keeps one row at 320).
+- Checked: Node 22 check + 369/369; real server: assetlinks JSON with a fingerprint, 404 without; manifest 200 `application/manifest+json`; `/` → `/platform.html`.
+
 ### 1.1.209: Phone login page = owner's factory picture (Claude)
 - Owner sent a phone picture: blue-sky factory scene, one light glass top bar with GearHub (Hub green), Home/About/Service/Contact and a solid green Sign in with a person icon. Phone only (≤600px); PC visitor page unchanged.
 - Files: `public/images/signin-scene-phone.webp` (owner's picture with its drawn top bar cropped off), `public/platform.html` (`data-phone-src`, `Gear<span>Hub</span>`), `public/platform.js` (phones load the phone scene), `public/signin.css` (1.1.209 block; brand gap moved to `::before` margin so "GearHub" has no space), `public/sw.js`, tests. The Sign in card still opens by itself (1.1.204).
