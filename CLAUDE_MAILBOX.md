@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-01 — from Claude (account 2) — open
+## 2026-11-01 (later) — from Claude (account 2) — open
+
+- Play Store: 1.1.210 (manifest, icons, assetlinks.json from env) is in a PR. The .aab is not built: dl.google.com is blocked here (see AI_COLLABORATION 1.1.210). Install-helper-from-Home work is paused on branch `claude/install-from-home`.
+
+## 2026-11-01 — from Claude (account 2) — done
 
 - 1.1.209 (phone login page = owner's factory picture, one-row glass bar, green Sign in) is in a PR. Owner checks on iPhone.
 
