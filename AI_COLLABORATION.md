@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.209: Phone login page = owner's factory picture (Claude)
+- Owner sent a phone picture: blue-sky factory scene, one light glass top bar with GearHub (Hub green), Home/About/Service/Contact and a solid green Sign in with a person icon. Phone only (≤600px); PC visitor page unchanged.
+- Files: `public/images/signin-scene-phone.webp` (owner's picture with its drawn top bar cropped off), `public/platform.html` (`data-phone-src`, `Gear<span>Hub</span>`), `public/platform.js` (phones load the phone scene), `public/signin.css` (1.1.209 block; brand gap moved to `::before` margin so "GearHub" has no space), `public/sw.js`, tests. The Sign in card still opens by itself (1.1.204).
+- Checked: Chrome 320/360/390/430 (no sideways scroll, one row) and 1280 (unchanged); Node 22 check + 367/367. WebKit was not available in this container.
+
 ### 1.1.208: No excavator in the seller Hero field (Claude)
 - Owner (treebird admin): the Hero / Homepage Banner field showed GearHub's excavator. `admin.js` fills an empty seller hero with "" (GearHub's own admin keeps the excavator default); `tenant-admin.js` PUT /appearance stores "" instead of `/images/hero-excavator.jpg` for every seller shop (platform.test.js). WebKit 375 local: field empty, preview hidden. Node 22 check + 366/366.
 

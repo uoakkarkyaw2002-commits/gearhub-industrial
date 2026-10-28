@@ -19,9 +19,20 @@ test('visitor motion respects reduced motion and the new artwork and assets are 
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{body\.visitor\.signin-open #account \.glass-signin-card\{animation:none\}\}/);
  assert.match(css,/body\.visitor\.signin-open #account\{[^}]*backdrop-filter:none/,'the whole scene is not blurred');
  assert.match(css,/body\.visitor>\.signin-scene/,'new background is confined to the visitor view');
- assert.match(script,/if\(landing&&scene&&!scene\.getAttribute\('src'\)\)scene\.src=scene\.dataset\.src/,'owner console and Create pages do not load the visitor artwork');
- for(const asset of ['signin.css','platform.js','shop-application.js','images/signin-scene.webp']){
+ assert.match(script,/if\(landing&&scene&&!scene\.getAttribute\('src'\)\)scene\.src=\(matchMedia\('\(max-width:600px\)'\)\.matches&&scene\.dataset\.phoneSrc\)\|\|scene\.dataset\.src/,'owner console and Create pages do not load the visitor artwork');
+ for(const asset of ['signin.css','platform.js','shop-application.js','images/signin-scene.webp','images/signin-scene-phone.webp']){
   const tag=html.match(new RegExp('/'+asset.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\?v=[^" ]+'))?.[0];
   assert.ok(tag,asset+' is loaded');assert.ok(sw.includes('"'+tag+'"'),asset+' offline version matches');
  }
+});
+test('1.1.209 phone login: factory scene, one-row glass bar, green Sign in with a person icon',()=>{
+ const fs=require('node:fs'),path=require('node:path'),read=p=>fs.readFileSync(path.join(__dirname,'../public',p),'utf8');
+ const css=read('signin.css'),html=read('platform.html');
+ assert.ok(fs.existsSync(path.join(__dirname,'../public/images/signin-scene-phone.webp')));
+ assert.match(html,/data-phone-src="\/images\/signin-scene-phone\.webp\?v=[^"]+"/);
+ const phone=css.slice(css.indexOf('/* 1.1.209'));
+ assert.match(phone,/body\.visitor header\.site-head\{[^}]*flex-wrap:nowrap/);
+ assert.match(phone,/body\.visitor \.site-brand span\{color:#0b7a3e\}/);
+ assert.match(phone,/body\.visitor \.nav-signin:not\(\[hidden\]\)\{[^}]*background:#0b6b33/);
+ assert.match(phone,/body\.visitor \.nav-signin::before\{content:""/);
 });

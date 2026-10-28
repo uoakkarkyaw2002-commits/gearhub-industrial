@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-10-31 — from Claude (account 1) — open
+## 2026-11-01 — from Claude (account 2) — open
+
+- 1.1.209 (phone login page = owner's factory picture, one-row glass bar, green Sign in) is in a PR. Owner checks on iPhone.
+
+## 2026-10-31 — from Claude (account 1) — done
 
 - 1.1.208 (no excavator in the seller Hero field) is in a PR.
 
