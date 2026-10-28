@@ -3,16 +3,19 @@
    1.1.198 owner: it talks like a chat (the robot types each step, the seller's "Done" reply, then the next
    step) and every step has a short looping video of the phone screen with a finger showing where to tap.
    Opens by itself after a new shop opens (?welcome=1) and on phones until the seller finishes; never inside
-   the installed app. Nothing is sent to the server. */
+   the installed app. Nothing is sent to the server.
+   1.1.210 owner: the app is put on the Home Screen from the shop's Home page, not from the admin. In the
+   admin the robot sends the seller to the Home page (?install=1), where the steps open; customers who
+   simply visit the Home page never see it. */
 (()=>{
- const match=location.pathname.match(/^\/shops\/([^/]+)\/admin\/?$/);if(!match)return;
- const slug=decodeURIComponent(match[1]),doneKey='gh-install-guide-done:'+slug,laterKey='gh-install-guide-later:'+slug;
+ const match=location.pathname.match(/^\/shops\/([^/]+)\/(admin\/?)?$/);if(!match)return;
+ const inAdmin=!!match[2],slug=decodeURIComponent(match[1]),homeUrl='/shops/'+encodeURIComponent(slug)+'/',doneKey='gh-install-guide-done:'+slug,laterKey='gh-install-guide-later:'+slug;
  const store={get:(s,k)=>{try{return s.getItem(k)}catch{return null}},set:(s,k,v)=>{try{s.setItem(k,v)}catch{}}};
  const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
  const ua=navigator.userAgent,ios=/iphone|ipad|ipod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
  const iosChrome=ios&&/CriOS/.test(ua),iosOther=ios&&!iosChrome&&(/FxiOS|EdgiOS|GSA\/|FBAN|FBAV|Instagram|Line\/|Messenger|MicroMessenger/.test(ua)||!/Safari\//.test(ua));
  const android=/android/i.test(ua),phone=ios||android||matchMedia('(pointer:coarse)').matches;
- const appName=document.title.trim()||'Shop Admin';
+ const appName=(inAdmin?document.title.trim().replace(/\s*Admin$/,''):document.title.trim())||'Shop';
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
  let prompt=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();prompt=e;if(sheet&&!sheet.hidden)show(at,false)});
  addEventListener('appinstalled',()=>{prompt=null;store.set(localStorage,doneKey,'1');if(sheet&&!sheet.hidden)finish()});
@@ -31,13 +34,14 @@
  const scenes={
   'ios-share':page+'<div class="ig-pop"><p class="ig-hit">'+icon.share+'Share</p><p>Add to Bookmarks</p><p>Find on Page</p></div><div class="ig-bar"><span class="ig-round">‹</span><span class="ig-pill"><em class="ig-key">≡</em>skyshopmm.com</span><span class="ig-round">⧉</span></div>'+finger,
   'ios-add':page+'<div class="ig-sheet"><div class="ig-list"><p>Copy</p><p>Add to Reading List</p><p>Add Bookmark</p><p>Find on Page</p><p class="ig-hit">'+icon.add+'Add to Home Screen</p><p>Markup</p></div></div>'+finger,
-  'ios-confirm':'<div class="ig-form"><div class="ig-head"><span>Cancel</span><b>Add to Home Screen</b><span class="ig-key">Add</span></div><div class="ig-app"><i class="ig-appicon"></i><span>'+short+' Admin</span></div><p class="ig-switch">Open as Web App<i></i></p></div>'+finger,
+  'ios-confirm':'<div class="ig-form"><div class="ig-head"><span>Cancel</span><b>Add to Home Screen</b><span class="ig-key">Add</span></div><div class="ig-app"><i class="ig-appicon"></i><span>'+short+'</span></div><p class="ig-switch">Open as Web App<i></i></p></div>'+finger,
   'and-menu':'<div class="ig-top"><span class="ig-pill">skyshopmm.com</span><em class="ig-key">⋮</em></div>'+page+'<div class="ig-drop"><p>New tab</p><p>Bookmarks</p><p class="ig-hit">'+icon.add+'Add to Home screen</p><p>Settings</p></div>'+finger,
-  'and-install':page+'<div class="ig-dialog"><b>Install app?</b><div class="ig-app"><i class="ig-appicon"></i><span>'+short+' Admin</span></div><p><span>Cancel</span><span class="ig-key">Install</span></p></div>'+finger,
+  'and-install':page+'<div class="ig-dialog"><b>Install app?</b><div class="ig-app"><i class="ig-appicon"></i><span>'+short+'</span></div><p><span>Cancel</span><span class="ig-key">Install</span></p></div>'+finger,
   'home':'<div class="ig-home">'+'<i></i>'.repeat(7)+'<span class="ig-new"><i class="ig-appicon"></i>'+short+'</span></div>'+finger
  };
  // Each step: video (or icon), Myanmar text, English text, optional action button.
  function steps(){
+  if(inAdmin)return [{icon:'phone',my:'App ကို ဆိုင်ရဲ့ <b>Home page</b> ကနေ တင်ပါမယ်။ အောက်က <b>Home page သွားမယ်</b> ကို နှိပ်ပါ။',en:'The app is added from your shop\'s <b>Home page</b>. Tap <b>Go to Home page</b> below.'}];
   const last={scene:'home',icon:'phone',my:'Home Screen မှာ <b>'+esc(appName)+'</b> icon ပေါ်လာပါပြီ။ နောက်ပိုင်း အဲဒီ icon ကနေ ဆိုင်ကို ဖွင့်ပါ။ ပထမဆုံးအကြိမ် Google နဲ့ တစ်ခါ ပြန်ဝင်ရနိုင်ပါတယ်။',en:'The <b>'+esc(appName)+'</b> icon is on your Home Screen. Open your shop from it from now on (sign in with Google once if it asks).'};
   const safari=[
    {scene:'ios-share',icon:'share',my:'Safari အောက်ခြေ လိပ်စာဘားထဲက <b>≡</b> ကို နှိပ်ပြီး <b>Share</b> ကို ရွေးပါ။ (Share ⬆︎ ခလုတ် တန်းမြင်ရရင် အဲဒါကို နှိပ်ပါ။)',en:'Tap <b>≡</b> in Safari\'s address bar, then <b>Share</b> (or tap <b>Share</b> ⬆︎ if you see it).'},
@@ -76,8 +80,8 @@
   sheet.addEventListener('click',async e=>{
    const b=e.target.closest('[data-guide]');if(!b){if(e.target===sheet)later();return}
    const list=steps(),k=b.dataset.guide;
-   if(k==='later')later();else if(k==='back')show(at-1,false);else if(k==='next')at>=list.length-1?finish():show(at+1,true);
-   else if(k==='copy'){try{await navigator.clipboard.writeText(location.origin+location.pathname);b.textContent='✓ Copy ကူးပြီးပါပြီ / Copied'}catch{b.textContent=location.origin+location.pathname}}
+   if(k==='later')later();else if(k==='back')show(at-1,false);else if(k==='next'&&inAdmin)location.href=homeUrl+'?install=1';else if(k==='next')at>=list.length-1?finish():show(at+1,true);
+   else if(k==='copy'){try{await navigator.clipboard.writeText(location.origin+homeUrl);b.textContent='✓ Copy ကူးပြီးပါပြီ / Copied'}catch{b.textContent=location.origin+homeUrl}}
    else if(k==='install'&&prompt){const p=prompt;prompt=null;try{await p.prompt();const c=await p.userChoice;if(c.outcome==='accepted'){store.set(localStorage,doneKey,'1');show(list.length-1,true)}else show(at,false)}catch{show(at,false)}}
   });
   document.body.append(sheet);
@@ -90,7 +94,7 @@
   let html='';for(let n=0;n<at;n++)html+=bubble(list[n],n+1,list.length,false)+reply;
   sheet.querySelector('.install-guide-dots').innerHTML=list.map((_,n)=>'<span class="'+(n===at?'on':n<at?'done':'')+'"></span>').join('');
   sheet.querySelector('.install-guide-back').hidden=at===0;
-  next.textContent=at===list.length-1?'ပြီးပါပြီ ✓ / Finish':'ပြီးပြီ ✓ / Done';
+  next.textContent=inAdmin?'Home page သွားမယ် → / Go to Home page':at===list.length-1?'ပြီးပါပြီ ✓ / Finish':'ပြီးပြီ ✓ / Done';
   const end=()=>{body.innerHTML=html+bubble(list[at],at+1,list.length,true);next.disabled=false;body.scrollTop=body.scrollHeight};
   if(!type||matchMedia('(prefers-reduced-motion: reduce)').matches){end();return}
   body.innerHTML=html+'<div class="ig-msg ig-bot">'+robot+'<div class="install-guide-bubble ig-typing" aria-label="typing"><i></i><i></i><i></i></div></div>';next.disabled=true;body.scrollTop=body.scrollHeight;
@@ -101,8 +105,10 @@
  function later(){store.set(sessionStorage,laterKey,'1');close()}
  function finish(){store.set(localStorage,doneKey,'1');close()}
  window.GearHubInstallGuide={open};
- const welcome=new URLSearchParams(location.search).has('welcome');
- if(welcome)history.replaceState(history.state,'',location.pathname+location.hash);
+ const query=new URLSearchParams(location.search),welcome=query.has('welcome'),asked=!inAdmin&&query.has('install');
+ if(welcome||asked)history.replaceState(history.state,'',location.pathname+location.hash);
+ // Home page: only when the seller came from the admin's "Go to Home page".
+ if(!inAdmin){if(asked&&!standalone()){const go=()=>setTimeout(open,700);document.readyState==='complete'?go():addEventListener('load',go,{once:true})}return}
  const wanted=()=>!standalone()&&(welcome||(phone&&!store.get(localStorage,doneKey)&&!store.get(sessionStorage,laterKey)));
  // Open once the seller is signed in and the dashboard is on screen.
  const dash=document.getElementById('dashboard');if(!dash||!wanted())return;
