@@ -218,7 +218,7 @@
     document.body.classList.toggle("onboarding",!me.isOwner||landing);
     // The landing page shows the scene and the top menu; the card opens by itself and again from "Sign in".
     document.body.classList.toggle("visitor",landing);
-    const scene=$("signin-scene");if(landing&&scene&&!scene.getAttribute('src'))scene.src=scene.dataset.src;
+    const scene=$("signin-scene");if(landing&&scene&&!scene.getAttribute('src'))scene.src=(matchMedia('(max-width:600px)').matches&&scene.dataset.phoneSrc)||scene.dataset.src;
     $("site-nav").hidden=!!me.isOwner&&!landing;
     $("signin-open").hidden=!landing;$("signin-open").textContent=me.user?"Account":"Sign in";
     $("logout").hidden = landing || !me.user;

@@ -4,8 +4,8 @@ body.visitor{background:#4277be}
 body.visitor>.signin-scene{display:block;position:fixed;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;pointer-events:none;z-index:0}
 body.visitor .sky-picture,body.visitor .sky-frame{display:none!important}
 body.visitor header.site-head{max-width:1160px;padding:16px 28px}
-body.visitor .site-brand{display:inline-flex;align-items:center;gap:12px;color:#073d2b;font-size:27px;font-weight:800;text-shadow:0 0 22px #ffffffa6}
-body.visitor .site-brand::before{content:"";width:38px;height:38px;flex:none;background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230b6844' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 10V5h18v5M4 10v11h16V10M9 21v-7h6v7M2 5l2-3h16l2 3M3 10c0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0'/%3E%3C/svg%3E")}
+body.visitor .site-brand{display:inline-flex;align-items:center;gap:0;color:#073d2b;font-size:27px;font-weight:800;text-shadow:0 0 22px #ffffffa6}
+body.visitor .site-brand::before{content:"";width:38px;height:38px;flex:none;margin-right:12px;background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230b6844' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 10V5h18v5M4 10v11h16V10M9 21v-7h6v7M2 5l2-3h16l2 3M3 10c0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0'/%3E%3C/svg%3E")}
 body.visitor .site-nav{padding:10px 16px;border:1px solid #ffffff73;border-radius:14px;background:#ffffff59;box-shadow:0 0 26px #ffffff40;backdrop-filter:blur(4px)}
 body.visitor .site-nav a{color:#123d32;text-shadow:none;opacity:1;font-size:14px}
 body.visitor .site-nav a:first-child{border-bottom:2px solid #2a7452;padding-bottom:5px}
@@ -40,7 +40,7 @@ body.visitor .glass-signin-card button:focus-visible,body.visitor .nav-signin:fo
 }
 @media(max-width:600px){
  body.visitor header.site-head{padding:14px 16px}
- body.visitor .site-brand{font-size:23px;gap:9px}body.visitor .site-brand::before{width:29px;height:29px}
+ body.visitor .site-brand{font-size:23px}body.visitor .site-brand::before{width:29px;height:29px;margin-right:9px}
  body.visitor .site-nav a{font-size:12px;margin-right:16px}
  body.visitor>.signin-scene{object-position:70% center}
  body.visitor.signin-open #account{padding:16px 12px calc(16px + env(safe-area-inset-bottom))}
@@ -62,3 +62,19 @@ body.visitor .glass-signin-card a.application-primary{text-decoration:none;box-s
 body.visitor .glass-signin-card .account-switch{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 20px;margin:16px 0 0}
 body.visitor .glass-signin-card .account-switch button{padding:6px 4px;border:0;background:none;color:#0b5a39;font:inherit;font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 body.visitor #account .glass-signin-card.account-card .application-intro{margin:6px 0 18px!important}
+/* 1.1.209 owner's phone picture: green-and-blue factory scene under one light glass bar with
+   GearHub, Home/About/Service/Contact and a solid green Sign in button in a single row. */
+@media(max-width:600px){
+ body.visitor{background:#64aafb}
+ body.visitor>.signin-scene{object-position:78% 0}
+ body.visitor header.site-head{position:relative;z-index:2;flex-wrap:nowrap;gap:8px;max-width:none;margin:0;padding:calc(10px + env(safe-area-inset-top)) 10px 10px;border-bottom:1px solid #ffffff59;background:linear-gradient(#eaf3ffd9,#d6e7fdc4);box-shadow:0 4px 18px #2a5ea026;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+ body.visitor header.site-head::after{display:none}
+ body.visitor .site-brand{flex:none;gap:0;color:#1c2126;font-size:clamp(15px,4.6vw,19px);letter-spacing:-.4px;text-shadow:none}
+ body.visitor .site-brand span{color:#0b7a3e}
+ body.visitor .site-brand::before{width:clamp(20px,6vw,25px);height:clamp(20px,6vw,25px);margin-right:5px}
+ body.visitor .site-nav{display:flex;flex:1;min-width:0;justify-content:space-between;gap:2px;margin-left:2px;padding:0;border:0;border-radius:0;background:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+ body.visitor .site-nav a{order:0;margin:0;padding:4px 0;color:#14304a;font-size:clamp(9.5px,2.8vw,12px);font-weight:600;white-space:nowrap}
+ body.visitor .site-nav a:first-child{padding-bottom:3px;border-bottom:2px solid #0b7a3e}
+ body.visitor .nav-signin:not([hidden]){order:0;display:inline-flex;align-items:center;gap:4px;flex:none;margin-left:2px;padding:7px clamp(7px,2.2vw,10px);border:0;border-radius:9px;background:#0b6b33;color:#fff;font-size:clamp(10.5px,3vw,12.5px);font-weight:700;white-space:nowrap;box-shadow:0 3px 10px #0b5a2c4d}
+ body.visitor .nav-signin::before{content:"";width:1.05em;height:1.05em;flex:none;background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fff'%3E%3Ccircle cx='12' cy='7.5' r='4.5'/%3E%3Cpath d='M3 21.5c0-5 4-8 9-8s9 3 9 8z'/%3E%3C/svg%3E")}
+}
