@@ -78,3 +78,11 @@ body.visitor #account .glass-signin-card.account-card .application-intro{margin:
  body.visitor .nav-signin:not([hidden]){order:0;display:inline-flex;align-items:center;gap:4px;flex:none;margin-left:2px;padding:7px clamp(7px,2.2vw,10px);border:0;border-radius:9px;background:#0b6b33;color:#fff;font-size:clamp(10.5px,3vw,12.5px);font-weight:700;white-space:nowrap;box-shadow:0 3px 10px #0b5a2c4d}
  body.visitor .nav-signin::before{content:"";width:1.05em;height:1.05em;flex:none;background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fff'%3E%3Ccircle cx='12' cy='7.5' r='4.5'/%3E%3Cpath d='M3 21.5c0-5 4-8 9-8s9 3 9 8z'/%3E%3C/svg%3E")}
 }
+/* 1.1.210: "SkyShopMM" is longer than "GearHub"; the smallest phones keep the bar on one row. */
+@media(max-width:340px){
+ body.visitor header.site-head{gap:4px;padding-left:8px;padding-right:8px}
+ body.visitor .site-brand{font-size:14px;letter-spacing:-.5px}
+ body.visitor .site-brand::before{width:18px;height:18px;margin-right:3px}
+ body.visitor .site-nav a{font-size:9px}
+ body.visitor .nav-signin:not([hidden]){padding:6px;font-size:10px}
+}

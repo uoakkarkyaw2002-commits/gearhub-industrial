@@ -35,6 +35,7 @@ _None._
 - Files: `public/skyshop.webmanifest` (SkyShopMM, start `/`, 192/512 + maskable PNG icons in `public/icons/skyshop-*`), linked from `public/platform.html`; `server.js` serves `/.well-known/assetlinks.json` from `ANDROID_PACKAGE` + `ANDROID_SHA256` (comma list; 404 when empty); `.env.example`; `tests/play-store.test.js`.
 - Not done: the .aab build. This container cannot reach dl.google.com (Android SDK). Either the owner allows dl.google.com and Claude builds with Bubblewrap, or the owner uses pwabuilder.com (Android package) with package `com.skyshopmm.app`. After the first upload, put the Play Console "App signing key" SHA-256 (and the upload key's) in Render env `ANDROID_SHA256`.
 - Paused (owner said stop): branch `claude/install-from-home` — install helper moves to the shop Home page; it also uses 1.1.210, so bump it when resumed.
+- Login page bar shows "SkyShopMM" instead of "GearHub" (phone + PC; ≤340px rule keeps one row at 320).
 - Checked: Node 22 check + 369/369; real server: assetlinks JSON with a fingerprint, 404 without; manifest 200 `application/manifest+json`; `/` → `/platform.html`.
 
 ### 1.1.209: Phone login page = owner's factory picture (Claude)
