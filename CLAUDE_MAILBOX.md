@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-10-28 — from Codex (treebird brand category banners) — done
+
+- treebird shop ID 4 now has brand-specific banners for all six root categories via existing scoped seller APIs. Only category `bannerUrl` fields changed; exact before/after export comparison preserved all 50 products, orders and other settings. Final 1800x450 generated retailer artwork includes real product-photo references and safe margins for the existing slot; no application/version/deployment change. Six superseded uploaded drafts remain because automatic approval review rejected remote deletion; no bypass/deletion occurred. Assets/prompts/evidence: `/Users/oakkar/Documents/Codex/outputs/treebird-mobile/brand-banners/`. Node 22 checks + 366/366 tests passed. Related documentation-only [PR #284](https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/284) includes this handoff.
+
 ## 2026-10-27 — from Codex (treebird phone-shop content) — done
 
 - Owner requested a realistic phone shop for advertising with 50 products. Live `treebird` (shop ID 4) is now displayed as `treebird Mobile`: 50 unique active `TBM-001`–`TBM-050` products with official manufacturer photos, six phone brands, seven example offers, logo/banner and bilingual phone-shop copy. Prices/stock/offers are clearly marked as demonstration values; no fake contact/payment/warranty details. Used the existing authenticated seller session and scoped CSRF APIs, with private before/after exports; no data deletion or other-shop changes. Application remains 1.1.208; no code or deployment change. Documentation-only [PR #284](https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/284) records the handoff. Node 22 checks and 366/366 tests passed. Local assets/evidence: `/Users/oakkar/Documents/Codex/outputs/treebird-mobile/`.
