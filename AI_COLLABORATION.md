@@ -30,6 +30,9 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.211: Play Store upload key in assetlinks.json (Claude)
+- Owner built the Android package on pwabuilder.com (package `com.skyshopmm.app`) and sent its assetlinks.json. Its SHA-256 (upload key) is now always in `/.well-known/assetlinks.json` (`server.js`); `ANDROID_SHA256` only needs Google's App signing key after the first Play upload. The owner keeps `signing.keystore` + `signing-key-info.txt` (never in this public repo).
+
 ### 1.1.210: Ready for the Play Store (Claude)
 - Owner: put skyshopmm.com on the Play Store. A Trusted Web Activity app (package `com.skyshopmm.app`) opens the site full screen.
 - Files: `public/skyshop.webmanifest` (SkyShopMM, start `/`, 192/512 + maskable PNG icons in `public/icons/skyshop-*`), linked from `public/platform.html`; `server.js` serves `/.well-known/assetlinks.json` from `ANDROID_PACKAGE` + `ANDROID_SHA256` (comma list; 404 when empty); `.env.example`; `tests/play-store.test.js`.

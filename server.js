@@ -587,8 +587,9 @@ function cleanSiteImageUrl(value) {
 }
 // Play Store app (Trusted Web Activity): Android opens skyshopmm.com full screen only when this file
 // names the app's package and signing key fingerprints (Play Console → App integrity → App signing).
+// The first one is the upload key from PWABuilder (com.skyshopmm.app); ANDROID_SHA256 adds Google's app signing key.
 app.get("/.well-known/assetlinks.json",(_req,res)=>{
- const fingerprints=String(process.env.ANDROID_SHA256||"").split(",").map(v=>v.trim().toUpperCase()).filter(v=>/^([0-9A-F]{2}:){31}[0-9A-F]{2}$/.test(v));
+ const fingerprints=[...new Set(["60:A4:18:25:73:64:2E:C3:5E:2A:6E:51:14:93:BD:FA:69:B5:C1:04:33:93:00:E8:82:B5:FF:55:3F:3F:1F:5F",...String(process.env.ANDROID_SHA256||"").split(",")])].map(v=>v.trim().toUpperCase()).filter(v=>/^([0-9A-F]{2}:){31}[0-9A-F]{2}$/.test(v));
  if(!fingerprints.length)return res.sendStatus(404);
  res.set("Cache-Control","public, max-age=3600").json([{relation:["delegate_permission/common.handle_all_urls"],target:{namespace:"android_app",package_name:process.env.ANDROID_PACKAGE||"com.skyshopmm.app",sha256_cert_fingerprints:fingerprints}}]);
 });
