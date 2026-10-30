@@ -1211,7 +1211,7 @@ body.excel-sheet-mode .excel-results{margin-top:8px}
 .excel-folder-button svg{width:30px;height:30px}
 .search-tools{display:none;flex:none;align-items:center;gap:2px}
 body.searching .search-tools{display:contents}
-body.searching .excel-folder-button{display:none}
+body.searching .search-pill .photo-scan-button,body.searching .excel-folder-button{display:none}
 .search-count{padding:0 4px;color:#5f6b64;font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .search-count:empty{display:none}
 .search-tools button{flex:none;display:grid;place-items:center;width:38px;height:38px;padding:0;border:0;border-radius:50%;background:none;color:#3c4740;cursor:pointer}
@@ -1229,3 +1229,13 @@ body.searching .excel-folder-button{display:none}
 /* 1.1.222 owner: the camera (photo scan) stays in the bar while searching, before the bin. */
 .search-pill .search-count{order:1}.search-pill .search-step{order:2}.search-pill .photo-scan-button{order:3}.search-pill .search-clear{order:4}
 @media(max-width:360px){.search-tools button{width:32px}.search-pill .photo-scan-button{width:32px}}
+/* 1.1.223 owner's video: the bin eats the typed letters (scan hides again while searching). */
+.search-tools .search-clear{position:relative;overflow:visible}
+.search-clear .bin-lid{transform-box:view-box;transform-origin:4px 7px}
+.search-clear .bin-fill{fill:currentColor;stroke:none;opacity:.85;transform-box:fill-box;transform-origin:50% 100%;transform:scaleY(0)}
+.bin-letters{position:fixed;z-index:2147483000;display:flex;align-items:center;white-space:pre;pointer-events:none}
+.bin-letters span{display:inline-block;white-space:pre}
+#search.bin-hiding{color:transparent;caret-color:transparent}
+.bin-ring{position:absolute;inset:-6px;pointer-events:none}
+.bin-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.bin-ring circle{fill:none;stroke:#1f7a35;stroke-width:2.4;stroke-linecap:round;stroke-dasharray:126;stroke-dashoffset:126}

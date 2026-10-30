@@ -8,11 +8,45 @@
  // 1.1.221 owner: while something is typed the bar runs full width (scan and folder hide) and ends with
  // the number found, ˄ ˅ (Excel view) and a bin that clears the search.
  const pill=input.closest('.search-pill'),tools=document.createElement('span');tools.className='search-tools';
- tools.innerHTML='<span class="search-count" aria-live="polite"></span><button type="button" class="search-step" data-excel-step="-1" aria-label="Previous match"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></button><button type="button" class="search-step" data-excel-step="1" aria-label="Next match"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><button type="button" class="search-clear" aria-label="Clear search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4.8h6V7M6.5 7l.9 12.2c.1 1 .9 1.8 1.9 1.8h5.4c1 0 1.8-.8 1.9-1.8L17.5 7M10 11v6M14 11v6"/></svg></button>';
+ tools.innerHTML='<span class="search-count" aria-live="polite"></span><button type="button" class="search-step" data-excel-step="-1" aria-label="Previous match"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></button><button type="button" class="search-step" data-excel-step="1" aria-label="Next match"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><button type="button" class="search-clear" aria-label="Clear search"><svg viewBox="0 0 24 24" aria-hidden="true"><rect class="bin-fill" x="7.6" y="8" width="8.8" height="12.4" rx="1"/><g class="bin-lid"><path d="M4 7h16M9 7V4.8h6V7"/></g><path d="M6.5 7l.9 12.2c.1 1 .9 1.8 1.9 1.8h5.4c1 0 1.8-.8 1.9-1.8L17.5 7M10 11v6M14 11v6"/></svg></button>';
  pill?.append(tools);
  const counter=tools.querySelector('.search-count'),steps=[...tools.querySelectorAll('.search-step')];
  const setCount=(text,nav)=>{counter.textContent=text||'';steps.forEach(b=>b.hidden=!nav)};setCount('',false);
- tools.querySelector('.search-clear').addEventListener('click',()=>{input.value='';input.dispatchEvent(new Event('input',{bubbles:true}));setCount('',false);input.focus()});
+ const clearNow=()=>{input.value='';input.dispatchEvent(new Event('input',{bubbles:true}));setCount('',false)};
+ tools.querySelector('.search-clear').addEventListener('click',e=>eat(e.currentTarget));
+ // 1.1.223 owner's video: the bin opens its lid, the typed letters jump into it one by one (first letter
+ // first), the bin fills, the lid closes and a ring runs once around it; then the search is empty.
+ // Same pace as the video (about 3 s).
+ let eating=false;
+ async function eat(bin){
+  if(eating)return;const text=input.value;
+  if(!text||matchMedia('(prefers-reduced-motion: reduce)').matches||!Element.prototype.animate){clearNow();input.focus();return}
+  eating=true;input.readOnly=true;input.blur();
+  const st=getComputedStyle(input),box=input.getBoundingClientRect(),layer=document.createElement('div');
+  layer.className='bin-letters';layer.style.cssText='left:'+(box.left+parseFloat(st.paddingLeft)-input.scrollLeft)+'px;top:'+box.top+'px;height:'+box.height+'px;line-height:'+box.height+'px;font:'+st.font+';letter-spacing:'+st.letterSpacing+';color:'+st.color;
+  layer.innerHTML=[...text].map(ch=>'<span>'+ch.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c])+'</span>').join('');
+  document.body.append(layer);input.classList.add('bin-hiding');
+  const lid=bin.querySelector('.bin-lid'),fill=bin.querySelector('.bin-fill'),b=bin.getBoundingClientRect(),tx=b.left+b.width/2,ty=b.top+b.height*.42;
+  const wait=ms=>new Promise(done=>setTimeout(done,ms));
+  lid.animate([{transform:'rotate(0)'},{transform:'rotate(-38deg)'}],{duration:260,easing:'ease-out',fill:'forwards'});
+  await wait(320);
+  const spans=[...layer.children],gap=Math.min(120,1300/spans.length),fly=560;
+  spans.forEach((span,i)=>{const r=span.getBoundingClientRect(),dx=tx-(r.left+r.width/2),dy=ty-(r.top+r.height/2);
+   span.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:'translate('+dx*.55+'px,'+(dy-24)+'px) rotate(-18deg)',opacity:1,offset:.55},{transform:'translate('+dx+'px,'+dy+'px) scale(.25)',opacity:0}],{duration:fly,delay:i*gap,easing:'cubic-bezier(.3,.1,.6,1)',fill:'forwards'})});
+  fill.animate([{transform:'scaleY(0)'},{transform:'scaleY(1)'}],{duration:Math.max(300,(spans.length-1)*gap+fly),delay:fly*.6,easing:'linear',fill:'forwards'});
+  await wait((spans.length-1)*gap+fly+120);
+  layer.remove();
+  lid.animate([{transform:'rotate(-38deg)'},{transform:'rotate(0)'}],{duration:300,easing:'ease-in',fill:'forwards'});
+  await wait(320);
+  const ring=document.createElement('span');ring.className='bin-ring';ring.innerHTML='<svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="20"/></svg>';bin.append(ring);
+  ring.querySelector('circle').animate([{strokeDashoffset:126},{strokeDashoffset:0}],{duration:760,easing:'ease-in-out',fill:'forwards'});
+  await wait(820);
+  ring.animate([{opacity:1},{opacity:0}],{duration:260,fill:'forwards'});fill.animate([{transform:'scaleY(1)'},{transform:'scaleY(0)'}],{duration:260,fill:'forwards'});
+  await wait(280);
+  ring.remove();lid.getAnimations().forEach(a=>a.cancel());fill.getAnimations().forEach(a=>a.cancel());
+  input.classList.remove('bin-hiding');input.readOnly=false;eating=false;clearNow();
+ }
+
  tools.addEventListener('click',e=>{const st=e.target.closest('[data-excel-step]');if(st)go(+st.dataset.excelStep)});
  if(!products||!slug)return;
  const SHEET='BC',LIMIT=30;
