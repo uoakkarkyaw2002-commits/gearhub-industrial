@@ -39,3 +39,12 @@ test('1.1.198: the helper talks like a chat and every iPhone Safari step has a s
  for(const name of ['ig-f-share','ig-f-add','ig-f-confirm','ig-f-home'])assert.match(css,new RegExp('@keyframes '+name+'\\{'));
  assert.doesNotMatch(js,/<footer>/,'the admin page footer style must not paint the buttons');
 });
+
+test('1.1.213: the app is added from the shop Home page; the admin sends the seller there',()=>{
+ const js=read('public/install-guide.js'),index=read('public/index.html'),sw=read('public/sw.js');
+ assert.match(js,/location\.pathname\.match\(\/\^\\\/shops\\\/\(\[\^\/\]\+\)\\\/\(admin\\\/\?\)\?\$\/\)/);
+ assert.match(js,/else if\(k==='next'&&inAdmin\)location\.href=homeUrl\+'\?install=1';/);
+ assert.match(js,/if\(!inAdmin\)\{if\(asked&&!standalone\(\)\)/,'customers on the Home page never see it unless sent from the admin');
+ for(const asset of [...index.matchAll(/\/install-guide\.(?:js|css)\?v=[^"]+/g)].map(m=>m[0]))assert.ok(sw.includes('"'+asset+'"'),asset+' is in the offline shell');
+ assert.match(index,/<script src="\/install-guide\.js\?v=[^"]+"><\/script>/);
+});

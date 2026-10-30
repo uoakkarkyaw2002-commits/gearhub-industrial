@@ -8,6 +8,7 @@ test('app-switch runs only inside an installed app and remembers the app\'s own 
  assert.match(js,/let home=get\(sessionStorage,'gh-app-home'\);if\(home===null\)\{set\(sessionStorage,'gh-app-home',here\);home=here\}/);
  assert.match(js,/if\(!here\|\|home===here\|\|get\(localStorage,'gh-app-own:'\+here\)/,'its own shop, GearHub pages and "I have it" never ask');
  assert.match(js,/x-safari-https:\/\//,'iPhone opens Safari to add the app');
+ assert.match(js,/const path='\/shops\/'\+encodeURIComponent\(here\)\+'\/\?install=1'/,'1.1.213: the app is added from the shop Home page (name + logo, opens on Home)');
 });
 test('app-switch is loaded on shop pages and admin and cached offline',()=>{
  const sw=read('public/sw.js');
