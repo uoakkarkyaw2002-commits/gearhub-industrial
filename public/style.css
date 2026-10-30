@@ -1239,3 +1239,10 @@ body.searching .search-pill .photo-scan-button,body.searching .excel-folder-butt
 .bin-ring{position:absolute;inset:-6px;pointer-events:none}
 .bin-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
 .bin-ring circle{fill:none;stroke:#1f7a35;stroke-width:2.4;stroke-linecap:round;stroke-dasharray:126;stroke-dashoffset:126}
+/* 1.1.224 owner: the "Excel လို" search view is the real Excel viewer under the search bar (original
+   sizes, drag-select, copy, row select); its own title, search box and back arrow stay hidden there. */
+.excel-results-host{position:relative;background:#fff}.excel-results-host[hidden]{display:none}
+.excel-preview.excel-inline{display:flex;flex-direction:column;height:100%;margin:0;padding:0;border:0}
+.excel-inline>.drawer-head,.excel-inline #excel-sheet-status,.excel-inline .excel-map-panel,.excel-inline .excel-sheet-search,.excel-inline .excel-fs-back{display:none!important}
+.excel-inline .excel-sheet{flex:1;min-height:0;max-height:none;margin:0;border:0;border-top:1px solid #d4d4d4;border-radius:0}
+.excel-inline .excel-tabs{flex:0 0 auto;border:0;border-top:1px solid #d4d4d4;border-radius:0}
