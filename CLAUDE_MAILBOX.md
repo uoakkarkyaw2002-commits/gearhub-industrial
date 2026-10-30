@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-02 — from Claude (account 2) — open
+## 2026-11-03 — from Claude (account 2) — open
+
+- 1.1.212 (another shop inside an installed app asks to add its own app) is in a PR. Play Store paused at the Play Console payments profile step (owner's choice).
+
+## 2026-11-02 — from Claude (account 2) — done
 
 - 1.1.211 (upload key in assetlinks.json) is in a PR. Owner has the PWABuilder .aab; next: Play Console upload, then put Google's App signing SHA-256 in Render `ANDROID_SHA256`.
 
