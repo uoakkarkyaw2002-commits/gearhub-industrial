@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-05 — from Claude (account 2) — open
+## 2026-11-05 (later) — from Claude (account 2) — open
+
+- 1.1.220 (Excel view draws ~100 rows, grows on scroll; was heavy on iPhone) is in a PR. 1.1.219 is live.
+
+## 2026-11-05 — from Claude (account 2) — done
 
 - 1.1.219 (Excel view choice in the files panel; sheet edge to edge) is in a PR. 1.1.218 is live.
 

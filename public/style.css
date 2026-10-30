@@ -1199,3 +1199,5 @@ body.excel-sheet-mode .excel-results{margin-top:8px}
 .excel-results-open{width:calc(100% - 30px);margin:10px 15px 0}
 .excel-search-setting{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:0 0 14px;font-size:14px;font-weight:600}
 .excel-sheet-open .excel-search-setting{display:none}
+/* 1.1.220: the match count and ˄ ˅ sit over the left corner (the right edge has the phone's back handle). */
+.excel-results-bar{left:0;right:auto;border-left:0;border-right:1px solid #d4d4d4}
