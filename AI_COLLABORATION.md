@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.221: New search bar; count, ˄ ˅ and bin in the bar (Claude)
+- Owner's picture: white pill with a 2px green line and soft green glow, green scan icon, no magnifier; white tile with a filled green folder (index.html svg). While typing (`body.searching`) the scan and folder hide, the bar runs full width and ends with `.search-tools` (from `excel-search.js`): number found (Excel hits; "n/total" in the Excel view), ˄ ˅ (Excel view only, like the viewer's) and a bin that clears the search. The "Open in Excel" button and the count bar on the grid are gone; the grid fills down to the bottom nav.
+- Checked: Chrome 375 both views (1/4 → 2/4, bin clears and brings scan/folder back) and 1280 (bar full width, count + bin); no errors. Node 22 check + 380/380.
+
 ### 1.1.220: Excel view is light on iPhone (Claude)
 - Owner: search works but the app became very heavy. The sheet view drew every row (1400+ × all columns) on each search. Now `excel-search.js` keeps the row list in `win` and draws only 100 rows around the current match (`draw(i)`: 40 above, 60 below); scrolling near the top/bottom adds 60 more (`grow`, keeps the scroll position when adding above). ˄ ˅ redraw only when the next match is outside the drawn rows. Search waits 450 ms after typing in the sheet view. Count/˄ ˅ moved to the left corner (the right edge had the phone's back handle over the ˅).
 - Checked: Chrome 375, 1428-row sheet: 100 rows in the page, ˅ 87 ms, wraps, scroll up/down adds rows; no errors. Node 22 check + 379/379. Not measured on a real iPhone.

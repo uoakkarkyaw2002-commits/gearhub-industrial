@@ -1201,3 +1201,21 @@ body.excel-sheet-mode .excel-results{margin-top:8px}
 .excel-sheet-open .excel-search-setting{display:none}
 /* 1.1.220: the match count and ˄ ˅ sit over the left corner (the right edge has the phone's back handle). */
 .excel-results-bar{left:0;right:auto;border-left:0;border-right:1px solid #d4d4d4}
+/* 1.1.221 owner's search bar: white pill with a green line and soft green glow, green scan icon, and a
+   white tile with a green folder. While something is typed the bar runs full width (scan and folder
+   hide) and ends with the number found, ˄ ˅ (Excel view) and a bin. */
+.mobile-search .search-pill{height:56px;padding:0 10px 0 22px;border:2px solid #1f7a35;border-radius:28px;box-shadow:0 0 0 5px #1f7a3522,0 6px 18px rgba(18,38,28,.08)}
+.mobile-search .search-pill:focus-within{border-color:#1f7a35;box-shadow:0 0 0 5px #1f7a3533,0 6px 18px rgba(18,38,28,.10)}
+.mobile-search .search-pill-icon{display:none}
+.excel-folder-button{width:56px;height:56px;border-radius:18px;border-color:#eef2ef;box-shadow:0 6px 18px rgba(18,38,28,.10)}
+.excel-folder-button svg{width:30px;height:30px}
+.search-tools{display:none;flex:none;align-items:center;gap:2px}
+body.searching .search-tools{display:flex}
+body.searching .search-pill .photo-scan-button,body.searching .excel-folder-button{display:none}
+.search-count{padding:0 4px;color:#5f6b64;font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.search-count:empty{display:none}
+.search-tools button{display:grid;place-items:center;width:38px;height:38px;padding:0;border:0;border-radius:50%;background:none;color:#3c4740;cursor:pointer}
+.search-tools button[hidden]{display:none}
+.search-tools button:active{background:#eef3ef}
+.search-tools svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.search-tools .search-clear{color:#1f7a35}
