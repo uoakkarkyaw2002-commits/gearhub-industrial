@@ -49,9 +49,9 @@ test('1.1.220: the sheet view draws only the rows near the match and grows while
 test('1.1.221: searching makes the bar full width with the count, ˄ ˅ and a bin; no Open in Excel button',()=>{
  const js=read('excel-search.js'),css=read('style.css');
  assert.match(js,/class="search-clear" aria-label="Clear search"/);
- assert.match(js,/input\.value='';input\.dispatchEvent\(new Event\('input',\{bubbles:true\}\)\)/);
+ assert.match(js,/const clearNow=\(\)=>\{input\.value='';input\.dispatchEvent\(new Event\('input',\{bubbles:true\}\)\)/);
  assert.doesNotMatch(js,/excel-results-open/);
- assert.match(css,/body\.searching \.excel-folder-button\{display:none\}/);assert.doesNotMatch(css,/body\.searching \.search-pill \.photo-scan-button[^{]*\{display:none/,'the camera stays while searching');
+ assert.match(css,/body\.searching \.search-pill \.photo-scan-button,body\.searching \.excel-folder-button\{display:none\}/);
  assert.match(css,/\.mobile-search \.search-pill\{height:56px;[^}]*border:2px solid #1f7a35/);
 });
 test('1.1.222: on phones searching hides the banner and bottom navigation; the bar sits at the top',()=>{
@@ -59,4 +59,11 @@ test('1.1.222: on phones searching hides the banner and bottom navigation; the b
  assert.match(css,/body\.searching>\.home-navigation,body\.searching>\.announcement,body\.searching \.mobile-bottom-nav\{display:none!important\}/);
  assert.match(css,/body\.searching \.mobile-search\{position:sticky;top:0;/);
  assert.match(css,/html:has\(body\.searching\.excel-sheet-mode\),body\.searching\.excel-sheet-mode\{overflow:hidden\}/);
+});
+test('1.1.223: the bin eats the typed letters like the owner\'s video, then clears',()=>{
+ const js=read('excel-search.js');
+ assert.match(js,/async function eat\(bin\)\{/);
+ assert.match(js,/const spans=\[\.\.\.layer\.children\],gap=Math\.min\(120,1300\/spans\.length\),fly=560;/,'video pace');
+ assert.match(js,/prefers-reduced-motion: reduce/);
+ assert.match(js,/class="bin-lid"/);
 });
