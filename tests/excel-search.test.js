@@ -12,3 +12,10 @@ test('search lists Excel rows from sheet BC and opens the viewer at that row',()
  assert.ok(html.indexOf('/excel-map.js')<html.indexOf('/excel-search.js'));
  for(const f of ['excel-map.js','excel-search.js','style.css']){const tag=html.match(new RegExp('/'+f.replace('.','\\.')+'\\?v=[^"]+'))[0];assert.ok(sw.includes('"'+tag+'"'),f)}
 });
+test('1.1.216: Excel rows are drawn like the sheet (letters, row numbers, header row, sideways scroll)',()=>{
+ const js=read('excel-search.js'),css=read('style.css');
+ assert.match(js,/<thead><tr class="excel-results-letters">/);assert.match(js,/line\(head,'excel-results-header'\)/);
+ assert.match(css,/\.excel-results-grid\{max-height:70vh;overflow:auto;/);
+ assert.match(css,/\.excel-results-grid tr>th:first-child\{position:sticky;left:0;z-index:1\}/);
+ assert.match(css,/\.excel-results-grid thead tr>th:first-child\{z-index:4\}/);
+});

@@ -34,13 +34,21 @@
   for(let r=head+1;r<=sheet.maxR&&rows.length<=LIMIT;r++){if(sheet.heights?.[r]===0)continue;if(cols.some(c=>text(sheet,r,c).toLocaleLowerCase().includes(needle)))rows.push(r)}
   const more=rows.length>LIMIT;if(more)rows.length=LIMIT;
   box.hidden=false;
+  // Drawn like the Excel viewer (1.1.216 owner): column letters, row numbers, the header row, the
+  // sheet's widths, fills and fonts; the grid scrolls sideways and the letters/header stay on top.
+  const width=c=>Math.round(((sheet.widths?.[c]??sheet.defW??8.43)*7)+5),letter=i=>{let t='';i++;while(i>0){const m=(i-1)%26;t=String.fromCharCode(65+m)+t;i=Math.floor((i-1)/26)}return t};
+  const css=cell=>{const st=cell?.style||{},f=st.font||{},out=[];if(st.fill)out.push('background-color:'+st.fill);if(f.color)out.push('color:'+f.color);if(f.b)out.push('font-weight:700');if(f.i)out.push('font-style:italic');if(f.name)out.push('font-family:"'+String(f.name).replace(/["<>]/g,'')+'",system-ui,sans-serif');
+   const h=st.h&&st.h!=='general'?(st.h==='centerContinuous'?'center':st.h):cell?.numeric?'right':'left';out.push('text-align:'+h);if(st.wrap)out.push('white-space:pre-wrap');return out.join(';')};
+  const td=(r,c)=>{const cell=sheet.cells.get(r+','+c);return '<td style="'+esc(css(cell))+'">'+esc(text(sheet,r,c))+'</td>'};
+  const line=(r,cls)=>'<tr'+(cls?' class="'+cls+'"':'')+' data-excel-row="'+r+'"><th>'+(r+1)+'</th>'+cols.map(c=>td(r,c)).join('')+'</tr>';
   box.innerHTML='<div class="excel-results-head"><h3>Excel · '+esc(sheet.name)+'</h3><span>'+(rows.length?rows.length+(more?'+':'')+' rows':'No match')+'</span></div>'
-   +rows.map(r=>'<button type="button" class="excel-result" data-excel-row="'+r+'"><span class="excel-result-row">'+(r+1)+'</span><span class="excel-result-cells">'
-    +cols.filter(c=>text(sheet,r,c)).map(c=>'<span><small>'+esc(text(sheet,head,c)||'')+'</small>'+esc(text(sheet,r,c))+'</span>').join('')+'</span></button>').join('')
+   +(rows.length?'<div class="excel-results-grid"><table><colgroup><col style="width:46px">'+cols.map(c=>'<col style="width:'+width(c)+'px">').join('')+'</colgroup>'
+   +'<thead><tr class="excel-results-letters"><th></th>'+cols.map(c=>'<th>'+letter(c)+'</th>').join('')+'</tr>'+line(head,'excel-results-header')+'</thead>'
+   +'<tbody>'+rows.map(r=>line(r)).join('')+'</tbody></table></div>':'')
    +'<button type="button" class="excel-results-open" data-excel-open>📗 Excel မှာ ဖွင့်ကြည့်မယ် / Open in Excel</button>';
   box.dataset.url=file.url;box.dataset.name=file.name;box.dataset.sheet=sheet.name;
  }
- box.addEventListener('click',e=>{const b=e.target.closest('[data-excel-row],[data-excel-open]');if(!b)return;window.GearHubExcelViewer?.open(box.dataset.url,box.dataset.name,box.dataset.sheet,input.value.trim(),b.dataset.excelRow===undefined?undefined:+b.dataset.excelRow)});
+ box.addEventListener('click',e=>{const b=e.target.closest('tbody [data-excel-row],[data-excel-open]');if(!b)return;window.GearHubExcelViewer?.open(box.dataset.url,box.dataset.name,box.dataset.sheet,input.value.trim(),b.dataset.excelRow===undefined?undefined:+b.dataset.excelRow)});
  input.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(show,250)});
  if(input.value.trim())show();
 })();
