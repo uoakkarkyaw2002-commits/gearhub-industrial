@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.217: Search Excel — "ရှာတာပဲ" / "Excel လို" views (Claude)
+- Owner: rows were too small; wants two modes beside "Excel · BC": only the matching rows (as before), and the sheet like Excel that jumps to the match with the rows around it visible. `excel-search.js`: mode switch (remembered in localStorage `gh-excel-search-mode`); sheet view draws every visible row (up to 4000), marks hit rows, outlines the matching cell of the current hit, scrolls it a third down under the sticky header, ˄ ˅ and "n / total"; taps do not open the viewer there (the button does, at the current hit). Cells use the file's font size and row heights (bigger); base font 16px.
+- Checked: Chrome 375 with a 1428-row BC sheet: rows view 4 rows; sheet view 1428 rows drawn in < 1 s, 1 / 4 at row 1225, ˅ → 1289, ˄˄ → 1427 (wraps), view remembered after reload; no page sideways scroll; no errors. Node 22 check + 376/376.
+
 ### 1.1.216: Search Excel rows look like the sheet (Claude)
 - Owner: the 1.1.215 cards were hard to read; show the rows like Excel, with the header, scrolling sideways. `excel-search.js` now draws a table: column letters, row numbers (sticky left), the sheet's header row (sticky under the letters), the sheet's column widths, fills and fonts; hidden columns/rows skipped; max-height 70vh, scrolls both ways. Tapping a row still opens the viewer at that row.
 - Checked: Chrome 375/1280 with a BC sheet (green header, hidden column D, wide PHOTO column): page has no sideways scroll, grid scrolls (scrollWidth 1405 vs 343), row numbers and header stay put; row tap → viewer at that row. Node 22 check + 375/375.
