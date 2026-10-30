@@ -74,7 +74,7 @@
  function full(on){document.body.classList.toggle('excel-sheet-mode',on)}
  function fit(){
   const grid=box.querySelector('.excel-results-grid');if(!grid)return;
-  const bar=document.querySelector('.mobile-search');window.scrollTo(0,bar?bar.getBoundingClientRect().top+window.scrollY-8:box.offsetTop);
+  const bar=document.querySelector('.mobile-search');window.scrollTo(0,bar&&getComputedStyle(bar).position!=='sticky'?bar.getBoundingClientRect().top+window.scrollY-8:0);
   const nav=document.querySelector('.mobile-bottom-nav'),below=nav&&getComputedStyle(nav).display!=='none'?nav.offsetHeight:0;
   grid.style.maxHeight='none';grid.style.height=Math.max(320,window.innerHeight-grid.getBoundingClientRect().top-below-8)+'px';
  }

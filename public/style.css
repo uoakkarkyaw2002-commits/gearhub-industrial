@@ -1219,3 +1219,10 @@ body.searching .search-pill .photo-scan-button,body.searching .excel-folder-butt
 .search-tools button:active{background:#eef3ef}
 .search-tools svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .search-tools .search-clear{color:#1f7a35}
+/* 1.1.222 owner: on phones, while searching the shop banner and the bottom navigation hide and the
+   search bar sits at the very top (under the status bar). */
+@media(max-width:850px){
+ body.searching>.home-navigation,body.searching>.announcement,body.searching .mobile-bottom-nav{display:none!important}
+ html:has(body.searching.excel-sheet-mode),body.searching.excel-sheet-mode{overflow:hidden}
+ body.searching .mobile-search{position:sticky;top:0;z-index:8;margin-top:0;padding-top:calc(10px + env(safe-area-inset-top));padding-bottom:10px;background:var(--paper,#f5f7f1)}
+}
