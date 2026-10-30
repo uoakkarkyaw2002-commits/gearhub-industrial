@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.218: "Excel လို" view hides the products and fills the screen (Claude)
+- Owner: in the Excel view the products must go; it must look fully like Excel. `excel-search.js`: body class `excel-sheet-mode` while the sheet view shows (removed when the search is cleared or in "ရှာတာပဲ"); `fit()` scrolls the search bar to the top and sizes the grid to the rest of the screen above the bottom nav and the Open button. `style.css` hides `#products` in that mode.
+- Checked: Chrome 375 (grid 164→658 of 812) and 1280 (172→729 of 800); rows view keeps products; clearing restores them; no page sideways scroll; no errors. Node 22 check + 377/377.
+
 ### 1.1.217: Search Excel — "ရှာတာပဲ" / "Excel လို" views (Claude)
 - Owner: rows were too small; wants two modes beside "Excel · BC": only the matching rows (as before), and the sheet like Excel that jumps to the match with the rows around it visible. `excel-search.js`: mode switch (remembered in localStorage `gh-excel-search-mode`); sheet view draws every visible row (up to 4000), marks hit rows, outlines the matching cell of the current hit, scrolls it a third down under the sticky header, ˄ ˅ and "n / total"; taps do not open the viewer there (the button does, at the current hit). Cells use the file's font size and row heights (bigger); base font 16px.
 - Checked: Chrome 375 with a 1428-row BC sheet: rows view 4 rows; sheet view 1428 rows drawn in < 1 s, 1 / 4 at row 1225, ˅ → 1289, ˄˄ → 1427 (wraps), view remembered after reload; no page sideways scroll; no errors. Node 22 check + 376/376.

@@ -1185,3 +1185,6 @@ body.searching [data-home-content]:not(.mobile-search):not(#catalog),body.search
 .excel-results-sheet .excel-hit>th{background:#d3e3fd;color:#1a73e8}
 .excel-results-sheet .excel-current .excel-match{box-shadow:inset 0 0 0 2px #1a73e8}
 .excel-results-sheet tbody tr{cursor:default}
+/* 1.1.218 owner: in the "Excel လို" view only the search bar and the sheet show. */
+body.excel-sheet-mode #products{display:none!important}
+body.excel-sheet-mode .excel-results{margin-top:8px}

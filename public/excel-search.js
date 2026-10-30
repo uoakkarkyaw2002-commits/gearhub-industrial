@@ -28,15 +28,15 @@
  let hits=[],at=0;
  async function show(){
   const q=input.value.trim(),mine=++turn;
-  if(q.length<2){box.hidden=true;box.innerHTML='';return}
+  if(q.length<2){box.hidden=true;box.innerHTML='';full(false);return}
   const found=await workbook();if(mine!==turn)return;
-  if(!found){box.hidden=true;return}
+  if(!found){box.hidden=true;full(false);return}
   const {file,sheet}=found,cols=[];for(let c=0;c<=sheet.maxC;c++)if(visible(sheet,c))cols.push(c);
   // Column names: the first row with two or more filled cells (like the import mapping).
   let head=0;for(let r=0;r<=sheet.maxR;r++){if(cols.filter(c=>text(sheet,r,c)).length>=2){head=r;break}}
   const needle=q.toLocaleLowerCase(),has=(r,c)=>text(sheet,r,c).toLocaleLowerCase().includes(needle),shown=[];hits=[];at=0;
   for(let r=head+1;r<=sheet.maxR;r++){if(sheet.heights?.[r]===0)continue;const hit=cols.some(c=>has(r,c));if(hit)hits.push(r);if(mode==='sheet'?shown.length<4000:hit&&shown.length<LIMIT)shown.push(r)}
-  box.hidden=false;
+  box.hidden=false;full(mode==='sheet');
   // Drawn like the Excel viewer: column letters, row numbers, the header row, the sheet's widths,
   // heights, fills and fonts; the grid scrolls both ways and the letters/header stay on top.
   const width=c=>Math.round(((sheet.widths?.[c]??sheet.defW??8.43)*7)+5),height=r=>Math.max(30,Math.round((sheet.heights?.[r]||sheet.defH||15)*4/3)),letter=i=>{let t='';i++;while(i>0){const m=(i-1)%26;t=String.fromCharCode(65+m)+t;i=Math.floor((i-1)/26)}return t};
@@ -52,7 +52,16 @@
    +'<tbody>'+shown.map(r=>line(r,mode==='sheet'&&hits.includes(r)?'excel-hit':'')).join('')+'</tbody></table></div>':'')
    +'<button type="button" class="excel-results-open" data-excel-open>📗 Excel မှာ ဖွင့်ကြည့်မယ် / Open in Excel</button>';
   box.dataset.url=file.url;box.dataset.name=file.name;box.dataset.sheet=sheet.name;
-  if(mode==='sheet')go(0);
+  if(mode==='sheet'){fit();go(0)}
+ }
+ // 1.1.218 owner: the Excel view hides the products and the sheet fills the screen under the search
+ // bar, like the Excel viewer.
+ function full(on){document.body.classList.toggle('excel-sheet-mode',on)}
+ function fit(){
+  const grid=box.querySelector('.excel-results-grid');if(!grid)return;
+  const bar=document.querySelector('.mobile-search');window.scrollTo(0,bar?bar.getBoundingClientRect().top+window.scrollY-8:box.offsetTop);
+  const nav=document.querySelector('.mobile-bottom-nav'),below=nav&&getComputedStyle(nav).display!=='none'?nav.offsetHeight:0,button=box.querySelector('.excel-results-open')?.offsetHeight||0;
+  grid.style.maxHeight='none';grid.style.height=Math.max(320,window.innerHeight-grid.getBoundingClientRect().top-below-button-24)+'px';
  }
  // Sheet view: mark the current match and bring its row a third of the way down, under the header.
  function go(step){

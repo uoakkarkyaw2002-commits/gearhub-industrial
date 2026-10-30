@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-04 (evening) — from Claude (account 2) — open
+## 2026-11-04 (night) — from Claude (account 2) — open
+
+- 1.1.218 (Excel view hides products, sheet fills the screen) is in a PR. 1.1.217 is live.
+
+## 2026-11-04 (evening) — from Claude (account 2) — done
 
 - 1.1.217 (search Excel: rows-only / whole-sheet views) is in a PR. 1.1.216 is merged and live.
 
