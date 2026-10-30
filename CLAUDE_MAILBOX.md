@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-05 (evening) — from Claude (account 2) — open
+## 2026-11-05 (night) — from Claude (account 2) — open
+
+- 1.1.222 (phones: searching hides banner + bottom nav, bar sticks to the top) is in a PR. 1.1.221 confirmed on iPhone.
+
+## 2026-11-05 (evening) — from Claude (account 2) — done
 
 - 1.1.221 (new search bar; count, ˄ ˅ and bin in the bar; no Open in Excel button) is in a PR. 1.1.220 is live.
 

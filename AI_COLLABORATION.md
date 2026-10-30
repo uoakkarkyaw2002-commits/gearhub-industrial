@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.222: Searching hides the banner and bottom nav; bar at the top (Claude)
+- Owner (iPhone): while searching, hide the bottom navigation and the top banner and keep the search bar at the very top. `style.css` (≤850px): `body.searching` hides `.home-navigation`, `.announcement`, `.mobile-bottom-nav`; `.mobile-search` is sticky at top 0 (safe-area padding); in the Excel view the page itself does not scroll (`html:has(...)`/body overflow hidden), only the sheet. `excel-search.js` fit() no longer scrolls the page when the bar is sticky. PC unchanged.
+- Checked: Chrome 375 both views: bar at y=10, banner/bottom nav hidden, sheet 86→804 of 812, wheel scroll keeps the bar; cleared → banner and nav back; 1280 top nav unchanged; no errors. Node 22 check + 381/381.
+
 ### 1.1.221: New search bar; count, ˄ ˅ and bin in the bar (Claude)
 - Owner's picture: white pill with a 2px green line and soft green glow, green scan icon, no magnifier; white tile with a filled green folder (index.html svg). While typing (`body.searching`) the scan and folder hide, the bar runs full width and ends with `.search-tools` (from `excel-search.js`): number found (Excel hits; "n/total" in the Excel view), ˄ ˅ (Excel view only, like the viewer's) and a bin that clears the search. The "Open in Excel" button and the count bar on the grid are gone; the grid fills down to the bottom nav.
 - Checked: Chrome 375 both views (1/4 → 2/4, bin clears and brings scan/folder back) and 1280 (bar full width, count + bin); no errors. Node 22 check + 380/380.

@@ -54,3 +54,9 @@ test('1.1.221: searching makes the bar full width with the count, ˄ ˅ and a bi
  assert.match(css,/body\.searching \.search-pill \.photo-scan-button,body\.searching \.excel-folder-button\{display:none\}/);
  assert.match(css,/\.mobile-search \.search-pill\{height:56px;[^}]*border:2px solid #1f7a35/);
 });
+test('1.1.222: on phones searching hides the banner and bottom navigation; the bar sits at the top',()=>{
+ const css=read('style.css');
+ assert.match(css,/body\.searching>\.home-navigation,body\.searching>\.announcement,body\.searching \.mobile-bottom-nav\{display:none!important\}/);
+ assert.match(css,/body\.searching \.mobile-search\{position:sticky;top:0;/);
+ assert.match(css,/html:has\(body\.searching\.excel-sheet-mode\),body\.searching\.excel-sheet-mode\{overflow:hidden\}/);
+});
