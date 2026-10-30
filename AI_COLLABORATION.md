@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.224: "Excel လို" search uses the real Excel viewer; faster first search (Claude)
+- Owner (night, wants it ready by morning): PART NO column too wide; keep every column/row at its original size; bring back drag-select, copy and row select from the Excel viewer; hide the keyboard's bar (it does nothing); make the app as fast as possible.
+- `excel-map.js`: workbooks are read once per page (`loadBook` cache, shared with search); `openBook(b,sheetName,embedded)`; new `GearHubExcelViewer.embed(host,…)`, `search(q)`, `step(n)`, `release()` — the viewer section (grid, tabs, excel-select.js selection/copy/row select, zoom) is moved under the shop search bar for the Excel view and moved back to its panel for the folder button. `excel-search.js`: Excel view = `embed` + `search`, the bar's count/˄ ˅ call `step`; my own 1.1.216–1.1.220 grid is now only the "ရှာတာပဲ" rows list (table width = sum of the file's column widths). Enter (Search key) = next match + closes the keyboard; `enterkeyhint="search"`. The workbook is read on idle (`requestIdleCallback`, skipped with Save-Data) so the first search takes ~0.2 s instead of ~0.8 s.
+- Keyboard bar (˄ ˅ ✓ above the iPhone keyboard): drawn by iOS Safari/web apps for every text field; a web page cannot hide it. ✓ closes the keyboard; ˄ ˅ only jump between fields.
+- Checked: Chrome 375: Excel view 1/4 → ˅ 2/4 (141 ms), "seal" 1/238, row-number tap selects the row, folder viewer still full screen; rows view table 877 px = file widths, tap opens the viewer at the row; 1280 fine; no errors. Node 22 check + 382/382. Not on a real iPhone.
+
 ### 1.1.223: The bin eats the typed letters (owner's video); scan hides while searching (Claude)
 - Owner's video (Delete button "the bin eats the label"): tap the bin → lid opens (260 ms), the typed letters jump one by one (first letter first, ≤120 ms apart, 560 ms flight with a small arc) into the bin, the bin fills, lid closes (300 ms), a ring runs once around the bin (760 ms) and fades; then the search clears (~3 s like the video). `excel-search.js` `eat(bin)`: letters are copied into a fixed `.bin-letters` layer over the input (input text hidden meanwhile), Web Animations; reduced motion clears at once. Scan is hidden again while searching (owner changed their mind).
 - Checked: Chrome 375 frames every 150 ms (lid, letters, fill, ring), search empty afterwards, banner/nav back; no errors. Node 22 check + tests.

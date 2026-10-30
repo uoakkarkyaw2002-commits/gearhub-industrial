@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-06 — from Claude (account 2) — open
+## 2026-11-06 (night) — from Claude (account 2) — open
+
+- 1.1.224 (Excel view = the real viewer under the search bar, original sizes + select/copy/row select; idle preload) is in a PR. Owner asleep; tests in the morning. The iOS keyboard bar cannot be hidden by a web page (told the owner).
+
+## 2026-11-06 — from Claude (account 2) — done
 
 - 1.1.223 (bin eats the typed letters like the owner's video; scan hidden while searching) is in a PR. 1.1.222 is live.
 

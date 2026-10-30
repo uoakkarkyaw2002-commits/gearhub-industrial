@@ -547,11 +547,18 @@
  }
  function setForm(hide){const form=document.getElementById('excel-upload-form');if(!form)return;if(hide){if(!form.dataset.wasHidden)form.dataset.wasHidden=String(form.hidden);form.hidden=true}else if(form.dataset.wasHidden){form.hidden=form.dataset.wasHidden==='true';delete form.dataset.wasHidden}}
  // sheetName (1.1.215): open that sheet first when the workbook has it (Search → Excel rows).
- async function openBook(b,sheetName){
-  section.hidden=false;box.hidden=true;setForm(true);card.classList.add('excel-sheet-open');fullScreen(true);title.textContent=b.dataset.excelName||'Spreadsheet';grid.innerHTML='';tabs.innerHTML='';sheetList.hidden=true;panel.hidden=true;msg.textContent='Loading…';out.textContent='';
+ // 1.1.224: each workbook is read once per page; the folder viewer and the search share it.
+ const books=new Map();
+ function loadBook(url){if(!books.has(url))books.set(url,(async()=>readBook(await (await fetch(url)).arrayBuffer()))().catch(x=>{books.delete(url);throw x}));return books.get(url)}
+ // The viewer may sit under the shop search bar (embedded, 1.1.224); the folder puts it back in its panel.
+ function home(){if(section.parentElement!==card){card.append(section);section.classList.remove('excel-inline');inlineKey=''}}
+ let inlineKey='';
+ async function openBook(b,sheetName,embedded){
+  if(!embedded){home();box.hidden=true;setForm(true);card.classList.add('excel-sheet-open');fullScreen(true)}
+  section.hidden=false;title.textContent=b.dataset.excelName||'Spreadsheet';grid.innerHTML='';tabs.innerHTML='';sheetList.hidden=true;panel.hidden=true;msg.textContent='Loading…';out.textContent='';
   try{
-   const blob=await (await fetch(b.dataset.excelPreview)).blob(),name=b.dataset.excelName||'';
-   if(/\.csv$/i.test(name))book=csvBook(await blob.text());else if(/\.xls[xm]$/i.test(name))book=await readBook(await blob.arrayBuffer());else throw Error('Preview supports .xlsx, .xlsm and .csv. Old .xls files can only be downloaded.');
+   const name=b.dataset.excelName||'',blob=/\.csv$/i.test(name)?await (await fetch(b.dataset.excelPreview)).blob():null;
+   if(/\.csv$/i.test(name))book=csvBook(await blob.text());else if(/\.xls[xm]$/i.test(name))book=await loadBook(b.dataset.excelPreview);else throw Error('Preview supports .xlsx, .xlsm and .csv. Old .xls files can only be downloaded.');
    if(!book.sheets.length)throw Error('This workbook has no visible sheets.');
    owner=await access();const want=String(sheetName||'').trim().toLowerCase(),at=want?book.sheets.findIndex(s=>s.name.trim().toLowerCase()===want):-1;await showSheet(Math.max(0,at));return true;
   }catch(x){msg.textContent=x.message;return false}
@@ -578,7 +585,14 @@
  // 1.1.215 owner: a shop search also lists the matching Excel rows (public/excel-search.js); it reads a
  // sheet here and opens this viewer on that sheet with the same search.
  window.GearHubExcelViewer={
-  async sheet(url,sheetName){const b=await readBook(await (await fetch(url)).arrayBuffer()),want=String(sheetName||'').trim().toLowerCase(),s=b.sheets.find(x=>x.name.trim().toLowerCase()===want)||b.sheets[0];return s?readSheet(s,b):null},
+  async sheet(url,sheetName){const b=await loadBook(url),want=String(sheetName||'').trim().toLowerCase(),s=b.sheets.find(x=>x.name.trim().toLowerCase()===want)||b.sheets[0];return s?readSheet(s,b):null},
+  // 1.1.224 owner: "Excel လို" search shows this very viewer under the shop search bar (original
+  // column sizes, selection, copy, row select), driven by that bar.
+  async embed(host,url,name,sheetName){const key=url+'|'+sheetName;if(section.parentElement!==host){host.append(section);section.classList.add('excel-inline')}section.hidden=false;
+   if(inlineKey===key&&book)return true;const ok=await openBook({dataset:{excelPreview:url,excelName:name}},sheetName,true);inlineKey=ok?key:'';return ok},
+  search(query){search.value=query;searchText=query;find(0);return{at:foundAt,total:found.length}},
+  step(n){find(n);return{at:foundAt,total:found.length}},
+  release(){if(section.classList.contains('excel-inline')){home();section.hidden=true}},
   async open(url,name,sheetName,query,row){document.getElementById('excel-library-open')?.click();if(await openBook({dataset:{excelPreview:url,excelName:name}},sheetName)&&query){search.value=query;searchText=query;find(0);const k=found.findIndex(([r])=>r===row);if(k>0){foundAt=k-1;find(1)}}}
  };
  search.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();find(e.shiftKey?-1:1)}});

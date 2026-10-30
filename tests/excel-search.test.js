@@ -24,13 +24,12 @@ test('1.1.217: two views — matching rows only, or the whole sheet that jumps t
  assert.match(js,/data-excel-mode="rows"[^]*ရှာတာပဲ[^]*data-excel-mode="sheet"[^]*Excel လို/);
  assert.match(js,/const MODE_KEY='gh-excel-search-mode'/,'the chosen view is remembered');
  assert.match(js,/data-excel-step="-1"[^]*data-excel-step="1"/);
- assert.match(js,/if\(mode==='sheet'\)\{fit\(\);go\(0\);/);
  assert.match(js,/if\(f\.sz\)out\.push\('font-size:'\+f\.sz\+'pt'\)/,'the file font size (bigger, like Excel)');
 });
 test('1.1.218: the Excel view hides the products and the sheet fills the screen',()=>{
  const js=read('excel-search.js'),css=read('style.css');
  assert.match(js,/box\.hidden=false;full\(mode==='sheet'\);/);
- assert.match(js,/if\(q\.length<2\)\{box\.hidden=true;box\.innerHTML='';full\(false\);/,'clearing the search brings the products back');
+ assert.match(js,/function hideAll\(\)\{box\.hidden=true;rowsArea\.innerHTML='';host\.hidden=true;full\(false\);/,'clearing the search brings the products back');
  assert.match(css,/body\.excel-sheet-mode #products\{display:none!important\}/);
 });
 test('1.1.219: the view choice sits in the Excel files panel; the sheet runs edge to edge',()=>{
@@ -39,12 +38,6 @@ test('1.1.219: the view choice sits in the Excel files panel; the sheet runs edg
  assert.doesNotMatch(js,/class="excel-results-head"/,'no title/mode row above the sheet');
  assert.match(css,/\.excel-results\{position:relative;width:100vw;margin-left:calc\(50% - 50vw\);margin-right:calc\(50% - 50vw\)\}/);
  assert.match(css,/\.excel-sheet-open \.excel-search-setting\{display:none\}/);
-});
-test('1.1.220: the sheet view draws only the rows near the match and grows while scrolling',()=>{
- const js=read('excel-search.js');
- assert.match(js,/function draw\(i\)\{[^\n]*win\.lo=Math\.max\(0,i-40\);win\.hi=Math\.min\(win\.rows\.length,i\+60\)/);
- assert.match(js,/addEventListener\('scroll',grow,\{passive:true\}\)/);
- assert.match(js,/'<tbody>'\+\(mode==='sheet'\?'':/,'the whole sheet is never put in the page at once');
 });
 test('1.1.221: searching makes the bar full width with the count, ˄ ˅ and a bin; no Open in Excel button',()=>{
  const js=read('excel-search.js'),css=read('style.css');
@@ -66,4 +59,12 @@ test('1.1.223: the bin eats the typed letters like the owner\'s video, then clea
  assert.match(js,/const spans=\[\.\.\.layer\.children\],gap=Math\.min\(120,1300\/spans\.length\),fly=560;/,'video pace');
  assert.match(js,/prefers-reduced-motion: reduce/);
  assert.match(js,/class="bin-lid"/);
+});
+test('1.1.224: the Excel view is the real viewer (original sizes, select, copy) driven by the search bar',()=>{
+ const js=read('excel-search.js'),map=read('excel-map.js'),html=read('index.html');
+ assert.match(map,/async embed\(host,url,name,sheetName\)\{/);
+ assert.match(map,/function loadBook\(url\)\{if\(!books\.has\(url\)\)/,'each workbook is read once per page');
+ assert.match(js,/if\(!await viewer\.embed\(host,file\.url,file\.name,sheet\.name\)\|\|mine!==turn\)return;/);
+ assert.match(js,/requestIdleCallback/,'the workbook is read before the first search');
+ assert.match(html,/<input id="search" enterkeyhint="search"/);
 });

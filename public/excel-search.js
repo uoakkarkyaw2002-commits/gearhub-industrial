@@ -52,9 +52,12 @@
  const SHEET='BC',LIMIT=30;
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
  const box=document.createElement('section');box.className='excel-results';box.hidden=true;box.setAttribute('aria-live','polite');
+ box.innerHTML='<div class="excel-results-rows"></div><div class="excel-results-host" hidden></div>';
+ const rowsArea=box.firstChild,host=box.lastChild;
  products.after(box);
  let loading=null,timer=0,turn=0;
- // The first Excel file that has a BC sheet (else the first file and its first sheet).
+ // The first Excel file that has a BC sheet (else the first file and its first sheet). The workbook is
+ // read once and shared with the Excel viewer (1.1.224).
  function workbook(){
   return loading||(loading=(async()=>{
    const viewer=window.GearHubExcelViewer;if(!viewer)return null;
@@ -66,71 +69,54 @@
  }
  const visible=(sheet,c)=>sheet.widths?.[c]!==0;
  const text=(sheet,r,c)=>String(sheet.cells.get(r+','+c)?.text??'').trim();
- // 1.1.217 owner: two views beside "Excel · BC" — only the matching rows, or the whole sheet like Excel
- // with the search: it jumps to the match (rows around it stay visible) and ˄ ˅ go to the other matches.
+ // 1.1.217: two views — only the matching rows ("ရှာတာပဲ"), or the sheet like Excel ("Excel လို").
+ // 1.1.224 owner: the Excel view is the shop's real Excel viewer under the search bar — original column
+ // and row sizes, drag-select, copy, row select — moved to the bar's ˄ ˅ and count.
  const MODE_KEY='gh-excel-search-mode';let mode=(()=>{try{return localStorage.getItem(MODE_KEY)==='sheet'?'sheet':'rows'}catch{return 'rows'}})();
- let hits=[],at=0,win=null;
+ function hideAll(){box.hidden=true;rowsArea.innerHTML='';host.hidden=true;full(false);setCount('',false);window.GearHubExcelViewer?.release()}
+ const countSheet=s=>setCount(s.total?(s.at+1)+'/'+s.total:'0',s.total>1);
  async function show(){
   const q=input.value.trim(),mine=++turn;
-  if(q.length<2){box.hidden=true;box.innerHTML='';full(false);setCount('',false);return}
+  if(q.length<2){hideAll();return}
   const found=await workbook();if(mine!==turn)return;
-  if(!found){box.hidden=true;full(false);setCount('',false);return}
-  const {file,sheet}=found,cols=[];for(let c=0;c<=sheet.maxC;c++)if(visible(sheet,c))cols.push(c);
+  if(!found){hideAll();return}
+  const {file,sheet}=found,viewer=window.GearHubExcelViewer;
+  box.hidden=false;full(mode==='sheet');
+  if(mode==='sheet'){
+   rowsArea.innerHTML='';host.hidden=false;fit();
+   if(!await viewer.embed(host,file.url,file.name,sheet.name)||mine!==turn)return;
+   countSheet(viewer.search(q));return;
+  }
+  viewer.release();host.hidden=true;
+  const cols=[];for(let c=0;c<=sheet.maxC;c++)if(visible(sheet,c))cols.push(c);
   // Column names: the first row with two or more filled cells (like the import mapping).
   let head=0;for(let r=0;r<=sheet.maxR;r++){if(cols.filter(c=>text(sheet,r,c)).length>=2){head=r;break}}
-  const needle=q.toLocaleLowerCase(),has=(r,c)=>text(sheet,r,c).toLocaleLowerCase().includes(needle),shown=[];hits=[];at=0;
-  for(let r=head+1;r<=sheet.maxR;r++){if(sheet.heights?.[r]===0)continue;const hit=cols.some(c=>has(r,c));if(hit)hits.push(r);if(mode==='sheet'||hit&&shown.length<LIMIT)shown.push(r)}
-  box.hidden=false;full(mode==='sheet');
-  // Drawn like the Excel viewer: column letters, row numbers, the header row, the sheet's widths,
-  // heights, fills and fonts; the grid scrolls both ways and the letters/header stay on top.
-  const width=c=>Math.round(((sheet.widths?.[c]??sheet.defW??8.43)*7)+5),height=r=>Math.max(30,Math.round((sheet.heights?.[r]||sheet.defH||15)*4/3)),letter=i=>{let t='';i++;while(i>0){const m=(i-1)%26;t=String.fromCharCode(65+m)+t;i=Math.floor((i-1)/26)}return t};
+  const needle=q.toLocaleLowerCase(),has=(r,c)=>text(sheet,r,c).toLocaleLowerCase().includes(needle),hits=[];
+  for(let r=head+1;r<=sheet.maxR&&hits.length<=LIMIT;r++){if(sheet.heights?.[r]===0)continue;if(cols.some(c=>has(r,c)))hits.push(r)}
+  const more=hits.length>LIMIT;if(more)hits.length=LIMIT;
+  // Drawn like the Excel viewer: column letters, row numbers, the header row, the sheet's own widths
+  // (the table is exactly their sum, so no column grows past its Excel size), heights, fills and fonts.
+  const width=c=>Math.round(((sheet.widths?.[c]??sheet.defW??8.43)*7)+5),height=r=>Math.max(24,Math.round((sheet.heights?.[r]||sheet.defH||15)*4/3)),letter=i=>{let t='';i++;while(i>0){const m=(i-1)%26;t=String.fromCharCode(65+m)+t;i=Math.floor((i-1)/26)}return t};
   const css=cell=>{const st=cell?.style||{},f=st.font||{},out=[];if(st.fill)out.push('background-color:'+st.fill);if(f.color)out.push('color:'+f.color);if(f.b)out.push('font-weight:700');if(f.i)out.push('font-style:italic');if(f.sz)out.push('font-size:'+f.sz+'pt');if(f.name)out.push('font-family:"'+String(f.name).replace(/["<>]/g,'')+'",system-ui,sans-serif');
    const h=st.h&&st.h!=='general'?(st.h==='centerContinuous'?'center':st.h):cell?.numeric?'right':'left';out.push('text-align:'+h);if(st.wrap)out.push('white-space:pre-wrap');return out.join(';')};
   const td=(r,c)=>{const cell=sheet.cells.get(r+','+c);return '<td'+(r!==head&&has(r,c)?' class="excel-match"':'')+' style="'+esc(css(cell))+'">'+esc(text(sheet,r,c))+'</td>'};
   const line=(r,cls)=>'<tr'+(cls?' class="'+cls+'"':'')+' data-excel-row="'+r+'" style="height:'+height(r)+'px"><th>'+(r+1)+'</th>'+cols.map(c=>td(r,c)).join('')+'</tr>';
-  // 1.1.219 owner: the view choice lives in the Excel files panel (folder button); the page keeps only
-  // the sheet, edge to edge, with the match count and ˄ ˅ on it in the Excel view.
-  box.innerHTML=''
-   +(mode==='rows'&&!hits.length?'<p class="excel-results-none">Excel · '+esc(sheet.name)+' — No match</p>':'')
-   +(shown.length&&(mode==='sheet'||hits.length)?'<div class="excel-results-grid'+(mode==='sheet'?' excel-results-sheet':'')+'"><table><colgroup><col style="width:46px">'+cols.map(c=>'<col style="width:'+width(c)+'px">').join('')+'</colgroup>'
+  const total=46+cols.reduce((a,c)=>a+width(c),0);
+  rowsArea.innerHTML=hits.length?'<div class="excel-results-grid"><table style="width:'+total+'px"><colgroup><col style="width:46px">'+cols.map(c=>'<col style="width:'+width(c)+'px">').join('')+'</colgroup>'
    +'<thead><tr class="excel-results-letters"><th></th>'+cols.map(c=>'<th>'+letter(c)+'</th>').join('')+'</tr>'+line(head,'excel-results-header')+'</thead>'
-   +'<tbody>'+(mode==='sheet'?'':shown.map(r=>line(r)).join(''))+'</tbody></table></div>':'')
-   ;
-  setCount(mode==='sheet'?(hits.length?'1/'+hits.length:'0'):String(hits.length),mode==='sheet'&&hits.length>1);
+   +'<tbody>'+hits.map(r=>line(r)).join('')+'</tbody></table></div>':'<p class="excel-results-none">Excel · '+esc(sheet.name)+' — No match</p>';
+  setCount(hits.length+(more?'+':''),false);
   box.dataset.url=file.url;box.dataset.name=file.name;box.dataset.sheet=sheet.name;
-  // 1.1.220 owner (iPhone was slow): the sheet view draws only ~100 rows around the match and adds
-  // more while scrolling up or down, instead of every row of the sheet at once.
-  win=mode==='sheet'?{rows:shown,lo:0,hi:0,line,hit:new Set(hits)}:null;
-  if(mode==='sheet'){fit();go(0);box.querySelector('.excel-results-grid')?.addEventListener('scroll',grow,{passive:true})}
  }
- // 1.1.218 owner: the Excel view hides the products and the sheet fills the screen under the search
- // bar, like the Excel viewer.
+ // The Excel view hides the products and fills the screen under the search bar.
  function full(on){document.body.classList.toggle('excel-sheet-mode',on)}
  function fit(){
-  const grid=box.querySelector('.excel-results-grid');if(!grid)return;
   const bar=document.querySelector('.mobile-search');window.scrollTo(0,bar&&getComputedStyle(bar).position!=='sticky'?bar.getBoundingClientRect().top+window.scrollY-8:0);
   const nav=document.querySelector('.mobile-bottom-nav'),below=nav&&getComputedStyle(nav).display!=='none'?nav.offsetHeight:0;
-  grid.style.maxHeight='none';grid.style.height=Math.max(320,window.innerHeight-grid.getBoundingClientRect().top-below-8)+'px';
+  host.style.height=Math.max(320,window.innerHeight-host.getBoundingClientRect().top-below)+'px';
  }
- const rowsHtml=(a,b)=>win.rows.slice(a,b).map(r=>win.line(r,win.hit.has(r)?'excel-hit':'')).join('');
- function draw(i){const body=box.querySelector('.excel-results-grid tbody');if(!body)return;win.lo=Math.max(0,i-40);win.hi=Math.min(win.rows.length,i+60);body.innerHTML=rowsHtml(win.lo,win.hi)}
- function grow(){
-  const grid=box.querySelector('.excel-results-grid'),body=grid?.querySelector('tbody');if(!win||!body)return;
-  if(grid.scrollTop<300&&win.lo>0){const lo=Math.max(0,win.lo-60),before=grid.scrollHeight;body.insertAdjacentHTML('afterbegin',rowsHtml(lo,win.lo));win.lo=lo;grid.scrollTop+=grid.scrollHeight-before}
-  if(grid.scrollTop+grid.clientHeight>grid.scrollHeight-300&&win.hi<win.rows.length){const hi=Math.min(win.rows.length,win.hi+60);body.insertAdjacentHTML('beforeend',rowsHtml(win.hi,hi));win.hi=hi}
- }
- // Sheet view: mark the current match and bring its row a third of the way down, under the header.
- function go(step){
-  const grid=box.querySelector('.excel-results-grid');if(!grid||!win)return;
-  if(!hits.length){if(!win.hi)draw(0);return}
-  at=(at+step+hits.length)%hits.length;
-  const i=win.rows.indexOf(hits[at]);if(i<win.lo||i>=win.hi)draw(i);
-  grid.querySelector('tr.excel-current')?.classList.remove('excel-current');
-  const row=grid.querySelector('tbody tr[data-excel-row="'+hits[at]+'"]');if(!row)return;row.classList.add('excel-current');
-  const top=grid.querySelector('thead').offsetHeight;grid.scrollTop=Math.max(0,row.offsetTop-top-(grid.clientHeight-top)/3);
-  const cell=row.querySelector('.excel-match');if(cell){const x=cell.offsetLeft-46;if(x<grid.scrollLeft||cell.offsetLeft+cell.offsetWidth>grid.scrollLeft+grid.clientWidth)grid.scrollLeft=Math.max(0,x-8)}
-  counter.textContent=(at+1)+'/'+hits.length;
- }
+ addEventListener('resize',()=>{if(mode==='sheet'&&!box.hidden)fit()});
+ function go(step){if(mode!=='sheet'||box.hidden)return;const v=window.GearHubExcelViewer;if(v)countSheet(v.step(step))}
  // The view choice, in the Excel files panel beside the search bar.
  const help=document.querySelector('.excel-library-help');
  if(help){const pick=document.createElement('div');pick.className='excel-search-setting';
@@ -138,10 +124,13 @@
   paint();help.after(pick);
   pick.addEventListener('click',e=>{const m=e.target.closest('[data-excel-mode]');if(!m)return;mode=m.dataset.excelMode;try{localStorage.setItem(MODE_KEY,mode)}catch{}paint();if(input.value.trim())show()});
  }
- box.addEventListener('click',e=>{
-  // In the sheet view a tap only scrolls; the full viewer opens from the button.
-  const b=e.target.closest(mode==='sheet'?'[data-excel-open]':'tbody [data-excel-row],[data-excel-open]');if(!b)return;window.GearHubExcelViewer?.open(box.dataset.url,box.dataset.name,box.dataset.sheet,input.value.trim(),b.dataset.excelRow===undefined?(mode==='sheet'?hits[at]:undefined):+b.dataset.excelRow)
- });
- input.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(show,mode==='sheet'?450:250)});
+ // "ရှာတာပဲ": a tapped row opens the Excel view at that row.
+ rowsArea.addEventListener('click',e=>{const b=e.target.closest('tbody [data-excel-row]');if(b)window.GearHubExcelViewer?.open(box.dataset.url,box.dataset.name,box.dataset.sheet,input.value.trim(),+b.dataset.excelRow)});
+ input.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(show,300)});
+ // The keyboard's Search key: next match in the Excel view, then the keyboard closes so the sheet shows.
+ input.addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();if(mode==='sheet'&&!box.hidden)go(1);input.blur()});
+ // Speed (1.1.224): the shop's workbook is read in the background once the page is idle, so the first
+ // search answers at once. Skipped when the phone asks to save data.
+ if(!navigator.connection?.saveData)(window.requestIdleCallback||(f=>setTimeout(f,2500)))(()=>workbook(),{timeout:6000});
  if(input.value.trim())show();
 })();
