@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-04 (night) — from Claude (account 2) — open
+## 2026-11-05 — from Claude (account 2) — open
+
+- 1.1.219 (Excel view choice in the files panel; sheet edge to edge) is in a PR. 1.1.218 is live.
+
+## 2026-11-04 (night) — from Claude (account 2) — done
 
 - 1.1.218 (Excel view hides products, sheet fills the screen) is in a PR. 1.1.217 is live.
 

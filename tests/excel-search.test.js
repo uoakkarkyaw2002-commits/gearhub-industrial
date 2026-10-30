@@ -33,3 +33,10 @@ test('1.1.218: the Excel view hides the products and the sheet fills the screen'
  assert.match(js,/if\(q\.length<2\)\{box\.hidden=true;box\.innerHTML='';full\(false\);return\}/,'clearing the search brings the products back');
  assert.match(css,/body\.excel-sheet-mode #products\{display:none!important\}/);
 });
+test('1.1.219: the view choice sits in the Excel files panel; the sheet runs edge to edge',()=>{
+ const js=read('excel-search.js'),css=read('style.css');
+ assert.match(js,/const help=document\.querySelector\('\.excel-library-help'\);/);
+ assert.doesNotMatch(js,/class="excel-results-head"/,'no title/mode row above the sheet');
+ assert.match(css,/\.excel-results\{position:relative;width:100vw;margin-left:calc\(50% - 50vw\);margin-right:calc\(50% - 50vw\)\}/);
+ assert.match(css,/\.excel-sheet-open \.excel-search-setting\{display:none\}/);
+});

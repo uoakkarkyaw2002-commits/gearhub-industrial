@@ -1188,3 +1188,14 @@ body.searching [data-home-content]:not(.mobile-search):not(#catalog),body.search
 /* 1.1.218 owner: in the "Excel လို" view only the search bar and the sheet show. */
 body.excel-sheet-mode #products{display:none!important}
 body.excel-sheet-mode .excel-results{margin-top:8px}
+/* 1.1.219 owner: the sheet runs edge to edge (no side gaps, no outer frame), like Excel. The view
+   choice sits in the Excel files panel. */
+.excel-results{position:relative;width:100vw;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw)}
+.excel-results .excel-results-grid{border:0;border-top:1px solid #c7c7c7;border-bottom:1px solid #c7c7c7;border-radius:0}
+.excel-results-bar{position:absolute;top:0;right:0;z-index:6;margin:0;padding:2px 6px;gap:6px;background:#f3f3f3;border-left:1px solid #d4d4d4;height:28px;box-sizing:border-box}
+.excel-results-bar button{width:32px;height:24px;border-radius:6px;font-size:15px;line-height:1}
+.excel-results-bar .excel-results-count{font-size:12px}
+.excel-results-none{margin:0 16px;color:var(--muted,#66756c)}
+.excel-results-open{width:calc(100% - 30px);margin:10px 15px 0}
+.excel-search-setting{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:0 0 14px;font-size:14px;font-weight:600}
+.excel-sheet-open .excel-search-setting{display:none}

@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.219: Excel view choice moved into the files panel; sheet edge to edge (Claude)
+- Owner: move "Excel · BC / ရှာတာပဲ / Excel လို" into the folder (Excel files) panel beside the search bar; the sheet must have no side gaps or outer frame, one piece like Excel. `excel-search.js`: the choice is a "ရှာရင် Excel ပြပုံ / Search shows" row injected after `.excel-library-help` (hidden while a workbook is open); the page shows only the grid (Excel view: count + ˄ ˅ sit on the right of the letters row). `style.css`: `.excel-results` is 100vw wide (calc(50% - 50vw) margins), grid has only top/bottom lines.
+- Checked: Chrome 375 and 1280 — grid 0→viewport width, page has no sideways scroll, setting switches the view, count 1 / 4, products hidden in the Excel view; no errors. Node 22 check + 378/378.
+
 ### 1.1.218: "Excel လို" view hides the products and fills the screen (Claude)
 - Owner: in the Excel view the products must go; it must look fully like Excel. `excel-search.js`: body class `excel-sheet-mode` while the sheet view shows (removed when the search is cleared or in "ရှာတာပဲ"); `fit()` scrolls the search bar to the top and sizes the grid to the rest of the screen above the bottom nav and the Open button. `style.css` hides `#products` in that mode.
 - Checked: Chrome 375 (grid 164→658 of 812) and 1280 (172→729 of 800); rows view keeps products; clearing restores them; no page sideways scroll; no errors. Node 22 check + 377/377.
