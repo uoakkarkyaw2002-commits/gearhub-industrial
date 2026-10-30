@@ -24,6 +24,12 @@ test('1.1.217: two views — matching rows only, or the whole sheet that jumps t
  assert.match(js,/data-excel-mode="rows"[^]*ရှာတာပဲ[^]*data-excel-mode="sheet"[^]*Excel လို/);
  assert.match(js,/const MODE_KEY='gh-excel-search-mode'/,'the chosen view is remembered');
  assert.match(js,/data-excel-step="-1"[^]*data-excel-step="1"/);
- assert.match(js,/if\(mode==='sheet'\)go\(0\);/);
+ assert.match(js,/if\(mode==='sheet'\)\{fit\(\);go\(0\)\}/);
  assert.match(js,/if\(f\.sz\)out\.push\('font-size:'\+f\.sz\+'pt'\)/,'the file font size (bigger, like Excel)');
+});
+test('1.1.218: the Excel view hides the products and the sheet fills the screen',()=>{
+ const js=read('excel-search.js'),css=read('style.css');
+ assert.match(js,/box\.hidden=false;full\(mode==='sheet'\);/);
+ assert.match(js,/if\(q\.length<2\)\{box\.hidden=true;box\.innerHTML='';full\(false\);return\}/,'clearing the search brings the products back');
+ assert.match(css,/body\.excel-sheet-mode #products\{display:none!important\}/);
 });
