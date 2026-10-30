@@ -107,9 +107,9 @@
  }
  const colIndex=ref=>{let n=0;for(const ch of ref.replace(/[0-9]/g,''))n=n*26+ch.charCodeAt(0)-64;return n-1};
  const colName=i=>{let s='';i++;while(i>0){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26)}return s};
- async function readSheet(sheet){
+ async function readSheet(sheet,from=book){
   if(sheet.cells)return sheet;
-  const doc=xml(await book.read(sheet.path)),cells=new Map();let maxR=0,maxC=0;
+  const doc=xml(await from.read(sheet.path)),cells=new Map();let maxR=0,maxC=0;
   const fmt=one(doc,'sheetFormatPr'),defW=+(fmt?.getAttribute('defaultColWidth')||((+(fmt?.getAttribute('baseColWidth')||8))+0.71)),defH=+(fmt?.getAttribute('defaultRowHeight')||15);
   const widths={};all(doc,'col').forEach(c=>{for(let i=+c.getAttribute('min');i<=+c.getAttribute('max')&&i<=Math.min(MAX_COLS,+c.getAttribute('min')+1000);i++)widths[i-1]=c.getAttribute('hidden')==='1'?0:+c.getAttribute('width')});
   const heights={};
@@ -118,9 +118,9 @@
    if(row.getAttribute('hidden')==='1')heights[r]=0;else if(row.getAttribute('ht'))heights[r]=+row.getAttribute('ht');
    for(const c of kids(row,'c')){
     const ci=colIndex(c.getAttribute('r')||'A1');if(ci>=MAX_COLS)continue;
-    const type=c.getAttribute('t'),raw=one(c,'v')?.textContent??'',style=book.xfs[+(c.getAttribute('s')||0)]||{fmt:'General',font:{},border:{}};
+    const type=c.getAttribute('t'),raw=one(c,'v')?.textContent??'',style=from.xfs[+(c.getAttribute('s')||0)]||{fmt:'General',font:{},border:{}};
     let text='';
-    if(type==='s')text=book.shared[+raw]??'';else if(type==='inlineStr')text=all(c,'t').map(t=>t.textContent).join('');else if(type==='str'||type==='e')text=raw;else if(type==='b')text=raw==='1'?'TRUE':'FALSE';else if(raw!=='')text=formatNumber(+raw,style.fmt);
+    if(type==='s')text=from.shared[+raw]??'';else if(type==='inlineStr')text=all(c,'t').map(t=>t.textContent).join('');else if(type==='str'||type==='e')text=raw;else if(type==='b')text=raw==='1'?'TRUE':'FALSE';else if(raw!=='')text=formatNumber(+raw,style.fmt);
     const numeric=!type||type==='n';
     if(text===''&&!style.fill&&!Object.values(style.border||{}).some(Boolean))continue;
     cells.set(r+','+ci,{text,style,numeric:numeric&&raw!=='',value:numeric&&raw!==''?+raw:type==='b'?raw==='1':text});
@@ -546,16 +546,17 @@
   return{sheets:[{name:'Sheet1',cells,merges:new Map(),covered:new Set(),widths:{},heights:{},defW:12,defH:15,maxR:rows.length-1,maxC,tab:''}]};
  }
  function setForm(hide){const form=document.getElementById('excel-upload-form');if(!form)return;if(hide){if(!form.dataset.wasHidden)form.dataset.wasHidden=String(form.hidden);form.hidden=true}else if(form.dataset.wasHidden){form.hidden=form.dataset.wasHidden==='true';delete form.dataset.wasHidden}}
- box.addEventListener('click',async e=>{
-  const b=e.target.closest('[data-excel-preview]');if(!b)return;
+ // sheetName (1.1.215): open that sheet first when the workbook has it (Search → Excel rows).
+ async function openBook(b,sheetName){
   section.hidden=false;box.hidden=true;setForm(true);card.classList.add('excel-sheet-open');fullScreen(true);title.textContent=b.dataset.excelName||'Spreadsheet';grid.innerHTML='';tabs.innerHTML='';sheetList.hidden=true;panel.hidden=true;msg.textContent='Loading…';out.textContent='';
   try{
    const blob=await (await fetch(b.dataset.excelPreview)).blob(),name=b.dataset.excelName||'';
    if(/\.csv$/i.test(name))book=csvBook(await blob.text());else if(/\.xls[xm]$/i.test(name))book=await readBook(await blob.arrayBuffer());else throw Error('Preview supports .xlsx, .xlsm and .csv. Old .xls files can only be downloaded.');
    if(!book.sheets.length)throw Error('This workbook has no visible sheets.');
-   owner=await access();await showSheet(0);
-  }catch(x){msg.textContent=x.message}
- });
+   owner=await access();const want=String(sheetName||'').trim().toLowerCase(),at=want?book.sheets.findIndex(s=>s.name.trim().toLowerCase()===want):-1;await showSheet(Math.max(0,at));return true;
+  }catch(x){msg.textContent=x.message;return false}
+ }
+ box.addEventListener('click',e=>{const b=e.target.closest('[data-excel-preview]');if(b)openBook(b)});
  tabs.addEventListener('click',e=>{if(e.target.closest('[data-sheet-menu]'))return sheetListOpen(true);const t=e.target.closest('[data-sheet]');if(t)showSheet(+t.dataset.sheet)});
  // Two fingers pinch the sheet bigger or smaller (the page itself would only zoom in). The table is
  // scaled live while pinching and drawn again at the new size when the fingers lift.
@@ -574,6 +575,12 @@
  // Search like Google Sheets: every row stays; the matching cell is selected and scrolled into view,
  // and the arrows (or Enter / Shift+Enter) go to the next or previous match.
  search.addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{searchText=search.value;find(0)},150)});
+ // 1.1.215 owner: a shop search also lists the matching Excel rows (public/excel-search.js); it reads a
+ // sheet here and opens this viewer on that sheet with the same search.
+ window.GearHubExcelViewer={
+  async sheet(url,sheetName){const b=await readBook(await (await fetch(url)).arrayBuffer()),want=String(sheetName||'').trim().toLowerCase(),s=b.sheets.find(x=>x.name.trim().toLowerCase()===want)||b.sheets[0];return s?readSheet(s,b):null},
+  async open(url,name,sheetName,query,row){document.getElementById('excel-library-open')?.click();if(await openBook({dataset:{excelPreview:url,excelName:name}},sheetName)&&query){search.value=query;searchText=query;find(0);const k=found.findIndex(([r])=>r===row);if(k>0){foundAt=k-1;find(1)}}}
+ };
  search.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();find(e.shiftKey?-1:1)}});
  section.querySelector('#excel-find-prev').addEventListener('click',()=>find(-1));
  section.querySelector('#excel-find-next').addEventListener('click',()=>find(1));

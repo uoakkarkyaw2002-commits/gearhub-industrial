@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-03 (night) — from Claude (account 2) — open
+## 2026-11-04 — from Claude (account 2) — open
+
+- 1.1.215 (search lists matching Excel rows from sheet BC under the products) is in a PR. 1.1.213/1.1.214 confirmed by the owner on iPhone.
+
+## 2026-11-03 (night) — from Claude (account 2) — done
 
 - 1.1.214 (searching shows only the search bar + products) is in a PR. Owner was re-adding POLESTAR from its Home page (1.1.213) — not confirmed yet.
 

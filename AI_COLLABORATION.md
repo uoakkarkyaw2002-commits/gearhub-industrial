@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.215: Search also lists Excel rows (sheet BC) (Claude)
+- Owner (POLESTAR): when searching, show the Excel file under the products; default sheet "BC". New `public/excel-search.js` (seller shops only): reads the first .xlsx/.xlsm that has a sheet named BC (else the first file's first sheet) once per page through `window.GearHubExcelViewer.sheet()`, lists up to 30 matching rows (hidden rows/columns skipped; column names = first row with 2+ filled cells) under `#products`; a row or "Open in Excel" opens the viewer on that sheet with the same search, at that row. `excel-map.js`: the file-open click is now `openBook(b,sheetName)`; `readSheet(sheet,from=book)` no longer uses the global book; `window.GearHubExcelViewer={sheet,open}`.
+- Checked: demo shop with a 2-sheet workbook (INV, BC), Chrome 375/1280: "monitor" → 2 BC rows; tapping row 2 → viewer on BC, "2 found", row 3 selected; folder button → file → INV, switching to BC still works; no page errors. Node 22 check + 374/374. Not checked with the real POLESTAR workbook (size/speed).
+
 ### 1.1.214: Searching shows only products (Claude)
 - Owner (POLESTAR, iPhone): typing in the search bar left the banner, categories and catalog heading between the bar and the results. `store.js` renderProducts toggles `body.searching` when the search box has text; `style.css` hides every `[data-home-content]` except `.mobile-search` and `#catalog`, plus the catalog heading, filters and the Policies line.
 - Checked: Chrome 375 and 1280 — hidden while typing, all back when cleared, no page errors. Node 22 check + 373/373.

@@ -1161,3 +1161,12 @@ html.photo-scanner-open,html.photo-scanner-open body{overflow:hidden}
 .footer-logo[hidden]{display:none!important}
 /* 1.1.214 owner: while searching, only the search bar and the matching products show. */
 body.searching [data-home-content]:not(.mobile-search):not(#catalog),body.searching nav[aria-label="Policies"],body.searching #catalog .section-head,body.searching #catalog .filters{display:none!important}
+/* 1.1.215 owner: matching Excel rows (sheet BC) under the search results. */
+.excel-results{margin:18px 0 8px}.excel-results[hidden]{display:none}
+.excel-results-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 2px 10px}
+.excel-results-head h3{margin:0;font-size:18px}.excel-results-head span{color:var(--muted,#66756c);font-size:14px}
+.excel-result{display:flex;gap:10px;width:100%;margin:0 0 8px;padding:10px 12px;border:1px solid #dfe7e1;border-radius:14px;background:#fff;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.excel-result-row{flex:none;min-width:40px;color:#1a73e8;font-weight:700;font-size:13px}
+.excel-result-cells{display:flex;flex-wrap:wrap;gap:4px 14px;min-width:0;font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+.excel-result-cells small{display:block;color:var(--muted,#66756c);font-size:11px;text-transform:uppercase;letter-spacing:.3px}
+.excel-results-open{display:block;width:100%;margin-top:4px;padding:12px;border:0;border-radius:14px;background:#1e7a3c;color:#fff;font:inherit;font-weight:700;cursor:pointer}
