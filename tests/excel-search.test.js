@@ -19,3 +19,11 @@ test('1.1.216: Excel rows are drawn like the sheet (letters, row numbers, header
  assert.match(css,/\.excel-results-grid tr>th:first-child\{position:sticky;left:0;z-index:1\}/);
  assert.match(css,/\.excel-results-grid thead tr>th:first-child\{z-index:4\}/);
 });
+test('1.1.217: two views — matching rows only, or the whole sheet that jumps to each match',()=>{
+ const js=read('excel-search.js');
+ assert.match(js,/data-excel-mode="rows"[^]*ရှာတာပဲ[^]*data-excel-mode="sheet"[^]*Excel လို/);
+ assert.match(js,/const MODE_KEY='gh-excel-search-mode'/,'the chosen view is remembered');
+ assert.match(js,/data-excel-step="-1"[^]*data-excel-step="1"/);
+ assert.match(js,/if\(mode==='sheet'\)go\(0\);/);
+ assert.match(js,/if\(f\.sz\)out\.push\('font-size:'\+f\.sz\+'pt'\)/,'the file font size (bigger, like Excel)');
+});

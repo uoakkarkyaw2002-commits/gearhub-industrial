@@ -1166,13 +1166,22 @@ body.searching [data-home-content]:not(.mobile-search):not(#catalog),body.search
 .excel-results-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 2px 10px}
 .excel-results-head h3{margin:0;font-size:18px}.excel-results-head span{color:var(--muted,#66756c);font-size:14px}
 .excel-results-grid{max-height:70vh;overflow:auto;border:1px solid #c7c7c7;border-radius:8px;background:#fff;-webkit-overflow-scrolling:touch}
-.excel-results-grid table{border-collapse:separate;border-spacing:0;table-layout:fixed;width:max-content;font:14px/1.3 Calibri,"Segoe UI",system-ui,sans-serif;color:#000}
-.excel-results-grid th,.excel-results-grid td{height:30px;padding:3px 5px;border-right:1px solid #d4d4d4;border-bottom:1px solid #d4d4d4;overflow:hidden;white-space:nowrap;text-overflow:clip;vertical-align:middle;box-sizing:border-box}
+.excel-results-grid table{border-collapse:separate;border-spacing:0;table-layout:fixed;width:max-content;font:16px/1.3 Calibri,"Segoe UI",system-ui,sans-serif;color:#000}
+.excel-results-grid th,.excel-results-grid td{padding:3px 6px;border-right:1px solid #d4d4d4;border-bottom:1px solid #d4d4d4;overflow:hidden;white-space:nowrap;text-overflow:clip;vertical-align:middle;box-sizing:border-box}
 .excel-results-grid th{background:#f3f3f3;color:#555;font-weight:400;font-size:12px;text-align:center}
 .excel-results-grid tr>th:first-child{position:sticky;left:0;z-index:1}
-.excel-results-letters th{position:sticky;top:0;z-index:2;height:26px}.excel-results-letters th:first-child{z-index:3}
-.excel-results-header td,.excel-results-header th{position:sticky;top:26px;z-index:2}.excel-results-header th{z-index:3}
+.excel-results-letters th{position:sticky;top:0;z-index:2;height:28px}.excel-results-letters th:first-child{z-index:3}
+.excel-results-header td,.excel-results-header th{position:sticky;top:28px;z-index:2}.excel-results-header th{z-index:3}
 .excel-results-header td{background-color:#fff}
 .excel-results-grid thead tr>th:first-child{z-index:4}
 .excel-results-grid tbody tr{cursor:pointer}.excel-results-grid tbody tr:active td{filter:brightness(.94)}
 .excel-results-open{display:block;width:100%;margin-top:10px;padding:12px;border:0;border-radius:14px;background:#1e7a3c;color:#fff;font:inherit;font-weight:700;cursor:pointer}
+/* 1.1.217 owner: "ရှာတာပဲ" (matching rows) / "Excel လို" (whole sheet, jumps to the match). */
+.excel-results-modes{display:inline-flex;padding:3px;border-radius:12px;background:#e8eee9}
+.excel-results-modes button{padding:7px 12px;border:0;border-radius:9px;background:none;color:#3c4b42;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.excel-results-modes button[aria-pressed="true"]{background:#fff;color:#14261c;box-shadow:0 1px 3px #0002}
+.excel-results-bar{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:0 2px 8px;color:var(--muted,#66756c);font-size:14px}
+.excel-results-bar button{width:40px;height:34px;border:1px solid #d5ddd7;border-radius:10px;background:#fff;color:#14261c;font-size:18px;cursor:pointer}
+.excel-results-sheet .excel-hit>th{background:#d3e3fd;color:#1a73e8}
+.excel-results-sheet .excel-current .excel-match{box-shadow:inset 0 0 0 2px #1a73e8}
+.excel-results-sheet tbody tr{cursor:default}
