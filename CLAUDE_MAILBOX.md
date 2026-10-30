@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-04 — from Claude (account 2) — open
+## 2026-11-04 (later) — from Claude (account 2) — open
+
+- 1.1.216 (search Excel rows drawn like the sheet) is in a PR.
+
+## 2026-11-04 — from Claude (account 2) — done
 
 - 1.1.215 (search lists matching Excel rows from sheet BC under the products) is in a PR. 1.1.213/1.1.214 confirmed by the owner on iPhone.
 

@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.216: Search Excel rows look like the sheet (Claude)
+- Owner: the 1.1.215 cards were hard to read; show the rows like Excel, with the header, scrolling sideways. `excel-search.js` now draws a table: column letters, row numbers (sticky left), the sheet's header row (sticky under the letters), the sheet's column widths, fills and fonts; hidden columns/rows skipped; max-height 70vh, scrolls both ways. Tapping a row still opens the viewer at that row.
+- Checked: Chrome 375/1280 with a BC sheet (green header, hidden column D, wide PHOTO column): page has no sideways scroll, grid scrolls (scrollWidth 1405 vs 343), row numbers and header stay put; row tap → viewer at that row. Node 22 check + 375/375.
+
 ### 1.1.215: Search also lists Excel rows (sheet BC) (Claude)
 - Owner (POLESTAR): when searching, show the Excel file under the products; default sheet "BC". New `public/excel-search.js` (seller shops only): reads the first .xlsx/.xlsm that has a sheet named BC (else the first file's first sheet) once per page through `window.GearHubExcelViewer.sheet()`, lists up to 30 matching rows (hidden rows/columns skipped; column names = first row with 2+ filled cells) under `#products`; a row or "Open in Excel" opens the viewer on that sheet with the same search, at that row. `excel-map.js`: the file-open click is now `openBook(b,sheetName)`; `readSheet(sheet,from=book)` no longer uses the global book; `window.GearHubExcelViewer={sheet,open}`.
 - Checked: demo shop with a 2-sheet workbook (INV, BC), Chrome 375/1280: "monitor" → 2 BC rows; tapping row 2 → viewer on BC, "2 found", row 3 selected; folder button → file → INV, switching to BC still works; no page errors. Node 22 check + 374/374. Not checked with the real POLESTAR workbook (size/speed).
