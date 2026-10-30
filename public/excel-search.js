@@ -45,8 +45,10 @@
   const td=(r,c)=>{const cell=sheet.cells.get(r+','+c);return '<td'+(r!==head&&has(r,c)?' class="excel-match"':'')+' style="'+esc(css(cell))+'">'+esc(text(sheet,r,c))+'</td>'};
   const line=(r,cls)=>'<tr'+(cls?' class="'+cls+'"':'')+' data-excel-row="'+r+'" style="height:'+height(r)+'px"><th>'+(r+1)+'</th>'+cols.map(c=>td(r,c)).join('')+'</tr>';
   const count=mode==='sheet'?(hits.length?'1 / '+hits.length:'No match'):(hits.length?Math.min(hits.length,LIMIT)+(hits.length>LIMIT?'+':'')+' rows':'No match');
-  box.innerHTML='<div class="excel-results-head"><h3>Excel · '+esc(sheet.name)+'</h3><div class="excel-results-modes" role="group" aria-label="View"><button type="button" data-excel-mode="rows" aria-pressed="'+(mode==='rows')+'">ရှာတာပဲ</button><button type="button" data-excel-mode="sheet" aria-pressed="'+(mode==='sheet')+'">Excel လို</button></div></div>'
-   +'<div class="excel-results-bar"><span class="excel-results-count">'+count+'</span>'+(mode==='sheet'&&hits.length>1?'<button type="button" data-excel-step="-1" aria-label="Previous match">˄</button><button type="button" data-excel-step="1" aria-label="Next match">˅</button>':'')+'</div>'
+  // 1.1.219 owner: the view choice lives in the Excel files panel (folder button); the page keeps only
+  // the sheet, edge to edge, with the match count and ˄ ˅ on it in the Excel view.
+  box.innerHTML=(mode==='sheet'?'<div class="excel-results-bar"><span class="excel-results-count">'+count+'</span>'+(hits.length>1?'<button type="button" data-excel-step="-1" aria-label="Previous match">˄</button><button type="button" data-excel-step="1" aria-label="Next match">˅</button>':'')+'</div>':'')
+   +(mode==='rows'&&!hits.length?'<p class="excel-results-none">Excel · '+esc(sheet.name)+' — No match</p>':'')
    +(shown.length&&(mode==='sheet'||hits.length)?'<div class="excel-results-grid'+(mode==='sheet'?' excel-results-sheet':'')+'"><table><colgroup><col style="width:46px">'+cols.map(c=>'<col style="width:'+width(c)+'px">').join('')+'</colgroup>'
    +'<thead><tr class="excel-results-letters"><th></th>'+cols.map(c=>'<th>'+letter(c)+'</th>').join('')+'</tr>'+line(head,'excel-results-header')+'</thead>'
    +'<tbody>'+shown.map(r=>line(r,mode==='sheet'&&hits.includes(r)?'excel-hit':'')).join('')+'</tbody></table></div>':'')
@@ -73,8 +75,14 @@
   const cell=row.querySelector('.excel-match');if(cell){const x=cell.offsetLeft-46;if(x<grid.scrollLeft||cell.offsetLeft+cell.offsetWidth>grid.scrollLeft+grid.clientWidth)grid.scrollLeft=Math.max(0,x-8)}
   const count=box.querySelector('.excel-results-count');if(count)count.textContent=(at+1)+' / '+hits.length;
  }
+ // The view choice, in the Excel files panel beside the search bar.
+ const help=document.querySelector('.excel-library-help');
+ if(help){const pick=document.createElement('div');pick.className='excel-search-setting';
+  const paint=()=>{pick.innerHTML='<span>ရှာရင် Excel ပြပုံ / Search shows</span><div class="excel-results-modes" role="group" aria-label="Search view"><button type="button" data-excel-mode="rows" aria-pressed="'+(mode==='rows')+'">ရှာတာပဲ</button><button type="button" data-excel-mode="sheet" aria-pressed="'+(mode==='sheet')+'">Excel လို</button></div>'};
+  paint();help.after(pick);
+  pick.addEventListener('click',e=>{const m=e.target.closest('[data-excel-mode]');if(!m)return;mode=m.dataset.excelMode;try{localStorage.setItem(MODE_KEY,mode)}catch{}paint();if(input.value.trim())show()});
+ }
  box.addEventListener('click',e=>{
-  const m=e.target.closest('[data-excel-mode]');if(m){mode=m.dataset.excelMode;try{localStorage.setItem(MODE_KEY,mode)}catch{}show();return}
   const st=e.target.closest('[data-excel-step]');if(st){go(+st.dataset.excelStep);return}
   // In the sheet view a tap only scrolls; the full viewer opens from the button.
   const b=e.target.closest(mode==='sheet'?'[data-excel-open]':'tbody [data-excel-row],[data-excel-open]');if(!b)return;window.GearHubExcelViewer?.open(box.dataset.url,box.dataset.name,box.dataset.sheet,input.value.trim(),b.dataset.excelRow===undefined?(mode==='sheet'?hits[at]:undefined):+b.dataset.excelRow)
