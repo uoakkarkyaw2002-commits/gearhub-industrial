@@ -30,7 +30,7 @@ test('1.1.217: two views — matching rows only, or the whole sheet that jumps t
 test('1.1.218: the Excel view hides the products and the sheet fills the screen',()=>{
  const js=read('excel-search.js'),css=read('style.css');
  assert.match(js,/box\.hidden=false;full\(mode==='sheet'\);/);
- assert.match(js,/if\(q\.length<2\)\{box\.hidden=true;box\.innerHTML='';full\(false\);return\}/,'clearing the search brings the products back');
+ assert.match(js,/if\(q\.length<2\)\{box\.hidden=true;box\.innerHTML='';full\(false\);/,'clearing the search brings the products back');
  assert.match(css,/body\.excel-sheet-mode #products\{display:none!important\}/);
 });
 test('1.1.219: the view choice sits in the Excel files panel; the sheet runs edge to edge',()=>{
@@ -45,4 +45,12 @@ test('1.1.220: the sheet view draws only the rows near the match and grows while
  assert.match(js,/function draw\(i\)\{[^\n]*win\.lo=Math\.max\(0,i-40\);win\.hi=Math\.min\(win\.rows\.length,i\+60\)/);
  assert.match(js,/addEventListener\('scroll',grow,\{passive:true\}\)/);
  assert.match(js,/'<tbody>'\+\(mode==='sheet'\?'':/,'the whole sheet is never put in the page at once');
+});
+test('1.1.221: searching makes the bar full width with the count, ˄ ˅ and a bin; no Open in Excel button',()=>{
+ const js=read('excel-search.js'),css=read('style.css');
+ assert.match(js,/class="search-clear" aria-label="Clear search"/);
+ assert.match(js,/input\.value='';input\.dispatchEvent\(new Event\('input',\{bubbles:true\}\)\)/);
+ assert.doesNotMatch(js,/excel-results-open/);
+ assert.match(css,/body\.searching \.search-pill \.photo-scan-button,body\.searching \.excel-folder-button\{display:none\}/);
+ assert.match(css,/\.mobile-search \.search-pill\{height:56px;[^}]*border:2px solid #1f7a35/);
 });
