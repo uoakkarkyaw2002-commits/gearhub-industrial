@@ -1,7 +1,7 @@
 /* 1.1.212 owner: inside an installed app (Home Screen / Play), opening another shop (GearHub app →
    POLESTAR) mixed the two. The first page an app session opens is that app's own place; on another
-   shop the robot asks to add that shop as its own app (Safari / Chrome opens its admin with the install
-   helper). "I have it" stops asking for that shop. Nothing is sent to the server. */
+   shop the robot asks to add that shop as its own app (Safari / Chrome opens its Home page with the
+   install helper, so the app has the shop's name and logo and opens on its Home page, 1.1.213). "I have it" stops asking for that shop. Nothing is sent to the server. */
 (()=>{
  const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;if(!standalone)return;
  const match=location.pathname.match(/^\/shops\/([^/]+)(?:\/|$)/),here=match?decodeURIComponent(match[1]):'';
@@ -12,7 +12,7 @@
  const name=(document.title.trim().replace(/\s*Admin$/,'')||here).slice(0,40);
  const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
  const ua=navigator.userAgent,ios=/iphone|ipad|ipod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),android=/android/i.test(ua);
- const path='/shops/'+encodeURIComponent(here)+'/admin?welcome=1',link=location.origin+path;
+ const path='/shops/'+encodeURIComponent(here)+'/?install=1',link=location.origin+path;
  // iPhone: x-safari-https opens Safari (iOS 17+); Android: open the page in Chrome.
  const open=ios?'x-safari-https://'+location.host+path:android?'intent://'+location.host+path+'#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent(link)+';end':link;
  const style=document.createElement('style');

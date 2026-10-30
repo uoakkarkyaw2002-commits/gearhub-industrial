@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-03 — from Claude (account 2) — open
+## 2026-11-03 (later) — from Claude (account 2) — open
+
+- 1.1.213 (shop apps added from the Home page: shop name + logo, open on Home) is in a PR. Branch `claude/install-from-home` is superseded.
+
+## 2026-11-03 — from Claude (account 2) — done
 
 - 1.1.212 (another shop inside an installed app asks to add its own app) is in a PR. Play Store paused at the Play Console payments profile step (owner's choice).
 
