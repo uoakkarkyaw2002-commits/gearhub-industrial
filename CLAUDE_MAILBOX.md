@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-03 (later) — from Claude (account 2) — open
+## 2026-11-03 (night) — from Claude (account 2) — open
+
+- 1.1.214 (searching shows only the search bar + products) is in a PR. Owner was re-adding POLESTAR from its Home page (1.1.213) — not confirmed yet.
+
+## 2026-11-03 (later) — from Claude (account 2) — done
 
 - 1.1.213 (shop apps added from the Home page: shop name + logo, open on Home) is in a PR. Branch `claude/install-from-home` is superseded.
 

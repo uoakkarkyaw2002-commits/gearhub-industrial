@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.214: Searching shows only products (Claude)
+- Owner (POLESTAR, iPhone): typing in the search bar left the banner, categories and catalog heading between the bar and the results. `store.js` renderProducts toggles `body.searching` when the search box has text; `style.css` hides every `[data-home-content]` except `.mobile-search` and `#catalog`, plus the catalog heading, filters and the Policies line.
+- Checked: Chrome 375 and 1280 — hidden while typing, all back when cleared, no page errors. Node 22 check + 373/373.
+
 ### 1.1.213: Shop apps are added from the shop Home page (Claude)
 - Owner (iPhone): the app added from the admin was "POLESTAR Admin" with a "P" icon and opened the admin; they want "POLESTAR" with the logo, opening the Home page. The paused `claude/install-from-home` helper is now in: on `/shops/<slug>/admin` the robot only says "Go to Home page" (→ `/shops/<slug>/?install=1`); on the Home page the steps open only with `?install=1` (customers never see it). `app-switch.js` "Add app" now opens `/shops/<slug>/?install=1` too. index.html loads install-guide.css/js; tags 1.1.213 in index/admin/platform/sw.
 - Checked: Chrome 375 (iPhone UA): admin welcome → Go to Home page → Home with the 4 Safari steps; plain customer visit → no helper; standalone other-shop sheet → `x-safari-https://…/?install=1`; store page title/apple-touch-icon/manifest are the shop's. Node 22 check + 372/372. Old apps keep their install-time name/icon: delete "POLESTAR Admin" and add again from the Home page.

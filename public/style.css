@@ -1159,3 +1159,5 @@ html.photo-scanner-open,html.photo-scanner-open body{overflow:hidden}
 .hero.seller-nav-hero:not(.store-view-hidden){display:flex!important}
 /* 1.1.207 owner: a seller shop without a logo shows no gear in the footer. */
 .footer-logo[hidden]{display:none!important}
+/* 1.1.214 owner: while searching, only the search bar and the matching products show. */
+body.searching [data-home-content]:not(.mobile-search):not(#catalog),body.searching nav[aria-label="Policies"],body.searching #catalog .section-head,body.searching #catalog .filters{display:none!important}
