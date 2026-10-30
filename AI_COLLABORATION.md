@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.212: Another shop inside an installed app asks for its own app (Claude)
+- Owner (iPhone): inside the installed GearHub app, opening POLESTAR showed POLESTAR under the GearHub app. Now `public/app-switch.js` (loaded by index.html, admin.html, platform.html; in sw.js SHELL) runs only in standalone mode: the first page of an app session sets sessionStorage `gh-app-home` (shop slug, '' for GearHub); on another shop a sheet asks to add that shop's own app. "Add app" opens Safari (`x-safari-https://`, iOS 17+) or Chrome (intent) at `/shops/<slug>/admin?welcome=1` (existing install helper); "Copy link"; "I have it" (localStorage `gh-app-own:<slug>`); "Not now" (asked once per session). iPhone cannot tell whether an app is installed, hence "I have it".
+- Checked: Chrome 375 with navigator.standalone faked: GearHub start → other shop asks; Not now + reload → not again; app started on its own shop → no sheet; no page errors. Node 22 check + 371/371. Not checked on a real iPhone.
+
 ### 1.1.211: Play Store upload key in assetlinks.json (Claude)
 - Owner built the Android package on pwabuilder.com (package `com.skyshopmm.app`) and sent its assetlinks.json. Its SHA-256 (upload key) is now always in `/.well-known/assetlinks.json` (`server.js`); `ANDROID_SHA256` only needs Google's App signing key after the first Play upload. The owner keeps `signing.keystore` + `signing-key-info.txt` (never in this public repo).
 
