@@ -1210,11 +1210,11 @@ body.excel-sheet-mode .excel-results{margin-top:8px}
 .excel-folder-button{width:56px;height:56px;border-radius:18px;border-color:#eef2ef;box-shadow:0 6px 18px rgba(18,38,28,.10)}
 .excel-folder-button svg{width:30px;height:30px}
 .search-tools{display:none;flex:none;align-items:center;gap:2px}
-body.searching .search-tools{display:flex}
-body.searching .search-pill .photo-scan-button,body.searching .excel-folder-button{display:none}
+body.searching .search-tools{display:contents}
+body.searching .excel-folder-button{display:none}
 .search-count{padding:0 4px;color:#5f6b64;font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .search-count:empty{display:none}
-.search-tools button{display:grid;place-items:center;width:38px;height:38px;padding:0;border:0;border-radius:50%;background:none;color:#3c4740;cursor:pointer}
+.search-tools button{flex:none;display:grid;place-items:center;width:38px;height:38px;padding:0;border:0;border-radius:50%;background:none;color:#3c4740;cursor:pointer}
 .search-tools button[hidden]{display:none}
 .search-tools button:active{background:#eef3ef}
 .search-tools svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -1226,3 +1226,6 @@ body.searching .search-pill .photo-scan-button,body.searching .excel-folder-butt
  html:has(body.searching.excel-sheet-mode),body.searching.excel-sheet-mode{overflow:hidden}
  body.searching .mobile-search{position:sticky;top:0;z-index:8;margin-top:0;padding-top:calc(10px + env(safe-area-inset-top));padding-bottom:10px;background:var(--paper,#f5f7f1)}
 }
+/* 1.1.222 owner: the camera (photo scan) stays in the bar while searching, before the bin. */
+.search-pill .search-count{order:1}.search-pill .search-step{order:2}.search-pill .photo-scan-button{order:3}.search-pill .search-clear{order:4}
+@media(max-width:360px){.search-tools button{width:32px}.search-pill .photo-scan-button{width:32px}}

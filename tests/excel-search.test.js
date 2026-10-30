@@ -51,7 +51,7 @@ test('1.1.221: searching makes the bar full width with the count, ˄ ˅ and a bi
  assert.match(js,/class="search-clear" aria-label="Clear search"/);
  assert.match(js,/input\.value='';input\.dispatchEvent\(new Event\('input',\{bubbles:true\}\)\)/);
  assert.doesNotMatch(js,/excel-results-open/);
- assert.match(css,/body\.searching \.search-pill \.photo-scan-button,body\.searching \.excel-folder-button\{display:none\}/);
+ assert.match(css,/body\.searching \.excel-folder-button\{display:none\}/);assert.doesNotMatch(css,/body\.searching \.search-pill \.photo-scan-button[^{]*\{display:none/,'the camera stays while searching');
  assert.match(css,/\.mobile-search \.search-pill\{height:56px;[^}]*border:2px solid #1f7a35/);
 });
 test('1.1.222: on phones searching hides the banner and bottom navigation; the bar sits at the top',()=>{

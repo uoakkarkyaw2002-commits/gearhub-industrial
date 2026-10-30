@@ -31,7 +31,7 @@ _None._
 ## Handoff entries (newest first)
 
 ### 1.1.222: Searching hides the banner and bottom nav; bar at the top (Claude)
-- Owner (iPhone): while searching, hide the bottom navigation and the top banner and keep the search bar at the very top. `style.css` (≤850px): `body.searching` hides `.home-navigation`, `.announcement`, `.mobile-bottom-nav`; `.mobile-search` is sticky at top 0 (safe-area padding); in the Excel view the page itself does not scroll (`html:has(...)`/body overflow hidden), only the sheet. `excel-search.js` fit() no longer scrolls the page when the bar is sticky. PC unchanged.
+- Owner (iPhone): while searching, hide the bottom navigation and the top banner and keep the search bar at the very top. `style.css` (≤850px): `body.searching` hides `.home-navigation`, `.announcement`, `.mobile-bottom-nav`; `.mobile-search` is sticky at top 0 (safe-area padding); in the Excel view the page itself does not scroll (`html:has(...)`/body overflow hidden), only the sheet. `excel-search.js` fit() no longer scrolls the page when the bar is sticky. PC unchanged. Owner: keep the camera in the bar while searching — only the folder hides; `.search-tools` is `display:contents` and `order` puts count, ˄ ˅, camera, bin.
 - Checked: Chrome 375 both views: bar at y=10, banner/bottom nav hidden, sheet 86→804 of 812, wheel scroll keeps the bar; cleared → banner and nav back; 1280 top nav unchanged; no errors. Node 22 check + 381/381.
 
 ### 1.1.221: New search bar; count, ˄ ˅ and bin in the bar (Claude)
