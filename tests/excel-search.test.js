@@ -24,7 +24,7 @@ test('1.1.217: two views — matching rows only, or the whole sheet that jumps t
  assert.match(js,/data-excel-mode="rows"[^]*ရှာတာပဲ[^]*data-excel-mode="sheet"[^]*Excel လို/);
  assert.match(js,/const MODE_KEY='gh-excel-search-mode'/,'the chosen view is remembered');
  assert.match(js,/data-excel-step="-1"[^]*data-excel-step="1"/);
- assert.match(js,/if\(mode==='sheet'\)\{fit\(\);go\(0\)\}/);
+ assert.match(js,/if\(mode==='sheet'\)\{fit\(\);go\(0\);/);
  assert.match(js,/if\(f\.sz\)out\.push\('font-size:'\+f\.sz\+'pt'\)/,'the file font size (bigger, like Excel)');
 });
 test('1.1.218: the Excel view hides the products and the sheet fills the screen',()=>{
@@ -39,4 +39,10 @@ test('1.1.219: the view choice sits in the Excel files panel; the sheet runs edg
  assert.doesNotMatch(js,/class="excel-results-head"/,'no title/mode row above the sheet');
  assert.match(css,/\.excel-results\{position:relative;width:100vw;margin-left:calc\(50% - 50vw\);margin-right:calc\(50% - 50vw\)\}/);
  assert.match(css,/\.excel-sheet-open \.excel-search-setting\{display:none\}/);
+});
+test('1.1.220: the sheet view draws only the rows near the match and grows while scrolling',()=>{
+ const js=read('excel-search.js');
+ assert.match(js,/function draw\(i\)\{[^\n]*win\.lo=Math\.max\(0,i-40\);win\.hi=Math\.min\(win\.rows\.length,i\+60\)/);
+ assert.match(js,/addEventListener\('scroll',grow,\{passive:true\}\)/);
+ assert.match(js,/'<tbody>'\+\(mode==='sheet'\?'':/,'the whole sheet is never put in the page at once');
 });

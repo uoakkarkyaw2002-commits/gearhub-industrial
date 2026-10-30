@@ -25,7 +25,7 @@
  // 1.1.217 owner: two views beside "Excel · BC" — only the matching rows, or the whole sheet like Excel
  // with the search: it jumps to the match (rows around it stay visible) and ˄ ˅ go to the other matches.
  const MODE_KEY='gh-excel-search-mode';let mode=(()=>{try{return localStorage.getItem(MODE_KEY)==='sheet'?'sheet':'rows'}catch{return 'rows'}})();
- let hits=[],at=0;
+ let hits=[],at=0,win=null;
  async function show(){
   const q=input.value.trim(),mine=++turn;
   if(q.length<2){box.hidden=true;box.innerHTML='';full(false);return}
@@ -35,7 +35,7 @@
   // Column names: the first row with two or more filled cells (like the import mapping).
   let head=0;for(let r=0;r<=sheet.maxR;r++){if(cols.filter(c=>text(sheet,r,c)).length>=2){head=r;break}}
   const needle=q.toLocaleLowerCase(),has=(r,c)=>text(sheet,r,c).toLocaleLowerCase().includes(needle),shown=[];hits=[];at=0;
-  for(let r=head+1;r<=sheet.maxR;r++){if(sheet.heights?.[r]===0)continue;const hit=cols.some(c=>has(r,c));if(hit)hits.push(r);if(mode==='sheet'?shown.length<4000:hit&&shown.length<LIMIT)shown.push(r)}
+  for(let r=head+1;r<=sheet.maxR;r++){if(sheet.heights?.[r]===0)continue;const hit=cols.some(c=>has(r,c));if(hit)hits.push(r);if(mode==='sheet'||hit&&shown.length<LIMIT)shown.push(r)}
   box.hidden=false;full(mode==='sheet');
   // Drawn like the Excel viewer: column letters, row numbers, the header row, the sheet's widths,
   // heights, fills and fonts; the grid scrolls both ways and the letters/header stay on top.
@@ -51,10 +51,13 @@
    +(mode==='rows'&&!hits.length?'<p class="excel-results-none">Excel · '+esc(sheet.name)+' — No match</p>':'')
    +(shown.length&&(mode==='sheet'||hits.length)?'<div class="excel-results-grid'+(mode==='sheet'?' excel-results-sheet':'')+'"><table><colgroup><col style="width:46px">'+cols.map(c=>'<col style="width:'+width(c)+'px">').join('')+'</colgroup>'
    +'<thead><tr class="excel-results-letters"><th></th>'+cols.map(c=>'<th>'+letter(c)+'</th>').join('')+'</tr>'+line(head,'excel-results-header')+'</thead>'
-   +'<tbody>'+shown.map(r=>line(r,mode==='sheet'&&hits.includes(r)?'excel-hit':'')).join('')+'</tbody></table></div>':'')
+   +'<tbody>'+(mode==='sheet'?'':shown.map(r=>line(r)).join(''))+'</tbody></table></div>':'')
    +'<button type="button" class="excel-results-open" data-excel-open>📗 Excel မှာ ဖွင့်ကြည့်မယ် / Open in Excel</button>';
   box.dataset.url=file.url;box.dataset.name=file.name;box.dataset.sheet=sheet.name;
-  if(mode==='sheet'){fit();go(0)}
+  // 1.1.220 owner (iPhone was slow): the sheet view draws only ~100 rows around the match and adds
+  // more while scrolling up or down, instead of every row of the sheet at once.
+  win=mode==='sheet'?{rows:shown,lo:0,hi:0,line,hit:new Set(hits)}:null;
+  if(mode==='sheet'){fit();go(0);box.querySelector('.excel-results-grid')?.addEventListener('scroll',grow,{passive:true})}
  }
  // 1.1.218 owner: the Excel view hides the products and the sheet fills the screen under the search
  // bar, like the Excel viewer.
@@ -65,10 +68,19 @@
   const nav=document.querySelector('.mobile-bottom-nav'),below=nav&&getComputedStyle(nav).display!=='none'?nav.offsetHeight:0,button=box.querySelector('.excel-results-open')?.offsetHeight||0;
   grid.style.maxHeight='none';grid.style.height=Math.max(320,window.innerHeight-grid.getBoundingClientRect().top-below-button-24)+'px';
  }
+ const rowsHtml=(a,b)=>win.rows.slice(a,b).map(r=>win.line(r,win.hit.has(r)?'excel-hit':'')).join('');
+ function draw(i){const body=box.querySelector('.excel-results-grid tbody');if(!body)return;win.lo=Math.max(0,i-40);win.hi=Math.min(win.rows.length,i+60);body.innerHTML=rowsHtml(win.lo,win.hi)}
+ function grow(){
+  const grid=box.querySelector('.excel-results-grid'),body=grid?.querySelector('tbody');if(!win||!body)return;
+  if(grid.scrollTop<300&&win.lo>0){const lo=Math.max(0,win.lo-60),before=grid.scrollHeight;body.insertAdjacentHTML('afterbegin',rowsHtml(lo,win.lo));win.lo=lo;grid.scrollTop+=grid.scrollHeight-before}
+  if(grid.scrollTop+grid.clientHeight>grid.scrollHeight-300&&win.hi<win.rows.length){const hi=Math.min(win.rows.length,win.hi+60);body.insertAdjacentHTML('beforeend',rowsHtml(win.hi,hi));win.hi=hi}
+ }
  // Sheet view: mark the current match and bring its row a third of the way down, under the header.
  function go(step){
-  const grid=box.querySelector('.excel-results-grid');if(!grid||!hits.length)return;
+  const grid=box.querySelector('.excel-results-grid');if(!grid||!win)return;
+  if(!hits.length){if(!win.hi)draw(0);return}
   at=(at+step+hits.length)%hits.length;
+  const i=win.rows.indexOf(hits[at]);if(i<win.lo||i>=win.hi)draw(i);
   grid.querySelector('tr.excel-current')?.classList.remove('excel-current');
   const row=grid.querySelector('tbody tr[data-excel-row="'+hits[at]+'"]');if(!row)return;row.classList.add('excel-current');
   const top=grid.querySelector('thead').offsetHeight;grid.scrollTop=Math.max(0,row.offsetTop-top-(grid.clientHeight-top)/3);
@@ -87,6 +99,6 @@
   // In the sheet view a tap only scrolls; the full viewer opens from the button.
   const b=e.target.closest(mode==='sheet'?'[data-excel-open]':'tbody [data-excel-row],[data-excel-open]');if(!b)return;window.GearHubExcelViewer?.open(box.dataset.url,box.dataset.name,box.dataset.sheet,input.value.trim(),b.dataset.excelRow===undefined?(mode==='sheet'?hits[at]:undefined):+b.dataset.excelRow)
  });
- input.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(show,250)});
+ input.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(show,mode==='sheet'?450:250)});
  if(input.value.trim())show();
 })();
