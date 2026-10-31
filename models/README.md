@@ -9,3 +9,6 @@ Background removal for product photos (`lib/bg-remove.js`, "Edit photo" in the p
 - `silueta.onnx` — "silueta" from rembg (U²-Net retrained/distilled for clean cut-outs, MIT), 320×320 input,
   44 MB, from the npm package `@rmbg/model-silueta` 0.0.1 (its five parts joined in order). The first
   output (d0, 0–1) is the object mask. Replaced U²-Netp (1.1.227), which left smudges on product photos.
+
+- `u2netp.onnx` — U²-Netp (Apache-2.0, 4.6 MB, npm `@rmbg/model-u2netp`), back since 1.1.230 as the small
+  fallback when the server has too little memory free for silueta.

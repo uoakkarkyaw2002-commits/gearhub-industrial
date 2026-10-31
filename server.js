@@ -832,7 +832,7 @@ app.post("/api/tools/remove-background", rateLimit({ windowMs: 60 * 1000, limit:
  if (!validToken(req.session.csrfToken, req.get("x-csrf-token"))) return res.status(403).json({ error: "Security token expired. Reload and try again." });
  if (!Buffer.isBuffer(req.body) || !req.body.length) return res.status(400).json({ error: "Send a JPG, PNG or WebP photo." });
  try { const { png, model } = await require("./lib/bg-remove").removeBackground(req.body, { dataDir }); res.set({ "Cache-Control": "no-store", "X-Bg-Model": model }).type("png").send(png); }
- catch (error) { logError("remove_background", error); res.status(422).json({ error: "Could not read this photo." }); }
+ catch (error) { logError("remove_background", error); res.status(error.stopped ? 503 : 422).json({ error: error.stopped ? "The server is short of memory. Try again in a minute." : "Could not read this photo." }); }
 });
 app.get("/api/admin/me", adminOnly, (req,res) => res.json({authenticated:true,username:req.session.admin.username}));
 app.post("/api/admin/logout", (req,res) => req.session.destroy(() => { res.clearCookie(sessionCookieName,{path:"/",secure:production,httpOnly:true,sameSite:"lax"}); res.json({ok:true}); }));

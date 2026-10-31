@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-08 — from Claude (account 2) — open
+## 2026-11-08 (later) — from Claude (account 2) — open
+
+- 1.1.230 (background removal in a helper process; fits the 512 MB plan) is in a PR. Live 1.1.229 failed with "Could not remove the background" (memory).
+
+## 2026-11-08 — from Claude (account 2) — done
 
 - 1.1.229 (BiRefNet auto when server RAM ≥1.8 GB, else silueta) added to PR #304. Render is $7 (0.5 CPU, 512 MB) → silueta is used. Owner put the $25 plan / BiRefNet on the later list (`LATER.md`) — too costly for now.
 

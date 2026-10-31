@@ -92,7 +92,7 @@
    const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(src,0,0,c.width,c.height);
    const body=await new Promise(done=>c.toBlob(done,'image/jpeg',.92));
    const r=await fetch('/api/tools/remove-background',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'image/jpeg','X-CSRF-Token':await csrf()},body});
-   if(!r.ok)throw Error((await r.json().catch(()=>({}))).error||'Could not remove the background.');
+   if(!r.ok)throw Error((await r.json().catch(()=>({}))).error||(r.status>=500?'The server is busy. Try again in a minute.':'Could not remove the background.'));
    const url=URL.createObjectURL(await r.blob()),cut=await loadImage(url);URL.revokeObjectURL(url);if(!state)return;
    state.cut=document.createElement('canvas');state.cut.width=cut.naturalWidth;state.cut.height=cut.naturalHeight;state.cut.getContext('2d',{willReadFrequently:true}).drawImage(cut,0,0);
   }catch(error){msg.textContent=error.message||'Could not remove the background. Check the line and try again.'}

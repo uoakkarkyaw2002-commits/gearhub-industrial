@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.230: Remove background works on the 512 MB Render plan (Claude)
+- Live (owner, $7 plan 0.5 CPU / 512 MB): "Could not remove the background." Cause: silueta in the server process with ONNX Runtime's arena took +410 MB → the request died. Measured: silueta +410 MB (arena) / +190 MB (no arena); U²-Netp +310 / +50; server idle ~190 MB.
+- `lib/bg-worker.js` (new): runs one model in a forked helper (`serialization:"advanced"`), arena/mem-pattern off, 1 thread, exits after each photo. `lib/bg-remove.js` picks best (BiRefNet, ≥1.8 GB) / fast (silueta, ≥300 MB free) / small (U²-Netp, `models/u2netp.onnx` restored); a helper stopped by a signal (OOM) is retried with small; 503 "short of memory" if that fails too. Parent RSS stays ~80 MB during a cut. Editor shows "The server is busy…" on 5xx.
+- Checked: fast 1.5 s, forced small 0.8 s, bad model path → error; Node 22 check + tests. Not checked on the live 512 MB box.
+
 ### 1.1.229: BiRefNet when the server has the memory — Remove background finishes by itself (Claude)
 - Owner: no hand work; Remove background must do everything, also the table inside the pump's pipe loop. Tested BiRefNet-lite (rembg release `BiRefNet-general-bb_swin_v1_tiny-epoch_232.onnx`, MIT, 224 MB, 1024 px): all 4 pump photos clean incl. the loop holes; ~25–40 s per photo here (4 CPU), peak RSS 0.6–0.9 GB with `enableCpuMemArena:false`/`enableMemPattern:false`.
 - `lib/bg-remove.js`: two models — fast = silueta (repo), best = BiRefNet. Best is used only when the container memory limit (cgroup `memory.max`, else `os.totalmem`) ≥ 1.8 GB; the file is too big for git, so `prepare(dataDir)` downloads it once to `DATA_DIR/models/birefnet-lite.onnx` (size-checked, `.part` then rename; server.js calls it 30 s after start) and silueta is used until it is there. One photo at a time (queue). Response header `X-Bg-Model: fast|best`. Editor busy text says it can take up to a minute.

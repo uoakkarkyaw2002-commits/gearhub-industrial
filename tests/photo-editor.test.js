@@ -30,7 +30,7 @@ test('background removal runs on our own server with the silueta model, signed-i
 test('1.1.228: cleaner model with tightened edges and speck removal; Erase / Restore brush with undo',()=>{
  const lib=read('lib/bg-remove.js'),js=read('public/photo-editor.js');
  assert.match(lib,/models", "silueta\.onnx"/);assert.match(lib,/function dropSpecks\(mask, SIZE\)/);assert.match(lib,/\(v - 0\.25\) \/ 0\.4/);
- assert.match(lib,/const s = sessions\[kind\]; sessions\[kind\] = null;/,'the model is let go when idle');
+ assert.match(read('lib/bg-worker.js'),/process\.exit\(0\)/,'the model memory is given back after each photo');
  assert.match(js,/data-brush="erase"[^]*data-brush="restore"/);
  assert.match(js,/globalCompositeOperation='destination-out'/);
  assert.match(js,/state\.undo\.pop\(\)/);
@@ -38,8 +38,16 @@ test('1.1.228: cleaner model with tightened edges and speck removal; Erase / Res
 test('1.1.229: BiRefNet is used only with enough memory, downloaded once, one photo at a time',()=>{
  const lib=read('lib/bg-remove.js'),server=read('server.js');
  assert.match(lib,/NEED_MEMORY = 1\.8e9/);assert.match(lib,/\/sys\/fs\/cgroup\/memory\.max/);
- assert.match(lib,/const kind = birefnetPath && memoryLimit\(\) >= NEED_MEMORY \? "best" : "fast"/);
+ assert.match(lib,/let kind = birefnetPath && memoryLimit\(\) >= NEED_MEMORY \? "best" :/);
  assert.match(lib,/fs\.statSync\(part\)\.size !== BIREFNET_BYTES/,'a broken download is not used');
  assert.match(lib,/const job = queue\.then\(\(\) => cut\(buffer, options\)\);/);
  assert.match(server,/"X-Bg-Model": model/);
+});
+test('1.1.230: the model runs in a short-lived helper; silueta only with ~300 MB free, else U2-Netp; retry on a stopped helper',()=>{
+ const lib=read('lib/bg-remove.js'),worker=read('lib/bg-worker.js');
+ assert.match(lib,/fork\(path\.join\(__dirname, "bg-worker\.js"\)/);
+ assert.match(worker,/enableCpuMemArena: false, enableMemPattern: false/);
+ assert.match(lib,/free\(\) >= MODELS\.fast\.need \? "fast" : "small"/);
+ assert.match(lib,/if \(!error\.stopped \|\| kind === "small"\) throw error; kind = "small";/);
+ assert.ok(fs.existsSync(path.join(__dirname,'../models/u2netp.onnx')));
 });
