@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-07 (later) — from Claude (account 2) — open
+## 2026-11-07 (evening) — from Claude (account 2) — open
+
+- 1.1.227 (cover photos one row + See more; Edit photo with server background removal U²-Netp) is in a PR. 1.1.226 confirmed. Watch Render memory after deploy (second ONNX model, ~5 MB).
+
+## 2026-11-07 (later) — from Claude (account 2) — done
 
 - 1.1.226 (Excel link cells: Copy / Go) is in a PR. 1.1.225 confirmed by the owner.
 

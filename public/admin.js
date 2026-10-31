@@ -347,7 +347,7 @@ function renderProductCoverOptions(){
  const files=[...form.elements.namedItem("images").files];
  const items=files.map((file,index)=>{const url=URL.createObjectURL(file);coverObjectUrls.push(url);return {key:"file:"+index+":"+file.name,url,label:file.name}});
  getProductImageUrls(form).forEach(url=>items.push({key:"url:"+url,url:isDriveUrl(url)?"":url,label:isDriveUrl(url)?"Google Drive photo":url.split("/").pop()}));
- root.textContent="";
+ root.textContent="";coverItems=items;
  items.forEach((item,index)=>{
   const label=document.createElement("label");label.className="product-cover-option";
   const radio=document.createElement("input");radio.type="radio";radio.name="coverIndex";radio.value=String(index);radio.checked=selectedCoverKey===item.key;
@@ -357,7 +357,37 @@ function renderProductCoverOptions(){
   label.append(radio,img,caption);root.append(label);
  });
  if(!items.length)root.textContent="Add photos above to choose a cover.";
+ fitCoverRow();
 }
+// 1.1.227 owner: only the first row of photos shows; "See more" shows the rest.
+let coverItems=[],coverOpen=false;
+function fitCoverRow(){
+ const root=$("product-cover-options");if(!root)return;const options=[...root.querySelectorAll(".product-cover-option")];
+ root.parentElement?.querySelector(".cover-see-more")?.remove();
+ // The first row = the photos level with the first one (the grid's column count changes with the screen).
+ options.forEach(o=>{o.hidden=false});const top=options[0]?.offsetTop??0,perRow=Math.max(1,options.filter(o=>o.offsetTop===top).length);
+ options.forEach((o,i)=>{o.hidden=!coverOpen&&i>=perRow});
+ if(options.length<=perRow)return;
+ const more=document.createElement("button");more.type="button";more.className="secondary cover-see-more";
+ more.textContent=coverOpen?"See less ▲":"See more ("+(options.length-perRow)+") ▼";
+ more.addEventListener("click",()=>{coverOpen=!coverOpen;fitCoverRow()});root.after(more);
+}
+if(window.ResizeObserver&&$("product-cover-options"))new ResizeObserver(()=>{if(!coverOpen)fitCoverRow()}).observe($("product-cover-options").parentElement);
+// 1.1.227: the photo editor (photo-editor.js) reads the product's photos and puts an edited one back in
+// the same place in the list (a URL photo becomes an uploaded file; the cover choice follows it).
+window.GearHubProductPhotos={
+ list:()=>coverItems.map(item=>({key:item.key,url:item.url,label:item.label})),
+ replace(index,file){
+  const form=$("product-form"),input=form.elements.namedItem("images"),files=[...input.files],item=coverItems[index];if(!item)return;
+  const dt=new DataTransfer();let newIndex;
+  if(index<files.length){files.forEach((f,i)=>dt.items.add(i===index?file:f));newIndex=index}
+  else{files.forEach(f=>dt.items.add(f));dt.items.add(file);newIndex=files.length;
+   const url=item.key.slice(4),box=form.elements.namedItem("imageUrls");box.value=String(box.value||"").split(/\r?\n/).filter(line=>line.trim()!==url).join("\n")}
+  input.files=dt.files;
+  if(selectedCoverKey===item.key)selectedCoverKey="file:"+newIndex+":"+file.name;
+  renderProductCoverOptions();
+ }
+};
 $("product-form").addEventListener("input",event=>{if(["imageUrls","driveLinks"].includes(event.target.name))renderProductCoverOptions()});
 $("product-form").addEventListener("change",event=>{if(event.target.name==="images")renderProductCoverOptions()});
 $("import-drive-photos").addEventListener("click",async()=>{
