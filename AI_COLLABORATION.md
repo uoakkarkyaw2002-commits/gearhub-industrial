@@ -31,7 +31,7 @@ _None._
 ## Handoff entries (newest first)
 
 ### 1.1.235: Product photos on phones in the owner's design (Claude)
-- Owner sent old vs new pictures of the product photo sheet. Phones only (≤520px): bold name, round grey close, SKU / Part No chips (`#gallery-ids`, filled in `renderGallery`), grey photo panel with round ‹ › arrows, "1 / 4" pill and a teal round download button on the photo (`galleryPlace()` moves `#gallery-count` + `#gallery-download` into the stage on phones, back under it on PC), four thumbnails per row with a teal edge, Similar parts with "See all ›" (more than 4; wraps them, "Show less") and a "View ›" button on each card (`similar-parts.js`). PC layout unchanged (chips, See all and View hidden).
+- Owner sent old vs new pictures of the product photo sheet. Phones only (≤520px): bold name, round grey close, SKU / Part No chips (`#gallery-ids`, filled in `renderGallery`), grey photo panel with round ‹ › arrows, "1 / 4" pill and a teal round download button on the photo (`galleryPlace()` moves `#gallery-count` + `#gallery-download` into the stage on phones, back under it on PC), four thumbnails per row with a teal edge, Similar parts with "See all ›" (more than 4; wraps them, "Show less") (`similar-parts.js`); tapping a card opens that product (owner asked to remove the "View ›" button). PC layout unchanged (chips and See all hidden).
 - `store.js`/`smart-search.js` tags moved together to 1.1.235 (free-ai test pins them equal; test updated on purpose).
 - Checked: Chrome 390 touch with stubbed products/similar API — chips, arrows (next → 2 / 4), See all/Show less, View opens that product, resize to 1000 moves count back; 1280 screenshot identical to main. No console errors. Node 22: check + 391/391. Not on a real iPhone.
 
