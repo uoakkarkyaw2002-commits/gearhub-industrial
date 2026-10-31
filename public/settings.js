@@ -200,10 +200,12 @@
     const modal = byId("share-modal");
     if (!modal) return;
     try { await loadQr(); } catch { return; }
-    const link = options.link || storeLink(), qr = qrcode(0, "M");
+    const link = options.link || storeLink(), qr = qrcode(0, "H");
     qr.addData(link);
     qr.make();
-    byId("share-qr").innerHTML = qr.createSvgTag({ cellSize: 6, margin: 4, scalable: true });
+    // The shop's logo sits in the middle of the QR (owner, 1.1.233); level H keeps it scannable.
+    const logo = document.querySelector('link[rel="apple-touch-icon"]')?.href || "";
+    byId("share-qr").innerHTML = qr.createSvgTag({ cellSize: 6, margin: 4, scalable: true }) + (logo ? '<img class="share-qr-logo" src="' + logo.replace(/"/g, "&quot;") + '" alt="">' : "");
     byId("share-link").value = link;
     byId("share-store-name").textContent = options.name || document.querySelector(".footer-wordmark")?.textContent.trim() || document.title;
     const heading = modal.querySelector("h2"), hint = modal.querySelector(".share-hint");
@@ -211,7 +213,7 @@
     if (hint) hint.textContent = options.hint || words("shareScanHint");
     byId("share-download").href = qr.createDataURL(10, 4);
     byId("share-download").setAttribute("download", options.file || "store-qr.gif");
-    qrPicture = null; makeQrPicture(qr, byId("share-store-name").textContent, link, (options.file || "store-qr.gif").replace(/\.gif$/, ".png"));
+    qrPicture = null; makeQrPicture(qr, byId("share-store-name").textContent, link, (options.file || "store-qr.gif").replace(/\.gif$/, ".png"), logo);
     byId("share-native").hidden = !navigator.share;
     byId("share-copy").textContent = words("shareCopy");
     modal.classList.add("open");
@@ -220,17 +222,22 @@
   // an installed iPhone app. The QR is drawn ahead of time as a PNG card (shop name, QR, link) so a tap
   // can open the phone's share sheet at once ("Save Image" puts it in Photos); elsewhere it downloads.
   let qrPicture = null;
-  function makeQrPicture(qr, name, link, file) {
-    const img = new Image(), W = 1080, pad = 90, side = W - pad * 2;
-    img.onload = () => {
+  function makeQrPicture(qr, name, link, file, logoUrl) {
+    const img = new Image(), logo = new Image(), W = 1080, pad = 90, side = W - pad * 2;
+    let left = logoUrl ? 2 : 1;
+    const ready = () => { if (--left) return;
       const c = document.createElement("canvas"), x = c.getContext("2d"); c.width = W; c.height = side + 330;
       x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.imageSmoothingEnabled = false;
       x.fillStyle = "#14261c"; x.textAlign = "center"; x.font = "800 64px system-ui,-apple-system,Segoe UI,sans-serif"; x.fillText(String(name || "").slice(0, 28), W / 2, 130);
       x.drawImage(img, pad, 190, side, side);
+      if (logo.naturalWidth) { const box = Math.round(side * 0.24), lx = (W - box) / 2, ly = 190 + (side - box) / 2, r = box * 0.2;
+        x.imageSmoothingEnabled = true; x.fillStyle = "#fff"; x.beginPath(); x.roundRect(lx - 14, ly - 14, box + 28, box + 28, r + 8); x.fill();
+        x.save(); x.beginPath(); x.roundRect(lx, ly, box, box, r); x.clip(); x.drawImage(logo, lx, ly, box, box); x.restore(); }
       x.fillStyle = "#4a5a51"; x.font = "500 34px system-ui,-apple-system,Segoe UI,sans-serif"; x.fillText(link.replace(/^https?:\/\//, "").slice(0, 52), W / 2, side + 270);
       c.toBlob(blob => { if (blob) qrPicture = new File([blob], file, { type: "image/png" }); }, "image/png");
     };
-    img.src = qr.createDataURL(10, 4);
+    img.onload = ready; img.src = qr.createDataURL(10, 4);
+    if (logoUrl) { logo.onload = ready; logo.onerror = ready; logo.src = logoUrl; }
   }
   byId("share-download")?.addEventListener("click", event => {
     if (!qrPicture) return;
