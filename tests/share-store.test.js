@@ -34,5 +34,11 @@ test('1.1.235: phone product photos in the owner design (chips, overlay count/do
  assert.match(html,/id="gallery-ids"/);
  assert.match(store,/Part No : /);assert.match(store,/function galleryPlace\(\)/);
  assert.match(similar,/gallery-similar-all/);assert.doesNotMatch(similar,/gallery-similar-view/);
- assert.match(css,/\.gallery-ids,\.gallery-similar \.gallery-similar-all\{display:none\}/);
+ assert.match(css,/\.gallery-ids,\.gallery-similar \.gallery-similar-all,\.gallery-dl-icon\{display:none\}/);
+});
+test('1.1.236: phone photo sheet has no side arrows and a bigger tray download icon',()=>{
+ const css=pub('style.css');
+ assert.doesNotMatch(css,/\.gallery-stage \.gallery-arrow\{display:grid/);
+ assert.match(pub('index.html'),/class="gallery-dl-icon"/);
+ assert.match(css,/\.gallery-stage \.gallery-dl\{position:absolute;right:10px;bottom:10px;z-index:2;width:58px;height:58px/);
 });
