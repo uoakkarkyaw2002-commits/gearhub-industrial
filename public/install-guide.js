@@ -105,10 +105,32 @@
  function later(){store.set(sessionStorage,laterKey,'1');close()}
  function finish(){store.set(localStorage,doneKey,'1');close()}
  window.GearHubInstallGuide={open};
+ // 1.1.231 owner (Android): the shop never asked to install its app — this page takes Chrome's install
+ // offer (beforeinstallprompt) for its own helper, so Chrome shows nothing by itself. On an Android phone
+ // the shop's Home page now shows a small "Install app" bar when Chrome offers it; Install opens
+ // Chrome's own install box. × hides it for 7 days on this phone.
+ function banner(){
+  if(!android||standalone())return;
+  const offKey='gh-install-banner-off:'+slug,off=+store.get(localStorage,offKey)||0;if(Date.now()-off<7*864e5)return;
+  let bar=null;
+  const show=()=>{
+   if(bar||!prompt||standalone())return;
+   const icon=document.querySelector('link[rel="apple-touch-icon"]')?.href||'';
+   bar=document.createElement('div');bar.className='install-bar';bar.setAttribute('role','dialog');bar.setAttribute('aria-label','Install app');
+   bar.innerHTML=(icon?'<img src="'+esc(icon)+'" alt="" width="44" height="44">':'')+'<div><b>'+esc(appName)+' app</b><small>ဖုန်းထဲ app အဖြစ် တင်ပါ / Install the app</small></div><button type="button" class="install-bar-go">Install</button><button type="button" class="install-bar-x" aria-label="Not now">×</button>';
+   document.body.append(bar);requestAnimationFrame(()=>bar.classList.add('on'));
+   bar.querySelector('.install-bar-x').onclick=()=>{store.set(localStorage,offKey,String(Date.now()));hide()};
+   bar.querySelector('.install-bar-go').onclick=async()=>{const p=prompt;if(!p)return hide();prompt=null;hide();try{await p.prompt();const c=await p.userChoice;if(c.outcome==='accepted')store.set(localStorage,doneKey,'1')}catch{}};
+  };
+  const hide=()=>{bar?.remove();bar=null};
+  addEventListener('beforeinstallprompt',()=>setTimeout(show,2500));
+  addEventListener('appinstalled',hide);
+  if(prompt)setTimeout(show,2500);
+ }
  const query=new URLSearchParams(location.search),welcome=query.has('welcome'),asked=!inAdmin&&query.has('install');
  if(welcome||asked)history.replaceState(history.state,'',location.pathname+location.hash);
  // Home page: only when the seller came from the admin's "Go to Home page".
- if(!inAdmin){if(asked&&!standalone()){const go=()=>setTimeout(open,700);document.readyState==='complete'?go():addEventListener('load',go,{once:true})}return}
+ if(!inAdmin){if(asked&&!standalone()){const go=()=>setTimeout(open,700);document.readyState==='complete'?go():addEventListener('load',go,{once:true})}else banner();return}
  const wanted=()=>!standalone()&&(welcome||(phone&&!store.get(localStorage,doneKey)&&!store.get(sessionStorage,laterKey)));
  // Open once the seller is signed in and the dashboard is on screen.
  const dash=document.getElementById('dashboard');if(!dash||!wanted())return;
