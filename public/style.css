@@ -1284,7 +1284,13 @@ body.searching .search-pill .photo-scan-button,body.searching .excel-folder-butt
  .gallery-stage .gallery-dl[data-state="idle"] .gallery-dl-icon{display:block;position:absolute;left:14px;top:14px;width:30px;height:30px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
  .gallery-stage .gallery-dl:not([data-state="idle"]){width:150px}
  .gallery-stage .gallery-dl:not([data-state="idle"]) .gallery-dl-track{top:44px}
- .gallery-stage .gallery-dl-label{top:24px;color:#0f766e}
+ /* 1.1.237 owner: the parachute was too small for the bigger button — about 1.7x, landing on the bar. */
+ .gallery-stage .gallery-dl:not([data-state="idle"]){width:170px}
+ .gallery-stage .gallery-dl:not([data-state="idle"]) .gallery-dl-track{width:170px;top:50px;height:5px}
+ .gallery-stage .gallery-dl-drop{left:46px;width:40px;height:57px}
+ .gallery-stage .gallery-dl[data-state="downloading"] .gallery-dl-drop{top:calc(-72px + var(--fall,0) * 65px)}
+ .gallery-stage .gallery-dl-check{left:48px;top:6px;width:38px;height:38px}
+ .gallery-stage .gallery-dl-label{top:24px;left:auto;right:0;color:#0f766e;font-size:13px;text-align:right}
  .gallery-modal .gallery-meta{min-height:0;margin-top:10px}
  .gallery-modal .gallery-thumbs{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 30px) / 4);gap:10px;flex:0 0 auto;padding:2px}
  .gallery-modal .gallery-thumb{width:auto;height:60px;padding:5px;border:2px solid transparent;border-radius:14px;background:#f1f4f7}
