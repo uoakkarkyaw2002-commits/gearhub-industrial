@@ -211,10 +211,33 @@
     if (hint) hint.textContent = options.hint || words("shareScanHint");
     byId("share-download").href = qr.createDataURL(10, 4);
     byId("share-download").setAttribute("download", options.file || "store-qr.gif");
+    qrPicture = null; makeQrPicture(qr, byId("share-store-name").textContent, link, (options.file || "store-qr.gif").replace(/\.gif$/, ".png"));
     byId("share-native").hidden = !navigator.share;
     byId("share-copy").textContent = words("shareCopy");
     modal.classList.add("open");
   }
+  // 1.1.233 owner (iPhone app): "Save QR image" saved nothing — a download link does not reach Photos in
+  // an installed iPhone app. The QR is drawn ahead of time as a PNG card (shop name, QR, link) so a tap
+  // can open the phone's share sheet at once ("Save Image" puts it in Photos); elsewhere it downloads.
+  let qrPicture = null;
+  function makeQrPicture(qr, name, link, file) {
+    const img = new Image(), W = 1080, pad = 90, side = W - pad * 2;
+    img.onload = () => {
+      const c = document.createElement("canvas"), x = c.getContext("2d"); c.width = W; c.height = side + 330;
+      x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.imageSmoothingEnabled = false;
+      x.fillStyle = "#14261c"; x.textAlign = "center"; x.font = "800 64px system-ui,-apple-system,Segoe UI,sans-serif"; x.fillText(String(name || "").slice(0, 28), W / 2, 130);
+      x.drawImage(img, pad, 190, side, side);
+      x.fillStyle = "#4a5a51"; x.font = "500 34px system-ui,-apple-system,Segoe UI,sans-serif"; x.fillText(link.replace(/^https?:\/\//, "").slice(0, 52), W / 2, side + 270);
+      c.toBlob(blob => { if (blob) qrPicture = new File([blob], file, { type: "image/png" }); }, "image/png");
+    };
+    img.src = qr.createDataURL(10, 4);
+  }
+  byId("share-download")?.addEventListener("click", event => {
+    if (!qrPicture) return;
+    event.preventDefault();
+    if (navigator.canShare?.({ files: [qrPicture] }) && matchMedia("(pointer:coarse)").matches) { navigator.share({ files: [qrPicture] }).catch(() => {}); return; }
+    const url = URL.createObjectURL(qrPicture), a = document.createElement("a"); a.href = url; a.download = qrPicture.name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 5000);
+  });
   async function copyLink() {
     const input = byId("share-link"), button = byId("share-copy");
     try { await navigator.clipboard.writeText(input.value); }

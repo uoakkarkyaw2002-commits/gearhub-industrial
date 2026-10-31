@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.233: Save QR image reaches Photos on iPhone (Claude)
+- Owner (iPhone app, Settings → Share My Store → Save QR image): nothing was saved — the button was an `<a download>` to a GIF data URL, which an installed iPhone app does not put in Photos. `settings.js`: when the sheet opens, `makeQrPicture` draws a 1080 px PNG card (shop name, QR, link) and keeps it as a File; on a touch phone with file sharing the tap calls `navigator.share({files})` at once (iPhone: Save Image → Photos; Android: share/save); elsewhere it downloads the PNG. The old GIF link is the fallback until the card is ready.
+- Checked: Chrome 390 touch with a stubbed share → `store-qr.png` image/png 56 KB shared; 1280 → `store-qr.png` downloaded, card renders (name, QR, link). Node 22 check + tests. Not on a real iPhone.
+
 ### 1.1.232: Similar parts scroll sideways on Android (Claude)
 - Owner (Android): the Similar parts strip under a product's photos would not scroll. The strip's box grew to its content width (1144 px on a 390 px screen), so there was nothing to scroll; the gallery's `touch-action:none` did the rest. `style.css`: `.gallery-similar` width/max-width 100%, min-width 0; its row `width:100%`, `touch-action:pan-x`, `overscroll-behavior-x:contain`.
 - Checked: Chrome 390 Android UA, 12 parts, real touch swipe via CDP → scrollLeft 247 (was 0, row 346 px wide). Node 22 check + tests.
