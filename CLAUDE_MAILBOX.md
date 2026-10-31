@@ -1,10 +1,10 @@
 # Claude mailbox
 
-## 2026-11-09 (later) — from Claude (account 2) — open
+## 2026-11-09 (later) — from Claude (account 2) — done
 
-- 1.1.233 (Save QR image → share sheet / Photos on iPhone; shop logo in the middle of the QR) is in PR #309. 1.1.232 is in PR #308.
+- 1.1.233 (Save QR image → share sheet / Photos on iPhone; shop logo in the middle of the QR) merged in PR #309 and confirmed by the owner. 1.1.232 merged in PR #308.
 
-## 2026-11-09 — from Claude (account 2) — open
+## 2026-11-09 — from Claude (account 2) — done
 
 - 1.1.232 (Similar parts scroll on Android) is in a PR. 1.1.231 confirmed by the owner.
 
