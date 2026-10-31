@@ -91,3 +91,9 @@ test('#8 the receipt line under an order is styled and only shown when the order
  assert.match(css,/\.od-ai-receipt\.od-ai-warn\{background:#fff6e5;color:#7a4b00\}/);
  assert.match(tenant,/receiptRead:async o=>\{const r=await call\('\/orders\/'\+encodeURIComponent\(o\.id\)\+'\/receipt-read'\);/);
 });
+
+test('1.1.232: the Similar parts row stays inside the gallery and scrolls sideways (Android)',()=>{
+ const css=require('node:fs').readFileSync(require('node:path').join(__dirname,'../public/style.css'),'utf8');
+ assert.match(css,/\.gallery-similar\{[^}]*width:100%;max-width:100%;min-width:0/);
+ assert.match(css,/\.gallery-similar>div\{[^}]*overflow-x:auto;[^}]*touch-action:pan-x/);
+});
