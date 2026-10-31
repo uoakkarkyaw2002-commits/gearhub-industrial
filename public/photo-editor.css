@@ -36,3 +36,9 @@ html.pe-open{overflow:hidden}
 .pe-custom input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
 .pe-msg{min-height:1em;margin:0;color:#b3261e;font-size:14px}
 .pe-actions .primary{background:#16803a;color:#fff;border-color:#16803a}
+.pe-brush[hidden]{display:none!important}
+.pe-brush>span{font-weight:700}
+.pe-brush [aria-pressed="true"]{background:#16803a!important;color:#fff!important;border-color:#16803a!important}
+.pe-brush .pe-undo{flex:0 0 44px!important}
+.pe-size{flex:1 1 100%;display:block}.pe-size input{width:100%;accent-color:#16803a}
+.pe-stage canvas.pe-painting{touch-action:none;cursor:crosshair}

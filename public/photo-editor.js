@@ -26,11 +26,12 @@
  const loadImage=src=>new Promise((done,fail)=>{const img=new Image();img.onload=()=>done(img);img.onerror=()=>fail(Error('Could not open this photo.'));img.src=src});
  async function edit(index,photo){
   let img;try{img=await loadImage(photo.url)}catch(error){alert(error.message);return}
-  state={index,name:(photo.label||'photo').replace(/\.[a-z0-9]+$/i,''),original:img,cut:null,quarter:0,tilt:0,bg:'original'};
+  state={index,name:(photo.label||'photo').replace(/\.[a-z0-9]+$/i,''),original:img,cut:null,quarter:0,tilt:0,bg:'original',brush:'',undo:[],view:null};
   sheet.innerHTML='<div class="pe-card pe-edit"><div class="pe-head"><button type="button" class="pe-back" aria-label="Back">←</button><h3>Photo '+(index+1)+'</h3><button type="button" class="pe-x" aria-label="Close">×</button></div>'
    +'<div class="pe-stage"><canvas></canvas><div class="pe-busy" hidden><i></i><span>Removing background…</span></div></div>'
    +'<div class="pe-tools">'
    +'<div class="pe-row"><button type="button" data-act="left">⟲ 90°</button><button type="button" data-act="right">⟳ 90°</button><button type="button" data-act="cut" class="pe-cut">✂︎ Remove background</button></div>'
+   +'<div class="pe-row pe-brush" hidden><span>Brush</span><button type="button" data-brush="erase" aria-pressed="false">🧽 Erase</button><button type="button" data-brush="restore" aria-pressed="false">🖌 Restore</button><button type="button" data-act="undo" class="pe-undo" aria-label="Undo">↶</button><label class="pe-size" title="Brush size"><input type="range" min="6" max="70" value="22"></label></div>'
    +'<label class="pe-tilt"><span>Straighten / တည့်အောင် <b>0°</b></span><input type="range" min="-45" max="45" step="0.5" value="0"></label>'
    +'<div class="pe-row pe-colors"><span>Background</span><button type="button" data-bg="original" aria-pressed="true">Original</button>'+COLORS.map(([k,c,l])=>'<button type="button" data-bg="'+k+'" aria-label="'+l+'" title="'+l+'" class="pe-swatch'+(c?'':' pe-clear')+'"'+(c?' style="--c:'+c+'"':'')+'></button>').join('')+'<label class="pe-swatch pe-custom" title="Any colour"><input type="color" value="#dff3e6"></label></div>'
    +'<p class="pe-msg" role="status"></p>'
@@ -45,11 +46,26 @@
   sheet.querySelector('.pe-tools').addEventListener('click',async e=>{
    const act=e.target.closest('[data-act]')?.dataset.act;if(!act)return;msg.textContent='';
    if(act==='left')state.quarter=(state.quarter+3)%4;else if(act==='right')state.quarter=(state.quarter+1)%4;
-   else if(act==='reset'){state.quarter=0;state.tilt=0;tilt.value=0;tiltLabel.textContent='0°';state.cut=null;pressBg('original');return}
-   else if(act==='cut'){await removeBackground(msg);if(state?.cut)pressBg('white');return}
+   else if(act==='reset'){state.quarter=0;state.tilt=0;tilt.value=0;tiltLabel.textContent='0°';state.cut=null;state.undo=[];setBrush('');sheet.querySelector('.pe-brush').hidden=true;pressBg('original');return}
+   else if(act==='undo'){const last=state.undo.pop();if(last)state.cut.getContext('2d').putImageData(last,0,0);draw();return}
+   else if(act==='cut'){await removeBackground(msg);if(state?.cut){sheet.querySelector('.pe-brush').hidden=false;pressBg('white')}return}
    else if(act==='save'){await save(msg);return}
    draw();
   });
+  // 1.1.228: Erase / Restore brush on the cut-out — for bits the AI could not tell apart (e.g. the
+  // table seen through a pipe loop). Paint with a finger or the mouse; ↶ undoes a stroke.
+  const setBrush=mode=>{state.brush=mode;sheet.querySelectorAll('[data-brush]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.brush===mode)));canvas.classList.toggle('pe-painting',!!mode)};
+  sheet.querySelectorAll('[data-brush]').forEach(b=>b.addEventListener('click',()=>{if(state.bg==='original')pressBg('white');setBrush(state.brush===b.dataset.brush?'':b.dataset.brush)}));
+  const size=sheet.querySelector('.pe-size input');let last=null;
+  const toSource=e=>{const box=canvas.getBoundingClientRect(),x=(e.clientX-box.left)*canvas.width/box.width,y=(e.clientY-box.top)*canvas.height/box.height,v=state.view;if(!v)return null;
+   const p=v.inverse.transformPoint(new DOMPoint(x,y));return{x:(p.x+v.w/2)/v.k,y:(p.y+v.h/2)/v.k,r:+size.value*canvas.width/box.width/(v.k*v.zoom)}};
+  const dab=(ctx,p)=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);if(state.brush==='erase'){ctx.globalCompositeOperation='destination-out';ctx.fill();ctx.globalCompositeOperation='source-over'}else{ctx.save();ctx.clip();ctx.drawImage(state.original,0,0,state.cut.width,state.cut.height);ctx.restore()}};
+  const stroke=(a,b)=>{const ctx=state.cut.getContext('2d'),d=Math.hypot(b.x-a.x,b.y-a.y),n=Math.max(1,Math.ceil(d/(b.r/3)));for(let i=1;i<=n;i++)dab(ctx,{x:a.x+(b.x-a.x)*i/n,y:a.y+(b.y-a.y)*i/n,r:b.r})};
+  canvas.addEventListener('pointerdown',e=>{if(!state.brush||!state.cut)return;e.preventDefault();canvas.setPointerCapture(e.pointerId);
+   state.undo.push(state.cut.getContext('2d').getImageData(0,0,state.cut.width,state.cut.height));if(state.undo.length>6)state.undo.shift();
+   last=toSource(e);if(last){dab(state.cut.getContext('2d'),last);draw()}});
+  canvas.addEventListener('pointermove',e=>{if(!last)return;const p=toSource(e);if(!p)return;stroke(last,p);last=p;draw()});
+  const end=()=>{last=null};canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);
   draw();
  }
  // The source photo (with its background taken away when asked), turned and straightened. A tilted
@@ -61,7 +77,9 @@
   target.width=W;target.height=H;const ctx=target.getContext('2d');ctx.clearRect(0,0,W,H);
   const fill=state.bg==='original'?'':state.bg.startsWith('#')?state.bg:(COLORS.find(c=>c[0]===state.bg)||[])[1];
   if(fill){ctx.fillStyle=fill;ctx.fillRect(0,0,W,H)}
-  ctx.save();ctx.translate(W/2,H/2);ctx.rotate(state.quarter*Math.PI/2+state.tilt*Math.PI/180);ctx.scale(zoom,zoom);ctx.imageSmoothingQuality='high';ctx.drawImage(src,-w/2,-h/2,w,h);ctx.restore();
+  ctx.save();ctx.translate(W/2,H/2);ctx.rotate(state.quarter*Math.PI/2+state.tilt*Math.PI/180);ctx.scale(zoom,zoom);ctx.imageSmoothingQuality='high';
+  if(target===canvas)state.view={inverse:ctx.getTransform().inverse(),k,w,h,zoom};
+  ctx.drawImage(src,-w/2,-h/2,w,h);ctx.restore();
   return !fill&&state.cut&&state.bg!=='original';
  }
  function draw(){if(state&&canvas)render(canvas,900)}
@@ -75,7 +93,8 @@
    const body=await new Promise(done=>c.toBlob(done,'image/jpeg',.92));
    const r=await fetch('/api/tools/remove-background',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'image/jpeg','X-CSRF-Token':await csrf()},body});
    if(!r.ok)throw Error((await r.json().catch(()=>({}))).error||'Could not remove the background.');
-   const url=URL.createObjectURL(await r.blob());if(!state)return;state.cut=await loadImage(url);
+   const url=URL.createObjectURL(await r.blob()),cut=await loadImage(url);URL.revokeObjectURL(url);if(!state)return;
+   state.cut=document.createElement('canvas');state.cut.width=cut.naturalWidth;state.cut.height=cut.naturalHeight;state.cut.getContext('2d',{willReadFrequently:true}).drawImage(cut,0,0);
   }catch(error){msg.textContent=error.message||'Could not remove the background. Check the line and try again.'}
   finally{busy.hidden=true;button.disabled=false}
  }

@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-07 (evening) — from Claude (account 2) — open
+## 2026-11-07 (night) — from Claude (account 2) — open
+
+- 1.1.228 (silueta background model + Erase/Restore brush) is in a PR. 1.1.227 is live. Watch Render memory (silueta 44 MB + DINOv2); if it runs out, the model is released after 2 idle minutes.
+
+## 2026-11-07 (evening) — from Claude (account 2) — done
 
 - 1.1.227 (cover photos one row + See more; Edit photo with server background removal U²-Netp) is in a PR. 1.1.226 confirmed. Watch Render memory after deploy (second ONNX model, ~5 MB).
 

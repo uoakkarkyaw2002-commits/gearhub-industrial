@@ -6,5 +6,6 @@ Image model for photo search (`lib/photo-search.js`).
 
 Background removal for product photos (`lib/bg-remove.js`, "Edit photo" in the product form).
 
-- `u2netp.onnx` — U²-Netp (Xuebin Qin et al., Apache License 2.0), 320×320 input, 4.6 MB, taken from the
-  npm package `@rmbg/model-u2netp` 0.0.1. The first output (d0, already 0–1) is the object mask.
+- `silueta.onnx` — "silueta" from rembg (U²-Net retrained/distilled for clean cut-outs, MIT), 320×320 input,
+  44 MB, from the npm package `@rmbg/model-silueta` 0.0.1 (its five parts joined in order). The first
+  output (d0, 0–1) is the object mask. Replaced U²-Netp (1.1.227), which left smudges on product photos.
