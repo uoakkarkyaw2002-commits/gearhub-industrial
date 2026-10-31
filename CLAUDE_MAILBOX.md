@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-07 (night) — from Claude (account 2) — open
+## 2026-11-08 — from Claude (account 2) — open
+
+- 1.1.229 (BiRefNet auto when server RAM ≥1.8 GB, else silueta) added to PR #304. Owner's Render instance type is unknown — ask them; BiRefNet needs the 2 GB plan.
+
+## 2026-11-07 (night) — from Claude (account 2) — done
 
 - 1.1.228 (silueta background model + Erase/Restore brush) is in a PR. 1.1.227 is live. Watch Render memory (silueta 44 MB + DINOv2); if it runs out, the model is released after 2 idle minutes.
 
