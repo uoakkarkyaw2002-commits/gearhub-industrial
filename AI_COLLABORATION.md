@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.228: Better background removal + Erase/Restore brush (Claude)
+- Owner: our cut-out was much worse than an outside tool's. Compared on the owner's pump photos: U²-Netp (smudges, soft holes) < silueta (rembg, MIT, 44 MB) ≈ ISNet-general (88 MB fp16, 1024 px, ~1.1 GB RSS, 3.5 s — too heavy for Render). Switched to `models/silueta.onnx` (npm `@rmbg/model-silueta`, 5 parts joined); u2netp.onnx removed. `lib/bg-remove.js`: mask curve (0.25–0.65 → 0–1) for crisp edges without grey halo, lanczos upscale + 0.6 blur, `dropSpecks` clears separate patches <3% of the biggest, session released after 2 idle minutes. Local: ~0.5 s per photo (first ~1.6 s), RSS ~500–650 MB while working.
+- Neither model removes background seen through closed loops (table inside the pump's pipe loop), so `photo-editor.js` adds a Brush row after Remove background: 🧽 Erase / 🖌 Restore (paints the original back), size slider, ↶ undo (6 steps); works with turn/straighten via the preview's inverse transform (`state.view`). The cut-out is now an editable canvas.
+- Checked: real server + admin, Chrome 390: cut 2.5 s (first load), erase stroke turns the wood pixel white, undo brings it back, save gives `p3-edited.jpg`; no errors. Node 22 check + 385/385. Watch Render memory.
+
 ### 1.1.227: Product photos — one row + See more; Edit photo (turn, straighten, remove background, colour) (Claude)
 - Owner (Edit Product, 9 photos): show only one row of cover photos with "See more"; add "Edit photo" beside Choose photos that can remove the background, change the background colour and straighten a tilted photo.
 - `admin.js`: `fitCoverRow()` hides every cover option below the first row (row = options level with the first; ResizeObserver), "See more (n) ▼"/"See less ▲". `window.GearHubProductPhotos={list,replace}` — replace swaps a chosen file in the `images` FileList, or removes a URL photo from `imageUrls` and adds the edited file (so an edited URL photo moves to the end of the uploaded files); the cover choice follows it.

@@ -16,14 +16,22 @@ test('Edit photo is loaded in the admin, cached offline, and puts the edited pho
  assert.match(js,/window\.GearHubProductPhotos\.replace\(state\.index,file\)/);
  assert.match(admin,/window\.GearHubProductPhotos=\{/);
 });
-test('background removal runs on our own server with the U2-Netp model, signed-in admins only',async()=>{
+test('background removal runs on our own server with the silueta model, signed-in admins only',async()=>{
  const server=read('server.js');
  assert.match(server,/app\.post\("\/api\/tools\/remove-background"/);
  assert.match(server,/if \(!req\.session\.admin && !req\.session\.platformUser\) return res\.status\(401\)/);
  assert.match(server,/validToken\(req\.session\.csrfToken, req\.get\("x-csrf-token"\)\)/);
- assert.ok(fs.statSync(path.join(__dirname,'../models/u2netp.onnx')).size>4e6);
+ assert.ok(fs.statSync(path.join(__dirname,'../models/silueta.onnx')).size>4e7);
  const sharp=require('sharp'),{removeBackground}=require('../lib/bg-remove');
  const photo=await sharp({create:{width:200,height:200,channels:3,background:'#c9a36b'}}).composite([{input:Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect x="60" y="40" width="80" height="120" rx="10" fill="#333"/></svg>')}]).jpeg().toBuffer();
  const png=await removeBackground(photo),meta=await sharp(png).metadata();
  assert.equal(meta.format,'png');assert.equal(meta.channels,4);
+});
+test('1.1.228: cleaner model with tightened edges and speck removal; Erase / Restore brush with undo',()=>{
+ const lib=read('lib/bg-remove.js'),js=read('public/photo-editor.js');
+ assert.match(lib,/models", "silueta\.onnx"/);assert.match(lib,/function dropSpecks\(mask\)/);assert.match(lib,/\(v - 0\.25\) \/ 0\.4/);
+ assert.match(lib,/setTimeout\(async \(\) => \{ const s = session; session = null;/,'the model is let go when idle');
+ assert.match(js,/data-brush="erase"[^]*data-brush="restore"/);
+ assert.match(js,/globalCompositeOperation='destination-out'/);
+ assert.match(js,/state\.undo\.pop\(\)/);
 });
