@@ -41,3 +41,10 @@ test('1.1.240: the link follows the shop name; old links all keep working; other
  db.prepare("UPDATE platform_shops SET name='Tree Bird' WHERE id=30").run();
  assert.equal(syncSlug(db,30),'tree-bird');assert.deepEqual(JSON.parse(db.prepare("SELECT settings FROM platform_shops WHERE id=30").get().settings).formerSlugs,['old-a','tree-bird-mobile']);
 });
+test('1.1.241: owner console Users lists only people with a shop and holds the user limit',()=>{
+ const js=require('node:fs').readFileSync(require('node:path').join(__dirname,'../public/platform.js'),'utf8');
+ assert.match(js,/const shopUsers = v\.users\.flatMap/);
+ assert.match(js,/<summary>Users <small>\$\{shopUsers\.length\}/);
+ assert.match(js,/\$\{signupEditor\(v\.signup\)\}\$\{shopUsers\.map/);
+ assert.equal((js.match(/signupEditor\(v\.signup\)/g)||[]).length,1);
+});

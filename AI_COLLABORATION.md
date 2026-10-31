@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.241: Owner console Users — only people with a shop, user limit inside (Claude)
+- Owner (iPhone screenshot of owner console → Users): people whose shop is gone still showed; and "how many users to accept" could not be found. `platform.js`: Users lists only users who own a seller shop now (`shopUsers`, shop name shown under the email); people without a shop are hidden, not deleted. The existing shop limit (`/owner/signup`, max shops = max sellers, + MB per new shop) now sits open at the top of Users ("User limit / user အများဆုံး"); summary "Users N / max". The separate "New shops" section is gone (same form/ids, same API). No server or DB change.
+- Checked: demo owner console Chrome 390/1280 — bob (no shop) hidden, alice + "Alice Parts" shown, limit field present once, Save 10 → 12 stored; no console errors. Node 22: check + 398/398.
+
 ### 1.1.240: Shop link follows the shop name (Claude)
 - Owner: the link must show the shop name, and change when the name changes; no other data may be touched.
 - `lib/shop-alias.js`: `syncSlug(db,id)` gives a shop the link made from its name (same rule as new shops: lower-case Latin letters/digits joined by "-"; next free "name-2" when taken); names without Latin letters, or a link that already matches ("name" or "name-N"), keep their link. Only `platform_shops.slug` + the owner's `platform_applications.slug` change; every old slug goes to `settings.formerSlugs` (redirects as in 1.1.239). `syncAll` runs at start-up for every shop (replaces the one-off psm-test-shop rename). `PATCH /api/platform/shops/:id` calls `syncSlug` after saving the name and returns `slug`; `tenant-admin.js` then moves the admin page to /shops/<new>/admin.
