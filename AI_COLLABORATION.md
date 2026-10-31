@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.225: "ရှာတာပဲ" rows are the same viewer; select/copy in place, nothing opens (Claude)
+- Owner: tapping a row in the search results opened the Excel viewer — it must not; select, drag and copy must work right there. `excel-map.js`: `rowFilter` in renderSheet + `GearHubExcelViewer.rows(set)` (tabs hidden while filtered; `home()`/`release()` clear it). `excel-search.js` rows view = `embed` + `rows(new Set([header,...hits]))` + `search(q)`, up to 200 hits; the box is sized to the drawn table (≤75% of the screen); my separate rows table and the row-tap-opens-viewer handler are gone. 1.1.224 deployed fine (owner's screenshot).
+- Checked: Chrome 375: rows view shows 1,1225,1289,1327,1427 only, cell tap selects, row-number tap selects 8 cells, no modal; Excel view still 155 rows drawn, 1/4; folder viewer full screen with tabs; no errors. Node 22 check + 380/380.
+
 ### 1.1.224: "Excel လို" search uses the real Excel viewer; faster first search (Claude)
 - Owner (night, wants it ready by morning): PART NO column too wide; keep every column/row at its original size; bring back drag-select, copy and row select from the Excel viewer; hide the keyboard's bar (it does nothing); make the app as fast as possible.
 - `excel-map.js`: workbooks are read once per page (`loadBook` cache, shared with search); `openBook(b,sheetName,embedded)`; new `GearHubExcelViewer.embed(host,…)`, `search(q)`, `step(n)`, `release()` — the viewer section (grid, tabs, excel-select.js selection/copy/row select, zoom) is moved under the shop search bar for the Excel view and moved back to its panel for the folder button. `excel-search.js`: Excel view = `embed` + `search`, the bar's count/˄ ˅ call `step`; my own 1.1.216–1.1.220 grid is now only the "ရှာတာပဲ" rows list (table width = sum of the file's column widths). Enter (Search key) = next match + closes the keyboard; `enterkeyhint="search"`. The workbook is read on idle (`requestIdleCallback`, skipped with Save-Data) so the first search takes ~0.2 s instead of ~0.8 s.

@@ -49,7 +49,7 @@
 
  tools.addEventListener('click',e=>{const st=e.target.closest('[data-excel-step]');if(st)go(+st.dataset.excelStep)});
  if(!products||!slug)return;
- const SHEET='BC',LIMIT=30;
+ const SHEET='BC',LIMIT=200;
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
  const box=document.createElement('section');box.className='excel-results';box.hidden=true;box.setAttribute('aria-live','polite');
  box.innerHTML='<div class="excel-results-rows"></div><div class="excel-results-host" hidden></div>';
@@ -85,28 +85,23 @@
   if(mode==='sheet'){
    rowsArea.innerHTML='';host.hidden=false;fit();
    if(!await viewer.embed(host,file.url,file.name,sheet.name)||mine!==turn)return;
-   countSheet(viewer.search(q));return;
+   viewer.rows(null);countSheet(viewer.search(q));return;
   }
-  viewer.release();host.hidden=true;
+  // 1.1.225 owner: "ရှာတာပဲ" is the same Excel viewer showing only the header and the matching rows —
+  // select, drag, copy and row select work right here; nothing opens the full viewer.
   const cols=[];for(let c=0;c<=sheet.maxC;c++)if(visible(sheet,c))cols.push(c);
-  // Column names: the first row with two or more filled cells (like the import mapping).
   let head=0;for(let r=0;r<=sheet.maxR;r++){if(cols.filter(c=>text(sheet,r,c)).length>=2){head=r;break}}
-  const needle=q.toLocaleLowerCase(),has=(r,c)=>text(sheet,r,c).toLocaleLowerCase().includes(needle),hits=[];
-  for(let r=head+1;r<=sheet.maxR&&hits.length<=LIMIT;r++){if(sheet.heights?.[r]===0)continue;if(cols.some(c=>has(r,c)))hits.push(r)}
-  const more=hits.length>LIMIT;if(more)hits.length=LIMIT;
-  // Drawn like the Excel viewer: column letters, row numbers, the header row, the sheet's own widths
-  // (the table is exactly their sum, so no column grows past its Excel size), heights, fills and fonts.
-  const width=c=>Math.round(((sheet.widths?.[c]??sheet.defW??8.43)*7)+5),height=r=>Math.max(24,Math.round((sheet.heights?.[r]||sheet.defH||15)*4/3)),letter=i=>{let t='';i++;while(i>0){const m=(i-1)%26;t=String.fromCharCode(65+m)+t;i=Math.floor((i-1)/26)}return t};
-  const css=cell=>{const st=cell?.style||{},f=st.font||{},out=[];if(st.fill)out.push('background-color:'+st.fill);if(f.color)out.push('color:'+f.color);if(f.b)out.push('font-weight:700');if(f.i)out.push('font-style:italic');if(f.sz)out.push('font-size:'+f.sz+'pt');if(f.name)out.push('font-family:"'+String(f.name).replace(/["<>]/g,'')+'",system-ui,sans-serif');
-   const h=st.h&&st.h!=='general'?(st.h==='centerContinuous'?'center':st.h):cell?.numeric?'right':'left';out.push('text-align:'+h);if(st.wrap)out.push('white-space:pre-wrap');return out.join(';')};
-  const td=(r,c)=>{const cell=sheet.cells.get(r+','+c);return '<td'+(r!==head&&has(r,c)?' class="excel-match"':'')+' style="'+esc(css(cell))+'">'+esc(text(sheet,r,c))+'</td>'};
-  const line=(r,cls)=>'<tr'+(cls?' class="'+cls+'"':'')+' data-excel-row="'+r+'" style="height:'+height(r)+'px"><th>'+(r+1)+'</th>'+cols.map(c=>td(r,c)).join('')+'</tr>';
-  const total=46+cols.reduce((a,c)=>a+width(c),0);
-  rowsArea.innerHTML=hits.length?'<div class="excel-results-grid"><table style="width:'+total+'px"><colgroup><col style="width:46px">'+cols.map(c=>'<col style="width:'+width(c)+'px">').join('')+'</colgroup>'
-   +'<thead><tr class="excel-results-letters"><th></th>'+cols.map(c=>'<th>'+letter(c)+'</th>').join('')+'</tr>'+line(head,'excel-results-header')+'</thead>'
-   +'<tbody>'+hits.map(r=>line(r)).join('')+'</tbody></table></div>':'<p class="excel-results-none">Excel · '+esc(sheet.name)+' — No match</p>';
-  setCount(hits.length+(more?'+':''),false);
-  box.dataset.url=file.url;box.dataset.name=file.name;box.dataset.sheet=sheet.name;
+  const needle=q.toLocaleLowerCase(),hits=[];
+  for(let r=head+1;r<=sheet.maxR&&hits.length<LIMIT;r++){if(sheet.heights?.[r]===0)continue;if(cols.some(c=>text(sheet,r,c).toLocaleLowerCase().includes(needle)))hits.push(r)}
+  setCount(String(hits.length)+(hits.length>=LIMIT?'+':''),false);
+  if(!hits.length){viewer.release();host.hidden=true;rowsArea.innerHTML='<p class="excel-results-none">Excel · '+esc(sheet.name)+' — No match</p>';return}
+  rowsArea.innerHTML='';host.hidden=false;
+  host.style.height=Math.round(window.innerHeight*.75)+'px';
+  if(!await viewer.embed(host,file.url,file.name,sheet.name)||mine!==turn)return;
+  viewer.rows(new Set([head,...hits]));viewer.search(q);
+  // Fit the box to the drawn rows (up to three quarters of the screen; the sheet scrolls past that).
+  await new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done)));if(mine!==turn)return;
+  const g=host.querySelector('#excel-grid'),t=g?.querySelector('table');if(t){g.scrollTop=0;host.style.height=Math.min(window.innerHeight*.75,t.offsetHeight+2)+'px'}
  }
  // The Excel view hides the products and fills the screen under the search bar.
  function full(on){document.body.classList.toggle('excel-sheet-mode',on)}
@@ -124,8 +119,6 @@
   paint();help.after(pick);
   pick.addEventListener('click',e=>{const m=e.target.closest('[data-excel-mode]');if(!m)return;mode=m.dataset.excelMode;try{localStorage.setItem(MODE_KEY,mode)}catch{}paint();if(input.value.trim())show()});
  }
- // "ရှာတာပဲ": a tapped row opens the Excel view at that row.
- rowsArea.addEventListener('click',e=>{const b=e.target.closest('tbody [data-excel-row]');if(b)window.GearHubExcelViewer?.open(box.dataset.url,box.dataset.name,box.dataset.sheet,input.value.trim(),+b.dataset.excelRow)});
  input.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(show,300)});
  // The keyboard's Search key: next match in the Excel view, then the keyboard closes so the sheet shows.
  input.addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();if(mode==='sheet'&&!box.hidden)go(1);input.blur()});

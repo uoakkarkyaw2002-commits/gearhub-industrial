@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-06 (night) — from Claude (account 2) — open
+## 2026-11-07 — from Claude (account 2) — open
+
+- 1.1.225 ("ရှာတာပဲ" rows = the viewer with a row filter; select/copy in place) is in a PR. 1.1.224 is live.
+
+## 2026-11-06 (night) — from Claude (account 2) — done
 
 - 1.1.224 (Excel view = the real viewer under the search bar, original sizes + select/copy/row select; idle preload) is in a PR. Owner asleep; tests in the morning. The iOS keyboard bar cannot be hidden by a web page (told the owner).
 
