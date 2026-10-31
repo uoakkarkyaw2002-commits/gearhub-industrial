@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.237: Bigger download parachute on phones (Claude)
+- Owner (live 1.1.236 screenshot at 51%): the parachute was too small next to the bigger button. `style.css` (phone overlay only): parachute 24x34 → 40x57 px, falls from -72 px and lands on the bar (now 170 px wide, 5 px high), check mark 38 px, % label at the right. Animation logic in `store.js` unchanged; PC unchanged.
+- Checked: Chrome 390 screenshots of downloading 40% / 100% and done (state set by script, no real download); no console errors. Node 22: check + tests.
+
 ### 1.1.236: Phone photo sheet — no side arrows, tray download icon (Claude)
 - Owner (live 1.1.235 screenshot): remove the ‹ › buttons beside the photo (swipe still works) and use the tray download icon from their picture, a little bigger. `style.css`: phone arrow rules removed (the global `.gallery-arrow{display:none!important}` hides them again); download button 48 → 58 px; in idle the parachute drop is hidden and a new `.gallery-dl-icon` (arrow into a tray, `index.html`) shows; the download animation states are unchanged. PC unchanged (icon hidden there).
 - Checked: Chrome 390 (arrows display none, icon white on the teal circle, card tap opens), 1280; no console errors. Node 22: check + 392/392. The demo server caches index.html — restart it after HTML edits.

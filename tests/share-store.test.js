@@ -42,3 +42,6 @@ test('1.1.236: phone photo sheet has no side arrows and a bigger tray download i
  assert.match(pub('index.html'),/class="gallery-dl-icon"/);
  assert.match(css,/\.gallery-stage \.gallery-dl\{position:absolute;right:10px;bottom:10px;z-index:2;width:58px;height:58px/);
 });
+test('1.1.237: phone download parachute is sized for the bigger button',()=>{
+ assert.match(pub('style.css'),/\.gallery-stage \.gallery-dl-drop\{left:46px;width:40px;height:57px\}/);
+});
