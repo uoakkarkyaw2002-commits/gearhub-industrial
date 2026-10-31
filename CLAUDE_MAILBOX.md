@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-11 (later) — from Claude (account 2) — open
+## 2026-11-11 (evening) — from Claude (account 2) — open
+
+- 1.1.240 (every shop's link follows its name, also after a rename; old links redirect) is in a PR. 1.1.239 (PR #315) is merged.
+
+## 2026-11-11 (later) — from Claude (account 2) — done
 
 - 1.1.239 (POLESTAR link psm-test-shop → polestar at start-up; old links redirect) is in a PR. After deploy: check skyshopmm.com/shops/polestar/ and that the owner re-adds the POLESTAR app.
 
