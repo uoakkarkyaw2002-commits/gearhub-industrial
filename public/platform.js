@@ -28,9 +28,9 @@
   </div></details>`;
   // New shops (owner): a shop opens as soon as someone applies, up to this many seller shops, each with
   // this much storage; over the limit applications wait for the owner (Approve, as before).
-  const signupEditor = (s) => !s ? "" : `<details class="owner-settings signup-editor"><summary>New shops / ဆိုင်အသစ် ဖွင့်ခြင်း <small>${Number(s.shops)} / ${Number(s.maxShops)} shops · ${Number(s.storageMb)} MB each</small></summary>
+  const signupEditor = (s) => !s ? "" : `<details class="owner-settings signup-editor" open><summary>User limit / user အများဆုံး <small>${Number(s.shops)} / ${Number(s.maxShops)} shops · ${Number(s.storageMb)} MB each</small></summary>
     <p class="muted">လျှောက်တာနဲ့ ဆိုင်ကို ချက်ချင်း ဖွင့်ပေးပါတယ်။ ဆိုင်ဦးရေ ပြည့်ရင် လျှောက်လွှာ စောင့်နေပြီး ဒီက Applications မှာ Approve လုပ်မှ ဖွင့်ပါမယ်။ / Shops open at once until the limit; then applications wait for you.</p>
-    <form id="signup-form" class="splash-row"><label>ဆိုင် အများဆုံး / Seller shops (now ${Number(s.shops)})<input name="maxShops" type="number" min="0" max="10000" step="1" value="${esc(s.maxShops)}" required></label><label>ဆိုင်တစ်ခု storage / MB per new shop<input name="storageMb" type="number" min="1" max="10240" step="1" value="${esc(s.storageMb)}" required></label><button class="primary" type="submit">Save / သိမ်းမယ်</button></form>
+    <form id="signup-form" class="splash-row"><label>User (ဆိုင်) အများဆုံး / Max users with a shop (now ${Number(s.shops)})<input name="maxShops" type="number" min="0" max="10000" step="1" value="${esc(s.maxShops)}" required></label><label>ဆိုင်တစ်ခု storage / MB per new shop<input name="storageMb" type="number" min="1" max="10240" step="1" value="${esc(s.storageMb)}" required></label><button class="primary" type="submit">Save / သိမ်းမယ်</button></form>
     <p class="muted">Storage က ဆိုင်အသစ်တွေအတွက်ပဲ ဖြစ်ပါတယ်။ ရှိပြီးသား ဆိုင်ကို ဆိုင်စာရင်းထဲက Storage မှာ ပြင်ပါ။ / Applies to new shops; change an existing shop in its own settings.</p>
   </details>`;
   // Google Drive backup (owner): the daily backup and every shop photo's original go to the owner's
@@ -332,6 +332,7 @@
     const sellerShops = v.shops.filter((s) => !s.legacy);
     const apps = (status) => v.applications.filter((a) => a.status === status);
     const ownerFor = (shop) => v.users.find((u) => u.id === shop.owner_id) || {};
+    const shopUsers = v.users.flatMap((u) => { const shop = sellerShops.find((x) => x.owner_id === u.id); return shop ? [{ ...u, shop: shop.name }] : []; });
     const planName = (shop) => v.plans.find((p) => p.id === shop.plan_id)?.name || "Basic";
     const states = new Map(sellerShops.map((s) => [s.id, M.state(s)]));
     const count = (...wanted) => sellerShops.filter((s) => wanted.includes(states.get(s.id))).length;
@@ -373,11 +374,11 @@
       <section id="application-list-view" class="application-queue" hidden><h3 id="application-heading"></h3><div data-app-list="pending">${apps("pending").map(appRow).join("") || '<p class="muted">No pending seller application.</p>'}</div><div data-app-list="rejected">${apps("rejected").map(appRow).join("") || '<p class="muted">No rejected application.</p>'}<p class="muted">Rejected sellers can submit a new application from their own account.</p></div></section>
       <div id="shop-management-panel" class="shop-management-panel" hidden></div>
       <details class="owner-settings"><summary>Plans <small>manual, no automatic billing</small></summary><div class="plan-grid">${[...v.plans, { id: "new", permissions: {}, storage_bytes: 52428800, product_limit: 100 }].map(planForm).join("")}</div></details>
-      <details class="owner-settings"><summary>Users <small>${v.users.length}</small></summary>${v.users.map((u) => `<form id="u-${u.id}" class="user-row"><div><strong>${esc(u.name || u.email)}</strong><small>${esc(u.email)}</small></div>${select("status", "Status", ["active", "suspended"], u.status)}<button>Save</button></form>`).join("")}</details>
+      <!-- 1.1.241 owner: Users shows only people who have a shop now (people whose shop was deleted are hidden, not deleted), with the user / shop limit at the top. -->
+      <details class="owner-settings users-settings"><summary>Users <small>${shopUsers.length}${v.signup ? " / " + Number(v.signup.maxShops) : ""}</small></summary>${signupEditor(v.signup)}${shopUsers.map((u) => `<form id="u-${u.id}" class="user-row"><div><strong>${esc(u.name || u.email)}</strong><small>${esc(u.email)}</small><small>🏪 ${esc(u.shop)}</small></div>${select("status", "Status", ["active", "suspended"], u.status)}<button>Save</button></form>`).join("")}</details>
       ${policyEditor(v.policies)}
       ${splashEditor(v.splash)}
       ${sceneEditor(v.scene)}
-      ${signupEditor(v.signup)}
       ${driveEditor(v.drive)}
       <details class="owner-settings"><summary>In-app update announcement</summary><form id="release">${field("version", "Deployed version", v.release.version).replace("<input ", "<input readonly ")}${field("notes", "Update notes", v.release.notes)}<p class="muted">Updates install automatically when no checkout or file upload is in progress.</p><button>Publish</button></form></details>
     </section>`;

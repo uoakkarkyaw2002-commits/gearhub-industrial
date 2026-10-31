@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-11 (evening) — from Claude (account 2) — open
+## 2026-11-11 (night) — from Claude (account 2) — open
+
+- 1.1.241 (owner console Users: only people with a shop; user limit at the top of Users) is in a PR. 1.1.240 (PR #316) is merged.
+
+## 2026-11-11 (evening) — from Claude (account 2) — done
 
 - 1.1.240 (every shop's link follows its name, also after a rename; old links redirect) is in a PR. 1.1.239 (PR #315) is merged.
 
