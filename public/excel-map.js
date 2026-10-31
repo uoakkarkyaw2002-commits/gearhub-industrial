@@ -303,11 +303,12 @@
   return css.join(';');
  }
  // Sheet zoom (pinch on phones, Ctrl + wheel / trackpad pinch on PC). Excel's own zoom range.
- let zoom=1;const ZMIN=0.3,ZMAX=3;
+ let zoom=1,rowFilter=null;const ZMIN=0.3,ZMAX=3;
  function renderSheet(sheet,keepScroll){
   const cols=sheet.maxC+1,rows=sheet.maxR+1,px=w=>Math.round(((w??sheet.defW)*7+5)*zoom);
   const frozen=sheet.frozen||{r0:0,r1:0,c0:0,c1:0};
-  const visibleRows=Array.from({length:rows},(_,r)=>r).filter(r=>r>=frozen.r0&&sheet.heights[r]!==0),rowShown=new Set(visibleRows);
+  // 1.1.225: the search's "ရှာတာပဲ" view shows only the header and the matching rows (rowFilter).
+  const visibleRows=Array.from({length:rows},(_,r)=>r).filter(r=>r>=frozen.r0&&sheet.heights[r]!==0&&(!rowFilter||rowFilter.has(r))),rowShown=new Set(visibleRows);
   // Hidden columns (width 0 or hidden in Excel) are left out completely, like Excel.
   const visibleCols=Array.from({length:cols},(_,c)=>c).filter(c=>c>=frozen.c0&&sheet.widths[c]!==0),colShown=new Set(visibleCols);
   const widths=visibleCols.map(c=>px(sheet.widths[c])),total=46+widths.reduce((a,b)=>a+b,0);
@@ -551,7 +552,7 @@
  const books=new Map();
  function loadBook(url){if(!books.has(url))books.set(url,(async()=>readBook(await (await fetch(url)).arrayBuffer()))().catch(x=>{books.delete(url);throw x}));return books.get(url)}
  // The viewer may sit under the shop search bar (embedded, 1.1.224); the folder puts it back in its panel.
- function home(){if(section.parentElement!==card){card.append(section);section.classList.remove('excel-inline');inlineKey=''}}
+ function home(){if(rowFilter){rowFilter=null;section.classList.remove('excel-filtered');if(renderedSheet)renderSheet(renderedSheet,false)}if(section.parentElement!==card){card.append(section);section.classList.remove('excel-inline');inlineKey=''}}
  let inlineKey='';
  async function openBook(b,sheetName,embedded){
   if(!embedded){home();box.hidden=true;setForm(true);card.classList.add('excel-sheet-open');fullScreen(true)}
@@ -590,9 +591,10 @@
   // column sizes, selection, copy, row select), driven by that bar.
   async embed(host,url,name,sheetName){const key=url+'|'+sheetName;if(section.parentElement!==host){host.append(section);section.classList.add('excel-inline')}section.hidden=false;
    if(inlineKey===key&&book)return true;const ok=await openBook({dataset:{excelPreview:url,excelName:name}},sheetName,true);inlineKey=ok?key:'';return ok},
+  rows(set){rowFilter=set||null;if(renderedSheet)renderSheet(renderedSheet,false);section.classList.toggle('excel-filtered',!!set)},
   search(query){search.value=query;searchText=query;find(0);return{at:foundAt,total:found.length}},
   step(n){find(n);return{at:foundAt,total:found.length}},
-  release(){if(section.classList.contains('excel-inline')){home();section.hidden=true}},
+  release(){if(section.classList.contains('excel-inline')){if(rowFilter){rowFilter=null;section.classList.remove('excel-filtered');if(renderedSheet)renderSheet(renderedSheet,false)}home();section.hidden=true}},
   async open(url,name,sheetName,query,row){document.getElementById('excel-library-open')?.click();if(await openBook({dataset:{excelPreview:url,excelName:name}},sheetName)&&query){search.value=query;searchText=query;find(0);const k=found.findIndex(([r])=>r===row);if(k>0){foundAt=k-1;find(1)}}}
  };
  search.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();find(e.shiftKey?-1:1)}});

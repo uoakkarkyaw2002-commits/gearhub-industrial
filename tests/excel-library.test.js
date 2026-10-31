@@ -142,7 +142,7 @@ test('excel viewer: selection shows on filled cells; two-finger zoom smaller and
  // background shorthand would wipe the blue selection layer (background-image) on filled cells.
  assert.match(map,/if\(s\.fill\)css\.push\('background-color:'\+s\.fill\)/);
  assert.doesNotMatch(map,/css\.push\('background:'/);
- assert.match(map,/let zoom=1;const ZMIN=0\.3,ZMAX=3;/);
+ assert.match(map,/let zoom=1,rowFilter=null;const ZMIN=0\.3,ZMAX=3;/);
  assert.match(map,/grid\.addEventListener\('touchmove',e=>\{if\(!pinch\|\|e\.touches\.length!==2\)return;e\.preventDefault\(\)/);
  assert.match(map,/grid\.addEventListener\('wheel',e=>\{if\(!e\.ctrlKey\)return;/);
  assert.match(css,/#excel-grid\{touch-action:pan-x pan-y\}/);

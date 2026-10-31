@@ -1246,3 +1246,4 @@ body.searching .search-pill .photo-scan-button,body.searching .excel-folder-butt
 .excel-inline>.drawer-head,.excel-inline #excel-sheet-status,.excel-inline .excel-map-panel,.excel-inline .excel-sheet-search,.excel-inline .excel-fs-back{display:none!important}
 .excel-inline .excel-sheet{flex:1;min-height:0;max-height:none;margin:0;border:0;border-top:1px solid #d4d4d4;border-radius:0}
 .excel-inline .excel-tabs{flex:0 0 auto;border:0;border-top:1px solid #d4d4d4;border-radius:0}
+.excel-filtered .excel-tabs,.excel-filtered .excel-sheet-list{display:none!important}
