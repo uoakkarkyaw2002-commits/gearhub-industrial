@@ -28,7 +28,7 @@
   let img;try{img=await loadImage(photo.url)}catch(error){alert(error.message);return}
   state={index,name:(photo.label||'photo').replace(/\.[a-z0-9]+$/i,''),original:img,cut:null,quarter:0,tilt:0,bg:'original',brush:'',undo:[],view:null};
   sheet.innerHTML='<div class="pe-card pe-edit"><div class="pe-head"><button type="button" class="pe-back" aria-label="Back">←</button><h3>Photo '+(index+1)+'</h3><button type="button" class="pe-x" aria-label="Close">×</button></div>'
-   +'<div class="pe-stage"><canvas></canvas><div class="pe-busy" hidden><i></i><span>Removing background…</span></div></div>'
+   +'<div class="pe-stage"><canvas></canvas><div class="pe-busy" hidden><i></i><span>Removing background…</span><small>Up to a minute for the best result</small></div></div>'
    +'<div class="pe-tools">'
    +'<div class="pe-row"><button type="button" data-act="left">⟲ 90°</button><button type="button" data-act="right">⟳ 90°</button><button type="button" data-act="cut" class="pe-cut">✂︎ Remove background</button></div>'
    +'<div class="pe-row pe-brush" hidden><span>Brush</span><button type="button" data-brush="erase" aria-pressed="false">🧽 Erase</button><button type="button" data-brush="restore" aria-pressed="false">🖌 Restore</button><button type="button" data-act="undo" class="pe-undo" aria-label="Undo">↶</button><label class="pe-size" title="Brush size"><input type="range" min="6" max="70" value="22"></label></div>'

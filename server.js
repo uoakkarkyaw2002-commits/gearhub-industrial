@@ -825,11 +825,13 @@ app.post("/api/admin/login", async (req,res) => {
 });
 // 1.1.227 owner: "Edit photo" in the product form can take a photo's background away. Runs on our own
 // server (lib/bg-remove.js); for the shop admin and the GearHub admin only.
+// 1.1.229: when the server has the memory, BiRefNet is fetched in the background after start.
+setTimeout(() => require("./lib/bg-remove").prepare(dataDir), 30000).unref();
 app.post("/api/tools/remove-background", rateLimit({ windowMs: 60 * 1000, limit: 20, standardHeaders: true, legacyHeaders: false }), express.raw({ type: ["image/jpeg", "image/png", "image/webp"], limit: "8mb" }), async (req, res) => {
  if (!req.session.admin && !req.session.platformUser) return res.status(401).json({ error: "Sign in first." });
  if (!validToken(req.session.csrfToken, req.get("x-csrf-token"))) return res.status(403).json({ error: "Security token expired. Reload and try again." });
  if (!Buffer.isBuffer(req.body) || !req.body.length) return res.status(400).json({ error: "Send a JPG, PNG or WebP photo." });
- try { const png = await require("./lib/bg-remove").removeBackground(req.body); res.set("Cache-Control", "no-store").type("png").send(png); }
+ try { const { png, model } = await require("./lib/bg-remove").removeBackground(req.body, { dataDir }); res.set({ "Cache-Control": "no-store", "X-Bg-Model": model }).type("png").send(png); }
  catch (error) { logError("remove_background", error); res.status(422).json({ error: "Could not read this photo." }); }
 });
 app.get("/api/admin/me", adminOnly, (req,res) => res.json({authenticated:true,username:req.session.admin.username}));

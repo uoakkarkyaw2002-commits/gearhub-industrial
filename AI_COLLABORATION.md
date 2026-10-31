@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.229: BiRefNet when the server has the memory — Remove background finishes by itself (Claude)
+- Owner: no hand work; Remove background must do everything, also the table inside the pump's pipe loop. Tested BiRefNet-lite (rembg release `BiRefNet-general-bb_swin_v1_tiny-epoch_232.onnx`, MIT, 224 MB, 1024 px): all 4 pump photos clean incl. the loop holes; ~25–40 s per photo here (4 CPU), peak RSS 0.6–0.9 GB with `enableCpuMemArena:false`/`enableMemPattern:false`.
+- `lib/bg-remove.js`: two models — fast = silueta (repo), best = BiRefNet. Best is used only when the container memory limit (cgroup `memory.max`, else `os.totalmem`) ≥ 1.8 GB; the file is too big for git, so `prepare(dataDir)` downloads it once to `DATA_DIR/models/birefnet-lite.onnx` (size-checked, `.part` then rename; server.js calls it 30 s after start) and silueta is used until it is there. One photo at a time (queue). Response header `X-Bg-Model: fast|best`. Editor busy text says it can take up to a minute.
+- The owner's Render plan/RAM is unknown to us (no dashboard access). If it is the 512 MB Starter, nothing changes (silueta); with ≥2 GB (Standard) BiRefNet turns on by itself after deploy. Disk: +224 MB of the 3 GB.
+- Checked: module with no model → fast; with the model and 16.9 GB → best, p3 loop cleared (28 s). Node 22 check + tests.
+
 ### 1.1.228: Better background removal + Erase/Restore brush (Claude)
 - Owner: our cut-out was much worse than an outside tool's. Compared on the owner's pump photos: U²-Netp (smudges, soft holes) < silueta (rembg, MIT, 44 MB) ≈ ISNet-general (88 MB fp16, 1024 px, ~1.1 GB RSS, 3.5 s — too heavy for Render). Switched to `models/silueta.onnx` (npm `@rmbg/model-silueta`, 5 parts joined); u2netp.onnx removed. `lib/bg-remove.js`: mask curve (0.25–0.65 → 0–1) for crisp edges without grey halo, lanczos upscale + 0.6 blur, `dropSpecks` clears separate patches <3% of the biggest, session released after 2 idle minutes. Local: ~0.5 s per photo (first ~1.6 s), RSS ~500–650 MB while working.
 - Neither model removes background seen through closed loops (table inside the pump's pipe loop), so `photo-editor.js` adds a Brush row after Remove background: 🧽 Erase / 🖌 Restore (paints the original back), size slider, ↶ undo (6 steps); works with turn/straighten via the preview's inverse transform (`state.view`). The cut-out is now an editable canvas.

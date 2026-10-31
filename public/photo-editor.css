@@ -42,3 +42,4 @@ html.pe-open{overflow:hidden}
 .pe-brush .pe-undo{flex:0 0 44px!important}
 .pe-size{flex:1 1 100%;display:block}.pe-size input{width:100%;accent-color:#16803a}
 .pe-stage canvas.pe-painting{touch-action:none;cursor:crosshair}
+.pe-busy small{font-weight:500;color:#5d6b63}
