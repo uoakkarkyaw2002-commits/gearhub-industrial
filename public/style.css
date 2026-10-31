@@ -1263,7 +1263,7 @@ body.searching .search-pill .photo-scan-button,body.searching .excel-folder-butt
 /* 1.1.235 owner: product photos on phones in the owner's design — bold name, round close, SKU / Part No chips,
    grey photo panel with round arrows, count and download on the photo, four thumbnails, Similar parts cards
    (tap opens) and See all. PC keeps its layout (chips and See all are phone-only). */
-.gallery-ids,.gallery-similar .gallery-similar-all{display:none}
+.gallery-ids,.gallery-similar .gallery-similar-all,.gallery-dl-icon{display:none}
 @media(max-width:520px){
  .gallery-modal .gallery-card{padding:16px 16px 14px;border-radius:26px;background:#fbfcfd}
  .gallery-modal .drawer-head{align-items:center;margin-bottom:8px}
@@ -1276,13 +1276,12 @@ body.searching .search-pill .photo-scan-button,body.searching .excel-folder-butt
  .gallery-id-part{background:#eef1f4;color:#4b5563}
  .gallery-modal .gallery-stage{position:relative;border-radius:20px;background:#eef1f5}
  .gallery-modal .gallery-stage>img{padding:14px;box-sizing:border-box;mix-blend-mode:multiply}
- .gallery-modal .gallery-stage .gallery-arrow{display:grid!important;place-items:center;position:absolute;top:50%;z-index:2;width:40px;height:40px;margin-top:-20px;padding:0;border:0;border-radius:50%;background:#fff;color:#1f2937;font-size:26px;line-height:1;box-shadow:0 4px 14px #0f172a24}
- .gallery-modal .gallery-stage .gallery-arrow:disabled{opacity:.45}
- #gallery-prev{left:8px}#gallery-next{right:8px}
  .gallery-stage #gallery-count{position:absolute;left:10px;bottom:10px;z-index:2;padding:5px 11px;border-radius:999px;background:#64748bcc;color:#fff;font-size:12.5px;font-weight:700}
- .gallery-stage .gallery-dl{position:absolute;right:10px;bottom:10px;z-index:2;width:48px;height:48px;flex:none}
- .gallery-stage .gallery-dl[data-state="idle"] .gallery-dl-track{left:0;top:0;width:48px;height:48px;border:0;background:#14b39a;box-shadow:0 6px 16px #14b39a59}
- .gallery-stage .gallery-dl[data-state="idle"] .gallery-dl-drop{left:12px;top:-3px;fill:#fff}
+ .gallery-stage .gallery-dl{position:absolute;right:10px;bottom:10px;z-index:2;width:58px;height:58px;flex:none}
+ .gallery-stage .gallery-dl[data-state="idle"] .gallery-dl-track{left:0;top:0;width:58px;height:58px;border:0;background:#14b39a;box-shadow:0 6px 16px #14b39a59}
+ .gallery-stage .gallery-dl[data-state="idle"] .gallery-dl-drop{opacity:0}
+ /* 1.1.236 owner: tray download icon like the owner's picture, a little bigger. */
+ .gallery-stage .gallery-dl[data-state="idle"] .gallery-dl-icon{display:block;position:absolute;left:14px;top:14px;width:30px;height:30px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
  .gallery-stage .gallery-dl:not([data-state="idle"]){width:150px}
  .gallery-stage .gallery-dl:not([data-state="idle"]) .gallery-dl-track{top:44px}
  .gallery-stage .gallery-dl-label{top:24px;color:#0f766e}

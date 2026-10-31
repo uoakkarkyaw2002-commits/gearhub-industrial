@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.236: Phone photo sheet — no side arrows, tray download icon (Claude)
+- Owner (live 1.1.235 screenshot): remove the ‹ › buttons beside the photo (swipe still works) and use the tray download icon from their picture, a little bigger. `style.css`: phone arrow rules removed (the global `.gallery-arrow{display:none!important}` hides them again); download button 48 → 58 px; in idle the parachute drop is hidden and a new `.gallery-dl-icon` (arrow into a tray, `index.html`) shows; the download animation states are unchanged. PC unchanged (icon hidden there).
+- Checked: Chrome 390 (arrows display none, icon white on the teal circle, card tap opens), 1280; no console errors. Node 22: check + 392/392. The demo server caches index.html — restart it after HTML edits.
+
 ### 1.1.235: Product photos on phones in the owner's design (Claude)
 - Owner sent old vs new pictures of the product photo sheet. Phones only (≤520px): bold name, round grey close, SKU / Part No chips (`#gallery-ids`, filled in `renderGallery`), grey photo panel with round ‹ › arrows, "1 / 4" pill and a teal round download button on the photo (`galleryPlace()` moves `#gallery-count` + `#gallery-download` into the stage on phones, back under it on PC), four thumbnails per row with a teal edge, Similar parts with "See all ›" (more than 4; wraps them, "Show less") (`similar-parts.js`); tapping a card opens that product (owner asked to remove the "View ›" button). PC layout unchanged (chips and See all hidden).
 - `store.js`/`smart-search.js` tags moved together to 1.1.235 (free-ai test pins them equal; test updated on purpose).

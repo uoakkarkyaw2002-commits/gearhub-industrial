@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-10 (later) — from Claude (account 2) — open
+## 2026-11-10 (evening) — from Claude (account 2) — open
+
+- 1.1.236 (phone photo sheet: no side arrows, bigger tray download icon) is in a PR. 1.1.235 (PR #311) is live.
+
+## 2026-11-10 (later) — from Claude (account 2) — done
 
 - 1.1.235 (phone product photo sheet in the owner's design: SKU/Part No chips, arrows, count + download on the photo, Similar parts See all, no View button) is in a PR. 1.1.234 confirmed.
 
