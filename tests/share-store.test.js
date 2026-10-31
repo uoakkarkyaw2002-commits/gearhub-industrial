@@ -45,3 +45,6 @@ test('1.1.236: phone photo sheet has no side arrows and a bigger tray download i
 test('1.1.237: phone download parachute is sized for the bigger button',()=>{
  assert.match(pub('style.css'),/\.gallery-stage \.gallery-dl-drop\{left:46px;width:40px;height:57px\}/);
 });
+test('1.1.238: phone photo sheet close X is drawn centred',()=>{
+ assert.match(pub('style.css'),/\.gallery-modal #gallery-close::before,\.gallery-modal #gallery-close::after\{content:"";position:absolute;left:50%;top:50%/);
+});

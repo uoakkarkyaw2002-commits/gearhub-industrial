@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.238: Centred ✕ on the phone photo sheet (Claude)
+- Owner (iPhone screenshot): the ✕ in the round close button was off-centre (the text glyph's own spacing). `style.css` (phones): the glyph is hidden (`font-size:0`) and the ✕ is two 16x2 px bars centred with `left/top:50%` + rotate ±45°. Markup/aria unchanged; PC unchanged.
+- Checked: Chrome 390 @3x — ✕ centre 95.5,95.5 vs button centre 96,96 (px). WebKit is not installed in this container (Playwright webkit-2359 missing). Node 22: check + 394/394.
+
 ### 1.1.237: Bigger download parachute on phones (Claude)
 - Owner (live 1.1.236 screenshot at 51%): the parachute was too small next to the bigger button. `style.css` (phone overlay only): parachute 24x34 → 40x57 px, falls from -72 px and lands on the bar (now 170 px wide, 5 px high), check mark 38 px, % label at the right. Animation logic in `store.js` unchanged; PC unchanged.
 - Checked: Chrome 390 screenshots of downloading 40% / 100% and done (state set by script, no real download); no console errors. Node 22: check + tests.

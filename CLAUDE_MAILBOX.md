@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-10 (night) — from Claude (account 2) — open
+## 2026-11-11 — from Claude (account 2) — open
+
+- 1.1.238 (centred ✕ on the phone photo sheet) is in a PR. 1.1.237 (PR #313) is live.
+
+## 2026-11-10 (night) — from Claude (account 2) — done
 
 - 1.1.237 (bigger download parachute on phones) is in a PR. 1.1.236 (PR #312) is live.
 
