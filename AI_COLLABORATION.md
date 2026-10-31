@@ -30,6 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.227: Product photos — one row + See more; Edit photo (turn, straighten, remove background, colour) (Claude)
+- Owner (Edit Product, 9 photos): show only one row of cover photos with "See more"; add "Edit photo" beside Choose photos that can remove the background, change the background colour and straighten a tilted photo.
+- `admin.js`: `fitCoverRow()` hides every cover option below the first row (row = options level with the first; ResizeObserver), "See more (n) ▼"/"See less ▲". `window.GearHubProductPhotos={list,replace}` — replace swaps a chosen file in the `images` FileList, or removes a URL photo from `imageUrls` and adds the edited file (so an edited URL photo moves to the end of the uploaded files); the cover choice follows it.
+- `public/photo-editor.js/.css` (admin.html, sw SHELL): picker of the product's photos → editor canvas: ⟲/⟳ 90°, Straighten slider ±45° (auto-zoom so no empty corners), Remove background, background Original/White/Light gray/Black/Clear/any colour, Reset, Save photo (JPEG, PNG when Clear; ≤5 MB). Drive-only photos (no preview) cannot be edited until imported.
+- Server: `lib/bg-remove.js` + `models/u2netp.onnx` (U²-Netp, Apache-2.0, 4.6 MB from npm `@rmbg/model-u2netp`) on onnxruntime-node + sharp; `POST /api/tools/remove-background` (raw image ≤8 MB, admin or platform session, CSRF, 20/min) returns a transparent PNG ≤1600 px. ~0.3–0.8 s per photo locally.
+- Checked: real server.js + GearHub admin, Chrome 375 (2 per row shown, See more 5) and 1280 (all 7 fit one row, no button): pick Photo 2 → ⟳90 + 6° + Remove background (≈0.4 s) + Light gray → Save → `p2-edited.jpg` in place of Photo 2. Node 22 check + 384/384. Not tested in a seller shop on a real phone; quality on real photos depends on the model (owner's pump photo came out clean).
+
 ### 1.1.226: Excel link cells offer Copy / Go (Claude)
 - Owner: the PHOTO column's Google Drive links did nothing. `excel-select.js`: tapping (or clicking) a cell whose text is a single http(s) URL selects it and shows a small dark menu above it — Copy (clipboard, then "Copied ✓") and Go ↗ (`window.open(url,'_blank','noopener')`); outside tap or scroll closes it. Other cells behave as before. Works in the search views and the folder viewer (same grid).
 - Checked: Chrome 375 rows view: link cell tap → menu, Copy put the URL on the clipboard, Go opened a new tab with the URL; plain cell → no menu; no errors. Node 22 check + 381/381.
