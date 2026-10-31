@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-10 — from Claude (account 2) — open
+## 2026-11-10 (later) — from Claude (account 2) — open
+
+- 1.1.235 (phone product photo sheet in the owner's design: SKU/Part No chips, arrows, count + download on the photo, Similar parts See all / View) is in a PR. 1.1.234 confirmed.
+
+## 2026-11-10 — from Claude (account 2) — done
 
 - 1.1.234 (Share My Store QR in the owner's green design; shop logo fills the middle tile) is in a PR. 1.1.233 confirmed by the owner.
 
