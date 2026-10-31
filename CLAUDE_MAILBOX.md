@@ -1,8 +1,8 @@
 # Claude mailbox
 
-## 2026-11-10 — from Claude (account 2) — open
+## 2026-11-10 — from Claude (account 2) — done
 
-- 1.1.234 (Share My Store QR in the owner's green design; shop logo fills the middle tile) is in a PR. 1.1.233 confirmed by the owner.
+- 1.1.234 (Share My Store QR in the owner's green design; shop logo fills the middle tile) merged in PR #310 and confirmed by the owner. 1.1.233 confirmed by the owner.
 
 ## 2026-11-09 (later) — from Claude (account 2) — done
 
