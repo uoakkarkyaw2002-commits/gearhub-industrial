@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.226: Excel link cells offer Copy / Go (Claude)
+- Owner: the PHOTO column's Google Drive links did nothing. `excel-select.js`: tapping (or clicking) a cell whose text is a single http(s) URL selects it and shows a small dark menu above it — Copy (clipboard, then "Copied ✓") and Go ↗ (`window.open(url,'_blank','noopener')`); outside tap or scroll closes it. Other cells behave as before. Works in the search views and the folder viewer (same grid).
+- Checked: Chrome 375 rows view: link cell tap → menu, Copy put the URL on the clipboard, Go opened a new tab with the URL; plain cell → no menu; no errors. Node 22 check + 381/381.
+
 ### 1.1.225: "ရှာတာပဲ" rows are the same viewer; select/copy in place, nothing opens (Claude)
 - Owner: tapping a row in the search results opened the Excel viewer — it must not; select, drag and copy must work right there. `excel-map.js`: `rowFilter` in renderSheet + `GearHubExcelViewer.rows(set)` (tabs hidden while filtered; `home()`/`release()` clear it). `excel-search.js` rows view = `embed` + `rows(new Set([header,...hits]))` + `search(q)`, up to 200 hits; the box is sized to the drawn table (≤75% of the screen); my separate rows table and the row-tap-opens-viewer handler are gone. 1.1.224 deployed fine (owner's screenshot).
 - Checked: Chrome 375: rows view shows 1,1225,1289,1327,1427 only, cell tap selects, row-number tap selects 8 cells, no modal; Excel view still 155 rows drawn, 1/4; folder viewer full screen with tabs; no errors. Node 22 check + 380/380.

@@ -93,13 +93,35 @@
  });
  addEventListener('pointerup',()=>{dragging=false;if(pending){pending=null;copySelection()}});
  // A tap (not a swipe) selects a cell; tapping inside the selection copies it.
- function tap(p,shift){if(anchor&&inArea(p)){copySelection();return}if(shift&&anchor)focus=p;else{anchor=p;focus=p}paint()}
+ function tap(p,shift){if(!shift&&linkMenu(p))return;if(anchor&&inArea(p)){copySelection();return}if(shift&&anchor)focus=p;else{anchor=p;focus=p}paint()}
+ // 1.1.226 owner: a cell holding a web link (e.g. the PHOTO column's Google Drive links) is selected and
+ // offers Copy / Go; Go opens the link.
+ const linkOf=p=>{const t=String((grid.cellText?grid.cellText(p.r,p.c):'')||'').trim();return /^https?:\/\/\S+$/i.test(t)?t:''};
+ let menu=null;
+ function closeMenu(){menu?.remove();menu=null}
+ function linkMenu(p){
+  const url=linkOf(p);if(!url)return false;
+  anchor=p;focus=p;paint();closeMenu();
+  const cell=grid.querySelector('td[data-r="'+p.r+'"][data-c="'+p.c+'"]'),box=(cell||grid).getBoundingClientRect();
+  menu=document.createElement('div');menu.className='xs-link-menu';menu.setAttribute('role','menu');
+  menu.innerHTML='<button type="button" data-link="copy">Copy</button><button type="button" data-link="go">Go ↗</button>';
+  document.body.append(menu);
+  const w=menu.offsetWidth,h=menu.offsetHeight;let x=box.left+box.width/2-w/2,y=box.top-h-8;if(y<8)y=box.bottom+8;
+  menu.style.left=Math.max(8,Math.min(x,innerWidth-w-8))+'px';menu.style.top=y+'px';
+  menu.addEventListener('click',async e=>{const b=e.target.closest('[data-link]');if(!b)return;e.stopPropagation();
+   if(b.dataset.link==='go'){closeMenu();window.open(url,'_blank','noopener')}
+   else{try{await navigator.clipboard.writeText(url)}catch{const t=document.createElement('textarea');t.value=url;document.body.append(t);t.select();document.execCommand('copy');t.remove()}b.textContent='Copied ✓';setTimeout(closeMenu,700)}});
+  return true;
+ }
+ addEventListener('pointerdown',e=>{if(menu&&!menu.contains(e.target))closeMenu()},true);
+ grid.addEventListener('scroll',closeMenu,{passive:true});
  // Touch taps are read from touchend below (iPhone Safari did not deliver these clicks); this click
  // covers pens and other pointers, and skips the click that follows a touch tap.
  let tapped=0;
  grid.addEventListener('click',event=>{
   if(held){held=false;return}
-  const cell=event.target.closest?.('td[data-r]');if(!cell||lastPointer==='mouse'||Date.now()-tapped<800)return;
+  const cell=event.target.closest?.('td[data-r]');if(cell&&lastPointer==='mouse'&&!event.shiftKey&&linkOf(pos(cell))){linkMenu(pos(cell));return}
+  if(!cell||lastPointer==='mouse'||Date.now()-tapped<800)return;
   tap(pos(cell),event.shiftKey);
  });
  addEventListener('pointercancel',()=>{dragging=false});
