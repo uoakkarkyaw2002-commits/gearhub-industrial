@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.231: Android shop Home asks to install the app (Claude)
+- Owner (Android, treebird): the shop never asked to install its app. Our scripts call `preventDefault()` on `beforeinstallprompt` (app-install.js, install-guide.js), which also stops Chrome's own install bar, and since 1.1.213 the helper opens on Home only with `?install=1`. Chrome's installability check passes (no errors).
+- `install-guide.js` `banner()`: on the shop Home page, Android only, not standalone, when Chrome offers install: a bottom bar (shop icon, "<name> app", Install, ×) 2.5 s later; Install calls the saved prompt (Chrome's own install box); × hides it 7 days (`gh-install-banner-off:<slug>`); `appinstalled` hides it. iPhone unchanged (no such event).
+- Checked: Chrome 390 with Android UA + synthetic beforeinstallprompt → bar, Install → prompt() called, bar gone; iPhone UA → no bar; no errors. Node 22 check + tests. Not on a real Android phone.
+
 ### 1.1.230: Remove background works on the 512 MB Render plan (Claude)
 - Live (owner, $7 plan 0.5 CPU / 512 MB): "Could not remove the background." Cause: silueta in the server process with ONNX Runtime's arena took +410 MB → the request died. Measured: silueta +410 MB (arena) / +190 MB (no arena); U²-Netp +310 / +50; server idle ~190 MB.
 - `lib/bg-worker.js` (new): runs one model in a forked helper (`serialization:"advanced"`), arena/mem-pattern off, 1 thread, exits after each photo. `lib/bg-remove.js` picks best (BiRefNet, ≥1.8 GB) / fast (silueta, ≥300 MB free) / small (U²-Netp, `models/u2netp.onnx` restored); a helper stopped by a signal (OOM) is retried with small; 503 "short of memory" if that fails too. Parent RSS stays ~80 MB during a cut. Editor shows "The server is busy…" on 5xx.

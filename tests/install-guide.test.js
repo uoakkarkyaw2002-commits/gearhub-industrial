@@ -48,3 +48,12 @@ test('1.1.213: the app is added from the shop Home page; the admin sends the sel
  for(const asset of [...index.matchAll(/\/install-guide\.(?:js|css)\?v=[^"]+/g)].map(m=>m[0]))assert.ok(sw.includes('"'+asset+'"'),asset+' is in the offline shell');
  assert.match(index,/<script src="\/install-guide\.js\?v=[^"]+"><\/script>/);
 });
+
+test('1.1.231: Android shop Home shows an Install app bar when Chrome offers it; x hides it for 7 days',()=>{
+ const js=read('public/install-guide.js'),css=read('public/install-guide.css');
+ assert.match(js,/function banner\(\)\{\n  if\(!android\|\|standalone\(\)\)return;/);
+ assert.match(js,/Date\.now\(\)-off<7\*864e5/);
+ assert.match(js,/await p\.prompt\(\);const c=await p\.userChoice;/,'Install opens Chrome\'s own install box');
+ assert.match(js,/\}else banner\(\);return\}/,'only on the shop Home page, never in the admin');
+ assert.match(css,/\.install-bar\{position:fixed;/);
+});

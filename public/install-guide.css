@@ -127,3 +127,10 @@ body.install-guide-open{overflow:hidden}
  .install-guide-card{width:100%;max-height:90dvh;border-radius:22px 22px 0 0;padding:16px 14px calc(14px + env(safe-area-inset-bottom))}
 }
 @media(prefers-reduced-motion:reduce){.ig-live .install-guide-bubble,.ig-play *,.ig-typing i{animation:none!important}.ig-play .ig-pop,.ig-play .ig-drop,.ig-play .ig-dialog{opacity:1}.ig-play .ig-sheet{transform:none}.ig-play .ig-new{transform:none}}
+/* 1.1.231: Android "Install app" bar on the shop Home page. */
+.install-bar{position:fixed;left:12px;right:12px;bottom:calc(96px + env(safe-area-inset-bottom));z-index:60;display:flex;align-items:center;gap:12px;padding:12px 12px 12px 14px;border-radius:18px;background:#fff;color:#14261c;box-shadow:0 10px 30px #0b1a1233,0 0 0 1px #e3ebe5;font:15px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif;transform:translateY(20px);opacity:0;transition:transform .35s ease,opacity .35s ease}
+.install-bar.on{transform:none;opacity:1}
+.install-bar img{flex:none;border-radius:12px;object-fit:cover}
+.install-bar>div{flex:1;min-width:0}.install-bar b{display:block;font-size:16px}.install-bar small{display:block;color:#5d6b63;font-size:12.5px}
+.install-bar-go{flex:none;padding:10px 16px;border:0;border-radius:12px;background:#16803a;color:#fff;font:inherit;font-weight:800;cursor:pointer}
+.install-bar-x{flex:none;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:#f1f4f2;color:#46564c;font-size:20px;line-height:1;cursor:pointer}

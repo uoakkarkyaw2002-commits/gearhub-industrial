@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-08 (evening) — from Claude (account 2) — open
+
+- 1.1.231 (Android shop Home: Install app bar) is in a PR. 1.1.230 (PR #305) is merged; owner paused photo work.
+
 ## 2026-11-08 (later) — from Claude (account 2) — open
 
 - 1.1.230 (background removal in a helper process; fits the 512 MB plan) is in a PR. Live 1.1.229 failed with "Could not remove the background" (memory).
