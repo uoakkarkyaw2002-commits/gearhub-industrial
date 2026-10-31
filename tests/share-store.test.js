@@ -17,7 +17,11 @@ test('offline shell caches the exact asset versions the page loads',()=>{
 
 test('1.1.233: Save QR image makes a PNG card ahead of time and opens the phone share sheet (Photos) or downloads',()=>{
  const js=require('node:fs').readFileSync(require('node:path').join(__dirname,'../public/settings.js'),'utf8');
- assert.match(js,/function makeQrPicture\(qr, name, link, file\)/);
+ assert.match(js,/function makeQrPicture\(qr, name, link, file, logoUrl\)/);
+ assert.match(js,/qrcode\(0, "H"\)/);
+ assert.match(js,/class="share-qr-logo"/);
+ assert.match(js,/x\.drawImage\(logo, lx, ly, box, box\)/);
+ assert.match(require('node:fs').readFileSync(require('node:path').join(__dirname,'../public/style.css'),'utf8'),/#share-qr \.share-qr-logo\{/);
  assert.match(js,/qrPicture = new File\(\[blob\], file, \{ type: "image\/png" \}\)/);
  assert.match(js,/navigator\.canShare\?\.\(\{ files: \[qrPicture\] \}\)[^\n]*navigator\.share\(\{ files: \[qrPicture\] \}\)/);
 });
