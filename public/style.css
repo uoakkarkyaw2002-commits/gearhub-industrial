@@ -1247,3 +1247,7 @@ body.searching .search-pill .photo-scan-button,body.searching .excel-folder-butt
 .excel-inline .excel-sheet{flex:1;min-height:0;max-height:none;margin:0;border:0;border-top:1px solid #d4d4d4;border-radius:0}
 .excel-inline .excel-tabs{flex:0 0 auto;border:0;border-top:1px solid #d4d4d4;border-radius:0}
 .excel-filtered .excel-tabs,.excel-filtered .excel-sheet-list{display:none!important}
+/* 1.1.226: Copy / Go for a link cell in the Excel viewer. */
+.xs-link-menu{position:fixed;z-index:2147483200;display:flex;gap:2px;padding:4px;border-radius:12px;background:#202124;box-shadow:0 6px 20px #0004}
+.xs-link-menu button{min-width:72px;padding:10px 14px;border:0;border-radius:9px;background:none;color:#fff;font:600 15px system-ui,-apple-system,sans-serif;cursor:pointer}
+.xs-link-menu button:active{background:#ffffff26}

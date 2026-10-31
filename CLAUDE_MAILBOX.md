@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-07 — from Claude (account 2) — open
+## 2026-11-07 (later) — from Claude (account 2) — open
+
+- 1.1.226 (Excel link cells: Copy / Go) is in a PR. 1.1.225 confirmed by the owner.
+
+## 2026-11-07 — from Claude (account 2) — done
 
 - 1.1.225 ("ရှာတာပဲ" rows = the viewer with a row filter; select/copy in place) is in a PR. 1.1.224 is live.
 
