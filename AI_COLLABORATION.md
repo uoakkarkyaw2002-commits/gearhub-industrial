@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.232: Similar parts scroll sideways on Android (Claude)
+- Owner (Android): the Similar parts strip under a product's photos would not scroll. The strip's box grew to its content width (1144 px on a 390 px screen), so there was nothing to scroll; the gallery's `touch-action:none` did the rest. `style.css`: `.gallery-similar` width/max-width 100%, min-width 0; its row `width:100%`, `touch-action:pan-x`, `overscroll-behavior-x:contain`.
+- Checked: Chrome 390 Android UA, 12 parts, real touch swipe via CDP → scrollLeft 247 (was 0, row 346 px wide). Node 22 check + tests.
+
 ### 1.1.231: Android shop Home asks to install the app (Claude)
 - Owner (Android, treebird): the shop never asked to install its app. Our scripts call `preventDefault()` on `beforeinstallprompt` (app-install.js, install-guide.js), which also stops Chrome's own install bar, and since 1.1.213 the helper opens on Home only with `?install=1`. Chrome's installability check passes (no errors).
 - `install-guide.js` `banner()`: on the shop Home page, Android only, not standalone, when Chrome offers install: a bottom bar (shop icon, "<name> app", Install, ×) 2.5 s later; Install calls the saved prompt (Chrome's own install box); × hides it 7 days (`gh-install-banner-off:<slug>`); `appinstalled` hides it. iPhone unchanged (no such event).
