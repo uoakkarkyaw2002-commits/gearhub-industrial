@@ -14,3 +14,10 @@ test('offline shell caches the exact asset versions the page loads',()=>{
   const shell=JSON.parse(sw.match(/const SHELL = (\[.*?\]);/)[1]);
   for(const url of html.match(/(?:src|href)="\/[^"]+\.(?:js|css)(?:\?[^"]*)?"/g).map(a=>a.split('"')[1]))assert.ok(shell.includes(url),url+' missing from service worker shell');
 });
+
+test('1.1.233: Save QR image makes a PNG card ahead of time and opens the phone share sheet (Photos) or downloads',()=>{
+ const js=require('node:fs').readFileSync(require('node:path').join(__dirname,'../public/settings.js'),'utf8');
+ assert.match(js,/function makeQrPicture\(qr, name, link, file\)/);
+ assert.match(js,/qrPicture = new File\(\[blob\], file, \{ type: "image\/png" \}\)/);
+ assert.match(js,/navigator\.canShare\?\.\(\{ files: \[qrPicture\] \}\)[^\n]*navigator\.share\(\{ files: \[qrPicture\] \}\)/);
+});
