@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.239: POLESTAR link /shops/polestar/ (Claude)
+- Owner: the Share My Store link read skyshopmm.com/shops/psm-test-shop/ (POLESTAR was opened as a test shop); it must read POLESTAR. Owner approved changing the shop's link.
+- New `lib/shop-alias.js`, wired in `server.js`: at start-up `renameOnce` changes only `platform_shops.slug` psm-test-shop → polestar (and the owner's `platform_applications.slug`), once, and only if "polestar" is free; the old slug is kept in `settings.formerSlugs`. `aliasMiddleware` (mounted before /api/platform and the shop pages): GET /shops/<old>/… → 302 to /shops/polestar/… (query kept); /api/platform/store/<old>/… is answered as the new slug (old cached pages, orders). Products, photos, files, orders, upload keys are by shop id — unchanged. No new tables/columns.
+- Effects: the installed POLESTAR app (scope /shops/psm-test-shop/) should be deleted and added again from /shops/polestar/; a browser cart/offline copy kept under the old link starts fresh; Drive photo sweep moves the photos into a "polestar" folder (old folder left empty). Excel auto-upload uses the upload key — unaffected.
+- Checked: `tests/shop-alias.test.js` (rename once, settings kept, redirects incl. /admin and query, API rewrite, skip when taken); real `server.js` with a seeded psm-test-shop DB → 302 to /shops/polestar/, store API 200 for both slugs, manifest scope /shops/polestar/; Chrome 390/1280: old link lands on /shops/polestar/, Share My Store link = /shops/polestar/, no errors. Node 22: check + 396/396.
+
 ### 1.1.238: Centred ✕ on the phone photo sheet (Claude)
 - Owner (iPhone screenshot): the ✕ in the round close button was off-centre (the text glyph's own spacing). `style.css` (phones): the glyph is hidden (`font-size:0`) and the ✕ is two 16x2 px bars centred with `left/top:50%` + rotate ±45°. Markup/aria unchanged; PC unchanged.
 - Checked: Chrome 390 @3x — ✕ centre 95.5,95.5 vs button centre 96,96 (px). WebKit is not installed in this container (Playwright webkit-2359 missing). Node 22: check + 394/394.
