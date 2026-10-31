@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.240: Shop link follows the shop name (Claude)
+- Owner: the link must show the shop name, and change when the name changes; no other data may be touched.
+- `lib/shop-alias.js`: `syncSlug(db,id)` gives a shop the link made from its name (same rule as new shops: lower-case Latin letters/digits joined by "-"; next free "name-2" when taken); names without Latin letters, or a link that already matches ("name" or "name-N"), keep their link. Only `platform_shops.slug` + the owner's `platform_applications.slug` change; every old slug goes to `settings.formerSlugs` (redirects as in 1.1.239). `syncAll` runs at start-up for every shop (replaces the one-off psm-test-shop rename). `PATCH /api/platform/shops/:id` calls `syncSlug` after saving the name and returns `slug`; `tenant-admin.js` then moves the admin page to /shops/<new>/admin.
+- Deploy note: at start-up every live shop whose link does not match its name gets the new link (installed apps of those shops must be added again; old links redirect).
+- Checked: `tests/shop-alias.test.js` (follow name, Burmese-only name kept, name-2 kept, rename back, other columns and settings unchanged, old links → current); Chrome 375 rename Alice Parts → Alice Motors: admin URL /shops/alice-motors/admin, store API 200, store title updated; 1280 rename back. (Demo server has no alias middleware — redirects tested with real server.js in 1.1.239.) Node 22: check + 397/397.
+
 ### 1.1.239: POLESTAR link /shops/polestar/ (Claude)
 - Owner: the Share My Store link read skyshopmm.com/shops/psm-test-shop/ (POLESTAR was opened as a test shop); it must read POLESTAR. Owner approved changing the shop's link.
 - New `lib/shop-alias.js`, wired in `server.js`: at start-up `renameOnce` changes only `platform_shops.slug` psm-test-shop → polestar (and the owner's `platform_applications.slug`), once, and only if "polestar" is free; the old slug is kept in `settings.formerSlugs`. `aliasMiddleware` (mounted before /api/platform and the shop pages): GET /shops/<old>/… → 302 to /shops/polestar/… (query kept); /api/platform/store/<old>/… is answered as the new slug (old cached pages, orders). Products, photos, files, orders, upload keys are by shop id — unchanged. No new tables/columns.

@@ -19,8 +19,25 @@ test('1.1.239: POLESTAR link becomes /shops/polestar/ once; old links keep worki
   r=await fetch(base+'/shops/polestar/',{redirect:'manual'});assert.equal(r.status,404);
  }finally{server.close()}
 });
-test('1.1.239: rename is skipped when the new link is already taken',()=>{
+test('1.1.240: when the name link is taken by another shop, the next free one (polestar-2) is used',()=>{
  const db=new Database(':memory:');model.migrate(db);
  db.exec("INSERT INTO platform_users(id,google_sub,email,name) VALUES(20,'p','p@example.test','P'),(21,'q','q@example.test','Q');INSERT INTO platform_shops(id,owner_id,slug,name,plan_id) VALUES(20,20,'psm-test-shop','POLESTAR',1),(21,21,'polestar','Other',1)");
- renameOnce(db);assert.equal(db.prepare("SELECT slug FROM platform_shops WHERE id=20").get().slug,'psm-test-shop');
+ renameOnce(db);assert.equal(db.prepare("SELECT slug FROM platform_shops WHERE id=20").get().slug,'polestar-2');assert.equal(db.prepare("SELECT slug FROM platform_shops WHERE id=21").get().slug,'other');
+});
+test('1.1.240: the link follows the shop name; old links all keep working; other data untouched',async()=>{
+ const db=new Database(':memory:');model.migrate(db);const {syncSlug,syncAll}=require('../lib/shop-alias');
+ db.exec("INSERT INTO platform_users(id,google_sub,email,name) VALUES(30,'a','a@x.test','A'),(31,'b','b@x.test','B'),(32,'c','c@x.test','C');INSERT INTO platform_shops(id,owner_id,slug,name,plan_id,settings) VALUES(30,30,'old-a','Tree Bird',1,'{\"phone\":\"09\"}'),(31,31,'shop','မြန်မာ',1,'{}'),(32,32,'polestar-2','POLESTAR',1,'{}')");
+ const before=db.prepare("SELECT name,plan_id,status FROM platform_shops WHERE id=30").get();
+ syncAll(db);
+ assert.equal(db.prepare("SELECT slug FROM platform_shops WHERE id=30").get().slug,'tree-bird');
+ assert.equal(db.prepare("SELECT slug FROM platform_shops WHERE id=31").get().slug,'shop','a name without Latin letters keeps its link');
+ assert.equal(db.prepare("SELECT slug FROM platform_shops WHERE id=32").get().slug,'polestar-2','name-2 already matches the name');
+ assert.deepEqual(db.prepare("SELECT name,plan_id,status FROM platform_shops WHERE id=30").get(),before);
+ db.prepare("UPDATE platform_shops SET name='Tree Bird Mobile' WHERE id=30").run();
+ assert.equal(syncSlug(db,30),'tree-bird-mobile');assert.equal(syncSlug(db,30),'');
+ const s=JSON.parse(db.prepare("SELECT settings FROM platform_shops WHERE id=30").get().settings);
+ assert.equal(s.phone,'09');assert.deepEqual(s.formerSlugs,['old-a','tree-bird']);
+ assert.equal(currentSlug(db,'old-a'),'tree-bird-mobile');assert.equal(currentSlug(db,'tree-bird'),'tree-bird-mobile');
+ db.prepare("UPDATE platform_shops SET name='Tree Bird' WHERE id=30").run();
+ assert.equal(syncSlug(db,30),'tree-bird');assert.deepEqual(JSON.parse(db.prepare("SELECT settings FROM platform_shops WHERE id=30").get().settings).formerSlugs,['old-a','tree-bird-mobile']);
 });

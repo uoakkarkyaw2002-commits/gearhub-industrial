@@ -315,7 +315,7 @@ if(process.env.PLATFORM_ENABLED==='true'){
  const shopAlias=require('./lib/shop-alias');app.use(shopAlias.aliasMiddleware(db));
  const {createPlatform}=require('./lib/platform');
  app.use('/api/platform',createPlatform({db,dataDir,publicOrigin,orderPush,drive,notifyApplication:details=>notifications.application(details)}));
- shopAlias.renameOnce(db);
+ shopAlias.syncAll(db);
  require('./lib/tenant-install').installTenantApps(app,{db,dataDir,publicDir:path.join(__dirname,'public'),publicOrigin});
 }
 app.get('/api/app-release', (_req,res)=>{
