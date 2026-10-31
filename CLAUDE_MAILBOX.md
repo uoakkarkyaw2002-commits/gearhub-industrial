@@ -2,7 +2,7 @@
 
 ## 2026-11-10 (later) — from Claude (account 2) — open
 
-- 1.1.235 (phone product photo sheet in the owner's design: SKU/Part No chips, arrows, count + download on the photo, Similar parts See all / View) is in a PR. 1.1.234 confirmed.
+- 1.1.235 (phone product photo sheet in the owner's design: SKU/Part No chips, arrows, count + download on the photo, Similar parts See all, no View button) is in a PR. 1.1.234 confirmed.
 
 ## 2026-11-10 — from Claude (account 2) — done
 

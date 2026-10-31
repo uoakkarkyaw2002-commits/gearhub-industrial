@@ -1262,8 +1262,8 @@ body.searching .search-pill .photo-scan-button,body.searching .excel-folder-butt
 .share-poster-link span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* 1.1.235 owner: product photos on phones in the owner's design — bold name, round close, SKU / Part No chips,
    grey photo panel with round arrows, count and download on the photo, four thumbnails, Similar parts cards
-   with View and See all. PC keeps its layout (chips, View and See all are phone-only). */
-.gallery-ids,.gallery-similar .gallery-similar-all,.gallery-similar-view{display:none}
+   (tap opens) and See all. PC keeps its layout (chips and See all are phone-only). */
+.gallery-ids,.gallery-similar .gallery-similar-all{display:none}
 @media(max-width:520px){
  .gallery-modal .gallery-card{padding:16px 16px 14px;border-radius:26px;background:#fbfcfd}
  .gallery-modal .drawer-head{align-items:center;margin-bottom:8px}
@@ -1298,8 +1298,6 @@ body.searching .search-pill .photo-scan-button,body.searching .excel-folder-butt
  .gallery-similar button[data-similar-id]{flex:0 0 calc((100% - 24px) / 4);gap:6px;padding:7px;border:1px solid #e2e7ec;border-radius:14px;background:#fff;color:#0f172a;align-content:start}
  .gallery-similar img{height:52px}
  .gallery-similar span{font-size:12px;font-weight:700;min-height:2.5em}
- .gallery-similar-view{display:flex;align-items:center;justify-content:center;gap:4px;padding:6px 0;border-radius:10px;background:#d8f5ec;color:#0f9f86;font-size:12px;font-style:normal;font-weight:700}
- .gallery-similar-view b{font-size:15px;line-height:1}
  .gallery-similar.all>div{flex-wrap:wrap;max-height:42dvh;overflow-x:hidden;overflow-y:auto;touch-action:pan-y}
  :root[data-theme="dark"] .gallery-modal .gallery-card{background:#17251c}
  :root[data-theme="dark"] .gallery-modal .drawer-head h2,:root[data-theme="dark"] .gallery-similar>p{color:#eef5ef}

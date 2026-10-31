@@ -15,9 +15,9 @@
    const d=await cache.get(id);if(shown!==id)return;
    const list=(d.products||[]).map(m=>shopProducts().find(p=>String(p.id)===String(m.id))).filter(p=>p&&p.imageUrls?.length);
    if(!list.length)return;
-   // 1.1.235 owner: "See all" (phones, more than 4) and a "View" button on each card.
+   // 1.1.235 owner: "See all" (phones, more than 4); tapping a card opens it.
    row.classList.remove("all");
-   row.innerHTML='<p>'+(my()?"ဆင်တူ ပစ္စည်းများ":"Similar parts")+(list.length>4?'<button type="button" class="gallery-similar-all">'+seeAll(false)+'</button>':'')+'</p><div>'+list.map(p=>'<button type="button" data-similar-id="'+esc(p.id)+'"><img src="'+esc(p.imageUrls[0])+'" alt="" loading="lazy"><span>'+esc((my()?p.name_my:p.name_en)||p.name_en||"")+'</span><i class="gallery-similar-view">View <b aria-hidden="true">›</b></i></button>').join("")+'</div>';
+   row.innerHTML='<p>'+(my()?"ဆင်တူ ပစ္စည်းများ":"Similar parts")+(list.length>4?'<button type="button" class="gallery-similar-all">'+seeAll(false)+'</button>':'')+'</p><div>'+list.map(p=>'<button type="button" data-similar-id="'+esc(p.id)+'"><img src="'+esc(p.imageUrls[0])+'" alt="" loading="lazy"><span>'+esc((my()?p.name_my:p.name_en)||p.name_en||"")+'</span></button>').join("")+'</div>';
    row.hidden=false;
   }catch(_){cache.delete(id)}
  }
