@@ -29,3 +29,10 @@ test('1.1.233: Save QR image makes a PNG card ahead of time and opens the phone 
  assert.match(js,/qrPicture = new File\(\[blob\], file, \{ type: "image\/png" \}\)/);
  assert.match(js,/navigator\.canShare\?\.\(\{ files: \[qrPicture\] \}\)[^\n]*navigator\.share\(\{ files: \[qrPicture\] \}\)/);
 });
+test('1.1.235: phone product photos in the owner design (chips, overlay count/download, See all, View)',()=>{
+ const html=pub('index.html'),store=pub('store.js'),similar=pub('similar-parts.js'),css=pub('style.css');
+ assert.match(html,/id="gallery-ids"/);
+ assert.match(store,/Part No : /);assert.match(store,/function galleryPlace\(\)/);
+ assert.match(similar,/gallery-similar-all/);assert.match(similar,/gallery-similar-view/);
+ assert.match(css,/\.gallery-ids,\.gallery-similar \.gallery-similar-all,\.gallery-similar-view\{display:none\}/);
+});

@@ -1260,3 +1260,48 @@ body.searching .search-pill .photo-scan-button,body.searching .excel-folder-butt
 .share-poster-link{display:flex;align-items:center;justify-content:center;gap:8px;margin:14px auto 0;max-width:100%;padding:9px 14px;border:1px solid #ffffff59;border-radius:999px;background:#ffffff1f;color:#fff;font-size:14px;font-weight:600;min-width:0}
 .share-poster-link svg{flex:none;width:18px;height:18px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
 .share-poster-link span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* 1.1.235 owner: product photos on phones in the owner's design — bold name, round close, SKU / Part No chips,
+   grey photo panel with round arrows, count and download on the photo, four thumbnails, Similar parts cards
+   with View and See all. PC keeps its layout (chips, View and See all are phone-only). */
+.gallery-ids,.gallery-similar .gallery-similar-all,.gallery-similar-view{display:none}
+@media(max-width:520px){
+ .gallery-modal .gallery-card{padding:16px 16px 14px;border-radius:26px;background:#fbfcfd}
+ .gallery-modal .drawer-head{align-items:center;margin-bottom:8px}
+ .gallery-modal .drawer-head h2{margin:0;color:#0f172a;font-size:24px;font-weight:800;letter-spacing:-.3px;line-height:1.15}
+ .gallery-modal #gallery-close{flex:0 0 44px;width:44px;height:44px;border:1.5px solid #d9dee6;border-radius:50%;background:#f3f5f8;color:#1f2937;font-size:18px;box-shadow:none;outline:none}
+ .gallery-ids:not([hidden]){display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+ .gallery-ids span{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;font-size:12.5px;font-weight:700;line-height:1.1}
+ .gallery-ids svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+ .gallery-id-sku{background:#d8f5ec;color:#0f9f86}
+ .gallery-id-part{background:#eef1f4;color:#4b5563}
+ .gallery-modal .gallery-stage{position:relative;border-radius:20px;background:#eef1f5}
+ .gallery-modal .gallery-stage>img{padding:14px;box-sizing:border-box;mix-blend-mode:multiply}
+ .gallery-modal .gallery-stage .gallery-arrow{display:grid!important;place-items:center;position:absolute;top:50%;z-index:2;width:40px;height:40px;margin-top:-20px;padding:0;border:0;border-radius:50%;background:#fff;color:#1f2937;font-size:26px;line-height:1;box-shadow:0 4px 14px #0f172a24}
+ .gallery-modal .gallery-stage .gallery-arrow:disabled{opacity:.45}
+ #gallery-prev{left:8px}#gallery-next{right:8px}
+ .gallery-stage #gallery-count{position:absolute;left:10px;bottom:10px;z-index:2;padding:5px 11px;border-radius:999px;background:#64748bcc;color:#fff;font-size:12.5px;font-weight:700}
+ .gallery-stage .gallery-dl{position:absolute;right:10px;bottom:10px;z-index:2;width:48px;height:48px;flex:none}
+ .gallery-stage .gallery-dl[data-state="idle"] .gallery-dl-track{left:0;top:0;width:48px;height:48px;border:0;background:#14b39a;box-shadow:0 6px 16px #14b39a59}
+ .gallery-stage .gallery-dl[data-state="idle"] .gallery-dl-drop{left:12px;top:-3px;fill:#fff}
+ .gallery-stage .gallery-dl:not([data-state="idle"]){width:150px}
+ .gallery-stage .gallery-dl:not([data-state="idle"]) .gallery-dl-track{top:44px}
+ .gallery-stage .gallery-dl-label{top:24px;color:#0f766e}
+ .gallery-modal .gallery-meta{min-height:0;margin-top:10px}
+ .gallery-modal .gallery-thumbs{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 30px) / 4);gap:10px;flex:0 0 auto;padding:2px}
+ .gallery-modal .gallery-thumb{width:auto;height:60px;padding:5px;border:2px solid transparent;border-radius:14px;background:#f1f4f7}
+ .gallery-modal .gallery-thumb.active{border-color:#14b39a;background:#fff}
+ .gallery-similar{margin-top:12px}
+ .gallery-similar>p{display:flex;align-items:center;justify-content:space-between;margin:0 0 8px;color:#0f172a;font-size:17px;font-weight:800;opacity:1}
+ .gallery-similar .gallery-similar-all{display:inline-flex;align-items:center;gap:4px;padding:0;border:0;background:none;color:#0f9f86;font-size:14px;font-weight:700}
+ .gallery-similar-all b{font-size:18px;line-height:1}
+ .gallery-similar>div{gap:8px}
+ .gallery-similar button[data-similar-id]{flex:0 0 calc((100% - 24px) / 4);gap:6px;padding:7px;border:1px solid #e2e7ec;border-radius:14px;background:#fff;color:#0f172a;align-content:start}
+ .gallery-similar img{height:52px}
+ .gallery-similar span{font-size:12px;font-weight:700;min-height:2.5em}
+ .gallery-similar-view{display:flex;align-items:center;justify-content:center;gap:4px;padding:6px 0;border-radius:10px;background:#d8f5ec;color:#0f9f86;font-size:12px;font-style:normal;font-weight:700}
+ .gallery-similar-view b{font-size:15px;line-height:1}
+ .gallery-similar.all>div{flex-wrap:wrap;max-height:42dvh;overflow-x:hidden;overflow-y:auto;touch-action:pan-y}
+ :root[data-theme="dark"] .gallery-modal .gallery-card{background:#17251c}
+ :root[data-theme="dark"] .gallery-modal .drawer-head h2,:root[data-theme="dark"] .gallery-similar>p{color:#eef5ef}
+ :root[data-theme="dark"] .gallery-modal .gallery-stage{background:#e9edf1}
+}

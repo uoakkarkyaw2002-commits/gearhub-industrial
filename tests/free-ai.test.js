@@ -50,7 +50,7 @@ test('#5 smarter search finds spelling mistakes, any word order and codes withou
  const store=read('public/store.js'),index=read('public/index.html'),sw=read('public/sw.js');
  assert.match(store,/if\(window\.GearHubSmartSearch&&q\.trim\(\)\.length>=3\)\{const seen=new Set\(list\);list=list\.concat\(/,'exact matches first, then the smart ones');
  assert.match(index,/<script src="\/smart-search\.js\?v=([^"]+)"><\/script><script src="\/store\.js\?v=\1"><\/script>/);
- assert.match(sw,/"\/smart-search\.js\?v=1\.1\.214"/);
+ assert.match(sw,/"\/smart-search\.js\?v=1\.1\.235"/);
 });
 
 test('#6 similar parts: the product that looks most alike comes first; a product is never similar to itself',async()=>{
