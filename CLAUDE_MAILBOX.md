@@ -2,7 +2,7 @@
 
 ## 2026-11-08 — from Claude (account 2) — open
 
-- 1.1.229 (BiRefNet auto when server RAM ≥1.8 GB, else silueta) added to PR #304. Owner's Render instance type is unknown — ask them; BiRefNet needs the 2 GB plan.
+- 1.1.229 (BiRefNet auto when server RAM ≥1.8 GB, else silueta) added to PR #304. Render is $7 (0.5 CPU, 512 MB) → silueta is used. Owner put the $25 plan / BiRefNet on the later list (`LATER.md`) — too costly for now.
 
 ## 2026-11-07 (night) — from Claude (account 2) — done
 
