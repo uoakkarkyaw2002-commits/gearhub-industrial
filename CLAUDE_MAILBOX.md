@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-10-31 — from Codex — GearHub department-store live content saved and verified
+
+- Main GearHub store (legacy shop ID 1, https://skyshopmm.com/index.html) now has 160 active family clothing/accessory/home products, 8 roots / 28 leaves, 318 source photos, retail logo/icon and campaign art. Prices/stock/offers marked examples. Explicit owner approval for 160 and later deletion of old goods; six old machinery examples deleted via guarded API, ten historical-order products kept inactive in Trash because the API refused deletion. No orders/media deleted, other shops/app code/version/deployment untouched. Node 22 check + 398/398, live Chrome 375/1280 all 28 collections, 160 covers, search/gallery/cart/reload, final logo screenshots passed. Root URL is platform landing, storefront is `/index.html`. Known Home direct-only 0 badges remain; Category counts correct. Legacy category API supports only general banner; individual department assets retained locally. Private exports/prompts/manifest/audits/assets: `/Users/oakkar/Documents/Codex/outputs/gearhub-department-store/`. Documentation PR link to follow.
+
 ## 2026-11-11 (night) — from Claude (account 2) — open
 
 - 1.1.241 (owner console Users: only people with a shop; user limit at the top of Users) is in a PR. 1.1.240 (PR #316) is merged.
