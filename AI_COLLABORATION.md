@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.234: Share My Store QR in the owner's design (Claude)
+- Owner sent a picture (green card, shop name in white, QR on a white card with a light green edge, logo tile, link in a pill with a bag icon) and wants the logo to fill its tile. `index.html`: `.share-poster` wraps the name, `#share-qr` and a new `#share-poster-link`; `style.css` 1.1.234 block; `settings.js`: the logo is the shop's own `img[data-site-logo]` (the app icon only when there is none), drawn cover-fit in the tile; `makeQrPicture` draws the same design (1080x1140 PNG). Hint, link box, Copy/Save/Share unchanged.
+- Checked: Chrome 390 touch (stubbed share → 1080x1140 PNG) and 1280 (download); the saved PNG and both screenshots decode with OpenCV to the shop link; no console errors. Node 22: check + 390/390 tests. Not on a real iPhone; the test logo was a product photo (live shops use their own logo).
+
 ### 1.1.233: Save QR image reaches Photos on iPhone (Claude)
 - Owner (iPhone app, Settings → Share My Store → Save QR image): nothing was saved — the button was an `<a download>` to a GIF data URL, which an installed iPhone app does not put in Photos. `settings.js`: when the sheet opens, `makeQrPicture` draws a 1080 px PNG card (shop name, QR, link) and keeps it as a File; on a touch phone with file sharing the tap calls `navigator.share({files})` at once (iPhone: Save Image → Photos; Android: share/save); elsewhere it downloads the PNG. The old GIF link is the fallback until the card is ready.
 - Checked: Chrome 390 touch with a stubbed share → `store-qr.png` image/png 56 KB shared; 1280 → `store-qr.png` downloaded, card renders (name, QR, link). Node 22 check + tests. Not on a real iPhone.

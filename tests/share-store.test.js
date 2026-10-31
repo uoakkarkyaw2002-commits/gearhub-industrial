@@ -20,8 +20,12 @@ test('1.1.233: Save QR image makes a PNG card ahead of time and opens the phone 
  assert.match(js,/function makeQrPicture\(qr, name, link, file, logoUrl\)/);
  assert.match(js,/qrcode\(0, "H"\)/);
  assert.match(js,/class="share-qr-logo"/);
- assert.match(js,/x\.drawImage\(logo, lx, ly, box, box\)/);
+ assert.match(js,/x\.drawImage\(logo, [^\n]*lx, ly, box, box\)/);
+ assert.match(js,/img\[data-site-logo\]/);
+ assert.match(js,/"#6fd39a"/);
+ assert.match(pub('index.html'),/class="share-poster"[^]*id="share-poster-link"/);
  assert.match(require('node:fs').readFileSync(require('node:path').join(__dirname,'../public/style.css'),'utf8'),/#share-qr \.share-qr-logo\{/);
+ assert.match(pub('style.css'),/\.share-poster\{/);
  assert.match(js,/qrPicture = new File\(\[blob\], file, \{ type: "image\/png" \}\)/);
  assert.match(js,/navigator\.canShare\?\.\(\{ files: \[qrPicture\] \}\)[^\n]*navigator\.share\(\{ files: \[qrPicture\] \}\)/);
 });

@@ -204,9 +204,12 @@
     qr.addData(link);
     qr.make();
     // The shop's logo sits in the middle of the QR (owner, 1.1.233); level H keeps it scannable.
-    const logo = document.querySelector('link[rel="apple-touch-icon"]')?.href || "";
+    // 1.1.234: the shop's own logo (fills the middle tile); the app icon when the shop has none.
+    const siteLogo = document.querySelector("img[data-site-logo]");
+    const logo = (siteLogo?.getAttribute("src") ? siteLogo.src : "") || document.querySelector('link[rel="apple-touch-icon"]')?.href || "";
     byId("share-qr").innerHTML = qr.createSvgTag({ cellSize: 6, margin: 4, scalable: true }) + (logo ? '<img class="share-qr-logo" src="' + logo.replace(/"/g, "&quot;") + '" alt="">' : "");
     byId("share-link").value = link;
+    byId("share-poster-link").textContent = link.replace(/^https?:\/\//, "");
     byId("share-store-name").textContent = options.name || document.querySelector(".footer-wordmark")?.textContent.trim() || document.title;
     const heading = modal.querySelector("h2"), hint = modal.querySelector(".share-hint");
     if (heading) heading.textContent = options.title || words("shareStoreSetting");
@@ -222,21 +225,35 @@
   // an installed iPhone app. The QR is drawn ahead of time as a PNG card (shop name, QR, link) so a tap
   // can open the phone's share sheet at once ("Save Image" puts it in Photos); elsewhere it downloads.
   let qrPicture = null;
+  // 1.1.234: the saved picture is the owner's design — green card, white name, white QR card, logo, link pill.
   function makeQrPicture(qr, name, link, file, logoUrl) {
-    const img = new Image(), logo = new Image(), W = 1080, pad = 90, side = W - pad * 2;
+    const img = new Image(), logo = new Image(), W = 1080, H = 1140, card = 720, cx = (W - card) / 2, cy = 220, inner = 32;
     let left = logoUrl ? 2 : 1;
     const ready = () => { if (--left) return;
-      const c = document.createElement("canvas"), x = c.getContext("2d"); c.width = W; c.height = side + 330;
-      x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.imageSmoothingEnabled = false;
-      x.fillStyle = "#14261c"; x.textAlign = "center"; x.font = "800 64px system-ui,-apple-system,Segoe UI,sans-serif"; x.fillText(String(name || "").slice(0, 28), W / 2, 130);
-      x.drawImage(img, pad, 190, side, side);
-      if (logo.naturalWidth) { const box = Math.round(side * 0.24), lx = (W - box) / 2, ly = 190 + (side - box) / 2, r = box * 0.2;
-        x.imageSmoothingEnabled = true; x.fillStyle = "#fff"; x.beginPath(); x.roundRect(lx - 14, ly - 14, box + 28, box + 28, r + 8); x.fill();
-        x.save(); x.beginPath(); x.roundRect(lx, ly, box, box, r); x.clip(); x.drawImage(logo, lx, ly, box, box); x.restore(); }
-      x.fillStyle = "#4a5a51"; x.font = "500 34px system-ui,-apple-system,Segoe UI,sans-serif"; x.fillText(link.replace(/^https?:\/\//, "").slice(0, 52), W / 2, side + 270);
+      const c = document.createElement("canvas"), x = c.getContext("2d"); c.width = W; c.height = H;
+      const bg = x.createLinearGradient(0, 0, W * 0.5, H); bg.addColorStop(0, "#1f9b5e"); bg.addColorStop(1, "#0c6a3c");
+      x.fillStyle = bg; x.fillRect(0, 0, W, H);
+      x.fillStyle = "rgba(255,255,255,.08)"; x.beginPath(); x.arc(-60, -40, 460, 0, Math.PI * 2); x.fill(); x.beginPath(); x.arc(W + 80, H + 60, 520, 0, Math.PI * 2); x.fill();
+      x.fillStyle = "#fff"; x.textAlign = "center"; x.textBaseline = "alphabetic"; x.font = "800 80px system-ui,-apple-system,Segoe UI,sans-serif";
+      let title = String(name || "").slice(0, 40); while (title.length > 1 && x.measureText(title).width > W - 120) title = title.slice(0, -1);
+      x.fillText(title, W / 2, 160);
+      x.save(); x.shadowColor = "rgba(0,0,0,.25)"; x.shadowBlur = 40; x.shadowOffsetY = 12; x.fillStyle = "#fff"; x.beginPath(); x.roundRect(cx, cy, card, card, 56); x.fill(); x.restore();
+      x.lineWidth = 10; x.strokeStyle = "#6fd39a"; x.beginPath(); x.roundRect(cx + 5, cy + 5, card - 10, card - 10, 52); x.stroke();
+      const q = card - inner * 2 - 20; x.imageSmoothingEnabled = false; x.drawImage(img, cx + inner + 10, cy + inner + 10, q, q); x.imageSmoothingEnabled = true;
+      if (logo.naturalWidth) { const box = Math.round(q * 0.23), lx = (W - box) / 2, ly = cy + (card - box) / 2, r = box * 0.2, ring = 14;
+        x.fillStyle = "#fff"; x.beginPath(); x.roundRect(lx - ring, ly - ring, box + ring * 2, box + ring * 2, r + ring); x.fill();
+        const s = Math.max(box / logo.naturalWidth, box / logo.naturalHeight), sw = box / s, sh = box / s;
+        x.save(); x.beginPath(); x.roundRect(lx, ly, box, box, r); x.clip(); x.drawImage(logo, (logo.naturalWidth - sw) / 2, (logo.naturalHeight - sh) / 2, sw, sh, lx, ly, box, box); x.restore(); }
+      const text = link.replace(/^https?:\/\//, "").slice(0, 60); x.font = "500 40px system-ui,-apple-system,Segoe UI,sans-serif";
+      const tw = Math.min(x.measureText(text).width, W - 260), pw = tw + 150, px = (W - pw) / 2, py = cy + card + 50, ph = 96;
+      x.fillStyle = "rgba(255,255,255,.12)"; x.strokeStyle = "rgba(255,255,255,.35)"; x.lineWidth = 3; x.beginPath(); x.roundRect(px, py, pw, ph, ph / 2); x.fill(); x.stroke();
+      const bx = px + 40, by = py + 26; x.strokeStyle = "#fff"; x.lineWidth = 4; x.lineJoin = "round"; x.lineCap = "round";
+      x.beginPath(); x.moveTo(bx, by + 12); x.lineTo(bx + 40, by + 12); x.lineTo(bx + 37, by + 46); x.lineTo(bx + 3, by + 46); x.closePath(); x.stroke();
+      x.beginPath(); x.moveTo(bx + 11, by + 18); x.lineTo(bx + 11, by + 8); x.arc(bx + 20, by + 8, 9, Math.PI, 0); x.lineTo(bx + 29, by + 18); x.stroke();
+      x.fillStyle = "#fff"; x.textAlign = "left"; x.textBaseline = "middle"; x.fillText(text, px + 104, py + ph / 2 + 2, tw);
       c.toBlob(blob => { if (blob) qrPicture = new File([blob], file, { type: "image/png" }); }, "image/png");
     };
-    img.onload = ready; img.src = qr.createDataURL(10, 4);
+    img.onload = ready; img.src = qr.createDataURL(10, 0);
     if (logoUrl) { logo.onload = ready; logo.onerror = ready; logo.src = logoUrl; }
   }
   byId("share-download")?.addEventListener("click", event => {
