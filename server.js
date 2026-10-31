@@ -312,8 +312,10 @@ app.locals.orderPush=orderPush;
 let drive=null;
 if(process.env.PLATFORM_ENABLED==='true'){
  drive=require('./lib/drive-backup').createDrive({db,clientId:process.env.GOOGLE_CLIENT_ID,clientSecret:process.env.GOOGLE_CLIENT_SECRET,media:path.join(dataDir,'platform-media'),log:(event,detail)=>console.error(JSON.stringify({event,detail}))});
+ const shopAlias=require('./lib/shop-alias');app.use(shopAlias.aliasMiddleware(db));
  const {createPlatform}=require('./lib/platform');
  app.use('/api/platform',createPlatform({db,dataDir,publicOrigin,orderPush,drive,notifyApplication:details=>notifications.application(details)}));
+ shopAlias.renameOnce(db);
  require('./lib/tenant-install').installTenantApps(app,{db,dataDir,publicDir:path.join(__dirname,'public'),publicOrigin});
 }
 app.get('/api/app-release', (_req,res)=>{
