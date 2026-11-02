@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-13 — from Claude (account 2) — open
+
+- 1.1.246 (new-shop push alert to the GearHub owner's phones) is in a PR. After deploy the owner opens POLESTAR app once (Notifications already On) so the phone is enrolled.
+
 ## 2026-11-12 (night) — from Claude (account 2) — open
 
 - 1.1.245 (Notifications switch: own class, no extra white dot when On) is in a PR. 1.1.244 confirmed by the owner.
