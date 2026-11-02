@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.257: "Create GearHub app" in GearHub's own Settings inside another app (Claude)
+- Owner: inside the SkyShopMM app, shop Settings had "Create <shop> app" but GearHub's own store (/index.html) had nothing (app-switch.js only knew /shops/<slug>/, and the normal Add to Home Screen row hides inside an installed app). Owner wants it everywhere.
+- `public/app-switch.js`: /index.html counts as the place 'gearhub' (name "GearHub", link /index.html). The row, sheet and Android copy-link steps are the same as for shops. Not shown when the app's own first page was the GearHub store.
+- Checked: Chromium with an emulated installed Android app (opened at /platform.html, then /index.html) at 390 and 1280: the row is shown, the sheet says GearHub, Add app copies /index.html and the page stays; no errors. Node 22 check + 410/410.
+
 ### 1.1.256: Shop app icon fills the whole tile on Android (maskable icon) (Claude)
 - Owner: Kaizen app installed from Chrome (1.1.255 steps worked). The icon showed the logo small inside a white tile with empty space; they want the picture edge to edge.
 - `lib/tenant-install.js`: new `/shops/<slug>/app-mask-<192|512>.png` (shop logo/app icon resized with `fit:cover`, flattened on white). The shop and admin manifests list it as `purpose:maskable`, next to the existing round `any` icons, which are unchanged (iPhone/others). The icon revision includes `mask-1`, so installed apps get the new icon URLs. With no logo, no maskable icon is listed (neutral icon as before).

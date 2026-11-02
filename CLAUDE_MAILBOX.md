@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-16 (night) — from Claude (account 2) — open
+
+- 1.1.257 ("Create GearHub app" row in GearHub's own Settings inside another app) is in a PR. 1.1.256 (PR #333) is merged and confirmed. Mailbox PR #334 may still be open.
+
 ## 2026-11-16 (later) — from Claude (account 2) — open
 
 - 1.1.256 (Android shop app icon = shop picture edge to edge, maskable icon) is in a PR. 1.1.255 (PR #332) is merged and the owner installed Kaizen from Chrome. Owner reinstalls Kaizen to see the new icon.
