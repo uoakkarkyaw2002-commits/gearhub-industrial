@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.249: Unseen-alerts number on the app icon (Claude)
+- Owner (iPhone Home Screen): show on the app icon how many notifications arrived and were not looked at yet.
+- `public/sw.js` push handler: keeps a count per app (Cache "gearhub-badge", key = registration scope + "__badge") and calls `self.navigator.setAppBadge(count)` (Badging API: iPhone iOS 16.4+ Home Screen apps with notifications allowed; Android installed apps). New `public/app-badge.js` (index.html + admin.html + SW SHELL): when the app is opened/visible/focused → `navigator.clearAppBadge()` and the count is reset.
+- Checked: Chrome 390/1280 demo — 3 pushes delivered with CDP ServiceWorker.deliverPushMessage → stored count 3; app focus → count cleared; no console errors. The icon number itself cannot be seen in headless Chrome; real iPhone not verified. Node 22: check + 404/404.
+
 ### 1.1.248: No alerts card in the GearHub admin either (Claude)
 - Owner: GearHub's Settings already has the Notifications switch (1.1.247) — remove the alerts card from the admin. `admin-extras.js` initAlerts returns at once for every admin (was: seller shops only). Phones already subscribed keep getting alerts (scope "main" unchanged).
 - Checked: real server.js with admin password, Chrome 390/1280 — logged in, Frontend Appearance opened, no #order-alerts-card, no console errors. Node 22: check + 403/403.
