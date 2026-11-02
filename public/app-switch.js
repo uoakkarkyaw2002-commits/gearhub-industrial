@@ -4,7 +4,8 @@
    install helper, so the app has the shop's name and logo and opens on its Home page, 1.1.213). "I have it" stops asking for that shop. Nothing is sent to the server. */
 (()=>{
  const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;if(!standalone)return;
- const match=location.pathname.match(/^\/shops\/([^/]+)(?:\/|$)/),here=match?decodeURIComponent(match[1]):'';
+ // 1.1.257 owner: GearHub's own store (/index.html) gets the same "Create GearHub app" row inside another app.
+ const match=location.pathname.match(/^\/shops\/([^/]+)(?:\/|$)/),gearhub=!match&&location.pathname==='/index.html',here=match?decodeURIComponent(match[1]):gearhub?'gearhub':'';
  const get=(s,k)=>{try{return s.getItem(k)}catch{return null}},set=(s,k,v)=>{try{s.setItem(k,v)}catch{}};
  let home=get(sessionStorage,'gh-app-home');if(home===null){set(sessionStorage,'gh-app-home',here);home=here}
  if(!here||home===here)return;
@@ -12,10 +13,10 @@
  // another app (SkyShopMM Play app / another shop's app) at any time — the same sheet as the automatic ask.
  const auto=!get(localStorage,'gh-app-own:'+here)&&!get(sessionStorage,'gh-app-asked:'+here);
  if(auto)set(sessionStorage,'gh-app-asked:'+here,'1');
- let name=(document.title.trim().replace(/\s*Admin$/,'')||here).slice(0,40);
+ let name=gearhub?'GearHub':(document.title.trim().replace(/\s*Admin$/,'')||here).slice(0,40);
  const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
  const ua=navigator.userAgent,ios=/iphone|ipad|ipod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),android=/android/i.test(ua);
- const path='/shops/'+encodeURIComponent(here)+'/?install=1',link=location.origin+path;
+ const path=gearhub?'/index.html':'/shops/'+encodeURIComponent(here)+'/?install=1',link=location.origin+path;
  // iPhone: x-safari-https opens Safari (iOS 17+); Android: open the page in Chrome.
  // 1.1.255 owner (Android, SkyShopMM app): the Chrome intent only made the same app go white and load the shop —
  // the app runs on Chrome, so Chrome keeps a link to itself inside the app. A new app can be added only from the Chrome
@@ -48,7 +49,7 @@
   else if(k==='copy'){try{await navigator.clipboard.writeText(link);b.textContent='✓ Copy ကူးပြီးပါပြီ — Safari / Chrome မှာ ဖွင့်ပါ'}catch{b.textContent=link}}
  });
  const show=()=>{if(!sheet.isConnected){document.head.append(style);document.body.append(sheet)}sheet.hidden=false;sheet.querySelector('.app-switch-go').focus({preventScroll:true})};
- const shopName=()=>(document.querySelector('.footer-wordmark')?.textContent||document.title).trim().replace(/\s*Admin$/,'').slice(0,40)||here;
+ const shopName=()=>gearhub?'GearHub':(document.querySelector('.footer-wordmark')?.textContent||document.title).trim().replace(/\s*Admin$/,'').slice(0,40)||here;
  function addRow(){
   const share=document.getElementById('share-store-action');if(!share||document.getElementById('create-own-app-action'))return;
   const row=document.createElement('button');row.type='button';row.id='create-own-app-action';row.className='settings-row settings-row-button';

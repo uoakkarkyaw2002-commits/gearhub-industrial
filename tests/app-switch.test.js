@@ -9,9 +9,15 @@ test('app-switch runs only inside an installed app and remembers the app\'s own 
  assert.match(js,/if\(!here\|\|home===here\)return;/,'its own shop and GearHub pages never ask');
  assert.match(js,/const auto=!get\(localStorage,'gh-app-own:'\+here\)&&!get\(sessionStorage,'gh-app-asked:'\+here\);/,'"I have it" stops the automatic ask (1.1.253: the Settings row stays)');
  assert.match(js,/x-safari-https:\/\//,'iPhone opens Safari to add the app');
- assert.match(js,/const path='\/shops\/'\+encodeURIComponent\(here\)\+'\/\?install=1'/,'1.1.213: the app is added from the shop Home page (name + logo, opens on Home)');
+ assert.match(js,/const path=gearhub\?'\/index\.html':'\/shops\/'\+encodeURIComponent\(here\)\+'\/\?install=1'/,'1.1.213: the app is added from the shop Home page (name + logo, opens on Home)');
 });
 test('app-switch is loaded on shop pages and admin and cached offline',()=>{
  const sw=read('public/sw.js');
  for(const page of ['public/index.html','public/admin.html','public/platform.html']){const tag=read(page).match(/\/app-switch\.js\?v=[^"]+/)?.[0];assert.ok(tag,page);assert.ok(sw.includes('"'+tag+'"'),page+' tag in SHELL');}
+});
+test('1.1.257: GearHub\'s own store (/index.html) also gets "Create GearHub app" inside another app',()=>{
+ const js=read('public/app-switch.js');
+ assert.match(js,/gearhub=!match&&location\.pathname==='\/index\.html'/);
+ assert.match(js,/const path=gearhub\?'\/index\.html':/);
+ assert.match(js,/const shopName=\(\)=>gearhub\?'GearHub':/);
 });
