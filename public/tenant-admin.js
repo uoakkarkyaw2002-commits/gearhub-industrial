@@ -72,7 +72,19 @@
   },
   receipt:o=>base()+'/receipts/'+encodeURIComponent(o.receipt_id),
   login:error=>{
-   if(/google login required/i.test(error?.message||'')){location.replace('/platform.html');return;}
+   if(/google login required/i.test(error?.message||'')){
+    /* 1.1.243: in the iPhone/Android Home Screen app, sign in here so the login stays in the app (app-login.js). */
+    if(!(window.GearHubAppLogin&&GearHubAppLogin.standalone())){location.replace('/platform.html');return;}
+    document.getElementById('dashboard').classList.add('hidden');
+    const box=document.getElementById('login-view');box.classList.remove('hidden');box.classList.add('tenant-denied');box.replaceChildren();
+    const card=document.createElement('div');card.className='tenant-denied-card';
+    const icon=document.createElement('div');icon.className='tenant-denied-icon';icon.textContent='🔐';
+    const h=document.createElement('h2');h.textContent='Google နဲ့ ပြန်ဝင်ပါ / Sign in again';
+    const p=document.createElement('p');p.textContent='Google ဝင်ပြီးရင် ပေါ်လာတဲ့ စာမျက်နှာကို ✕ နဲ့ ပိတ်ပါ။ App က အလိုလို ဝင်သွားပါမယ်။ / After Google, close the sheet with ✕ — the app signs in by itself.';
+    const b=document.createElement('button');b.type='button';b.className='primary';b.textContent='Continue with Google';
+    b.onclick=async()=>{b.disabled=true;try{await GearHubAppLogin.start();}catch(e){p.textContent=e.message;b.disabled=false;}};
+    card.append(icon,h,p,b);box.append(card);return;
+   }
    document.getElementById('dashboard').classList.add('hidden');
    const box=document.getElementById('login-view');box.classList.remove('hidden');box.classList.add('tenant-denied');box.replaceChildren();
    const card=document.createElement('div');card.className='tenant-denied-card';

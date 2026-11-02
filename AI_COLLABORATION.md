@@ -30,6 +30,15 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.243: Login inside the installed app + Notifications switch for every user (Claude)
+- Owner (iPhone, after re-adding the POLESTAR app): "asks to log in again — logging in does not work"; and every user's Settings must have the Notifications switch.
+- Cause: an installed iPhone app has its own cookies; Google sign-in (out of the app's scope) runs in iOS's browser sheet, so the session landed in the sheet, never in the app.
+- `lib/platform.js`: /auth/start also keeps the state in memory (`pendingLogins`, 10 min) with an optional `handoff` id from the app; /auth/callback accepts that server-side state only when it carries a handoff (cookie-less sheet), records `handoffs[id]=user` (15 min, one use). New POST /auth/claim {handoff} (CSRF) puts that user into the app's own session. Normal same-browser login unchanged. No DB change (in-memory, single Render instance).
+- New `public/app-login.js` (index.html + admin.html, before tenant-admin/settings-alerts): `GearHubAppLogin.start()` (random handoff id in localStorage → /auth/start → Google) and auto-claim on load/focus/visibility + every 3 s while pending, then reload.
+- `tenant-admin.js`: "Google login required" inside a Home Screen app shows a "Continue with Google" card (app-login) instead of going to /platform.html; browsers unchanged.
+- `settings-alerts.js`: the Notifications row shows on every shop page for everyone: not signed in → switch starts Google sign-in; signed in but not the shop's owner → disabled with a note; owner → on/off as 1.1.242.
+- Checked: `tests/app-login.test.js` (sheet without cookies finishes sign-in, app claims once, unknown/used handoff waits, state single use, plain login unchanged); Chrome 390/1280 on push demo: visitor sees switch + sign-in note, tap → Google page; app-started sign-in finished in a separate browser context, app claimed it on focus (signed in as owner, handoff cleared); no console errors. Not verified on a real iPhone (standalone mode cannot be emulated here). Node 22: check + 401/401.
+
 ### 1.1.242: Shop Settings — Contact us + Notifications switch (Claude)
 - Owner: every shop's Settings gets "Contact us" 09-766472432, and the order Notifications move into Settings with an on/off switch.
 - `index.html`: Contact us row (`a.settings-contact`, tel:09766472432) above About app, for every store. `tenant-store.js` fills shop phone numbers into `a[href^="tel:"]` — now `:not(.settings-contact)` so it keeps our number.

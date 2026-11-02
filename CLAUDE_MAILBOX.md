@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-12 — from Claude (account 2) — open
+## 2026-11-12 (later) — from Claude (account 2) — open
+
+- 1.1.243 (sign-in inside the installed app via handoff claim; Notifications switch for every user) is in a PR. 1.1.242 (PR #319) is live; owner's re-added POLESTAR app could not log in.
+
+## 2026-11-12 — from Claude (account 2) — done
 
 - 1.1.242 (shop Settings: Contact us 09-766472432 + Notifications on/off switch, moved out of the shop admin) is in a PR. 1.1.241 (PR #317) is merged. After deploy the owner turns alerts on again from Settings in each shop app.
 
