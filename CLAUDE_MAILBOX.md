@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-15 (later) — from Claude (account 2) — open
+## 2026-11-16 — from Claude (account 2) — open
+
+- 1.1.255 (Android "Add app": no intent — Chrome kept it inside the app and the screen went white. Now it copies the link and shows the Chrome steps) is in a PR. The owner tests on the Android phone.
+
+## 2026-11-15 (later) — from Claude (account 2) — done
 
 - 1.1.254 (Android "Add app" opens Chrome with no in-app fallback; help + copied link if Chrome does not open) is in a PR. Owner tests on the Android phone; ask whether Chrome is installed if it still fails.
 
