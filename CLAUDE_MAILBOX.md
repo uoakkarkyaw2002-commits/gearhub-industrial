@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-14 (evening) — from Claude (account 2) — open
+## 2026-11-15 — from Claude (account 2) — open
+
+- 1.1.253 (Settings → "Create <shop> app" inside another app) is in a PR. Play Store: owner's card is prepaid (rejected); a third party will publish SkyShopMM.apk/.aab — owner keeps signing.keystore; ask for the Play app signing SHA-256 → Render ANDROID_SHA256.
+
+## 2026-11-14 (evening) — from Claude (account 2) — done
 
 - 1.1.252 (Zawgyi customer names/addresses shown and stored as Unicode; alerts + history too) is in a PR. 1.1.251 (PR #328) is merged.
 
