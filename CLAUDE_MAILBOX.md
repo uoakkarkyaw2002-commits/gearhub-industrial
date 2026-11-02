@@ -4,11 +4,11 @@
 
 - 1.1.246 (new-shop push alert to the GearHub owner's phones) is in a PR. After deploy the owner opens POLESTAR app once (Notifications already On) so the phone is enrolled.
 
-## 2026-11-12 (night) — from Claude (account 2) — open
+## 2026-11-12 (night) — from Claude (account 2) — done
 
-- 1.1.245 (Notifications switch: own class, no extra white dot when On) is in a PR. 1.1.244 confirmed by the owner.
+- 1.1.245 (Notifications switch: own class, no extra white dot when On) merged in PR #322 and confirmed by the owner. 1.1.244 confirmed by the owner.
 
-## 2026-11-12 (evening) — from Claude (account 2) — open
+## 2026-11-12 (evening) — from Claude (account 2) — done
 
 - 1.1.244 (Notifications switch only for the shop owner / GearHub owner; visitors never see it) is in a PR. 1.1.243 (PR #320) is merged.
 
