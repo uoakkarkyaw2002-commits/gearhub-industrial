@@ -14,7 +14,7 @@
  async function registration(){await navigator.serviceWorker.register(SW_URL,{updateViaCache:"none"}).catch(()=>{});return navigator.serviceWorker.ready}
  async function current(){return (await registration()).pushManager.getSubscription()}
  const row=document.createElement("div");row.className="settings-row settings-alerts-row";row.hidden=true;
- row.innerHTML='<span class="settings-icon" aria-hidden="true">🔔</span><div class="settings-copy"><strong>Notifications</strong><small id="settings-alerts-help"></small></div><label class="settings-switch"><input type="checkbox" role="switch" id="settings-alerts-switch" aria-label="Notifications"><span aria-hidden="true"></span></label>';
+ row.innerHTML='<span class="settings-icon" aria-hidden="true">🔔</span><div class="settings-copy"><strong>Notifications</strong><small id="settings-alerts-help"></small></div><label class="settings-toggle"><input type="checkbox" role="switch" id="settings-alerts-switch" aria-label="Notifications"><span aria-hidden="true"></span></label>';
  share.after(row);
  const input=row.querySelector("input"),help=row.querySelector("#settings-alerts-help");
  const say=(en,mm)=>{help.textContent=my()?mm:en};

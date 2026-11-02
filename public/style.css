@@ -1312,14 +1312,15 @@ body.searching .search-pill .photo-scan-button,body.searching .excel-folder-butt
  :root[data-theme="dark"] .gallery-modal .drawer-head h2,:root[data-theme="dark"] .gallery-similar>p{color:#eef5ef}
  :root[data-theme="dark"] .gallery-modal .gallery-stage{background:#e9edf1}
 }
-/* 1.1.242 owner: Notifications on/off switch and Contact us in the shop Settings. */
+/* 1.1.242 owner: Notifications on/off switch and Contact us in the shop Settings.
+   1.1.245: own class name — the older .settings-switch rules drew a second white knob on it (iPhone). */
 .settings-alerts-row[hidden]{display:none}
-.settings-switch{position:relative;flex:0 0 auto;display:inline-block;width:52px;height:32px;cursor:pointer}
-.settings-switch input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;z-index:1}
-.settings-switch span{position:absolute;inset:0;border-radius:999px;background:#d5ddd7;transition:background .2s}
-.settings-switch span::after{content:"";position:absolute;left:3px;top:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 2px 5px #0003;transition:transform .2s}
-.settings-switch input:checked+span{background:#14866b}
-.settings-switch input:checked+span::after{transform:translateX(20px)}
-.settings-switch input:disabled+span{opacity:.5}
-.settings-switch input:focus-visible+span{outline:2px solid #14866b;outline-offset:2px}
+.settings-toggle{position:relative;flex:0 0 auto;display:inline-block;width:52px;height:32px;cursor:pointer}
+.settings-toggle input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;z-index:1}
+.settings-toggle span{position:absolute;inset:0;border-radius:999px;background:#d5ddd7;transition:background .2s}
+.settings-toggle span::after{content:"";position:absolute;left:3px;top:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 2px 5px #0003;transition:transform .2s}
+.settings-toggle input:checked+span{background:#14866b}
+.settings-toggle input:checked+span::after{transform:translateX(20px)}
+.settings-toggle input:disabled+span{opacity:.5}
+.settings-toggle input:focus-visible+span{outline:2px solid #14866b;outline-offset:2px}
 a.settings-contact{color:inherit;text-decoration:none}
