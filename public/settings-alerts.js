@@ -1,6 +1,6 @@
 // 1.1.242 owner: in every shop's Settings — "Contact us" (09-766472432) and the order Notifications with an
-// on/off switch (moved here from the shop admin). The switch shows only to the shop's owner (or the GearHub
-// owner); customers never see it. It uses the shop's own service worker and the shop push API.
+// on/off switch (moved here from the shop admin). 1.1.243: every user sees it; only the shop's owner (or the
+// GearHub owner) can turn it on. It uses the shop's own service worker and the shop push API.
 (()=>{
  const slug=(location.pathname.match(/^\/shops\/([a-z0-9-]+)\//)||[])[1],share=document.getElementById("share-store-action");
  if(!slug||!share)return;
@@ -32,10 +32,17 @@
   await api("/subscribe",{subscription:sub.toJSON()});try{localStorage.removeItem(offKey)}catch{}show(true);
  }
  async function turnOff(){const sub=await current();try{localStorage.setItem(offKey,"1")}catch{}if(sub){await api("/unsubscribe",{endpoint:sub.endpoint}).catch(()=>{});await sub.unsubscribe().catch(()=>{})}show(false)}
- input.addEventListener("change",async()=>{input.disabled=true;try{input.checked?await turnOn():await turnOff()}catch(e){show(false,"Could not change: "+(e.message||"failed"),"မပြောင်းနိုင်ပါ / "+(e.message||"failed"))}finally{input.disabled=false}});
+ let mode="";
+ input.addEventListener("change",async()=>{
+  if(mode==="signin"){input.checked=false;input.disabled=true;say("Opening Google sign-in…","Google နဲ့ ဝင်ဖို့ ဖွင့်နေပါတယ်…");try{window.GearHubAppLogin?await GearHubAppLogin.start():location.assign("/platform.html")}catch(e){say(e.message,e.message);input.disabled=false}return}
+  input.disabled=true;try{input.checked?await turnOn():await turnOff()}catch(e){show(false,"Could not change: "+(e.message||"failed"),"မပြောင်းနိုင်ပါ / "+(e.message||"failed"))}finally{input.disabled=false}});
  (async()=>{try{
   const [me,store]=await Promise.all([fetch("/api/platform/me",{cache:"no-store",credentials:"same-origin"}).then(r=>r.json()),fetch("/api/platform/store/"+slug,{cache:"no-store"}).then(r=>r.json())]);
-  if(!me?.user||!store?.id||!(me.isOwner||Number(me.shop?.id)===Number(store.id)))return;
-  shopId=store.id;csrf=me.csrfToken||"";row.hidden=false;await refresh();
+  if(!store?.id)return;row.hidden=false;
+  // 1.1.243 owner: every user's Settings shows the switch. Not signed in → the switch opens Google sign-in
+  // (kept inside the installed app by app-login.js); signed in but not this shop's owner → shown, cannot turn on.
+  if(!me?.user){mode="signin";return show(false,"Sign in with Google to get order alerts","အော်ဒါ သတိပေးချက်ရဖို့ Google နဲ့ ဝင်ပါ")}
+  if(!(me.isOwner||Number(me.shop?.id)===Number(store.id))){input.disabled=true;return show(false,"Only this shop's owner gets its order alerts","ဒီဆိုင်ပိုင်ရှင် account နဲ့ ဝင်ထားမှ ရပါမယ်")}
+  shopId=store.id;csrf=me.csrfToken||"";await refresh();
  }catch{}})();
 })();
