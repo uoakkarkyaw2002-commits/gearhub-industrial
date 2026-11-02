@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.245: Notifications switch — no extra white dot (Claude)
+- Owner (iPhone screenshot): switched On, a white dot stayed on the left. The class name `.settings-switch` was already used by an older checkbox switch in style.css (line ~123: its own ::after knob at left:3px and track colour), which drew on our label too. The new switch now uses `.settings-toggle` (CSS block 1.1.242 + `settings-alerts.js`).
+- Checked: Chrome 390/1280 push demo with stubbed push — On: green track, one knob on the right (screenshot); On → Off works; visitor: no row; no console errors. Node 22: check + 402/402.
+
 ### 1.1.244: Notifications switch only for the owner (Claude)
 - Owner: only the owner should see Notifications; visitors must not. `settings-alerts.js`: the row shows only when /api/platform/me is this shop's owner or the GearHub owner (as 1.1.242); the 1.1.243 "sign in from the switch" path for visitors is gone. App sign-in handoff (app-login.js, /auth/claim) stays — owners sign in from the shop admin's "Continue with Google" card in the app.
 - Checked: Chrome 390/1280 push demo — visitor: no row; owner after app sign-in claim: row shown; no console errors. Node 22: check + 401/401.
