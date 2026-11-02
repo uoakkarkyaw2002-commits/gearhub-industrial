@@ -74,5 +74,10 @@ test('1.1.249: alerts count on the app icon; opening the app clears it',()=>{
 });
 test('1.1.250: tapping Notifications opens the alerts history',()=>{
  const js=pub('settings-alerts.js');
- assert.match(js,/\/push\/history/);assert.match(js,/class="alerts-history-item"/);assert.match(pub('style.css'),/\.alerts-history\[hidden\]\{display:none\}/);
+ assert.match(js,/\/push\/history/);assert.match(js,/class="alerts-history-item/);assert.match(pub('style.css'),/\.alerts-history\[hidden\]\{display:none\}/);
+});
+test('1.1.251: Settings → Notifications shows the number of new alerts since the list was last opened',()=>{
+ const js=pub('settings-alerts.js');
+ assert.match(js,/class="alerts-count" hidden/);assert.match(js,/gh-alerts-seen:/);assert.match(js,/is-new/);
+ assert.match(pub('style.css'),/\.alerts-count\[hidden\]\{display:none\}/);
 });

@@ -1347,3 +1347,8 @@ body.alerts-history-open{overflow:hidden}
 @media(min-width:700px){.alerts-history{align-items:center}.alerts-history-card{border-radius:24px;max-height:80vh}}
 :root[data-theme="dark"] .alerts-history-card{background:#17251c;color:#eef5ef}
 :root[data-theme="dark"] .alerts-history-text small{color:#b8c6bc}
+/* 1.1.251 owner: new-alerts count on the Settings → Notifications row; new items tinted in the list. */
+.alerts-count{display:inline-grid;place-items:center;min-width:22px;height:22px;margin-left:6px;padding:0 7px;border-radius:999px;background:#e5383b;color:#fff;font-size:12.5px;font-weight:800;line-height:1;vertical-align:2px}
+.alerts-count[hidden]{display:none}
+.alerts-history-item.is-new{background:#ecf8f2;border-radius:14px}
+:root[data-theme="dark"] .alerts-history-item.is-new{background:#1f3a2b}

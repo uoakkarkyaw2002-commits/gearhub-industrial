@@ -15,7 +15,7 @@
  async function registration(){await navigator.serviceWorker.register(SW_URL,{updateViaCache:"none"}).catch(()=>{});return navigator.serviceWorker.ready}
  async function current(){return (await registration()).pushManager.getSubscription()}
  const row=document.createElement("div");row.className="settings-row settings-alerts-row";row.hidden=true;
- row.innerHTML='<span class="settings-icon" aria-hidden="true">🔔</span><div class="settings-copy"><strong>Notifications</strong><small id="settings-alerts-help"></small></div><label class="settings-toggle"><input type="checkbox" role="switch" id="settings-alerts-switch" aria-label="Notifications"><span aria-hidden="true"></span></label>';
+ row.innerHTML='<span class="settings-icon" aria-hidden="true">🔔</span><div class="settings-copy"><strong>Notifications <span class="alerts-count" hidden></span></strong><small id="settings-alerts-help"></small></div><label class="settings-toggle"><input type="checkbox" role="switch" id="settings-alerts-switch" aria-label="Notifications"><span aria-hidden="true"></span></label>';
  share.after(row);
  const input=row.querySelector("input"),help=row.querySelector("#settings-alerts-help");
  const say=(en,mm)=>{help.textContent=my()?mm:en};
@@ -41,15 +41,21 @@
   return t.toLocaleDateString(my()?"my-MM":"en-GB",{day:"numeric",month:"short"})+" "+t.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}
  const icon=k=>k==="signup"?"🆕":k==="test"?"🔔":"🛒";
  let sheet=null;
+ // 1.1.251 owner: the Notifications row shows how many alerts came in since the list was last opened.
+ const seenKey="gh-alerts-seen:"+(slug||"main"),historyUrl=()=>slug?"/api/platform/shops/"+shopId+"/push/history":"/api/platform/owner/push/history";
+ const seenAt=()=>{try{return localStorage.getItem(seenKey)||""}catch{return ""}};
+ function showCount(items){const n=items.filter(x=>String(x.at)>seenAt()).length,el=row.querySelector(".alerts-count");el.textContent=n>99?"99+":String(n);el.hidden=!n;row.setAttribute("aria-label","Notifications history"+(n?", "+n+" new":""))}
+ async function loadCount(){try{const r=await fetch(historyUrl(),{cache:"no-store",credentials:"same-origin"});if(r.ok)showCount((await r.json()).items||[])}catch{}}
  async function openHistory(){
   if(!sheet){sheet=document.createElement("div");sheet.className="alerts-history";sheet.hidden=true;sheet.setAttribute("role","dialog");sheet.setAttribute("aria-modal","true");
    sheet.innerHTML='<div class="alerts-history-card"><div class="alerts-history-head"><h2>Notifications</h2><button type="button" class="alerts-history-close" aria-label="Close"></button></div><div class="alerts-history-list"></div></div>';
    document.body.append(sheet);
    sheet.addEventListener("click",e=>{if(e.target===sheet||e.target.closest(".alerts-history-close"))close();const a=e.target.closest("[data-url]");if(a){close();location.assign(a.dataset.url)}});}
   const list=sheet.querySelector(".alerts-history-list");list.innerHTML='<p class="alerts-history-empty">…</p>';sheet.hidden=false;document.body.classList.add("alerts-history-open");
-  try{const r=await fetch(slug?"/api/platform/shops/"+shopId+"/push/history":"/api/platform/owner/push/history",{cache:"no-store",credentials:"same-origin"}),d=await r.json();if(!r.ok)throw new Error(d.error||"Failed");
-   const items=d.items||[];
-   list.innerHTML=items.length?items.map(x=>'<button type="button" class="alerts-history-item"'+(x.url?' data-url="'+esc(x.url)+'"':'')+'><span class="alerts-history-icon" aria-hidden="true">'+icon(x.kind)+'</span><span class="alerts-history-text"><strong>'+esc(x.title)+'</strong>'+(x.body?'<small>'+esc(x.body)+'</small>':'')+'<time datetime="'+esc(x.at)+'">'+esc(ago(x.at))+'</time></span></button>').join(""):'<p class="alerts-history-empty">'+(my()?"သတိပေးချက် မရှိသေးပါ":"No notifications yet")+'</p>';
+  try{const r=await fetch(historyUrl(),{cache:"no-store",credentials:"same-origin"}),d=await r.json();if(!r.ok)throw new Error(d.error||"Failed");
+   const items=d.items||[],before=seenAt();
+   try{localStorage.setItem(seenKey,items[0]?.at||new Date().toISOString())}catch{}showCount(items);
+   list.innerHTML=items.length?items.map(x=>'<button type="button" class="alerts-history-item'+(String(x.at)>before?' is-new':'')+'"'+(x.url?' data-url="'+esc(x.url)+'"':'')+'><span class="alerts-history-icon" aria-hidden="true">'+icon(x.kind)+'</span><span class="alerts-history-text"><strong>'+esc(x.title)+'</strong>'+(x.body?'<small>'+esc(x.body)+'</small>':'')+'<time datetime="'+esc(x.at)+'">'+esc(ago(x.at))+'</time></span></button>').join(""):'<p class="alerts-history-empty">'+(my()?"သတိပေးချက် မရှိသေးပါ":"No notifications yet")+'</p>';
   }catch(e){list.innerHTML='<p class="alerts-history-empty">'+esc(e.message)+'</p>'}
  }
  function close(){if(sheet){sheet.hidden=true;document.body.classList.remove("alerts-history-open")}}
@@ -57,15 +63,16 @@
  row.addEventListener("click",e=>{if(e.target.closest(".settings-toggle"))return;if(slug&&!shopId)return;openHistory()});
  row.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target===row){e.preventDefault();openHistory()}});
  addEventListener("keydown",e=>{if(e.key==="Escape")close()});
+ document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&!row.hidden&&(!slug||shopId))loadCount()});
  input.addEventListener("change",async()=>{
   if(mode==="signin"){input.checked=false;input.disabled=true;say("Opening Google sign-in…","Google နဲ့ ဝင်ဖို့ ဖွင့်နေပါတယ်…");try{window.GearHubAppLogin?await GearHubAppLogin.start():location.assign("/platform.html")}catch(e){say(e.message,e.message);input.disabled=false}return}
   input.disabled=true;try{input.checked?await turnOn():await turnOff()}catch(e){show(false,"Could not change: "+(e.message||"failed"),"မပြောင်းနိုင်ပါ / "+(e.message||"failed"))}finally{input.disabled=false}});
  (async()=>{try{
-  if(!slug){const me=await fetch("/api/platform/me",{cache:"no-store",credentials:"same-origin"}).then(r=>r.json());if(!me?.user||!me.isOwner)return;csrf=me.csrfToken||"";row.hidden=false;return refresh()}
+  if(!slug){const me=await fetch("/api/platform/me",{cache:"no-store",credentials:"same-origin"}).then(r=>r.json());if(!me?.user||!me.isOwner)return;csrf=me.csrfToken||"";row.hidden=false;refresh();return loadCount()}
   const [me,store]=await Promise.all([fetch("/api/platform/me",{cache:"no-store",credentials:"same-origin"}).then(r=>r.json()),fetch("/api/platform/store/"+slug,{cache:"no-store"}).then(r=>r.json())]);
   // 1.1.244 owner: only the shop's owner (or the GearHub owner) sees the switch; visitors never see it.
   // (Owners sign in from the shop admin; app-login.js keeps that sign-in inside the installed app.)
   if(!store?.id||!me?.user||!(me.isOwner||Number(me.shop?.id)===Number(store.id)))return;
-  shopId=store.id;csrf=me.csrfToken||"";row.hidden=false;await refresh();
+  shopId=store.id;csrf=me.csrfToken||"";row.hidden=false;refresh();await loadCount();
  }catch{}})();
 })();
