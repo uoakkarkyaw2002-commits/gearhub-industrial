@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.250: Notifications history (Claude)
+- Owner: like Facebook — tapping Notifications in Settings shows every alert that came in, with time and text.
+- `lib/order-push.js` send(): after each alert (order, test, new shop) appends {at,title,body,url,kind} to platform_meta `push-log:<scope>` (last 100; scopes shop:<id>, main, owner) — no new table; `history(scope)`. `lib/platform.js`: GET /api/platform/shops/:id/push/history (shop owner / GearHub owner) and GET /api/platform/owner/push/history (main + new-shop, newest first, owner only).
+- `settings-alerts.js`: the Notifications row (not the switch) opens a bottom sheet "Notifications" (`.alerts-history…`, style.css 1.1.250): icon by kind (🛒 order, 🆕 new shop, 🔔 test), title, text, "5 min ago"/date; tap an item → its link (e.g. orders); ✕ / backdrop / Esc closes. History starts from this deploy (older alerts were not stored).
+- Checked: `tests/owner-signup-alert.test.js` (owner history newest first incl. bodies; seller 403 on owner history; shop history; other seller 404); Chrome 390/1280 demo with stubbed push: switch tap does not open the sheet, row tap lists 2 test alerts with "just now", ✕ closes; no console errors. Node 22: check + 405/405.
+
 ### 1.1.249: Unseen-alerts number on the app icon (Claude)
 - Owner (iPhone Home Screen): show on the app icon how many notifications arrived and were not looked at yet.
 - `public/sw.js` push handler: keeps a count per app (Cache "gearhub-badge", key = registration scope + "__badge") and calls `self.navigator.setAppBadge(count)` (Badging API: iPhone iOS 16.4+ Home Screen apps with notifications allowed; Android installed apps). New `public/app-badge.js` (index.html + admin.html + SW SHELL): when the app is opened/visible/focused → `navigator.clearAppBadge()` and the count is reset.

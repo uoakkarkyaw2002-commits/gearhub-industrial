@@ -34,6 +34,29 @@
  }
  async function turnOff(){const sub=await current();try{localStorage.setItem(offKey,"1")}catch{}if(sub){await api("/unsubscribe",{endpoint:sub.endpoint}).catch(()=>{});await sub.unsubscribe().catch(()=>{})}show(false)}
  let mode="";
+ // 1.1.250 owner: like Facebook — tapping Notifications shows every alert that came in, with time and text.
+ const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+ function ago(at){const t=new Date(at),s=Math.max(0,(Date.now()-t)/1000);
+  if(s<60)return my()?"ခုနက":"just now";if(s<3600)return Math.floor(s/60)+(my()?" မိနစ်က":" min ago");if(s<86400)return Math.floor(s/3600)+(my()?" နာရီက":" h ago");
+  return t.toLocaleDateString(my()?"my-MM":"en-GB",{day:"numeric",month:"short"})+" "+t.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}
+ const icon=k=>k==="signup"?"🆕":k==="test"?"🔔":"🛒";
+ let sheet=null;
+ async function openHistory(){
+  if(!sheet){sheet=document.createElement("div");sheet.className="alerts-history";sheet.hidden=true;sheet.setAttribute("role","dialog");sheet.setAttribute("aria-modal","true");
+   sheet.innerHTML='<div class="alerts-history-card"><div class="alerts-history-head"><h2>Notifications</h2><button type="button" class="alerts-history-close" aria-label="Close"></button></div><div class="alerts-history-list"></div></div>';
+   document.body.append(sheet);
+   sheet.addEventListener("click",e=>{if(e.target===sheet||e.target.closest(".alerts-history-close"))close();const a=e.target.closest("[data-url]");if(a){close();location.assign(a.dataset.url)}});}
+  const list=sheet.querySelector(".alerts-history-list");list.innerHTML='<p class="alerts-history-empty">…</p>';sheet.hidden=false;document.body.classList.add("alerts-history-open");
+  try{const r=await fetch(slug?"/api/platform/shops/"+shopId+"/push/history":"/api/platform/owner/push/history",{cache:"no-store",credentials:"same-origin"}),d=await r.json();if(!r.ok)throw new Error(d.error||"Failed");
+   const items=d.items||[];
+   list.innerHTML=items.length?items.map(x=>'<button type="button" class="alerts-history-item"'+(x.url?' data-url="'+esc(x.url)+'"':'')+'><span class="alerts-history-icon" aria-hidden="true">'+icon(x.kind)+'</span><span class="alerts-history-text"><strong>'+esc(x.title)+'</strong>'+(x.body?'<small>'+esc(x.body)+'</small>':'')+'<time datetime="'+esc(x.at)+'">'+esc(ago(x.at))+'</time></span></button>').join(""):'<p class="alerts-history-empty">'+(my()?"သတိပေးချက် မရှိသေးပါ":"No notifications yet")+'</p>';
+  }catch(e){list.innerHTML='<p class="alerts-history-empty">'+esc(e.message)+'</p>'}
+ }
+ function close(){if(sheet){sheet.hidden=true;document.body.classList.remove("alerts-history-open")}}
+ row.classList.add("settings-row-button");row.tabIndex=0;row.setAttribute("aria-label","Notifications history");
+ row.addEventListener("click",e=>{if(e.target.closest(".settings-toggle"))return;if(slug&&!shopId)return;openHistory()});
+ row.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target===row){e.preventDefault();openHistory()}});
+ addEventListener("keydown",e=>{if(e.key==="Escape")close()});
  input.addEventListener("change",async()=>{
   if(mode==="signin"){input.checked=false;input.disabled=true;say("Opening Google sign-in…","Google နဲ့ ဝင်ဖို့ ဖွင့်နေပါတယ်…");try{window.GearHubAppLogin?await GearHubAppLogin.start():location.assign("/platform.html")}catch(e){say(e.message,e.message);input.disabled=false}return}
   input.disabled=true;try{input.checked?await turnOn():await turnOff()}catch(e){show(false,"Could not change: "+(e.message||"failed"),"မပြောင်းနိုင်ပါ / "+(e.message||"failed"))}finally{input.disabled=false}});

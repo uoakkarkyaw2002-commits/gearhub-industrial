@@ -72,3 +72,7 @@ test('1.1.249: alerts count on the app icon; opening the app clears it',()=>{
  assert.match(badge,/navigator\.clearAppBadge\(\)/);assert.match(badge,/"__badge"/);
  for(const f of ['index.html','admin.html'])assert.match(pub(f),/<script src="\/app-badge\.js\?v=1\.1\.249"><\/script>/);
 });
+test('1.1.250: tapping Notifications opens the alerts history',()=>{
+ const js=pub('settings-alerts.js');
+ assert.match(js,/\/push\/history/);assert.match(js,/class="alerts-history-item"/);assert.match(pub('style.css'),/\.alerts-history\[hidden\]\{display:none\}/);
+});
