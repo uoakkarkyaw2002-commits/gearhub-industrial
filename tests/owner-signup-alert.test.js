@@ -28,4 +28,12 @@ test('1.1.246: a new shop alerts the GearHub owner\'s phones (owner switch + Gea
  await owner.call('/shops/'+shop.id+'/push/unsubscribe','POST',{endpoint:sub('owner').endpoint});sent.length=0;
  const third=client();await third.login('third');await third.call('/applications','POST',{name:'Siam Pi'});await new Promise(r=>setTimeout(r,50));
  assert.equal(sent.filter(x=>x.kind==='signup').length,0);
+ // 1.1.247: GearHub's own Settings switch (owner only) — GearHub orders (scope main) + new-shop alerts.
+ assert.equal((await seller.call('/owner/push')).status,403);
+ assert.equal((await owner.call('/owner/push/subscribe','POST',{subscription:sub('gearhub')})).status,200);
+ assert.equal((await owner.call('/owner/push?endpoint='+encodeURIComponent(sub('gearhub').endpoint))).data.subscribed,true);
+ sent.length=0;const fourth=client();await fourth.login('fourth');await fourth.call('/applications','POST',{name:'IT Unity'});await new Promise(r=>setTimeout(r,50));
+ assert.deepEqual(sent.filter(x=>x.kind==='signup').map(x=>x.endpoint),[sub('gearhub').endpoint]);
+ await owner.call('/owner/push/unsubscribe','POST',{endpoint:sub('gearhub').endpoint});
+ assert.equal((await owner.call('/owner/push?endpoint='+encodeURIComponent(sub('gearhub').endpoint))).data.subscribed,false);
 });
