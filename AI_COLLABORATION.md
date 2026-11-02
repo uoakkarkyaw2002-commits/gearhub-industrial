@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.246: New-shop alert on the GearHub owner's phone (Claude)
+- Owner: new shops (Kz, Siam Pi, IT UNITY) arrived and the owner did not know — alert on every new shop.
+- `lib/order-push.js`: `notifyEndpoints(endpoints, message, key)` (same sender as order alerts; `notify` now shares `send`).
+- `lib/platform.js`: `ownerPhones` = endpoints of phones the GearHub owner switched on in any shop app's Settings (stored in platform_meta `owner-push-endpoints`, max 20; no new table — push_subscriptions keeps one scope per endpoint). Added on /shops/:id/push/subscribe and on the status GET (so the owner's phone that is already On is enrolled the next time a shop page opens), removed on unsubscribe — only when the signed-in user is the GearHub owner. `alertNewShop` after POST /applications sends "🆕 ဆိုင်အသစ် / New shop · <name>" (email · Opened / Waiting for approval, opens /platform.html?view=console) to ownerPhones + GearHub main admin phones (scope "main"). Seller phones never get it.
+- Checked: `tests/owner-signup-alert.test.js` (owner phone alerted, seller phone not, off → no alert). Server-only change, no page UI changed (no browser run). Node 22: check + 403/403. Real push to the owner's iPhone not verified.
+
 ### 1.1.245: Notifications switch — no extra white dot (Claude)
 - Owner (iPhone screenshot): switched On, a white dot stayed on the left. The class name `.settings-switch` was already used by an older checkbox switch in style.css (line ~123: its own ::after knob at left:3px and track colour), which drew on our label too. The new switch now uses `.settings-toggle` (CSS block 1.1.242 + `settings-alerts.js`).
 - Checked: Chrome 390/1280 push demo with stubbed push — On: green track, one knob on the right (screenshot); On → Off works; visitor: no row; no console errors. Node 22: check + 402/402.
