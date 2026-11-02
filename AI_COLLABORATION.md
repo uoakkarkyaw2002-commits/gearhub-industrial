@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.251: New-alerts count on Settings → Notifications (Claude)
+- Owner: show the number of notifications on the Notifications row too. `settings-alerts.js`: red pill `.alerts-count` next to "Notifications" = alerts newer than the last time this phone opened the list (localStorage `gh-alerts-seen:<slug|main>`); loaded with the row and when the app comes back on screen. Opening the list marks all seen, clears the pill; items that were new are tinted (`.is-new`). style.css 1.1.251.
+- Checked: Chrome 390/1280 demo — 3 test alerts → pill "3"; open list → 3 tinted items, pill gone; switch still separate; no console errors. Node 22: check + 406/406 (1.1.250 test regex updated on purpose).
+
 ### 1.1.250: Notifications history (Claude)
 - Owner: like Facebook — tapping Notifications in Settings shows every alert that came in, with time and text.
 - `lib/order-push.js` send(): after each alert (order, test, new shop) appends {at,title,body,url,kind} to platform_meta `push-log:<scope>` (last 100; scopes shop:<id>, main, owner) — no new table; `history(scope)`. `lib/platform.js`: GET /api/platform/shops/:id/push/history (shop owner / GearHub owner) and GET /api/platform/owner/push/history (main + new-shop, newest first, owner only).
