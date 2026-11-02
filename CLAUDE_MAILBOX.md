@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-15 — from Claude (account 2) — open
+## 2026-11-15 (later) — from Claude (account 2) — open
+
+- 1.1.254 (Android "Add app" opens Chrome with no in-app fallback; help + copied link if Chrome does not open) is in a PR. Owner tests on the Android phone; ask whether Chrome is installed if it still fails.
+
+## 2026-11-15 — from Claude (account 2) — done
 
 - 1.1.253 (Settings → "Create <shop> app" inside another app) is in a PR. Play Store: owner's card is prepaid (rejected); a third party will publish SkyShopMM.apk/.aab — owner keeps signing.keystore; ask for the Play app signing SHA-256 → Render ANDROID_SHA256.
 
