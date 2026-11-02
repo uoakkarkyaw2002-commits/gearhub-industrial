@@ -36,4 +36,12 @@ test('1.1.246: a new shop alerts the GearHub owner\'s phones (owner switch + Gea
  assert.deepEqual(sent.filter(x=>x.kind==='signup').map(x=>x.endpoint),[sub('gearhub').endpoint]);
  await owner.call('/owner/push/unsubscribe','POST',{endpoint:sub('gearhub').endpoint});
  assert.equal((await owner.call('/owner/push?endpoint='+encodeURIComponent(sub('gearhub').endpoint))).data.subscribed,false);
+ // 1.1.250: history — newest first, with time, title and text; sellers cannot read the owner's history.
+ const h=(await owner.call('/owner/push/history')).data.items;
+ assert.deepEqual(h.filter(x=>x.kind==='signup').map(x=>x.title.split(' · ')[1]),['IT Unity','Siam Pi','Kz','First Shop']);
+ assert.ok(h.every(x=>x.at&&x.title));assert.match(h[0].body,/fourth@gmail\.com/);
+ assert.equal((await seller.call('/owner/push/history')).status,403);
+ await seller.call('/shops/'+shop.id+'/push/test','POST',{});
+ const sh=(await seller.call('/shops/'+shop.id+'/push/history')).data.items;assert.equal(sh.length,1);assert.match(sh[0].title,/Test/);
+ assert.equal((await next.call('/shops/'+shop.id+'/push/history')).status,404,'another seller cannot read this shop history');
 });

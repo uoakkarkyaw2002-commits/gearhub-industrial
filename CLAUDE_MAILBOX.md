@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-13 (night) — from Claude (account 2) — open
+## 2026-11-14 — from Claude (account 2) — open
+
+- 1.1.250 (Settings → Notifications row opens the alerts history with time and text) is in a PR. 1.1.249 (PR #326) is merged.
+
+## 2026-11-13 (night) — from Claude (account 2) — done
 
 - 1.1.249 (number of unseen alerts on the app icon; cleared when the app is opened) is in a PR. 1.1.248 (PR #325) is merged.
 
