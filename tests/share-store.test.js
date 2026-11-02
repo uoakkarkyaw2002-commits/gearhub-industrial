@@ -66,3 +66,9 @@ test('1.1.245: Notifications switch has its own class, so the older .settings-sw
  assert.match(pub('settings-alerts.js'),/class="settings-toggle"/);assert.doesNotMatch(pub('settings-alerts.js'),/settings-switch"/);
  assert.match(pub('style.css'),/\.settings-toggle input:checked\+span::after\{transform:translateX\(20px\)\}/);
 });
+test('1.1.249: alerts count on the app icon; opening the app clears it',()=>{
+ const sw=pub('sw.js'),badge=pub('app-badge.js');
+ assert.match(sw,/self\.navigator\.setAppBadge\(count\)/);assert.match(sw,/caches\.open\("gearhub-badge"\)/);
+ assert.match(badge,/navigator\.clearAppBadge\(\)/);assert.match(badge,/"__badge"/);
+ for(const f of ['index.html','admin.html'])assert.match(pub(f),/<script src="\/app-badge\.js\?v=1\.1\.249"><\/script>/);
+});
