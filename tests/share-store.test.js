@@ -87,3 +87,8 @@ test('1.1.253: inside another app, Settings has "Create <shop> app" that opens t
  assert.match(js,/row\.addEventListener\('click',\(\)=>\{name=shopName\(\);fill\(\);show\(\)\}\)/);
  assert.match(js,/if\(!here\|\|home===here\)return;/);
 });
+test('1.1.254: Android "Add app" opens Chrome without an in-app fallback; if Chrome does not open, the link is copied with steps',()=>{
+ const js=pub('app-switch.js');
+ assert.match(js,/package=com\.android\.chrome;end'/);assert.doesNotMatch(js,/browser_fallback_url/);
+ assert.match(js,/if\(k==='go'&&android\)/);assert.match(js,/navigator\.clipboard\.writeText\(link\)/);
+});

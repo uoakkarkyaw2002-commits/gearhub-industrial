@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.254: "Add app" opens Chrome, never turns the same app into the shop (Claude)
+- Owner (Android, SkyShopMM APK → Kaizen → Create app → Add app): no new app; the SkyShopMM app itself just moved to Kaizen. The Chrome intent had `S.browser_fallback_url`, and inside the app the fallback opened in the same app. Owner chose "open Chrome with one tap" (installing a separate web app without the browser is not possible on Android).
+- `app-switch.js`: Android intent now `intent://<host>/shops/<slug>/?install=1#Intent;scheme=https;action=VIEW;category=BROWSABLE;package=com.android.chrome;end` (no fallback). If the page is still on screen 1.5 s after the tap (Chrome did not open / not installed), the link is copied and the sheet says how to finish (open Chrome, paste, Install).
+- Checked: Chrome 390 (installed app emulated): tap Add app → page stays on the shop (no in-app navigation), help note shown; no console errors. Node 22: check + 409/409. Real Android not verified — whether Chrome opens from the TWA must be tested on the owner's phone.
+
 ### 1.1.253: Settings → "Create <shop> app" inside another app (Claude)
 - Owner (SkyShopMM APK showing Kaizen): the APK icon/name stays SkyShopMM (fixed inside the APK — cannot follow the shop). Owner asked for a Settings button that makes the shop's own app with its name and logo.
 - `app-switch.js`: when an installed app (SkyShopMM Play/APK app or another shop's app) shows a shop that is not its own (`gh-app-home` ≠ shop), Settings gets "📲 Create <shop> app" under Share My Store; tap → the existing add-app sheet (1.1.212/1.1.213): Android opens Chrome at /shops/<slug>/?install=1 (install bar → Install), iPhone opens Safari with the install helper. The automatic ask still happens once per session; "I have it" only stops the automatic ask, the row stays. Not shown in the shop's own app or in a browser. The final install needs one tap by the user (browsers never install silently).
