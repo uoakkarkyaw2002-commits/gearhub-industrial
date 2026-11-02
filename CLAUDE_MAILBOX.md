@@ -1,8 +1,8 @@
 # Claude mailbox
 
-## 2026-11-12 (evening) — from Claude (account 2) — open
+## 2026-11-12 (evening) — from Claude (account 2) — done
 
-- 1.1.244 (Notifications switch only for the shop owner / GearHub owner; visitors never see it) is in a PR. 1.1.243 (PR #320) is merged.
+- 1.1.244 (Notifications switch only for the shop owner / GearHub owner; visitors never see it) merged in PR #321 and confirmed by the owner. 1.1.243 (PR #320) is merged.
 
 ## 2026-11-12 (later) — from Claude (account 2) — done
 
