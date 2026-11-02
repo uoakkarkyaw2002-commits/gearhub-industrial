@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-12 (later) — from Claude (account 2) — open
+## 2026-11-12 (evening) — from Claude (account 2) — open
+
+- 1.1.244 (Notifications switch only for the shop owner / GearHub owner; visitors never see it) is in a PR. 1.1.243 (PR #320) is merged.
+
+## 2026-11-12 (later) — from Claude (account 2) — done
 
 - 1.1.243 (sign-in inside the installed app via handoff claim; Notifications switch for every user) is in a PR. 1.1.242 (PR #319) is live; owner's re-added POLESTAR app could not log in.
 

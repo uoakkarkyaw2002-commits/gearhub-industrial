@@ -55,9 +55,9 @@ test('1.1.242: shop Settings has Contact us and an owner-only Notifications swit
  assert.match(js,/\/api\/platform\/shops\/"\+shopId\+"\/push"/);
  assert.match(admin,/if\(SHOP_SCOPE\)return;/);
 });
-test('1.1.243: Notifications switch shows to every user; app sign-in stays in the installed app',()=>{
+test('1.1.244: Notifications switch only for the shop owner; app sign-in stays in the installed app',()=>{
  const js=pub('settings-alerts.js'),login=pub('app-login.js'),admin=pub('tenant-admin.js');
- assert.match(js,/if\(!me\?\.user\)\{mode="signin"/);assert.match(js,/GearHubAppLogin\.start\(\)/);
+ assert.match(js,/if\(!store\?\.id\|\|!me\?\.user\|\|!\(me\.isOwner\|\|Number\(me\.shop\?\.id\)===Number\(store\.id\)\)\)return;/);
  assert.match(login,/\/api\/platform\/auth\/claim/);assert.match(login,/handoff:id/);
  assert.match(admin,/GearHubAppLogin\.standalone\(\)/);
  assert.match(pub('admin.html'),/app-login\.js\?v=1\.1\.243"><\/script><script src="\/tenant-admin\.js/);

@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.244: Notifications switch only for the owner (Claude)
+- Owner: only the owner should see Notifications; visitors must not. `settings-alerts.js`: the row shows only when /api/platform/me is this shop's owner or the GearHub owner (as 1.1.242); the 1.1.243 "sign in from the switch" path for visitors is gone. App sign-in handoff (app-login.js, /auth/claim) stays — owners sign in from the shop admin's "Continue with Google" card in the app.
+- Checked: Chrome 390/1280 push demo — visitor: no row; owner after app sign-in claim: row shown; no console errors. Node 22: check + 401/401.
+
 ### 1.1.243: Login inside the installed app + Notifications switch for every user (Claude)
 - Owner (iPhone, after re-adding the POLESTAR app): "asks to log in again — logging in does not work"; and every user's Settings must have the Notifications switch.
 - Cause: an installed iPhone app has its own cookies; Google sign-in (out of the app's scope) runs in iOS's browser sheet, so the session landed in the sheet, never in the app.
