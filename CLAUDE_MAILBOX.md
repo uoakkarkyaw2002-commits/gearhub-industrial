@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-16 — from Claude (account 2) — open
+## 2026-11-16 (later) — from Claude (account 2) — open
+
+- 1.1.256 (Android shop app icon = shop picture edge to edge, maskable icon) is in a PR. 1.1.255 (PR #332) is merged and the owner installed Kaizen from Chrome. Owner reinstalls Kaizen to see the new icon.
+
+## 2026-11-16 — from Claude (account 2) — done
 
 - 1.1.255 (Android "Add app": no intent — Chrome kept it inside the app and the screen went white. Now it copies the link and shows the Chrome steps) is in a PR. The owner tests on the Android phone.
 

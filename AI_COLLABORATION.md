@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.256: Shop app icon fills the whole tile on Android (maskable icon) (Claude)
+- Owner: Kaizen app installed from Chrome (1.1.255 steps worked). The icon showed the logo small inside a white tile with empty space; they want the picture edge to edge.
+- `lib/tenant-install.js`: new `/shops/<slug>/app-mask-<192|512>.png` (shop logo/app icon resized with `fit:cover`, flattened on white). The shop and admin manifests list it as `purpose:maskable`, next to the existing round `any` icons, which are unchanged (iPhone/others). The icon revision includes `mask-1`, so installed apps get the new icon URLs. With no logo, no maskable icon is listed (neutral icon as before).
+- Checked: Node 22 check + 409/409 (tenant-install test asserts the maskable icon and that its corner is the logo). Old/new preview rendered with sharp. Not verified on a real Android launcher. An already installed WebAPK updates its icon only when Chrome refreshes it (it can take up to a day; removing and reinstalling the app is quicker).
+
 ### 1.1.255: Android "Add app" copies the link and shows the Chrome steps (Claude)
 - Owner (Android, SkyShopMM APK → Kaizen → Add app) on 1.1.254: white screen, then the same app reloaded Kaizen. The TWA runs on Chrome, and Chrome handles an intent aimed at itself inside the current tab, so no intent can open a real Chrome tab from the app. A new web app can only be added from the Chrome app.
 - `app-switch.js`: on Android, "Add app" now calls preventDefault, copies `/shops/<slug>/?install=1` and shows three steps (open Chrome → paste → ⋮ Add to Home screen / Install app). The intent was removed. iPhone is unchanged (x-safari-https).
