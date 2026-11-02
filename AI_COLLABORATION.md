@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.255: Android "Add app" copies the link and shows the Chrome steps (Claude)
+- Owner (Android, SkyShopMM APK → Kaizen → Add app) on 1.1.254: white screen, then the same app reloaded Kaizen. The TWA runs on Chrome, and Chrome handles an intent aimed at itself inside the current tab, so no intent can open a real Chrome tab from the app. A new web app can only be added from the Chrome app.
+- `app-switch.js`: on Android, "Add app" now calls preventDefault, copies `/shops/<slug>/?install=1` and shows three steps (open Chrome → paste → ⋮ Add to Home screen / Install app). The intent was removed. iPhone is unchanged (x-safari-https).
+- Checked: Chromium with an emulated installed Android app at 390 and 1280: Add app → the page stays, the steps are shown, the link is copied, no errors. Node 22: check + 409/409. Not verified on a real Android phone.
+
 ### 1.1.254: "Add app" opens Chrome, never turns the same app into the shop (Claude)
 - Owner (Android, SkyShopMM APK → Kaizen → Create app → Add app): no new app; the SkyShopMM app itself just moved to Kaizen. The Chrome intent had `S.browser_fallback_url`, and inside the app the fallback opened in the same app. Owner chose "open Chrome with one tap" (installing a separate web app without the browser is not possible on Android).
 - `app-switch.js`: Android intent now `intent://<host>/shops/<slug>/?install=1#Intent;scheme=https;action=VIEW;category=BROWSABLE;package=com.android.chrome;end` (no fallback). If the page is still on screen 1.5 s after the tap (Chrome did not open / not installed), the link is copied and the sheet says how to finish (open Chrome, paste, Install).
