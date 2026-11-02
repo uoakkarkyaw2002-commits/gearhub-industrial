@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-13 — from Claude (account 2) — open
+## 2026-11-13 (later) — from Claude (account 2) — open
+
+- 1.1.247 (Notifications switch in GearHub's own Settings, owner only: GearHub orders + new shops) is in a PR. 1.1.246 (PR #323) is merged.
+
+## 2026-11-13 — from Claude (account 2) — done
 
 - 1.1.246 (new-shop push alert to the GearHub owner's phones) is in a PR. After deploy the owner opens POLESTAR app once (Notifications already On) so the phone is enrolled.
 
