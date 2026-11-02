@@ -22,6 +22,7 @@ const {runtimeConfig,validateStorage}=require("./lib/config");
 const {logError}=require("./lib/logging");
 const {createOrderPush,orderMessage}=require("./lib/order-push");
 const {writeBackupManifest}=require("./lib/backup-manifest");
+const {toUnicode}=require("./lib/zawgyi");
 
 const app = express();
 app.set("trust proxy", process.env.TRUST_PROXY === "false" ? false : 1); // Render runs behind a trusted reverse proxy.
@@ -682,8 +683,9 @@ app.post("/api/orders", (req,res) => receiptUpload.single("receipt")(req,res,asy
  };
  const b = req.body || {};
  if (typeof b.items === "string") { try { b.items = JSON.parse(b.items); } catch { return reject("Invalid cart data."); } }
- const name = cleanText(b.customerName,120), phone = cleanText(b.phone,40);
- const email = cleanText(b.email,160), address = cleanText(b.address,500);
+ // 1.1.252: names/addresses typed with a Zawgyi keyboard are stored as Unicode.
+ const name = toUnicode(cleanText(b.customerName,120)), phone = cleanText(b.phone,40);
+ const email = cleanText(b.email,160), address = toUnicode(cleanText(b.address,500));
  const language = b.language === "en" ? "en" : "my";
  const reference = cleanText(b.paymentReference,100);
  if (!name || !phone || !address) return reject("Name, phone and delivery address are required.");
@@ -855,7 +857,7 @@ app.get("/api/admin/orders", adminOnly, (req,res) => {
  res.json(rows.map(o=>{
   const {receipt_path,...safe}=o;
   let items=[];try{items=JSON.parse(o.items_json)||[]}catch{}
-  return {...safe,hasReceipt:Boolean(receipt_path),items:items.map(item=>{
+  return {...safe,customer_name:toUnicode(safe.customer_name),address:toUnicode(safe.address),hasReceipt:Boolean(receipt_path),items:items.map(item=>{
    const product=products.get(Number(item.productId));
    return {...item,imageUrls:product?.imageUrls||[],imageEmoji:product?.imageEmoji||"⚙️",partNo:item.partNo||product?.partNo||item.sku||""};
   })};

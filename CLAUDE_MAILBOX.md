@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-14 (later) — from Claude (account 2) — open
+## 2026-11-14 (evening) — from Claude (account 2) — open
+
+- 1.1.252 (Zawgyi customer names/addresses shown and stored as Unicode; alerts + history too) is in a PR. 1.1.251 (PR #328) is merged.
+
+## 2026-11-14 (later) — from Claude (account 2) — done
 
 - 1.1.251 (new-alerts count on Settings → Notifications; cleared when the list is opened) is in a PR. 1.1.250 (PR #327) is merged.
 
