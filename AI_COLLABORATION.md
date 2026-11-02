@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.252: Zawgyi names → Unicode (Claude)
+- Owner (alerts list showed the customer name as "▯◌◌▯"): the customer typed with a Zawgyi keyboard; phones use Unicode Burmese fonts. New `lib/zawgyi.js`: Rabbit Converter's zg2uni (MIT, copied with its licence) + a small Zawgyi detector (Zawgyi-only codes U+1060–1097/U+105A, ေ/ျ typed before the consonant, ္ as asat, U+1033/1034); `toUnicode` converts only text that looks like Zawgyi.
+- Used for: new shop orders (customer, address in lib/platform.js) and GearHub orders (server.js) — stored as Unicode; shop order lists (/api/platform/shops/:id) and GearHub /api/admin/orders show old Zawgyi names as Unicode (display only, stored data unchanged); alert text (orderMessage) and the Notifications history (also old entries). `myanmar-tools` from npm was not usable (published without its build).
+- Checked: `tests/zawgyi.test.js` (Zawgyi → Unicode; Unicode/English/numbers unchanged; alert body). Server-only; no browser run (no Zawgyi order in the demo). Node 22: check + 407/407.
+
 ### 1.1.251: New-alerts count on Settings → Notifications (Claude)
 - Owner: show the number of notifications on the Notifications row too. `settings-alerts.js`: red pill `.alerts-count` next to "Notifications" = alerts newer than the last time this phone opened the list (localStorage `gh-alerts-seen:<slug|main>`); loaded with the row and when the app comes back on screen. Opening the list marks all seen, clears the pill; items that were new are tinted (`.is-new`). style.css 1.1.251.
 - Checked: Chrome 390/1280 demo — 3 test alerts → pill "3"; open list → 3 tinted items, pill gone; switch still separate; no console errors. Node 22: check + 406/406 (1.1.250 test regex updated on purpose).
