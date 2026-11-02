@@ -30,6 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.242: Shop Settings — Contact us + Notifications switch (Claude)
+- Owner: every shop's Settings gets "Contact us" 09-766472432, and the order Notifications move into Settings with an on/off switch.
+- `index.html`: Contact us row (`a.settings-contact`, tel:09766472432) above About app, for every store. `tenant-store.js` fills shop phone numbers into `a[href^="tel:"]` — now `:not(.settings-contact)` so it keeps our number.
+- New `public/settings-alerts.js` (loaded after back-nav): on /shops/<slug>/ only, and only when /api/platform/me is that shop's owner or the GearHub owner, a "Notifications" row with a switch (role=switch) appears under Share My Store. On = permission + subscribe on the shop's own service worker + POST /api/platform/shops/<id>/push/subscribe (CSRF from /me); Off = unsubscribe; state read from GET …/push?endpoint=. iPhone browser (not Home Screen app) / denied → switch disabled with a hint. Same "gh-alerts-off" key as before.
+- `admin-extras.js`: seller shops no longer show the alerts card in the admin (`if(SHOP_SCOPE)return;` in initAlerts); GearHub main admin keeps it. Style: `.settings-switch` in style.css.
+- Checked: demo copy with order push enabled (scratchpad demo-push.js; the plain demo has no push routes and 404s /app.webmanifest + /app-icon.png, which blocks the service worker — stubbed in the test) Chrome 390/1280: owner sees switch Off → On (subscription stored) → Off; visitor sees no switch; Contact us tel link on both; shop admin has no alerts card; no console errors. Push itself stubbed (headless has no push service). Node 22: check + 399/399.
+
 ### 1.1.241: Owner console Users — only people with a shop, user limit inside (Claude)
 - Owner (iPhone screenshot of owner console → Users): people whose shop is gone still showed; and "how many users to accept" could not be found. `platform.js`: Users lists only users who own a seller shop now (`shopUsers`, shop name shown under the email); people without a shop are hidden, not deleted. The existing shop limit (`/owner/signup`, max shops = max sellers, + MB per new shop) now sits open at the top of Users ("User limit / user အများဆုံး"); summary "Users N / max". The separate "New shops" section is gone (same form/ids, same API). No server or DB change.
 - Checked: demo owner console Chrome 390/1280 — bob (no shop) hidden, alice + "Alice Parts" shown, limit field present once, Save 10 → 12 stored; no console errors. Node 22: check + 398/398.

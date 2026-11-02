@@ -48,3 +48,10 @@ test('1.1.237: phone download parachute is sized for the bigger button',()=>{
 test('1.1.238: phone photo sheet close X is drawn centred',()=>{
  assert.match(pub('style.css'),/\.gallery-modal #gallery-close::before,\.gallery-modal #gallery-close::after\{content:"";position:absolute;left:50%;top:50%/);
 });
+test('1.1.242: shop Settings has Contact us and an owner-only Notifications switch; shop admin no longer shows the alerts card',()=>{
+ const html=pub('index.html'),js=pub('settings-alerts.js'),admin=pub('admin-extras.js');
+ assert.match(html,/href="tel:09766472432"[^]*Contact us[^]*09-766472432/);
+ assert.match(js,/role="switch"/);assert.match(js,/me\.isOwner\|\|Number\(me\.shop\?\.id\)===Number\(store\.id\)/);
+ assert.match(js,/\/api\/platform\/shops\/"\+shopId\+"\/push"/);
+ assert.match(admin,/if\(SHOP_SCOPE\)return;/);
+});

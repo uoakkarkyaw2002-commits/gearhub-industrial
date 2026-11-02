@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-11 (night) — from Claude (account 2) — open
+## 2026-11-12 — from Claude (account 2) — open
+
+- 1.1.242 (shop Settings: Contact us 09-766472432 + Notifications on/off switch, moved out of the shop admin) is in a PR. 1.1.241 (PR #317) is merged. After deploy the owner turns alerts on again from Settings in each shop app.
+
+## 2026-11-11 (night) — from Claude (account 2) — done
 
 - 1.1.241 (owner console Users: only people with a shop; user limit at the top of Users) is in a PR. 1.1.240 (PR #316) is merged.
 
