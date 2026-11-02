@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-13 (later) — from Claude (account 2) — open
+## 2026-11-13 (evening) — from Claude (account 2) — open
+
+- 1.1.248 (no order-alerts card in the GearHub admin; switch only in Settings) is in a PR. 1.1.247 (PR #324) is merged.
+
+## 2026-11-13 (later) — from Claude (account 2) — done
 
 - 1.1.247 (Notifications switch in GearHub's own Settings, owner only: GearHub orders + new shops) is in a PR. 1.1.246 (PR #323) is merged.
 

@@ -190,7 +190,7 @@
   }catch(e){renderAlerts("off","မအောင်မြင်ပါ / "+(e.message||"Failed"));}
   finally{button.disabled=false;}
  }
- function initAlerts(){if(alertsReady)return;alertsReady=true;if(typeof adminFetch!=="function")return;/* 1.1.242 owner: seller shops turn order alerts on/off in the shop Settings (settings-alerts.js), not here. */if(SHOP_SCOPE)return;renderAlerts("busy");refreshAlerts();}
+ function initAlerts(){if(alertsReady)return;alertsReady=true;if(typeof adminFetch!=="function")return;/* 1.1.242/1.1.248 owner: order alerts are switched on/off in Settings (settings-alerts.js) — no card in any admin, GearHub included. */return;renderAlerts("busy");refreshAlerts();}
 
  window.GearHubAdminExtras={update(summary,orders,products){renderKpis(summary,orders,products);updateBell(orders);initAlerts();},setLogo,chime};
  if(window.__gearhubAdminLogo)setLogo(window.__gearhubAdminLogo);
