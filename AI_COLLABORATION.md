@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.253: Settings → "Create <shop> app" inside another app (Claude)
+- Owner (SkyShopMM APK showing Kaizen): the APK icon/name stays SkyShopMM (fixed inside the APK — cannot follow the shop). Owner asked for a Settings button that makes the shop's own app with its name and logo.
+- `app-switch.js`: when an installed app (SkyShopMM Play/APK app or another shop's app) shows a shop that is not its own (`gh-app-home` ≠ shop), Settings gets "📲 Create <shop> app" under Share My Store; tap → the existing add-app sheet (1.1.212/1.1.213): Android opens Chrome at /shops/<slug>/?install=1 (install bar → Install), iPhone opens Safari with the install helper. The automatic ask still happens once per session; "I have it" only stops the automatic ask, the row stays. Not shown in the shop's own app or in a browser. The final install needs one tap by the user (browsers never install silently).
+- Tags: app-switch.js 1.1.253 in index.html, admin.html, platform.html, sw.js; tests/install-guide test updated on purpose.
+- Checked: Chrome 390/1280 with standalone emulated + Android UA: GearHub page first then Alice Parts → auto sheet; Settings row "Create Alice Parts app"; tap → sheet with Chrome intent link; own app / plain browser → no row; no console errors. Node 22: check + 408/408. Not tested on a real Android/iPhone.
+
 ### 1.1.252: Zawgyi names → Unicode (Claude)
 - Owner (alerts list showed the customer name as "▯◌◌▯"): the customer typed with a Zawgyi keyboard; phones use Unicode Burmese fonts. New `lib/zawgyi.js`: Rabbit Converter's zg2uni (MIT, copied with its licence) + a small Zawgyi detector (Zawgyi-only codes U+1060–1097/U+105A, ေ/ျ typed before the consonant, ္ as asat, U+1033/1034); `toUnicode` converts only text that looks like Zawgyi.
 - Used for: new shop orders (customer, address in lib/platform.js) and GearHub orders (server.js) — stored as Unicode; shop order lists (/api/platform/shops/:id) and GearHub /api/admin/orders show old Zawgyi names as Unicode (display only, stored data unchanged); alert text (orderMessage) and the Notifications history (also old entries). `myanmar-tools` from npm was not usable (published without its build).

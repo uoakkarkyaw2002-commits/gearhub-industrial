@@ -81,3 +81,9 @@ test('1.1.251: Settings → Notifications shows the number of new alerts since t
  assert.match(js,/class="alerts-count" hidden/);assert.match(js,/gh-alerts-seen:/);assert.match(js,/is-new/);
  assert.match(pub('style.css'),/\.alerts-count\[hidden\]\{display:none\}/);
 });
+test('1.1.253: inside another app, Settings has "Create <shop> app" that opens the add-app sheet',()=>{
+ const js=pub('app-switch.js');
+ assert.match(js,/id='create-own-app-action'/);assert.match(js,/'Create '\+n\+' app'/);
+ assert.match(js,/row\.addEventListener\('click',\(\)=>\{name=shopName\(\);fill\(\);show\(\)\}\)/);
+ assert.match(js,/if\(!here\|\|home===here\)return;/);
+});
