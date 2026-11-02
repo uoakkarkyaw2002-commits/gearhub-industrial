@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.248: No alerts card in the GearHub admin either (Claude)
+- Owner: GearHub's Settings already has the Notifications switch (1.1.247) — remove the alerts card from the admin. `admin-extras.js` initAlerts returns at once for every admin (was: seller shops only). Phones already subscribed keep getting alerts (scope "main" unchanged).
+- Checked: real server.js with admin password, Chrome 390/1280 — logged in, Frontend Appearance opened, no #order-alerts-card, no console errors. Node 22: check + 403/403.
+
 ### 1.1.247: Notifications switch in GearHub's own Settings (Claude)
 - Owner (GearHub app Settings screenshot): no Notifications row there. `settings-alerts.js` now also runs on GearHub's main store (not /shops/…): shown only when /api/platform/me is the GearHub owner; uses /sw.js and new owner-only routes in `lib/platform.js`: GET/POST /api/platform/owner/push(/subscribe|/unsubscribe) on scope "main" (same as the GearHub admin's order alerts) and adds/removes the phone in `ownerPhones` (new-shop alerts, 1.1.246). Off key "gh-alerts-off:main" (same as admin-extras).
 - Checked: `tests/owner-signup-alert.test.js` extended (seller 403, owner on → new-shop alert → off); Chrome 390/1280 demo /index.html with stubbed push: owner sees switch, Off → On → Off; alice (seller) sees no switch; no console errors. Node 22: check + 403/403. Real iPhone push not verified.

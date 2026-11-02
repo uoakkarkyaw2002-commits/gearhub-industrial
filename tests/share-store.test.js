@@ -53,7 +53,7 @@ test('1.1.242: shop Settings has Contact us and an owner-only Notifications swit
  assert.match(html,/href="tel:09766472432"[^]*Contact us[^]*09-766472432/);
  assert.match(js,/role="switch"/);assert.match(js,/me\.isOwner\|\|Number\(me\.shop\?\.id\)===Number\(store\.id\)/);
  assert.match(js,/\/api\/platform\/shops\/"\+shopId\+"\/push"/);
- assert.match(admin,/if\(SHOP_SCOPE\)return;/);
+ assert.match(admin,/no card in any admin, GearHub included\. \*\/return;/);
 });
 test('1.1.244: Notifications switch only for the shop owner; app sign-in stays in the installed app',()=>{
  const js=pub('settings-alerts.js'),login=pub('app-login.js'),admin=pub('tenant-admin.js');
