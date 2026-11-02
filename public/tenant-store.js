@@ -36,7 +36,7 @@
     const word=document.querySelector('.footer-wordmark');if(word)word.textContent=s.name;
     const fallback=document.querySelector('.footer-logo-fallback b');if(fallback)fallback.textContent=s.name;
     const b=s.settings||{};
-    for(const [selector,value,prefix] of [['a[href^="tel:"]',b.phone,'tel:'],['a[href^="mailto:"]',b.email,'mailto:']]){
+    for(const [selector,value,prefix] of [['a[href^="tel:"]:not(.settings-contact)',b.phone,'tel:'],['a[href^="mailto:"]',b.email,'mailto:']]){
       document.querySelectorAll(selector).forEach(a=>{a.textContent=value||'Not configured / မသတ်မှတ်ရသေးပါ';if(value)a.href=prefix+value;else a.removeAttribute('href');});
     }
     document.querySelectorAll('.footer-logo-fallback small').forEach(e=>e.textContent='');
