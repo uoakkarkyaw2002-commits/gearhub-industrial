@@ -53,3 +53,14 @@
  #profile-view.settings-new>.settings-card>.settings-row{grid-template-columns:50px minmax(0,1fr) auto!important}
  #profile-view.settings-new .settings-segment button{padding:8px 12px!important;font-size:13px!important}
 }
+
+/* Narrow Android phones (≤380px): keep Light/Dark and English/မြန်မာ on the right like the design. */
+@media(max-width:380px){
+ #profile-view.settings-new>.settings-card>.settings-row{grid-template-columns:42px minmax(0,1fr) auto!important;column-gap:10px!important;gap:10px!important;padding-inline:12px 12px}
+ #profile-view.settings-new>.settings-card>.settings-row>.settings-segment{grid-column:3!important;grid-row:1!important;justify-self:end}
+ #profile-view.settings-new .settings-icon.sd-icon{flex-basis:42px;width:42px;height:42px}
+ #profile-view.settings-new .settings-segment{gap:6px}
+ #profile-view.settings-new .settings-segment button{min-height:38px;padding:6px 10px!important;font-size:12px!important}
+ #profile-view.settings-new .settings-row strong{font-size:16px}
+ #profile-view.settings-new .settings-row small{font-size:12px}
+}

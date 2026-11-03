@@ -571,6 +571,11 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
   #dashboard .stat::after{bottom:-12px;height:37px}
   #dashboard .stat-0 h2::before{font-size:25px}
   #dashboard .stat-0 h2::after{font-size:12px}
+  /* 1.1.263 owner (Android, 360px): "Pending orders" / "Active products" wrap to 2 lines and pushed the
+     number onto the coloured arc. Every label gets 2 lines of room and the number stays above the arc. */
+  #dashboard .stat{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-bottom:36px!important}
+  #dashboard .stat small{display:flex;align-items:center;justify-content:center;min-height:2.5em;line-height:1.2;text-align:center}
+  #dashboard .stat h2{margin-top:2px;font-weight:800}
 }
 
 

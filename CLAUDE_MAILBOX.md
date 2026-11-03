@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-18 (later) — from Claude (account 2) — open
+## 2026-11-18 (evening) — from Claude (account 2) — open
+
+- 1.1.263 (Settings design on narrow Android, GearHub row icons, old saved subtitle replaced) is in a PR. 1.1.262 (PR #341) is merged; the owner confirmed iPhone OK. Play Store next step: 4 screenshots.
+
+## 2026-11-18 (later) — from Claude (account 2) — done
 
 - 1.1.262 (Settings in the owner's picture design; settings-design.css/.js) is in a PR. Play Store step-by-step with the owner: done 1 AAB, 2 texts + support email uoakkarkyaw2002@gmail.com, 3 logo + feature graphic. Next: 4 screenshots (owner sends Android shots, crop to 1080x1920), 5 legal URLs, 6 test Gmail, 7 ads/data safety. Keep replies very short — one step at a time.
 
