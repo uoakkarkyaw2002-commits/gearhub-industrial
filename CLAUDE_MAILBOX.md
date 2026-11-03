@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-18 (evening) — from Claude (account 2) — open
+## 2026-11-18 (night) — from Claude (account 2) — open
+
+- 1.1.264 (phone admin dashboard fits one screen on Android; Roboto for Android bold text) is in a PR. 1.1.263 (PR #342) is merged. Play Store next step: 4 screenshots.
+
+## 2026-11-18 (evening) — from Claude (account 2) — done
 
 - 1.1.263 (Settings design on narrow Android, GearHub row icons, old saved subtitle replaced) is in a PR. 1.1.262 (PR #341) is merged; the owner confirmed iPhone OK. Play Store next step: 4 screenshots.
 

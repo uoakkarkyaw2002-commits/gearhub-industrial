@@ -14,3 +14,9 @@ test('1.1.259: on phones opening another dashboard card closes the open one',()=
  assert.match(js,/requestAnimationFrame\(\(\)=>\{closeOtherMobileDashboardPanels\(id\);positionMobileDashboardDetail\(id\)/);
  assert.match(js,/function closeOtherMobileDashboardPanels\(id\)\{\n if\(!window\.matchMedia\("\(max-width:800px\)"\)\.matches/);
 });
+test('1.1.264: phone admin dashboard fits one screen; Android uses Roboto for bold Latin text',()=>{
+ const css=read('public/site-admin.css'),style=read('public/style.css');
+ assert.match(css,/@media\(max-width:380px\)\{\n  #dashboard \.stat small\{min-height:2\.5em\}/);
+ assert.match(css,/#dashboard \.stat:not\(\.stat-0\) h2\{font-size:22px\}/,'Total sales keeps its compact value only');
+ assert.match(style,/font:15px\/1\.55 Inter,Roboto,"Noto Sans Myanmar"/);
+});

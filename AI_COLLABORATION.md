@@ -30,6 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.264: Phone admin dashboard fits one screen on Android like iPhone (Claude)
+- Owner (Android photos vs iPhone): Android dashboard ran below the screen and its text looked thin. 1.1.263's 36px stat padding + 2-line labels had also made the iPhone stats taller (154px).
+- `public/site-admin.css` (≤480px): stat padding-bottom 30px, no forced 2-line label, big menu cards min-height 150px. ≤380px (Android 360): 2-line labels kept so numbers line up, smaller stat icon (38px), numbers 22px (`:not(.stat-0)` — the Total sales card keeps its compact ::before value; without it the hidden full value showed twice), menu cards 116px with 46px icons.
+- `public/style.css` body font: Inter, **Roboto**, Noto Sans Myanmar, … Android has Roboto with real bold weights (the old fallback rendered Latin thin); iPhone/Mac have no Roboto, so they are unchanged.
+- Tags: style.css 1.1.264 (index.html, admin.html, sw.js), site-admin.css 1.1.264 (admin.html).
+- Checked: seller admin (demo) in Chromium. 390x844 → last card bottom 815; 360x760 (Android UA) → 750; numbers above the arc; PC 1280 unchanged (toggle 84px), no errors. Node 22 check + 417/417. Not on a real Android phone.
+
 ### 1.1.263: Settings design fixes for Android (Claude)
 - Owner: iPhone OK, Android not. On the Android phone (viewport ≤380px) an old style.css rule moved Light/Dark and English/မြန်မာ under the text; "Create new shop" / "My shops" (GearHub only) kept old icons; the subtitle still said "payment details" on both phones. The cause: a shop's saved texts (site.translations) override the default.
 - `public/settings-design.css`: ≤380px rows use `42px 1fr auto`, the segment is put back in column 3 / row 1, with smaller pills and icon. `public/settings-design.js`: icons for create-shop-action / my-shops-action; an old "payment details/information" (or Myanmar ငွေပေးချေမှု) subtitle is replaced on the page only. Saved data is not changed.
