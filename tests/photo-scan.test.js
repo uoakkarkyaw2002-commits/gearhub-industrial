@@ -87,3 +87,18 @@ test('1.1.273: a real scan on grass is matched by the part alone (background cut
  assert.equal(r.matches[0].id,'1');assert.equal(r.matches[0].view,3,'matched by the part alone');assert.ok(r.matches[0].score-r.matches[1].score>0.3);
  fs.rmSync(media,{recursive:true,force:true});
 });
+
+test('1.1.275: look-alike Drive Shafts — parts compared upright with their shape; the right one is first for every owner scan',async()=>{
+ const os=require('node:os'),Database=require('better-sqlite3'),{createPhotoSearch}=require('../lib/photo-search');
+ const dir=path.join(__dirname,'fixtures','photo-scan','shafts'),files=fs.readdirSync(dir);
+ const shops=files.filter(f=>f.startsWith('shop-')),scans=files.filter(f=>f.startsWith('scan-'));
+ const media=fs.mkdtempSync(path.join(os.tmpdir(),'photo-shafts-'));fs.mkdirSync(path.join(media,'7'));
+ const db=new Database(':memory:');db.exec("CREATE TABLE platform_shops(id INTEGER,legacy INTEGER);CREATE TABLE platform_products(id INTEGER,shop_id INTEGER,image_id TEXT,details TEXT,active INTEGER);CREATE TABLE platform_files(id TEXT,shop_id INTEGER,kind TEXT,ready INTEGER,filename TEXT)");
+ const sku=f=>f.replace(/^(shop|scan)-|(-[ab])?\.jpg$/g,'');
+ shops.forEach((f,i)=>{const id='s'+i;fs.copyFileSync(path.join(dir,f),path.join(media,'7',id+'.jpg'));db.prepare('INSERT INTO platform_products VALUES(?,7,?,?,1)').run(i+1,id,JSON.stringify({imageIds:[id]}));db.prepare("INSERT INTO platform_files VALUES(?,7,'image',1,?)").run(id,id+'.jpg')});
+ const ps=createPhotoSearch({db,media}),shop={id:7};await ps.learnParts(shop);
+ for(const f of scans){const r=await ps.search(shop,fs.readFileSync(path.join(dir,f)));
+  assert.equal(sku(shops[Number(r.matches[0].id)-1]),sku(f),f+' → '+r.matches.map(m=>sku(shops[m.id-1])+' '+m.score).join(', '));assert.equal(r.matches[0].view,3)}
+ assert.ok(fs.readdirSync(path.join(media,'7','.photo-looks')).some(f=>f.endsWith('.dinov2s-part.f32')),'parts are kept next to the photos');
+ fs.rmSync(media,{recursive:true,force:true});
+});
