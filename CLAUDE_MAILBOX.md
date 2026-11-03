@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-17 — from Claude (account 2) — open
+## 2026-11-17 (later) — from Claude (account 2) — open
+
+- 1.1.259 (phone admin dashboard: opening another card closes the open one) is in a PR. 1.1.258 (PR #336) is merged; the owner was testing the swipe on iPhone.
+
+## 2026-11-17 — from Claude (account 2) — done
 
 - 1.1.258 (swipe products and orders left into the Recycle Bin: red border, ← arrow, bin opens; `public/swipe-bin.js`) is in a PR. 1.1.257 (PR #335) is merged. Owner tests on iPhone.
 

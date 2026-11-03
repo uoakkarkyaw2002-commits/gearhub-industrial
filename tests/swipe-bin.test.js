@@ -9,3 +9,8 @@ test('1.1.258: products and orders swipe left into the Recycle Bin with a red bo
  assert.match(js,/if\(!confirm\(cur\.k\.ask\)\)\{reset\(\);return\}/,'asks once before moving');
  assert.doesNotMatch(read('public/admin.js'),/let inventorySwipe/,'the old swipe handler is gone (no double move)');
 });
+test('1.1.259: on phones opening another dashboard card closes the open one',()=>{
+ const js=read('public/admin.js');
+ assert.match(js,/requestAnimationFrame\(\(\)=>\{closeOtherMobileDashboardPanels\(id\);positionMobileDashboardDetail\(id\)/);
+ assert.match(js,/function closeOtherMobileDashboardPanels\(id\)\{\n if\(!window\.matchMedia\("\(max-width:800px\)"\)\.matches/);
+});
