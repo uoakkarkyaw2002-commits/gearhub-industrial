@@ -14,7 +14,7 @@
  const SURE=0.6,LEAD=0.03,LIMIT=8000;
  // 1.1.271 owner ("found, but very slow"): a very clear match is taken from one frame, and the same product on top
  // three frames in a row is taken even when look-alikes (Drive Shaft / Drive Shaft (R)) are close behind.
- const QUICK=0.75,QUICK_LEAD=0.05,STREAK=3;
+ const QUICK=0.75,QUICK_LEAD=0.05,STREAK=3,CLOSE=0.02,AVERAGE_FRAMES=4;
  const isSure=(a,b)=>!!a&&a.score>=SURE&&(!b||a.score-b.score>=LEAD);
  const my=()=>document.documentElement.lang==='my',t=(en,mm)=>my()?mm:en;
  const shopProducts=()=>typeof products!=='undefined'&&Array.isArray(products)?products:[];
@@ -89,7 +89,7 @@
   '<button type="button" class="photo-scanner-torch" aria-label="Flashlight" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8v3l-2 3v11a2 2 0 0 1-2 2 2 2 0 0 1-2-2V9L8 6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button><button type="button" class="photo-scanner-label" aria-label="Read the label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V4h8l10 10-8 8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="7.5" cy="8.5" r="1.6" fill="currentColor"/></svg><small>Part No.</small></button><span></span></div>';
  document.body.append(view);
  const video=view.querySelector('video'),hint=view.querySelector('.photo-scanner-hint'),torch=view.querySelector('.photo-scanner-torch'),frame=view.querySelector('.photo-scanner-frame');
- let stream=null,loop=0,last=null,pageY=0,started=0,clock=0,bestSeen=null,streak={id:null,n:0};
+ let stream=null,loop=0,last=null,pageY=0,started=0,clock=0,bestSeen=null,streak={id:null,n:0},tally=new Map(),frames=0;
  const elapsed=()=>(performance.now()-started)/1000;
  const looking=()=>{hint.textContent=t('Looking… ','ရှာနေပါတယ်… ')+Math.floor(elapsed())+t(' s',' စက္ကန့်')};
  // Closing the scanner returns to where the page was (iPhone forgets it while the page is locked).
@@ -101,7 +101,7 @@
   if(view.hidden){stream.getTracks().forEach(tr=>tr.stop());stream=null;return}
   video.srcObject=stream;try{await video.play()}catch(_){}
   const caps=stream.getVideoTracks()[0]?.getCapabilities?.();torch.hidden=!caps?.torch;
-  started=performance.now();bestSeen=null;streak={id:null,n:0};trips=[];works=[];clearInterval(clock);clock=setInterval(()=>{if(started)looking()},1000);
+  started=performance.now();bestSeen=null;streak={id:null,n:0};tally=new Map();frames=0;trips=[];works=[];clearInterval(clock);clock=setInterval(()=>{if(started)looking()},1000);
   loop=setTimeout(tick,600);// let the camera settle and focus first
  }
  // The part inside the corner frame, as the video shows it (the video fills the screen, cropped).
@@ -121,11 +121,18 @@
   if(a&&!(bestSeen?.score>=a.score))bestSeen={id:a.id,score:a.score,next:b?b.score:0,list:r.matches};
   if(a&&a.score>=SURE){streak=streak.id===a.id?{id:a.id,n:streak.n+1}:{id:a.id,n:1}}else streak={id:null,n:0};
   const quick=sure&&a.score>=QUICK&&(!b||a.score-b.score>=QUICK_LEAD);
-  if(quick||(sure&&last===a.id)){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();found(r.matches,thumb,seconds);return}
+  if(quick||(sure&&last===a.id)){const seconds=elapsed(),thumb=blob?URL.createObjectURL(blob):'';stop();found(r.matches,thumb,seconds);return}
   // 1.1.274: a clearly alike part (≥ 80%) on top twice in a row is enough; otherwise three times.
-  if(a&&streak.n>=(a.score>=0.8?2:STREAK)){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();found(r.matches.filter(m=>m.score>=SURE-0.1).slice(0,3),thumb,seconds);return}
+  // 1.1.277 owner (K5V140 J71-33 shown as K3V140 V-30 first, right the next time): two look-alike parts
+  // (within CLOSE) swap places from frame to frame, so two lucky frames must not decide. Their scores are
+  // added up over the frames instead, and after AVERAGE_FRAMES the best average is the answer.
+  frames++;for(const m of r.matches){const x=tally.get(m.id)||{s:0,list:m};x.s+=m.score;tally.set(m.id,x)}
+  const close=b&&a.score-b.score<CLOSE;
+  if(a&&!close&&streak.n>=(a.score>=0.8?2:STREAK)){const seconds=elapsed(),thumb=blob?URL.createObjectURL(blob):'';stop();found(r.matches.filter(m=>m.score>=SURE-0.1).slice(0,3),thumb,seconds);return}
+  if(frames>=AVERAGE_FRAMES){const avg=[...tally].map(([id,x])=>({...x.list,id,score:Math.round(x.s/frames*1000)/1000})).sort((p,q)=>q.score-p.score);
+   if(avg[0]&&avg[0].score>=SURE){const seconds=elapsed(),thumb=blob?URL.createObjectURL(blob):'';stop();found(avg.filter(m=>m.score>=SURE-0.1).slice(0,3),thumb,seconds);return}}
   last=sure?a.id:null;
-  if(elapsed()*1000>=LIMIT){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();likely(thumb,seconds,bestSeen);return}
+  if(elapsed()*1000>=LIMIT){const seconds=elapsed(),thumb=blob?URL.createObjectURL(blob):'';stop();likely(thumb,seconds,bestSeen);return}
   looking();
  }
  async function tick(){
