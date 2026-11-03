@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-20 (evening) — from Claude (account 2) — open
+
+- 1.1.271 (faster photo scan: quick/streak acceptance, 8 s limit, big frame + centre dot) is in a PR. Owner tests on iPhone/Android with the Drive Shaft.
+
 ## 2026-11-20 (later) — from Claude (account 2) — done
 
 - 1.1.269 (camera=(self)) and 1.1.270 (photo search shows alike products) merged (PR #351, #352). Owner confirmed the camera opens. Background-removal AI: disk is 5 GB but BiRefNet needs ≥1.8 GB RAM ($25 plan); owner has not decided.
