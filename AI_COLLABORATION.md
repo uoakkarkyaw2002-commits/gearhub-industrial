@@ -38,6 +38,14 @@ _None._
 - One controlled 375px 1.6Mbps/150ms/CPU4 comparison, prewarming/full offline prefetch disabled equally to isolate first query: `seal` 24.510s → 11.464s; prepared `seal` 0.905s → 0.402s; exact `300426` 0.779s → 0.276s. Normal local prepared queries ~0.48s → 0.26–0.29s. Fresh critical workbook members 3,447,284 → 757,069 bytes; all six XML hashes match. Full offline copy continues later; no claim of total bandwidth reduction. Not live/real-phone results; no 1–3s slow-network guarantee. XML DOM parsing remains on the browser thread with chunked row processing.
 - Local evidence only: `/private/tmp/excel-speed-review/` (results, range hashes, screenshots, reproducible harnesses). Pre-existing untracked `.claude/` and `public/zz-real.xlsm` excluded.
 
+### 1.1.273: Photo search compares the part alone, not the background (Claude)
+- Owner: "I want the part exact — don't remember the background, remember only the part." Shop photos are parts on white; scans are parts on grass/tables, and the background pulled the look away.
+- New `lib/object-crop.js` + `lib/cut-worker.js`: the scan picture is cut out with U²-Netp (models/u2netp.onnx, 320 px) in a persistent forked helper (it briefly needs ~220 MB; main server RSS stays ~110 MB in a 10-scan loop), the part is put on white and cropped to it (8% margin). If no single part stands out (<1% or >85% of the picture) or the helper fails/takes >10 s, the old views (whole + middle 0.7 + middle 0.5) are used. One cut at a time; helper stopped after 60 s without scans; it never keeps the server or tests alive (unref'd channel).
+- `lib/photo-search.js` ranked(): with a part → only view 3 (the part) is compared. `public/photo-scan.js`: reason says "(the part only, background removed)" for view 3.
+- Measured on the owner's real scans of the Drive Shaft on grass vs the shop photo: right product 0.69/0.65 → 0.71/0.73, unrelated product 0.21/0.15 → 0.20/0.14. Cut ~0.45 s per frame here (1 core); expect ~1 s on Render 0.5 CPU. Fixtures tests/fixtures/photo-scan/ (owner's photos, small); new test: the cut leaves almost no grass and the shaft wins by view 3.
+- Risk: on the 512 MB plan helper + server are close to the limit during a scan; if the helper is killed the scan silently falls back to the old views.
+- Node 22 check + 432/432.
+
 ### 1.1.272: Photo scan overlaps frames (Claude)
 - Owner after 1.1.271: "9 seconds, still slow; sometimes wrong". Each frame waited for its answer before the next was taken, so the live round trip (phone upload + Render) was paid 3× for look-alikes.
 - `public/photo-scan.js`: tick() takes a frame every 350 ms with up to 2 requests on the way; answers are handled in answer() (same rules: quick / twice / streak 3 / 8 s limit). Frames are 448 px JPEG q0.8 (was 640/0.85). The result line shows the average round trip ("· 2.5 s per photo") so the owner's screenshot tells where the time goes.
