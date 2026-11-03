@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.265: Popular categories show the real item count (Claude)
+- Owner's Play Store screenshots: every Popular categories card on POLESTAR's Home said "0 items". Seller shops' categories carry no product_count, and the card printed `c.product_count||0`.
+- `public/store.js` renderPopularCategories: categoryTotal counts products in the category and all its subcategories (recursive, cycle-safe), and the card shows that number (sorting already used it). Tags: store.js and smart-search.js 1.1.265 (index.html + sw.js; free-ai test pins them equal, updated on purpose).
+- Play listing: 8 phone screenshots 1080x1920 made from the owner's Android/iPhone shots (scratchpad playstore/screenshots). Retake the Home shot after this deploy so it shows real counts.
+- Checked: demo seller shop with Electrical > CAT > E305 + Pumps → Electrical=4, Pumps=1 items; no errors. Node 22 check + 418/418.
+
 ### 1.1.264: Phone admin dashboard fits one screen on Android like iPhone (Claude)
 - Owner (Android photos vs iPhone): Android dashboard ran below the screen and its text looked thin. 1.1.263's 36px stat padding + 2-line labels had also made the iPhone stats taller (154px).
 - `public/site-admin.css` (≤480px): stat padding-bottom 30px, no forced 2-line label, big menu cards min-height 150px. ≤380px (Android 360): 2-line labels kept so numbers line up, smaller stat icon (38px), numbers 22px (`:not(.stat-0)` — the Total sales card keeps its compact ::before value; without it the hidden full value showed twice), menu cards 116px with 46px icons.
