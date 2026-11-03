@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-20 (night) — from Claude (account 2) — open
+## 2026-11-21 — from Claude (account 2) — open
+
+- 1.1.273 (scan compares the part only: U²-Netp cut-out in a helper process) is in a PR. Owner wants fastest + most accurate; watch Render memory and ask for the result line (s per photo).
+
+## 2026-11-20 (night) — from Claude (account 2) — done
 
 - 1.1.272 (scanner overlaps frames, 448 px, shows s per photo) is in a PR. Owner said 1.1.271 took 9 s and was sometimes wrong (look-alike Drive Shafts). Ask for a screenshot of the result line (s per photo).
 

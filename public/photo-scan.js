@@ -25,7 +25,7 @@
  function why(m,next){
   // Free AI #7: found by the code on its label.
   if(m.label)return t('Why: the label says '+m.label+' — its '+(m.field==='sku'?'SKU':'Part No.'),'ဘာကြောင့်: label ပေါ်မှာ '+m.label+' လို့ ပါလို့ ('+(m.field==='sku'?'SKU':'Part No.')+')');
-  const photo=m.photo?(my()?'ပုံ '+m.photo+'/'+m.photos+' နဲ့ ':' to its photo '+m.photo+' of '+m.photos):'',close=m.view?t(' (close-up of the middle)',' (အလယ်ကို အနီးကပ်)'):'';
+  const photo=m.photo?(my()?'ပုံ '+m.photo+'/'+m.photos+' နဲ့ ':' to its photo '+m.photo+' of '+m.photos):'',close=m.view===3?t(' (the part only, background removed)',' (နောက်ခံဖယ်ပြီး ပစ္စည်းကိုပဲ)'):m.view?t(' (close-up of the middle)',' (အလယ်ကို အနီးကပ်)'):'';
   const lead=next?t('; next closest product '+pct(next.score),'။ ဒုတိယ အတူဆုံး '+pct(next.score)):'';
   return t('Why: '+pct(m.score)+' alike in shape, colour and surface'+photo+close+lead,'ဘာကြောင့်: '+photo+'ပုံသဏ္ဌာန်၊ အရောင်၊ မျက်နှာပြင် '+pct(m.score)+' တူ'+close+lead);
  }
