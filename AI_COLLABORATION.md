@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.266: Settings top picture = green sky, clouds, lime wave (Claude)
+- Owner sent a picture: the Settings navigation background should look like it; "do nothing else".
+- `public/settings-design.css` only: `#profile-view.settings-new>.settings-profile-hero` gets a CSS background (!important over the inline shop picture): wave SVG (lime #d7ee3c / green / page colour; dark-mode page colour variant), cloud SVG at the right, green radial gradient. min-height 150px, padding-bottom 40px. Data-URL '#' encoded as %23. Logo tile and owner Admin Dashboard pill unchanged. Tag settings-design.css 1.1.266 (index.html + sw.js).
+- Checked: demo shop Settings at 390, 360 and 1280, no errors. Node 22 check + 419/419.
+
 ### 1.1.265: Popular categories show the real item count (Claude)
 - Owner's Play Store screenshots: every Popular categories card on POLESTAR's Home said "0 items". Seller shops' categories carry no product_count, and the card printed `c.product_count||0`.
 - `public/store.js` renderPopularCategories: categoryTotal counts products in the category and all its subcategories (recursive, cycle-safe), and the card shows that number (sorting already used it). Tags: store.js and smart-search.js 1.1.265 (index.html + sw.js; free-ai test pins them equal, updated on purpose).
