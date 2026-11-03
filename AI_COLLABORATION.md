@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 2026-11-03: Follow-up weaknesses audit (Codex — findings only)
+- Owner requested discovery, not implementation. Based on latest main `a6d0f6e` / 1.1.267; PR #346 has merged, deployment not verified. No other mailbox work resumed.
+- `docs/FOLLOWUP_AUDIT_2026-11-03.md`: four isolated reproductions (offline cache deletes another shop's Excel; external Excel upload remains stale in an open page; quoted CSV fields shift columns; seller transport drops caller timeout signal), plus speed-sample startup contention/Save-Data observation. Prioritize offline isolation and freshness first.
+- Only report/mailbox/log changed. Harness/results in `/private/tmp/gearhub-followup-audit/`; no live writes, runtime code fixes or new browser/device tests. Documentation PR pending.
+
 ### 1.1.267: Excel search critical download and repeated search (Codex — in review)
 - Owner: optimize Excel search; preserve the real viewer and both search modes. Branch `codex/excel-search-speed`; PR #346: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/346. No merge/deploy.
 - Files: new `public/excel-zip.js` and `public/excel-search-index.js`; `excel-map.js`, `excel-search.js`, `excel-library.js`, `sw.js`, `index.html`; release manifests, focused Excel/version tests, mailbox/log. No API or database changes.
