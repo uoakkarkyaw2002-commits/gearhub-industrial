@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.279: Remove background picks its AI by the container's free memory (Claude)
+- Owner (Render 2 GB): Edit photo → Remove background failed after ~10 s with "The server is busy" (the client's text for a non-JSON ≥500, i.e. the server restarted — the route itself always answers JSON). Cause in `lib/bg-remove.js`: BiRefNet (~1 GB while working) was chosen whenever the plan had ≥1.8 GB and the model was downloaded, without checking what was in use (main server + DINOv2/OCR, the scan cut-out helper ~220 MB, photo learning).
+- Now free memory = cgroup `memory.max − memory.current` (all processes; falls back to this process's RSS), less 150 MB spare: BiRefNet only with ≥1 GB room, silueta with ≥300 MB, else U²-Netp. Not verified on live (no memory metrics or logs here); if it still fails, the next step is to stop the scan helper before BiRefNet runs.
+- Tests: photo-editor pins updated on purpose + new 1.1.279 test. Node 22 check + 436/436.
+
 ### 1.1.278: Backups clean up after a cut-off run (Claude)
 - Owner: is the Render disk full? Live /api/storage: app data 4.0 GB of 5.25 GB (1.18 GB free); shops only ~0.44 GB (POLESTAR 352 MB, kaizen 86 MB, treebird 3 MB). Owner console: last successful backup 2026-10-30, every later one failed at stage disk-space (ENOSPC).
 - Cause (code): `lib/backups.js` removes its `.stage-*` copy of every photo and the `*.partial` archive only in `finally`; a restart mid-backup (deploy, out of memory) left them for ever, and `makeRoom()` only deleted finished `.tar.gz` files. Now `removeLeftovers()` runs before every backup (one backup at a time), and start() runs a backup at once because the last success is old, so live cleans up at the first start of 1.1.278. Not verified on the live disk (no shell access): the leftovers are the only writer found that matches ~3.5 GB.
