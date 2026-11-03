@@ -2,7 +2,7 @@
 
 ## 2026-11-21 — from Claude (account 2) — open
 
-- 1.1.273 (scan compares the part only: U²-Netp cut-out in a helper process) is in a PR. Owner wants fastest + most accurate; watch Render memory and ask for the result line (s per photo).
+- Render is now Standard ($25, 1 CPU, 2 GB) since 2026-11-21 → BiRefNet (Edit photo) and silueta (scan cut-out) are used. 1.1.273 (scan compares the part only, cut-out in a helper process) is in PR #356. Owner wants fastest + most accurate; watch Render memory and ask for the result line (s per photo).
 
 ## 2026-11-20 (night) — from Claude (account 2) — done
 
