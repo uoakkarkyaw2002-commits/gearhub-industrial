@@ -33,7 +33,8 @@ _None._
 ### 1.1.263: Settings design fixes for Android (Claude)
 - Owner: iPhone OK, Android not. On the Android phone (viewport ≤380px) an old style.css rule moved Light/Dark and English/မြန်မာ under the text; "Create new shop" / "My shops" (GearHub only) kept old icons; the subtitle still said "payment details" on both phones. The cause: a shop's saved texts (site.translations) override the default.
 - `public/settings-design.css`: ≤380px rows use `42px 1fr auto`, the segment is put back in column 3 / row 1, with smaller pills and icon. `public/settings-design.js`: icons for create-shop-action / my-shops-action; an old "payment details/information" (or Myanmar ငွေပေးချေမှု) subtitle is replaced on the page only. Saved data is not changed.
-- Checked: GearHub store as owner in Chromium at 360 and 390 (Android UA). Pills beside the text, no sideways scroll, new icons, subtitle replaced, no errors. Node 22 check + 416/416. Not on a real Android phone.
+- Admin dashboard on Android (owner photo): at 360px "Pending orders" / "Active products" wrapped to 2 lines and the number sat on the coloured arc. `public/site-admin.css` (≤480px): stat cards are a column with 36px bottom padding, labels get 2 lines of room (min-height 2.5em) so all 4 numbers line up, number weight 800. Tag site-admin.css 1.1.263 in admin.html.
+- Checked: GearHub store as owner in Chromium at 360 and 390 (Android UA). Settings: pills beside the text, no sideways scroll, new icons, subtitle replaced, no errors. Node 22 check + 416/416. Not on a real Android phone. Admin at 360/390/430: the 4 numbers have the same top and ~12px above the arc.
 
 ### 1.1.262: Settings in the owner's new design (Claude)
 - Owner sent a picture of the Settings page they want; bottom navigation stays as it is.
