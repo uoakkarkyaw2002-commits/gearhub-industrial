@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.269: Fix five follow-up audit findings (Codex — draft, browser verification pending)
+- Authorized: all five items from the owner's audit follow-up. Base main `43c73a1`, branch `codex/fix-audit-findings`; draft PR pending. No merge/deploy or unrelated Play Store changes.
+- Runtime files: `public/excel-library.js`, `sw.js` (shop-scoped cache + matching legacy migration; legacy preserved), `excel-search.js` (30s ID checks during visible searches and on focus/online/upload; unchanged-ID reuse; offline fallback), `excel-map.js` (quoted/multiline CSV), `tenant-store.js` (8s shared fetch and consumer cancellation), `net-speed.js` (readiness/Excel idle + 15s delay, Save-Data, cooldown/deadline). Version/assets in package manifests/index/SW/install test use 1.1.269. No API/schema/layout changes.
+- Added `tests/followup-regressions.test.js`; expanded SW offline migration tests; existing VM fixtures now expose native AbortSignal and pinned asset tests follow the new tags. Node22 check + full tests 433/433; focused regression run 30/30; touched public JS syntax and diff checks passed.
+- Browser inventory failed: `Local browser use is disabled in Work settings`. Actual 375px/1280px seller-shop button/console/visual checks and physical phones remain unverified. Keep PR draft pending browser verification. No claim of measured startup improvement. Pre-existing untracked `.claude/` and `public/zz-real.xlsm` untouched.
+
 ### 1.1.267: Excel search critical download and repeated search (Codex — in review)
 - Owner: optimize Excel search; preserve the real viewer and both search modes. Branch `codex/excel-search-speed`; PR #346: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/346. No merge/deploy.
 - Files: new `public/excel-zip.js` and `public/excel-search-index.js`; `excel-map.js`, `excel-search.js`, `excel-library.js`, `sw.js`, `index.html`; release manifests, focused Excel/version tests, mailbox/log. No API or database changes.

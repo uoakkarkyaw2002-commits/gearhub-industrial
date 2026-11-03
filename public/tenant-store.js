@@ -9,16 +9,23 @@
   const json=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json'}});
   // One shop download is shared by products, categories, config and Settings.
   let loading=null;
-  function load(){
+  function load(signal){
+    if(signal?.aborted)return Promise.reject(signal.reason||new Error('Request cancelled.'));
     if(!loading)loading=(async()=>{
       try{
-        const r=await fetch(endpoint,{cache:'no-store'});
+        const r=await fetch(endpoint,{cache:'no-store',signal:AbortSignal.timeout(8000)});
         const data=await r.json();
         if(!r.ok)throw Error(data.error||'Shop unavailable.');
         snapshot=data;return data;
       }finally{loading=null;}
     })();
-    return loading;
+    const shared=loading;if(!signal)return shared;
+    // Cancelling one consumer must not abort the shared request for other consumers.
+    return new Promise((resolve,reject)=>{
+      const cancel=()=>reject(signal.reason||new Error('Request cancelled.'));
+      signal.addEventListener('abort',cancel,{once:true});
+      shared.then(value=>{signal.removeEventListener('abort',cancel);resolve(value)},error=>{signal.removeEventListener('abort',cancel);reject(error)});
+    });
   }
   function configFor(s){
     const b=s.settings||{},ready=Boolean(b.bankName&&b.bankAccountName&&b.bankAccountNumber);
@@ -47,23 +54,23 @@
     async fetch(url,options){
       try{
         if(url==='/api/products'){
-          const s=await load();prepare(s);
+          const s=await load(options?.signal);prepare(s);
           return json(s.products.map(p=>{const d=JSON.parse(p.details||'{}');return {...p,name_en:p.name,name_my:d.nameMy||p.name,category_en:p.category,category_id:d.categoryId??null,category_my:d.categoryMy||p.category,description_en:p.description,description_my:d.descriptionMy||p.description,image_emoji:d.imageEmoji||'⚙',promotion_price:d.promotionPrice??null,part_no:d.partNo||'',imageUrls:(d.imageIds||[p.image_id].filter(Boolean)).map(id=>'/api/platform/images/'+encodeURIComponent(id))};}));
         }
         if(url==='/api/categories'){
-          const s=snapshot||await load();
+          const s=snapshot||await load(options?.signal);
           const names=[...new Set(s.products.map(p=>p.category).filter(Boolean))];
           const rows=(s.settings.categories||[]).map(c=>({...c}));for(const name of names)if(!rows.some(c=>c.category_en.toLowerCase()===name.toLowerCase()))rows.push({id:Math.max(0,...rows.map(c=>c.id))+1,category_en:name,category_my:name,icon:'⚙'});// Two categories may share a name under different mains: products count by their category ID.
           const own=p=>{let d={};try{d=JSON.parse(p.details||'{}')}catch(_){}const name=String(p.category||'').toLowerCase(),saved=d.categoryId!=null&&rows.find(c=>Number(c.id)===Number(d.categoryId));return saved&&saved.category_en.toLowerCase()===name?saved:rows.find(c=>c.category_en.toLowerCase()===name);};
           const counts=new Map();for(const p of s.products){const c=own(p);if(c)counts.set(c,(counts.get(c)||0)+1);}
           return json(rows.map(c=>({...c,parent_id:c.parent_id??(rows.find(p=>p.category_en===c.parent_en)?.id||null),product_count:counts.get(c)||0})));
         }
-        if(url==='/api/config'){const s=snapshot||await load();prepare(s);return json(configFor(s));}
+        if(url==='/api/config'){const s=snapshot||await load(options?.signal);prepare(s);return json(configFor(s));}
         if(url==='/api/storage'){
-          const v=(snapshot||await load()).service;
+          const v=(snapshot||await load(options?.signal)).service;
           return json({quota:true,usedBytes:v.usedBytes,capacityBytes:v.storageLimit,availableBytes:Math.max(0,v.storageLimit-v.usedBytes)});
         }
-        if(url==='/api/service'){const v=(snapshot||await load()).service;return json({endsAt:v.endsAt,state:v.state});}
+        if(url==='/api/service'){const v=(snapshot||await load(options?.signal)).service;return json({endsAt:v.endsAt,state:v.state});}
         if(url==='/api/orders'){
           // The shop data (already downloaded) and the security token are fetched together, not one after the other.
           const [s,r]=await Promise.all([snapshot||load(),fetch('/api/platform/me',{cache:'no-store'})]);if(!configFor(s).bankName)return json({error:'Payment is not configured for this shop.'},409);

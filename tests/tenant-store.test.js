@@ -3,7 +3,7 @@ function adapter(slug='alice',settings={}){
  const calls=[],window={},document={querySelectorAll:()=>[],querySelector:()=>null};
  const shop={name:'Alice',settings,service:{usedBytes:256,storageLimit:1024,endsAt:'2027-02-14T17:29:59.000Z',state:'active'},products:[{id:7,name:'Part',sku:'A-7',category:'Tools',price:1000,stock:5}]};
  const fetch=async(url,options)=>{calls.push({url,options});if(url==='/api/platform/store/'+slug)return new Response(JSON.stringify(shop));if(url==='/api/platform/me')return new Response(JSON.stringify({csrfToken:'fixture-token'}));if(url.endsWith('/orders'))return new Response(JSON.stringify({code:'TEST-ORDER'}));throw Error('Unexpected root API');};
- vm.runInNewContext(fs.readFileSync(require.resolve('../public/tenant-store'),'utf8'),{window,document,location:{pathname:'/shops/'+slug,origin:'https://fixture.test'},navigator:{storage:{estimate:async()=>({usage:20,quota:100})}},Response,fetch,URL,encodeURIComponent,decodeURIComponent});
+ vm.runInNewContext(fs.readFileSync(require.resolve('../public/tenant-store'),'utf8'),{window,document,location:{pathname:'/shops/'+slug,origin:'https://fixture.test'},navigator:{storage:{estimate:async()=>({usage:20,quota:100})}},Response,AbortSignal,fetch,URL,encodeURIComponent,decodeURIComponent});
  return {api:window.GearHubTenantStore,calls};
 }
 test('shared tenant storefront maps only scoped catalogue/config and namespaces saved state',async()=>{

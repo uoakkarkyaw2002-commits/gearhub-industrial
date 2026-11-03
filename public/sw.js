@@ -1,5 +1,5 @@
-const CACHE_NAME = "gearhub-shell-v85-1.1.268";
-const SHELL = ["/signin.css?v=1.1.210","/platform.js?v=1.1.241","/shop-application.js?v=1.1.204","/images/signin-scene.webp?v=1.1.203","/images/signin-scene-phone.webp?v=1.1.209","/open-in-app.js?v=1.1.200","/app-switch.js?v=1.1.257","/install-guide.css?v=1.1.231","/install-guide.js?v=1.1.231","/product-phone.css?v=1.1.194","/product-phone.js?v=1.1.193","/photo-editor.css?v=1.1.229","/photo-editor.js?v=1.1.230","/product-ai.js?v=1.1.193","/images/product-ai-robot.png?v=1.1.193","/skyshop-splash.css?v=20261022-solid-1","/skyshop-splash.js?v=20261022-solid-1","/images/skyshop-splash-phone.jpg?v=1","/images/skyshop-splash-pc.jpg?v=1","/category-browser.js?v=20261028-same-name-1","/tenant-store.js?v=1.1.242","/excel-zip.js?v=1.1.267","/excel-map.js?v=1.1.267","/excel-select.js?v=1.1.226","/excel-auto-upload.js?v=1.1.192","/excel-library.js?v=1.1.267","/excel-search-index.js?v=1.1.267","/excel-search.js?v=1.1.267","/updates.js?v=1.1.262","/desktop.css?v=20261023-pcnav-2","/","/style.css?v=1.1.264","/site-content.js?v=1.1.262","/smart-search.js?v=1.1.265","/store.js?v=1.1.265","/similar-parts.js?v=1.1.235","/photo-scan.js?v=20261031-free-ai-1","/net-speed.js?v=20261027-net-speed-3","/liquid-nav.js?v=20261022-nav-drag-1","/card-tilt.js?v=20261023-tilt-1","/app-install.js?v=1.1.262","/settings.js?v=1.1.235","/app-badge.js?v=1.1.249","/app-login.js?v=1.1.243","/settings-alerts.js?v=1.1.251","/settings-design.css?v=1.1.268","/settings-design.js?v=1.1.263","/back-nav.js?v=20261026-keep-scroll-1","/dialogs.js?v=20261026-keep-scroll-1","/footer.js?v=20261012-1","/images/hero-excavator.jpg","/app.webmanifest","/app-icon.png","/icons/icon.svg","/icons/apple-touch-icon.png","/qrcode.js?v=1.4.4"];
+const CACHE_NAME = "gearhub-shell-v85-1.1.269";
+const SHELL = ["/signin.css?v=1.1.210","/platform.js?v=1.1.241","/shop-application.js?v=1.1.204","/images/signin-scene.webp?v=1.1.203","/images/signin-scene-phone.webp?v=1.1.209","/open-in-app.js?v=1.1.200","/app-switch.js?v=1.1.257","/install-guide.css?v=1.1.231","/install-guide.js?v=1.1.231","/product-phone.css?v=1.1.194","/product-phone.js?v=1.1.193","/photo-editor.css?v=1.1.229","/photo-editor.js?v=1.1.230","/product-ai.js?v=1.1.193","/images/product-ai-robot.png?v=1.1.193","/skyshop-splash.css?v=20261022-solid-1","/skyshop-splash.js?v=20261022-solid-1","/images/skyshop-splash-phone.jpg?v=1","/images/skyshop-splash-pc.jpg?v=1","/category-browser.js?v=20261028-same-name-1","/tenant-store.js?v=1.1.269","/excel-zip.js?v=1.1.267","/excel-map.js?v=1.1.269","/excel-select.js?v=1.1.226","/excel-auto-upload.js?v=1.1.192","/excel-library.js?v=1.1.269","/excel-search-index.js?v=1.1.267","/excel-search.js?v=1.1.269","/updates.js?v=1.1.262","/desktop.css?v=20261023-pcnav-2","/","/style.css?v=1.1.264","/site-content.js?v=1.1.262","/smart-search.js?v=1.1.265","/store.js?v=1.1.265","/similar-parts.js?v=1.1.235","/photo-scan.js?v=20261031-free-ai-1","/net-speed.js?v=1.1.269","/liquid-nav.js?v=20261022-nav-drag-1","/card-tilt.js?v=20261023-tilt-1","/app-install.js?v=1.1.262","/settings.js?v=1.1.235","/app-badge.js?v=1.1.249","/app-login.js?v=1.1.243","/settings-alerts.js?v=1.1.251","/settings-design.css?v=1.1.268","/settings-design.js?v=1.1.263","/back-nav.js?v=20261026-keep-scroll-1","/dialogs.js?v=20261026-keep-scroll-1","/footer.js?v=20261012-1","/images/hero-excavator.jpg","/app.webmanifest","/app-icon.png","/icons/icon.svg","/icons/apple-touch-icon.png","/qrcode.js?v=1.4.4"];
 const ADMIN_CACHE="gearhub-admin-v1",IMAGE_CACHE="gearhub-img-v1",EXCEL_CACHE="gearhub-excel-v1";
 const shopPath=pathname=>{const m=pathname.match(/^\/shops\/([a-z0-9-]+)(?:\/|$)/);return m?'/shops/'+m[1]+'/':null;};
 const offlineCache=pathname=>'gearhub-offline-v2:'+ (shopPath(pathname)||'root');
@@ -17,10 +17,16 @@ self.addEventListener("fetch", event => {
   // Excel files open offline. Each upload has its own address, so a saved file is kept and opens
   // from the phone; the shop's file list is fresh when online and the saved copy when offline.
   if (/^\/api\/platform\/spreadsheets\/[^/]+$/.test(url.pathname)) {
-    event.respondWith(caches.open(EXCEL_CACHE).then(async cache => (await cache.match(request)) || fetch(request).then(response => {
+    event.respondWith((async()=>{
+      const client=event.clientId&&await self.clients.get(event.clientId),shop=client&&shopPath(new URL(client.url).pathname);
+      const cache=await caches.open(shop?'gearhub-excel-v2:'+shop.split('/')[2]:EXCEL_CACHE);
+      const saved=await cache.match(request);if(saved)return saved;
+      if(shop){const legacy=await (await caches.open(EXCEL_CACHE)).match(request);if(legacy){await cache.put(request,legacy.clone());return legacy}}
+      return fetch(request).then(response => {
       if (response.status === 200) cache.put(request, response.clone());
       return response;
-    })));
+      });
+    })());
     return;
   }
   if (/^\/api\/platform\/store\/[^/]+\/spreadsheets$/.test(url.pathname)) {

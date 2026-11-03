@@ -551,7 +551,19 @@
   map.innerHTML=fields.map(([k,l])=>'<label>'+l+'<select data-k="'+k+'"><option value="">Not linked</option>'+data.head.map((h,i)=>'<option value="'+i+'" '+(h.toLowerCase().includes(k)||h.toLowerCase().includes(l.toLowerCase())?'selected':'')+'>'+esc(h)+'</option>').join('')+'</select></label>').join('');
  }
  function csvBook(text){
-  const rows=text.replace(/^﻿/,'').split(/\r?\n/).filter(Boolean).map(r=>r.split(','));const cells=new Map();let maxC=0;
+  const rows=[];let row=[],field='',quoted=false,closed=false,started=false;
+  text=text.replace(/^﻿/,'');
+  const finish=()=>{if(started){row.push(field);rows.push(row)}row=[];field='';closed=false;started=false};
+  for(let i=0;i<text.length;i++){
+   const ch=text[i];
+   if(quoted){if(ch==='"'){if(text[i+1]==='"'){field+='"';i++}else{quoted=false;closed=true}}else field+=ch;continue}
+   if(ch===','){row.push(field);field='';closed=false;started=true;continue}
+   if(ch==='\r'||ch==='\n'){if(ch==='\r'&&text[i+1]==='\n')i++;finish();continue}
+   if(closed)throw Error('Invalid CSV: text after a closing quote.');
+   if(ch==='"'&&field===''){quoted=true;started=true}else{field+=ch;started=true}
+  }
+  if(quoted)throw Error('Invalid CSV: unclosed quoted field.');finish();
+  const cells=new Map();let maxC=0;
   rows.forEach((row,r)=>row.forEach((v,c)=>{maxC=Math.max(maxC,c);cells.set(r+','+c,{text:v,style:{font:{},border:{}},numeric:v!==''&&!isNaN(+v.replace(/,/g,''))})}));
   return{sheets:[{name:'Sheet1',cells,merges:new Map(),covered:new Set(),widths:{},heights:{},defW:12,defH:15,maxR:rows.length-1,maxC,tab:''}]};
  }

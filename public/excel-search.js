@@ -55,18 +55,28 @@
  box.innerHTML='<div class="excel-results-rows"></div><div class="excel-results-host" hidden></div>';
  const rowsArea=box.firstChild,host=box.lastChild;
  products.after(box);
- let loading=null,timer=0,turn=0;
- // The first Excel file that has a BC sheet (else the first file and its first sheet). The workbook is
- // read once and shared with the Excel viewer (1.1.224).
- function workbook(){
-  return loading||(loading=(async()=>{
-   const viewer=window.GearHubExcelViewer;if(!viewer)return null;
-   const list=await (await fetch('/api/platform/store/'+encodeURIComponent(slug)+'/spreadsheets')).json();
-   const files=(list.files||[]).filter(f=>/\.xls[xm]$/i.test(f.name));let first=null;
-   for(const file of files){const sheet=await viewer.sheet(file.url,SHEET);if(!sheet)continue;const index=await window.GearHubExcelIndex.forSheet(sheet),found={file,sheet,index};if(sheet.name.trim().toLowerCase()===SHEET.toLowerCase())return found;first=first||found}
-   return first;
-  })().catch(()=>{loading=null;return null}));
+ let loading=null,refreshing=null,signature=null,checkedAt=0,timer=0,turn=0;
+ // Revalidate immutable file IDs, while keeping parsed data during offline/failed requests.
+ function workbook(force=false){
+  if(loading&&(!force&&Date.now()-checkedAt<30000||navigator.onLine===false))return loading;
+  if(refreshing)return refreshing;
+  refreshing=(async()=>{
+   try{
+    const viewer=window.GearHubExcelViewer;if(!viewer)return null;
+    const response=await fetch('/api/platform/store/'+encodeURIComponent(slug)+'/spreadsheets',{cache:'no-store',signal:AbortSignal.timeout(8000)});
+    if(!response.ok)throw Error('Could not refresh Excel files.');
+    const files=((await response.json()).files||[]).filter(f=>/\.xls[xm]$/i.test(f.name)),next=files.map(f=>f.url).join('|');checkedAt=Date.now();
+    if(loading&&signature===next)return await loading;
+    const previous=loading;signature=next;
+    loading=(async()=>{let first=null;
+     for(const file of files){const sheet=await viewer.sheet(file.url,SHEET);if(!sheet)continue;const index=await window.GearHubExcelIndex.forSheet(sheet),found={file,sheet,index};if(sheet.name.trim().toLowerCase()===SHEET.toLowerCase())return found;first=first||found}
+     return first;
+    })();
+    try{const result=await loading;previous?.then(found=>found?.index.dispose());return result}catch(error){loading=previous;signature=null;throw error}
+   }catch{checkedAt=Date.now();return loading?await loading.catch(()=>null):null}finally{refreshing=null}
+  })();return refreshing;
  }
+ window.GearHubExcelSearchIdle=()=>Promise.allSettled([refreshing,loading]);
  // 1.1.217: two views — only the matching rows ("ရှာတာပဲ"), or the sheet like Excel ("Excel လို").
  // 1.1.224 owner: the Excel view is the shop's real Excel viewer under the search bar — original column
  // and row sizes, drag-select, copy, row select — moved to the bar's ˄ ˅ and count.
@@ -115,7 +125,10 @@
   pick.addEventListener('click',e=>{const m=e.target.closest('[data-excel-mode]');if(!m)return;mode=m.dataset.excelMode;try{localStorage.setItem(MODE_KEY,mode)}catch{}paint();if(input.value.trim())show()});
  }
  input.addEventListener('input',()=>{++turn;clearTimeout(timer);if(input.value.trim().length<2)hideAll();timer=setTimeout(show,150)});
- addEventListener('gearhub-excel-changed',()=>{++turn;loading?.then(found=>found?.index.dispose());loading=null;hideAll();if(input.value.trim().length>=2)show()});
+ const refresh=async()=>{if(!loading&&input.value.trim().length<2)return;const previous=loading;await workbook(true);if(loading!==previous&&input.value.trim().length>=2)show()};
+ setInterval(()=>{if(!document.hidden&&navigator.onLine!==false&&input.value.trim().length>=2)refresh()},30000);
+ addEventListener('gearhub-excel-changed',async()=>{await refreshing;checkedAt=0;await refresh()});addEventListener('online',refresh);addEventListener('focus',refresh);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
  // The keyboard's Search key: next match in the Excel view, then the keyboard closes so the sheet shows.
  input.addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();if(mode==='sheet'&&!box.hidden)go(1);input.blur()});
  // Speed (1.1.224): the shop's workbook is read in the background once the page is idle, so the first

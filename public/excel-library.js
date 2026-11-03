@@ -21,11 +21,12 @@
  async function keepOffline(){
   if(!slug||!('caches' in window)||navigator.onLine===false)return;
   try{
+   await window.GearHubExcelSearchIdle?.();
    await window.GearHubExcelViewer?.idle();
    const response=await fetch('/api/platform/store/'+encodeURIComponent(slug)+'/spreadsheets');if(!response.ok)return;
-   const files=(await response.json()).files||[],cache=await caches.open('gearhub-excel-v1'),keep=new Set(files.map(file=>new URL(file.url,location.origin).href));
+   const files=(await response.json()).files||[],cache=await caches.open('gearhub-excel-v2:'+slug),legacy=await caches.open('gearhub-excel-v1'),keep=new Set(files.map(file=>new URL(file.url,location.origin).href));
    for(const request of await cache.keys())if(/\/api\/platform\/spreadsheets\//.test(request.url)&&!keep.has(request.url))await cache.delete(request);
-   for(const url of keep)if(!(await cache.match(url))){const file=await fetch(url,{priority:'low'});if(file.ok)await cache.put(url,file)}
+   for(const url of keep)if(!(await cache.match(url))){const saved=await legacy.match(url);if(saved){await cache.put(url,saved);continue}const file=await fetch(url,{priority:'low'});if(file.status===200)await cache.put(url,file)}
   }catch{}
  }
  const later=()=>setTimeout(keepOffline,3000);
