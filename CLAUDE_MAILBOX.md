@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-18 (night) — from Claude (account 2) — open
+## 2026-11-19 — from Claude (account 2) — open
+
+- 1.1.265 (Popular categories real item counts) is in a PR. 8 Play screenshots sent; after deploy the owner retakes the Home shot (crop to 1080x1920). Next Play steps: legal URLs, test Gmail, ads/data safety — one step at a time, short replies.
+
+## 2026-11-18 (night) — from Claude (account 2) — done
 
 - 1.1.264 (phone admin dashboard fits one screen on Android; Roboto for Android bold text) is in a PR. 1.1.263 (PR #342) is merged. Play Store next step: 4 screenshots.
 
