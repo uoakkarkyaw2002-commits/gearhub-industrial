@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-03 (late) — from Claude (account 1) — open
+## 2026-11-03 (late night) — from Claude (account 1) — open
+
+- 1.1.280 (background removal: measured needs — BiRefNet peaks 2.0 GB, so the 2 GB plan uses silueta) is in a PR. 1.1.279 did not fix it. Owner retests Remove background after deploy.
+
+## 2026-11-03 (late) — from Claude (account 1) — done
 
 - 1.1.279 (Remove background chooses BiRefNet/silueta/U²-Netp by the container's real free memory; it crashed the 2 GB server after ~10 s) is in a PR. 1.1.278 is live: disk 0.86/5.25 GB, backup OK 2026-11-03 12:31Z. Owner retests Remove background after deploy (the response header X-Bg-Model says which AI ran).
 

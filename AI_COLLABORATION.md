@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.280: Background removal uses measured memory needs; BiRefNet only on 4 GB plans (Claude)
+- 1.1.279 live, Remove background still failed after ~10 s on the 2 GB plan (pump and a simple sensor photo). Measured one helper run here with bg-worker.js session options: U²-Netp peak 275 MB, silueta 520 MB (0.6 s), BiRefNet 2046 MB (18 s; fixed 1024 px input, smaller sizes rejected). The old guesses (150 MB / 300 MB / 1 GB) let BiRefNet start; it alone fills 2 GB, so Render restarted the server.
+- `lib/bg-remove.js`: needs 300 MB / 550 MB / 2.1 GB; `NEED_MEMORY` 3.5e9, so the 2 GB plan never loads or uses BiRefNet (silueta). The BiRefNet file already downloaded on the live disk (224 MB, `DATA_DIR/models`) is left unused. Local run on a shop photo: silueta, 0.6 s. Node 22 check + 437/437.
+
 ### 1.1.279: Remove background picks its AI by the container's free memory (Claude)
 - Owner (Render 2 GB): Edit photo → Remove background failed after ~10 s with "The server is busy" (the client's text for a non-JSON ≥500, i.e. the server restarted — the route itself always answers JSON). Cause in `lib/bg-remove.js`: BiRefNet (~1 GB while working) was chosen whenever the plan had ≥1.8 GB and the model was downloaded, without checking what was in use (main server + DINOv2/OCR, the scan cut-out helper ~220 MB, photo learning).
 - Now free memory = cgroup `memory.max − memory.current` (all processes; falls back to this process's RSS), less 150 MB spare: BiRefNet only with ≥1 GB room, silueta with ≥300 MB, else U²-Netp. Not verified on live (no memory metrics or logs here); if it still fails, the next step is to stop the scan helper before BiRefNet runs.
