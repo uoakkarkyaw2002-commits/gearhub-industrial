@@ -36,7 +36,7 @@
  async function ask(blob){
   const send=async()=>fetch(API,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'image/jpeg','X-CSRF-Token':await csrf()},body:blob});
   let r=await send();if(r.status===403){token=null;r=await send()}
-  if(!r.ok)throw Error('photo search '+r.status);return r.json();
+  if(!r.ok)throw Error('photo search '+r.status);const body=await r.json(),ms=Number(r.headers.get('X-Scan-Ms'));if(ms>=0&&r.headers.has('X-Scan-Ms'))body.serverMs=ms;return body;
  }
  // Pictures are made smaller (longest side 640) before sending: faster on mobile data, same answer.
  function jpeg(source,sx,sy,sw,sh,max=640,q=.85){const s=Math.min(1,max/Math.max(sw,sh)),c=document.createElement('canvas');c.width=Math.round(sw*s);c.height=Math.round(sh*s);
@@ -101,7 +101,7 @@
   if(view.hidden){stream.getTracks().forEach(tr=>tr.stop());stream=null;return}
   video.srcObject=stream;try{await video.play()}catch(_){}
   const caps=stream.getVideoTracks()[0]?.getCapabilities?.();torch.hidden=!caps?.torch;
-  started=performance.now();bestSeen=null;streak={id:null,n:0};trips=[];clearInterval(clock);clock=setInterval(()=>{if(started)looking()},1000);
+  started=performance.now();bestSeen=null;streak={id:null,n:0};trips=[];works=[];clearInterval(clock);clock=setInterval(()=>{if(started)looking()},1000);
   loop=setTimeout(tick,600);// let the camera settle and focus first
  }
  // The part inside the corner frame, as the video shows it (the video fills the screen, cropped).
@@ -111,8 +111,8 @@
  // 1.1.272 owner ("9 seconds, still slow"): each frame waited for the answer before the next one was taken, so the
  // phone's round trip (upload + server) was paid three times in a row. Now up to two frames are on the way at once,
  // and frames are smaller (448 px: the model looks at 224 px, the server's closest view is half the frame).
- let inflight=0,trips=[];
- const tripText=()=>trips.length?t(' · '+(trips.reduce((x,y)=>x+y,0)/trips.length/1000).toFixed(1)+' s per photo',' · ပုံတစ်ပုံ '+(trips.reduce((x,y)=>x+y,0)/trips.length/1000).toFixed(1)+' စက္ကန့်'):'';
+ let inflight=0,trips=[],works=[];
+ const avg=a=>(a.reduce((x,y)=>x+y,0)/a.length/1000).toFixed(1),tripText=()=>trips.length?t(' · '+avg(trips)+' s per photo',' · ပုံတစ်ပုံ '+avg(trips)+' စက္ကန့်')+(works.length?t(' (server '+avg(works)+' s)',' (server '+avg(works)+')'):''):'';
  function answer(r,blob){
   if(view.hidden)return;
   // While the shop's photos are being learned the count waits (it starts again when ready).
@@ -122,7 +122,8 @@
   if(a&&a.score>=SURE){streak=streak.id===a.id?{id:a.id,n:streak.n+1}:{id:a.id,n:1}}else streak={id:null,n:0};
   const quick=sure&&a.score>=QUICK&&(!b||a.score-b.score>=QUICK_LEAD);
   if(quick||(sure&&last===a.id)){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();found(r.matches,thumb,seconds);return}
-  if(streak.n>=STREAK){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();found(r.matches.filter(m=>m.score>=SURE-0.1).slice(0,3),thumb,seconds);return}
+  // 1.1.274: a clearly alike part (≥ 80%) on top twice in a row is enough; otherwise three times.
+  if(a&&streak.n>=(a.score>=0.8?2:STREAK)){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();found(r.matches.filter(m=>m.score>=SURE-0.1).slice(0,3),thumb,seconds);return}
   last=sure?a.id:null;
   if(elapsed()*1000>=LIMIT){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();likely(thumb,seconds,bestSeen);return}
   looking();
@@ -131,10 +132,10 @@
   if(view.hidden)return;
   if(inflight>=2){loop=setTimeout(tick,120);return}
   const region=frameRegion();if(!region){loop=setTimeout(tick,250);return}
-  let blob;try{blob=await jpeg(video,...region,448,.8)}catch(_){loop=setTimeout(tick,500);return}
+  let blob;try{blob=await jpeg(video,...region,384,.75)}catch(_){loop=setTimeout(tick,500);return}
   if(view.hidden)return;
   inflight++;const sent=performance.now();
-  ask(blob).then(r=>{trips.push(performance.now()-sent);if(trips.length>6)trips.shift();answer(r,blob)},()=>{if(view.hidden)return;if(navigator.onLine===false)hint.textContent=t('Photo search needs the internet.','ပုံနဲ့ရှာဖို့ Internet လိုပါတယ်။');else if(started)looking()}).finally(()=>{inflight--});
+  ask(blob).then(r=>{trips.push(performance.now()-sent);if(trips.length>6)trips.shift();if(r.serverMs>=0){works.push(r.serverMs);if(works.length>6)works.shift()}answer(r,blob)},()=>{if(view.hidden)return;if(navigator.onLine===false)hint.textContent=t('Photo search needs the internet.','ပုံနဲ့ရှာဖို့ Internet လိုပါတယ်။');else if(started)looking()}).finally(()=>{inflight--});
   loop=setTimeout(tick,350);
  }
  view.querySelector('.photo-scanner-close').addEventListener('click',stop);
