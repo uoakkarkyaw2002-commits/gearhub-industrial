@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.259: Phone admin dashboard shows one panel at a time (Claude)
+- Owner (iPhone): with Product Inventory open, opening Product categories left Inventory open below it. Wanted: opening another card closes the one before.
+- `public/admin.js`: new `closeOtherMobileDashboardPanels(id)` runs in the existing dashboard toggle click handler, before the panel is positioned, on phones (≤800px) only. When a panel opens it hides every other open panel in `mobileDashboardDetailIds` (inventory, orders, low stock, product form, categories, appearance, confirmed, cancelled, deleted), sets their toggle to aria-expanded=false / ＋ and moves them back home. Nothing is reset (a half-filled product form keeps its values). PC is unchanged.
+- Checked: local store in Chromium. At 390: Inventory → Categories → Orders → Recycle Bin, each time only the last one is open; no errors. At 1280 the behaviour is unchanged. Node 22 check + 412/412. Not tested on a real iPhone.
+
 ### 1.1.258: Swipe products and orders into the Recycle Bin, with a red border, arrow and bin (Claude)
 - Owner: products could already be swiped left to delete, orders could not, and nothing showed what would happen. Wanted: pressing a card gives a red border and a right-to-left arrow (only while pressed); dragging opens a bin at the left corner; the card goes into the bin.
 - New `public/swipe-bin.js` (admin.html, after order-detail.js): product cards (`[data-mobile-product-id]` → POST /api/admin/products/<id>/trash) and order cards in Orders & payment (`#orders-table [data-order-open]` → DELETE /api/admin/orders/<id>, the existing "move to Deleted orders"). Hold 250 ms or start dragging left → red outline + "← Bin" pill on the card + a red bin at the card's left edge. The lid opens as the card follows the finger; past max(72px, 30% of the width) it is ready. On release it asks once (same as before); OK → the card shrinks into the bin, then the API is called and the list is refreshed. Vertical scroll cancels; a swipe never opens the order. Touch only; PC is unchanged.

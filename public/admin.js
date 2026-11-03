@@ -11,7 +11,15 @@ function positionMobileDashboardDetail(id){
  if(content.classList.contains("hidden")){const home=mobileDashboardDetailHomes.get(id);if(home&&content.parentElement===host)home.append(content);}
  else if(content.parentElement!==host)host.append(content);
 }
-document.addEventListener("click",e=>{const button=e.target.closest(".admin-section-toggle,#product-form-toggle,#confirmed-toggle,#cancelled-toggle,#deleted-toggle");if(!button)return;const id=button.dataset.contentId||({ "confirmed-toggle":"confirmed-panel","cancelled-toggle":"trash-panel","deleted-toggle":"deleted-panel"}[button.id]);if(id)requestAnimationFrame(()=>{positionMobileDashboardDetail(id);updateMobileDashboardOpenState(id);});});
+document.addEventListener("click",e=>{const button=e.target.closest(".admin-section-toggle,#product-form-toggle,#confirmed-toggle,#cancelled-toggle,#deleted-toggle");if(!button)return;const id=button.dataset.contentId||({ "confirmed-toggle":"confirmed-panel","cancelled-toggle":"trash-panel","deleted-toggle":"deleted-panel"}[button.id]);if(id)requestAnimationFrame(()=>{closeOtherMobileDashboardPanels(id);positionMobileDashboardDetail(id);updateMobileDashboardOpenState(id);});});
+// 1.1.259 owner (phone): opening another dashboard card closes the one that was open (one panel at a time).
+function closeOtherMobileDashboardPanels(id){
+ if(!window.matchMedia("(max-width:800px)").matches||$(id)?.classList.contains("hidden"))return;
+ const toggles={"confirmed-panel":"confirmed-toggle","trash-panel":"cancelled-toggle","deleted-panel":"deleted-toggle"};
+ mobileDashboardDetailIds.forEach(other=>{const content=$(other);if(other===id||!content||content.classList.contains("hidden"))return;content.classList.add("hidden");
+  const toggle=document.querySelector('[data-content-id="'+other+'"]')||$(toggles[other]||"");toggle?.setAttribute("aria-expanded","false");const icon=$(toggle?.dataset.iconId||(other==="product-form-content"?"product-form-toggle-icon":""));if(icon)icon.textContent="＋";
+  positionMobileDashboardDetail(other);});
+}
 function updateMobileDashboardOpenState(id){
  if(!window.matchMedia("(max-width:800px)").matches)return;
  const content=$(id),buttons=[...document.querySelectorAll("#dashboard .admin-section-toggle,#confirmed-toggle,#cancelled-toggle,#deleted-toggle")];
