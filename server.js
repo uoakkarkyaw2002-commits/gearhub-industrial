@@ -314,12 +314,14 @@ app.locals.orderPush=orderPush;
 // Google Drive copy of the daily backup and of every shop photo (the owner connects it once in the owner console).
 let drive=null;
 if(process.env.PLATFORM_ENABLED==='true'){
- drive=require('./lib/drive-backup').createDrive({db,clientId:process.env.GOOGLE_CLIENT_ID,clientSecret:process.env.GOOGLE_CLIENT_SECRET,media:path.join(dataDir,'platform-media'),log:(event,detail)=>console.error(JSON.stringify({event,detail}))});
+ // 1.1.282: shop files also kept in Cloudflare R2; the disk keeps a cache (lib/file-store.js, off without FILES_S3_BUCKET).
+ const files=require('./lib/file-store').createFileStore({db,dataDir,log:(event,...detail)=>console.error(JSON.stringify({event,detail}))});files.start();
+ drive=require('./lib/drive-backup').createDrive({db,ensure:files.ensureLocal,clientId:process.env.GOOGLE_CLIENT_ID,clientSecret:process.env.GOOGLE_CLIENT_SECRET,media:path.join(dataDir,'platform-media'),log:(event,detail)=>console.error(JSON.stringify({event,detail}))});
  const shopAlias=require('./lib/shop-alias');app.use(shopAlias.aliasMiddleware(db));
  const {createPlatform}=require('./lib/platform');
- app.use('/api/platform',createPlatform({db,dataDir,publicOrigin,orderPush,drive,notifyApplication:details=>notifications.application(details)}));
+ app.use('/api/platform',createPlatform({db,dataDir,publicOrigin,orderPush,drive,files,notifyApplication:details=>notifications.application(details)}));
  shopAlias.syncAll(db);
- require('./lib/tenant-install').installTenantApps(app,{db,dataDir,publicDir:path.join(__dirname,'public'),publicOrigin});
+ require('./lib/tenant-install').installTenantApps(app,{db,dataDir,publicDir:path.join(__dirname,'public'),publicOrigin,files});
 }
 app.get('/api/app-release', (_req,res)=>{
  res.set('Cache-Control','no-store');

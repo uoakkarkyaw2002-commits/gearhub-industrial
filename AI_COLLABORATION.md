@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.282: Shop files kept in Cloudflare R2; Render disk keeps a cache (Claude)
+- Owner: everything shops upload lands on the fixed-size Render disk; move it all ("အကုန်ရွှေ့ထား"), shops upload at any time.
+- New `lib/file-store.js` (off until Render env `FILES_S3_BUCKET` is set; endpoint/keys default to BACKUP_S3_*; `FILES_S3_PREFIX` default `files/`, `FILES_CACHE_MB` default 400). Every 10 min (first at +1 min) each `platform-media/<shop>/<file>` older than 10 min is PutObject to R2 and recorded in the new additive table `file_store(key,bytes,stored_at,used_at)`. While the local copy is over the cache size, the least recently used files that R2 has (and `.opt.webp` variants) leave the disk. `ensureLocal(path)` fetches a file back from R2 before it is read. Hidden learning folders (.photo-looks, .scan-examples) and scene/splash stay local.
+- Readers wired: images (variants), spreadsheets (Range still from the local file), receipts, receipt OCR, photo search learning (`ensure` option), Drive photo copy (`ensure` option), shop app icon (logo fetched back for the next request). Deletes: file discard, replaced spreadsheets and shop delete remove the R2 copies. Also: the unused BiRefNet download (224 MB) is deleted on plans under 3.5 GB.
+- Backups/Drive: daily archives now contain only the files still on the disk; R2 keeps every file (and Drive keeps photo originals). Not verified against real R2 (owner must create the bucket and set the env); tests use a fake R2. Node 22 check + 444/444.
+
 ### 1.1.281: Scanner learns from the shop owner's confirmations; labels read while scanning (Claude)
 - Owner asked how to make scan AI better and approved "1 + 2" (incl. storing confirmed scans).
 - #1 `lib/photo-search.js`: `addExample(shop, product, image)` saves a 640 px JPEG in `media/<shop>/.scan-examples/<product>-<id>.jpg` (newest 6 per product), and `photos()` adds them as extra photos (`scan:true`) of active products, so both the look and the upright-part modes learn them. They are left out of "photo N of M" (`learned:true` instead) and of Similar parts. No DB schema change. Route `POST /api/platform/store/:slug/scan-example?product=` (raw image, 30/min): shop owner or GearHub owner only (403 otherwise). `public/photo-scan.js`: after a result, the shop owner (me.isOwner or me.shop.id = store id) sees "✓ ဒါမှန်တယ် / This is right" under the strip (pick another with ˄ ˅ first); it sends the answered camera frame; reason text says "matches a scan you confirmed earlier".

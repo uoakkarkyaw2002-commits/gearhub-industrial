@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-03 (midnight) — from Claude (account 1) — open
+## 2026-11-04 — from Claude (account 1) — open
+
+- 1.1.282 (shop files to Cloudflare R2, Render disk = 400 MB cache, lib/file-store.js) is in a PR. Owner steps: create R2 bucket `gearhub-files`, make sure the R2 API token (same as backups) can use it, add Render env `FILES_S3_BUCKET=gearhub-files`, deploy. Then check Render logs for `file_store_sweep` / `file_store_copy_failure` and that /api/storage usedBytes drops; Render plan is back to $7 (512 MB); scan/remove-background work is paused by the owner.
+
+## 2026-11-03 (midnight) — from Claude (account 1) — done
 
 - 1.1.281 (scanner: owner presses "✓ This is right" → that scan is learned; labels read automatically while scanning) is in a PR. Owner: scan J71-33/V-30 a few times and press ✓ on the right one (˄ ˅ first if wrong).
 
