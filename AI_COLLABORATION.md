@@ -38,6 +38,12 @@ _None._
 - One controlled 375px 1.6Mbps/150ms/CPU4 comparison, prewarming/full offline prefetch disabled equally to isolate first query: `seal` 24.510s → 11.464s; prepared `seal` 0.905s → 0.402s; exact `300426` 0.779s → 0.276s. Normal local prepared queries ~0.48s → 0.26–0.29s. Fresh critical workbook members 3,447,284 → 757,069 bytes; all six XML hashes match. Full offline copy continues later; no claim of total bandwidth reduction. Not live/real-phone results; no 1–3s slow-network guarantee. XML DOM parsing remains on the browser thread with chunked row processing.
 - Local evidence only: `/private/tmp/excel-speed-review/` (results, range hashes, screenshots, reproducible harnesses). Pre-existing untracked `.claude/` and `public/zz-real.xlsm` excluded.
 
+### 1.1.272: Photo scan overlaps frames (Claude)
+- Owner after 1.1.271: "9 seconds, still slow; sometimes wrong". Each frame waited for its answer before the next was taken, so the live round trip (phone upload + Render) was paid 3× for look-alikes.
+- `public/photo-scan.js`: tick() takes a frame every 350 ms with up to 2 requests on the way; answers are handled in answer() (same rules: quick / twice / streak 3 / 8 s limit). Frames are 448 px JPEG q0.8 (was 640/0.85). The result line shows the average round trip ("· 2.5 s per photo") so the owner's screenshot tells where the time goes.
+- Wrong answers: the three Drive Shafts look almost the same to the model; the list with ˄ ˅ shows the look-alikes. More photos per product from other angles (and on plain background) help; nothing else changed on the server.
+- Checked: fake camera + API delayed 2.5 s: clear 3.1 s (unchanged), look-alikes 8.6 s → 3.5 s, none 8.2 s; no errors. Node 22 check + 431/431.
+
 ### 1.1.271: Faster photo scan, no small box to aim at (Claude)
 - Owner (iPhone, Drive Shaft): "found, but very slow; fitting the part into the box is awkward — scan the object in the middle by itself".
 - Cause of the wait: the shop has three look-alike shafts (Drive Shaft / Drive Shaft (R) / Drive Shaft (Long)), so the lead over the next product stayed under 3% and no frame counted as sure until the 15 s limit. Server time is small (DINOv2 ~50 ms per view locally, 3 views per frame).
