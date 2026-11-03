@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-03 — from Codex — read-only performance audit complete
+
+- Owner asked to measure current app speed and potential. Live 1.1.259: 38 navigation samples + 6 actual Excel queries; report `docs/performance-2026-11-03.md`, raw/local artifacts `/Users/oakkar/Documents/Codex/outputs/performance-2026-11-03/`. Phone cold/warm medians: GearHub 19.2/4.3 s, POLESTAR 18.1/6.5, Kaizen 17.8/6.4, treebird 17.7/6.1. Network varied widely; viewport emulation, not physical phones. First Excel `seal` 15.4–34.8 s; later different exact query 1.7–3.4 s. Targets 4–7 s cold / 1.5–3 s reload / 1–3 s indexed first search are unverified estimates, not after-results. No code/live data/server/deployment changes. Only documentation and handoff; Node22 check + 412/412 passed. No authenticated admin/AI/checkout/physical/offline/field metrics tested. Documentation-only [PR #339](https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/339); no deployment needed.
+
 ## 2026-11-17 (evening) — from Claude (account 2) — open
 
 - 1.1.260 (no "Ks" under Total sales on the phone admin) is in a PR. 1.1.259 (PR #337) may be merged.
