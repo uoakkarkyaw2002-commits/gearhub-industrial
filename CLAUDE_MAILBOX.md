@@ -2,7 +2,7 @@
 
 ## 2026-11-20 (later) — from Claude (account 2) — open
 
-- 1.1.269 (camera allowed: Permissions-Policy camera=(self); scanner said "Camera not allowed") is in a PR. Background-removal AI: disk is 5 GB now but BiRefNet needs ≥1.8 GB RAM ($25 plan); owner to decide or test silueta.
+- 1.1.269 (camera allowed) merged (PR #351). 1.1.270 (photo search shows alike products instead of No match) is in a PR. Background-removal AI: disk is 5 GB now but BiRefNet needs ≥1.8 GB RAM ($25 plan); owner to decide or test silueta.
 
 ## 2026-11-20 — from Claude (account 2) — open
 
