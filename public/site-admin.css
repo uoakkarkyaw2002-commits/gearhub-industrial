@@ -565,7 +565,7 @@ section[aria-labelledby="operations-heading"] #backup-run,section[aria-labelledb
   #dashboard .stat h2{white-space:nowrap}
   #dashboard .stat-0 h2{font-size:0;line-height:1}
   #dashboard .stat-0 h2::before{content:attr(data-mobile-value);display:block;font-size:31px;line-height:1;font-weight:850}
-  #dashboard .stat-0 h2::after{content:"Ks";display:block;margin-top:4px;font-size:15px;line-height:1;font-weight:750}
+  #dashboard .stat-0 h2::after{content:none;display:none;margin-top:4px;font-size:15px;line-height:1;font-weight:750}
 }
 @media(max-width:480px){
   #dashboard .stat::after{bottom:-12px;height:37px}
