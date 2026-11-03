@@ -23,7 +23,7 @@ test('1.1.263: Android ≤380px keeps the pills on the right; old saved subtitle
 });
 test('1.1.266: Settings top picture is the green sky with clouds and a lime wave (Settings only)',()=>{
  const css=read('public/settings-design.css');
- assert.match(css,/#profile-view\.settings-new>\.settings-profile-hero\{min-height:124px;[^}]*url\("\/images\/settings-banner\.jpg\?v=1\.1\.268"\) center bottom\/cover no-repeat #13792f!important\}/);
+ assert.match(css,/#profile-view\.settings-new>\.settings-profile-hero\{min-height:124px;[^}]*url\("\/images\/settings-banner\.jpg\?v=1\.1\.268b"\) center bottom\/cover no-repeat #13792f!important\}/);
  assert.ok(require('node:fs').existsSync(require('node:path').join(__dirname,'..','public','images','settings-banner.jpg')));
  for(const u of css.match(/data:image\/svg\+xml,[^"]*/g))assert.doesNotMatch(u,/#/,'# is encoded in data URLs');
 });
