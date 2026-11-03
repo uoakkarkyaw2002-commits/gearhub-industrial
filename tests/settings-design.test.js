@@ -8,3 +8,10 @@ test('1.1.262: Settings in the owner design (separate cards, colour icons, owner
  assert.match(css,/#profile-view\.settings-new>\.settings-card>\.settings-row\{[^}]*border-radius:22px;background:#fff/);
  assert.doesNotMatch(css,/mobile-bottom-nav/,'the bottom navigation is not restyled');
 });
+test('1.1.262: Add to Home Screen also shows inside an installed app and copies the link; top picture unchanged',()=>{
+ const app=read('public/app-install.js'),upd=read('public/updates.js'),css=read('public/settings-design.css');
+ assert.doesNotMatch(app,/if\(action&&standalone\(\)\)action\.hidden=true;/);
+ assert.doesNotMatch(upd,/home-screen-action'\)\?\.setAttribute\('hidden'/);
+ assert.match(app,/if \(standalone\(\)\) \{\n\s+\/\/ Inside an installed app[\s\S]*navigator\.clipboard\.writeText\(link\)/);
+ assert.doesNotMatch(css,/settings-profile-hero::(before|after)/,'navigation background stays as before');
+});
