@@ -15,7 +15,7 @@ test('the scan button runs a live camera scanner and asks the shop server; the b
  assert.doesNotMatch(scan,/first time only|loadGraphModel/,'no on-phone model and no first-time message');
  assert.doesNotMatch(store,/photoScanIds/);
  assert.ok(!fs.existsSync(path.join(root,'public','vendor','tf.min.js')),'the on-phone model is gone');
- assert.match(index,/<script src="\/photo-scan\.js\?v=1\.1\.277"><\/script>/);
+ assert.match(index,/<script src="\/photo-scan\.js\?v=1\.1\.281"><\/script>/);
 });
 
 test('the photo-search API is public per shop, rate limited, takes a picture and stays inside the shop',()=>{
@@ -108,4 +108,33 @@ test('1.1.277: two look-alike parts (within 0.02) are never decided by two lucky
  assert.match(scan,/const close=b&&a\.score-b\.score<CLOSE;\n  if\(a&&!close&&streak\.n>=/);
  assert.match(scan,/if\(frames>=AVERAGE_FRAMES\)\{const avg=\[\.\.\.tally\]\.map\(\(\[id,x\]\)=>\(\{\.\.\.x\.list,id,score:Math\.round\(x\.s\/frames\*1000\)\/1000\}\)\)\.sort/);
  assert.match(scan,/tally=new Map\(\);frames=0;trips=\[\];/,'each scan starts afresh');
+});
+
+test('1.1.281: a scan the shop owner confirmed is learned as an extra photo of that product (newest 6 kept); Similar parts ignore it',async()=>{
+ const os=require('node:os'),Database=require('better-sqlite3'),{createPhotoSearch}=require('../lib/photo-search');
+ const dir=path.join(__dirname,'fixtures','photo-scan','shafts'),shops=fs.readdirSync(dir).filter(f=>f.startsWith('shop-'));
+ const media=fs.mkdtempSync(path.join(os.tmpdir(),'photo-teach-'));fs.mkdirSync(path.join(media,'7'));
+ const db=new Database(':memory:');db.exec("CREATE TABLE platform_shops(id INTEGER,legacy INTEGER);CREATE TABLE platform_products(id INTEGER,shop_id INTEGER,image_id TEXT,details TEXT,active INTEGER);CREATE TABLE platform_files(id TEXT,shop_id INTEGER,kind TEXT,ready INTEGER,filename TEXT);");
+ shops.forEach((f,i)=>{const id='s'+i;fs.copyFileSync(path.join(dir,f),path.join(media,'7',id+'.jpg'));db.prepare('INSERT INTO platform_products VALUES(?,7,?,?,1)').run(i+1,id,JSON.stringify({imageIds:[id]}));db.prepare("INSERT INTO platform_files VALUES(?,7,'image',1,?)").run(id,id+'.jpg')});
+ const ps=createPhotoSearch({db,media}),shop={id:7},j71=shops.findIndex(f=>f.includes('J71-33'))+1,scan=fs.readFileSync(path.join(dir,'scan-J71-33.jpg'));
+ await ps.learnParts(shop);
+ assert.deepEqual(await ps.addExample(shop,999,scan),{ok:false,error:'Product not found.'},'only this shop\'s active products');
+ const before=(await ps.search(shop,scan)).matches.find(m=>Number(m.id)===j71).score;
+ const r=await ps.addExample(shop,j71,scan);assert.equal(r.ok,true);
+ await ps.learnParts(shop);
+ const found=await ps.search(shop,scan);
+ assert.equal(Number(found.matches[0].id),j71);assert.equal(found.matches[0].learned,true,'the reason can say it matches a confirmed scan');
+ assert.ok(found.matches[0].score>before+0.03,'clearly closer than before ('+before+' → '+found.matches[0].score+')');
+ for(let i=0;i<7;i++)await ps.addExample(shop,j71,scan);
+ assert.equal(fs.readdirSync(path.join(media,'7','.scan-examples')).filter(n=>n.startsWith(j71+'-')).length,6,'newest 6 kept');
+ const sim=await ps.similar(shop,j71);assert.ok(!sim.products.some(p=>Number(p.id)===j71));
+ fs.rmSync(media,{recursive:true,force:true});
+});
+
+test('1.1.281: the scanner offers "This is right" only to the shop owner, and reads labels while it looks',()=>{
+ const scan=fs.readFileSync(path.join(__dirname,'../public/photo-scan.js'),'utf8'),platform=fs.readFileSync(path.join(__dirname,'../lib/platform.js'),'utf8');
+ assert.match(scan,/me\.isOwner\|\|Number\(me\.shop\?\.id\)===Number\(store\.id\)/);
+ assert.match(scan,/if\(lastBlob&&list\.length\)isShopOwner\(\)\.then\(ok=>\{if\(ok&&matches===list\)right\.hidden=false\}\)/);
+ assert.match(platform,/if \(s\.owner_id !== u\.id && !model\.isOwner\(db, u, ownerEmail\)\) fail\(403, "Only the shop owner can teach the scanner\."\);/);
+ assert.match(scan,/if\(performance\.now\(\)-lastLabel>=LABEL_EVERY\)\{lastLabel=performance\.now\(\);autoLabel\(region\)\}/);
 });

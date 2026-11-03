@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.281: Scanner learns from the shop owner's confirmations; labels read while scanning (Claude)
+- Owner asked how to make scan AI better and approved "1 + 2" (incl. storing confirmed scans).
+- #1 `lib/photo-search.js`: `addExample(shop, product, image)` saves a 640 px JPEG in `media/<shop>/.scan-examples/<product>-<id>.jpg` (newest 6 per product), and `photos()` adds them as extra photos (`scan:true`) of active products, so both the look and the upright-part modes learn them. They are left out of "photo N of M" (`learned:true` instead) and of Similar parts. No DB schema change. Route `POST /api/platform/store/:slug/scan-example?product=` (raw image, 30/min): shop owner or GearHub owner only (403 otherwise). `public/photo-scan.js`: after a result, the shop owner (me.isOwner or me.shop.id = store id) sees "✓ ဒါမှန်တယ် / This is right" under the strip (pick another with ˄ ˅ first); it sends the answered camera frame; reason text says "matches a scan you confirmed earlier".
+- #2 the live scanner sends a 1280 px frame to the existing `/read-label` (OCR) from 1.5 s and every 3.5 s; a Part No./SKU match stops the scan with that product (label reason).
+- Built-in browser on live POLESTAR via test proxy (mocked owner/answers, gallery picture): button shown for the owner, POST to scan-example?product=277, "✓ Learned"; hidden for a visitor; 375 px: full-width button, no overflow. Tests: addExample learning (J71-33 first, learned, higher score, newest 6, not in Similar), owner-only route, auto-label. Node 22 check + 439/439. Live OCR load during scans not measured (one OCR at a time on the server).
+
 ### 1.1.280: Background removal uses measured memory needs; BiRefNet only on 4 GB plans (Claude)
 - 1.1.279 live, Remove background still failed after ~10 s on the 2 GB plan (pump and a simple sensor photo). Measured one helper run here with bg-worker.js session options: U²-Netp peak 275 MB, silueta 520 MB (0.6 s), BiRefNet 2046 MB (18 s; fixed 1024 px input, smaller sizes rejected). The old guesses (150 MB / 300 MB / 1 GB) let BiRefNet start; it alone fills 2 GB, so Render restarted the server.
 - `lib/bg-remove.js`: needs 300 MB / 550 MB / 2.1 GB; `NEED_MEMORY` 3.5e9, so the 2 GB plan never loads or uses BiRefNet (silueta). The BiRefNet file already downloaded on the live disk (224 MB, `DATA_DIR/models`) is left unused. Local run on a shop photo: silueta, 0.6 s. Node 22 check + 437/437.

@@ -1354,3 +1354,9 @@ body.alerts-history-open{overflow:hidden}
 .alerts-count[hidden]{display:none}
 .alerts-history-item.is-new{background:#ecf8f2;border-radius:14px}
 :root[data-theme="dark"] .alerts-history-item.is-new{background:#1f3a2b}
+/* 1.1.281 owner: shop owners teach the scanner from the result strip. */
+.photo-scan-panel{flex-wrap:wrap}
+.photo-scan-right{flex:0 0 100%;min-height:42px;border:1px solid #bfe2cb;border-radius:12px;background:#eaf7ef;color:#106b34;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.photo-scan-right[hidden]{display:none}
+.photo-scan-right:disabled{opacity:.75;cursor:default}
+:root[data-theme="dark"] .photo-scan-right{background:#1d3325;border-color:#2f5a3e;color:#9fe0b4}
