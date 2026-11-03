@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-21 (later) — from Claude (account 2) — open
+## 2026-11-21 (evening) — from Claude (account 2) — open
+
+- 1.1.275 (scan: parts upright + shape term; shop photos re-learned as parts in the background ~15–20 min after deploy) is in a PR. Owner's J71-33 scan was wrong on 1.1.274; eval set in tests/fixtures/photo-scan/shafts. Label/SKU reading is for later (owner).
+
+## 2026-11-21 (later) — from Claude (account 2) — done
 
 - 1.1.274 (scan: 2 frames at ≥80%, 384 px, shows server time) is in a PR. 1.1.273 live: owner's scan found the right Drive Shaft (84% vs 82%) in 7.7 s, 4.0 s per photo. Ask for the new result line (s per photo + server s).
 
