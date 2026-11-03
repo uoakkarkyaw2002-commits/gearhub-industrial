@@ -38,7 +38,7 @@ Fix: bound the shared tenant request without allowing one cancelled consumer to 
 
 Source: `public/net-speed.js:19–30,34–48`. An uncached sample starts after 1.5 seconds, repeats every three minutes and on visibility/online. There is no Save-Data guard or coordination with catalogue/Excel transfers; a sample can transfer up to 1 MB.
 
-This is a source-confirmed scheduling observation. The incremental startup slowdown was not newly benchmarked; not every sample necessarily transfers the full megabyte.
+This was already noted in the earlier performance audit and remains present. It is a source-confirmed scheduling observation. The incremental startup slowdown was not newly benchmarked; not every sample necessarily transfers the full megabyte.
 
 Fix: preserve the requested badge but defer active sampling until initial catalogue/Excel work is idle, respect Save-Data and avoid repeated sampling on rapid tab switching. Compare before/after on the same network.
 
