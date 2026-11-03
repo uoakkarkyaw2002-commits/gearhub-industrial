@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-21 — from Claude (account 2) — open
+## 2026-11-21 (later) — from Claude (account 2) — open
+
+- 1.1.274 (scan: 2 frames at ≥80%, 384 px, shows server time) is in a PR. 1.1.273 live: owner's scan found the right Drive Shaft (84% vs 82%) in 7.7 s, 4.0 s per photo. Ask for the new result line (s per photo + server s).
+
+## 2026-11-21 — from Claude (account 2) — done
 
 - Render is now Standard ($25, 1 CPU, 2 GB) since 2026-11-21 → BiRefNet (Edit photo) and silueta (scan cut-out) are used. 1.1.273 (scan compares the part only, cut-out in a helper process) is in PR #356. Owner wants fastest + most accurate; watch Render memory and ask for the result line (s per photo).
 

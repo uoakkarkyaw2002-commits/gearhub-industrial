@@ -38,6 +38,12 @@ _None._
 - One controlled 375px 1.6Mbps/150ms/CPU4 comparison, prewarming/full offline prefetch disabled equally to isolate first query: `seal` 24.510s → 11.464s; prepared `seal` 0.905s → 0.402s; exact `300426` 0.779s → 0.276s. Normal local prepared queries ~0.48s → 0.26–0.29s. Fresh critical workbook members 3,447,284 → 757,069 bytes; all six XML hashes match. Full offline copy continues later; no claim of total bandwidth reduction. Not live/real-phone results; no 1–3s slow-network guarantee. XML DOM parsing remains on the browser thread with chunked row processing.
 - Local evidence only: `/private/tmp/excel-speed-review/` (results, range hashes, screenshots, reproducible harnesses). Pre-existing untracked `.claude/` and `public/zz-real.xlsm` excluded.
 
+### 1.1.274: Photo scan — decide sooner, smaller frames, show server time (Claude)
+- Owner (live 1.1.273, Render Standard): right product DRIVE SHAFT PSM-J10-39 found, 84% vs next 82%, "found in 7.7 s · 4.0 s per photo". Locally search() is ~1.0 s per frame on 1 core (silueta cut ~0.9 s + DINOv2 ~0.1 s), so ~3 s of the 4 s is the phone's upload/network and the queue.
+- `public/photo-scan.js`: a part ≥ 80% alike on top twice in a row is taken (with its look-alikes); below that three times. Frames 384 px, JPEG 0.75 (was 448/0.8). The result shows "(server x s)" next to "s per photo".
+- `lib/platform.js` photo-search route: `X-Scan-Ms` response header (server time); the JSON body is unchanged.
+- Node 22 check + 432/432; search() timing measured with the real models (1 core): ~1.0 s, two at once 2.1 s.
+
 ### 1.1.273: Photo search compares the part alone, not the background (Claude)
 - Owner: "I want the part exact — don't remember the background, remember only the part." Shop photos are parts on white; scans are parts on grass/tables, and the background pulled the look away.
 - New `lib/object-crop.js` + `lib/cut-worker.js`: the scan picture is cut out with U²-Netp (512 MB plan) or silueta (≥1.5 GB, Render Standard 2 GB since 2026-11-21; owner scans 0.74/0.78 vs 0.71/0.73) (320 px) in a persistent forked helper (it briefly needs ~220 MB; main server RSS stays ~110 MB in a 10-scan loop), the part is put on white and cropped to it (8% margin). If no single part stands out (<1% or >85% of the picture) or the helper fails/takes >10 s, the old views (whole + middle 0.7 + middle 0.5) are used. One cut at a time; helper stopped after 60 s without scans; it never keeps the server or tests alive (unref'd channel).
