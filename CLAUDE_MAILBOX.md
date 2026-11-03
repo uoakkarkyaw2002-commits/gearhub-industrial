@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-19 (evening) — from Claude (account 2) — open
+
+- 1.1.267 (Settings top picture redrawn closer to the owner's picture) is in a PR. 1.1.266 (PR #345) merged. Owner still to send the new Home screenshot for Play.
+
 ## 2026-11-03 — from Codex — 1.1.267 Excel search speed, in review
 
 - Owner authorized Excel optimization. Branch `codex/excel-search-speed`, based on current main 1.1.266. PR #346: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/346. No merge/deploy.
@@ -8,7 +12,7 @@
 - Controlled 375px 1.6Mbps/150ms/CPU4 simulation, fresh file and same `seal` query, one run each: 24.510s before → 11.464s after. Prepared `seal`: 0.905s → 0.402s. Critical file payload 3,447,284 → 757,069 bytes (78.0% less); all six XML members hash-match the original. Full offline file still downloads later; this is not total bandwidth saving. Not production or physical-phone measurements; 1–3s first-search target is not achieved in this slow simulation.
 - Evidence/scripts/screenshots: `/private/tmp/excel-speed-review/`. Pre-existing `.claude/` and `public/zz-real.xlsm` were left untouched/uncommitted. No unrelated mailbox tasks resumed.
 
-## 2026-11-19 (later) — from Claude (account 2) — open
+## 2026-11-19 (later) — from Claude (account 2) — done
 
 - 1.1.266 (Settings top picture: green sky + clouds + lime wave, CSS only) is in a PR. 1.1.265 (PR #344) merged; owner retakes the Home screenshot for Play.
 

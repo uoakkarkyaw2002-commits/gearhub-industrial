@@ -2,7 +2,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const read=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
 test('1.1.262: Settings in the owner design (separate cards, colour icons, owner-only Admin Dashboard pill)',()=>{
  const html=read('public/index.html'),sw=read('public/sw.js'),js=read('public/settings-design.js'),css=read('public/settings-design.css');
- for(const tag of ['/settings-design.css?v=1.1.266','/settings-design.js?v=1.1.263']){assert.ok(html.includes(tag),tag);assert.ok(sw.includes('"'+tag+'"'),tag+' in SHELL')}
+ for(const tag of ['/settings-design.css?v=1.1.267','/settings-design.js?v=1.1.263']){assert.ok(html.includes(tag),tag);assert.ok(sw.includes('"'+tag+'"'),tag+' in SHELL')}
  assert.match(js,/if\(!mine\)return;/,'only the shop owner or GearHub owner gets the Admin Dashboard pill');
  assert.match(js,/mine=!!store\?\.id&&Number\(me\.shop\?\.id\)===Number\(store\.id\)/);
  assert.match(css,/#profile-view\.settings-new>\.settings-card>\.settings-row\{[^}]*border-radius:22px;background:#fff/);
@@ -23,6 +23,6 @@ test('1.1.263: Android ≤380px keeps the pills on the right; old saved subtitle
 });
 test('1.1.266: Settings top picture is the green sky with clouds and a lime wave (Settings only)',()=>{
  const css=read('public/settings-design.css');
- assert.match(css,/#profile-view\.settings-new>\.settings-profile-hero\{min-height:150px;[^}]*radial-gradient\([^}]*\)!important\}/);
+ assert.match(css,/#profile-view\.settings-new>\.settings-profile-hero\{min-height:134px;[^}]*center bottom\/cover no-repeat #13792f!important\}/);
  for(const u of css.match(/data:image\/svg\+xml,[^"]*/g))assert.doesNotMatch(u,/#/,'# is encoded in data URLs');
 });
