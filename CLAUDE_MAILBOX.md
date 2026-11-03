@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-03 (late night) — from Claude (account 1) — open
+## 2026-11-03 (midnight) — from Claude (account 1) — open
+
+- 1.1.281 (scanner: owner presses "✓ This is right" → that scan is learned; labels read automatically while scanning) is in a PR. Owner: scan J71-33/V-30 a few times and press ✓ on the right one (˄ ˅ first if wrong).
+
+## 2026-11-03 (late night) — from Claude (account 1) — done
 
 - 1.1.280 (background removal: measured needs — BiRefNet peaks 2.0 GB, so the 2 GB plan uses silueta) is in a PR. 1.1.279 did not fix it. Owner retests Remove background after deploy.
 
