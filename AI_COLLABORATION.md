@@ -41,7 +41,7 @@ _None._
 ### 1.1.267: Settings top picture closer to the owner's picture (Claude)
 - Owner: 1.1.266 "not the same". Now one drawn SVG picture (green sky with a light glow at the top right, fluffy clouds at the right / centre / left, a lime band rising to the right, then the page colour; a dark-mode variant). It is used as `center bottom/cover` on the Settings hero; the hero is 134px tall. The Admin Dashboard pill is smaller, with a dark green fill and a lime border.
 - Not possible here: the owner's picture shows green behind the phone status bar (the app keeps its normal top bar).
-- Checked: hero element screenshots at 390/360 (owner and visitor), no errors. Node 22 check + 419/419.
+- Checked: hero element screenshots at 390/360 (owner and visitor), no errors. Node 22 check + 427/427.
 
 ### 1.1.266: Settings top picture = green sky, clouds, lime wave (Claude)
 - Owner sent a picture: the Settings navigation background should look like it; "do nothing else".
