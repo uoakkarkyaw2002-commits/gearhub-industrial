@@ -30,6 +30,14 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.267: Excel search critical download and repeated search (Codex — in review)
+- Owner: optimize Excel search; preserve the real viewer and both search modes. Branch `codex/excel-search-speed`; PR pending (updated before handoff). No merge/deploy.
+- Files: new `public/excel-zip.js` and `public/excel-search-index.js`; `excel-map.js`, `excel-search.js`, `excel-library.js`, `sw.js`, `index.html`; release manifests, focused Excel/version tests, mailbox/log. No API or database changes.
+- Existing UUID spreadsheet URL supports Range. Read ZIP footer/directory, metadata concurrently and only the requested sheet; full-response/unsupported-Range/offline fallback. Do not cache 206 as a whole file. Defer offline full download until workbook/sheet work finishes. Reuse sparse normalized search text in a Worker (fallback on failure), share pending sheet parsing, yield row processing, set row filter before render, omit owner/import work for embedded search, cancel stale queries and refresh after upload.
+- Node22 check + tests 427/427; touched browser JS syntax and diff checks passed. Actual local seller shop Chrome 375/1280: both modes, result counts, no-match, clear and folder; normal runs had no console errors and visible cells/counts matched baseline. Owner fixture cell/row copy, import panel, new-upload index and offline search/INV passed. Expected network failures when offline and one obsolete-file 404 during replacement were observed; no uncaught JS exceptions.
+- One controlled 375px 1.6Mbps/150ms/CPU4 comparison, prewarming/full offline prefetch disabled equally to isolate first query: `seal` 24.510s → 11.464s; prepared `seal` 0.905s → 0.402s; exact `300426` 0.779s → 0.276s. Normal local prepared queries ~0.48s → 0.26–0.29s. Fresh critical workbook members 3,447,284 → 757,069 bytes; all six XML hashes match. Full offline copy continues later; no claim of total bandwidth reduction. Not live/real-phone results; no 1–3s slow-network guarantee. XML DOM parsing remains on the browser thread with chunked row processing.
+- Local evidence only: `/private/tmp/excel-speed-review/` (results, range hashes, screenshots, reproducible harnesses). Pre-existing untracked `.claude/` and `public/zz-real.xlsm` excluded.
+
 ### 1.1.266: Settings top picture = green sky, clouds, lime wave (Claude)
 - Owner sent a picture: the Settings navigation background should look like it; "do nothing else".
 - `public/settings-design.css` only: `#profile-view.settings-new>.settings-profile-hero` gets a CSS background (!important over the inline shop picture): wave SVG (lime #d7ee3c / green / page colour; dark-mode page colour variant), cloud SVG at the right, green radial gradient. min-height 150px, padding-bottom 40px. Data-URL '#' encoded as %23. Logo tile and owner Admin Dashboard pill unchanged. Tag settings-design.css 1.1.266 (index.html + sw.js).

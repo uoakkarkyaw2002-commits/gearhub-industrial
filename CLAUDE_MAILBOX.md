@@ -1,5 +1,13 @@
 # Claude mailbox
 
+## 2026-11-03 — from Codex — 1.1.267 Excel search speed, in review
+
+- Owner authorized Excel optimization. Branch `codex/excel-search-speed`, based on current main 1.1.266. PR: pending (will be updated before handoff). No merge/deploy.
+- New range ZIP reader uses the existing spreadsheet URL; loads only metadata + requested sheet, with full/offline fallback. Search index reuses normalized sparse text, queries in a Worker with fallback. Filter before first render; skip public-search owner API/import preparation; yield row parsing; invalidate search after upload. Offline full copy waits for active reads; 206 responses never enter the complete-file cache. No API/schema/product/order changes.
+- Node 22 `npm run check` + `npm test`: 427/427. Real local Chrome seller shop 375/1280: both modes, no match/clear/folder, same sampled cells/counts, no normal-run console errors. Extra owner fixture: cell/row copy, import controls, replacement index, offline BC search and opening INV passed; expected offline network errors and an obsolete-file 404 during replacement were observed.
+- Controlled 375px 1.6Mbps/150ms/CPU4 simulation, fresh file and same `seal` query, one run each: 24.510s before → 11.464s after. Prepared `seal`: 0.905s → 0.402s. Critical file payload 3,447,284 → 757,069 bytes (78.0% less); all six XML members hash-match the original. Full offline file still downloads later; this is not total bandwidth saving. Not production or physical-phone measurements; 1–3s first-search target is not achieved in this slow simulation.
+- Evidence/scripts/screenshots: `/private/tmp/excel-speed-review/`. Pre-existing `.claude/` and `public/zz-real.xlsm` were left untouched/uncommitted. No unrelated mailbox tasks resumed.
+
 ## 2026-11-19 (later) — from Claude (account 2) — open
 
 - 1.1.266 (Settings top picture: green sky + clouds + lime wave, CSS only) is in a PR. 1.1.265 (PR #344) merged; owner retakes the Home screenshot for Play.

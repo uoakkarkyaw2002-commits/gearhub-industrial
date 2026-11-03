@@ -37,9 +37,9 @@ test('1.1.223: the bin eats the typed letters like the owner\'s video, then clea
 });
 test('1.1.224: the Excel view is the real viewer (original sizes, select, copy) driven by the search bar',()=>{
  const js=read('excel-search.js'),map=read('excel-map.js'),html=read('index.html');
- assert.match(map,/async embed\(host,url,name,sheetName\)\{/);
+ assert.match(map,/async embed\(host,url,name,sheetName,filter\)\{/);
  assert.match(map,/function loadBook\(url\)\{if\(!books\.has\(url\)\)/,'each workbook is read once per page');
- assert.match(js,/if\(!await viewer\.embed\(host,file\.url,file\.name,sheet\.name\)\|\|mine!==turn\)return;/);
+ assert.match(js,/if\(!await viewer\.embed\(host,file\.url,file\.name,sheet\.name,null\)\|\|mine!==turn\)return;/);
  assert.match(js,/requestIdleCallback/,'the workbook is read before the first search');
  assert.match(html,/<input id="search" enterkeyhint="search"/);
 });
@@ -47,8 +47,8 @@ test('1.1.225: "ရှာတာပဲ" is the same viewer with only the header a
  const js=read('excel-search.js'),map=read('excel-map.js');
  assert.match(map,/rows\(set\)\{rowFilter=set\|\|null;/);
  assert.match(map,/&&\(!rowFilter\|\|rowFilter\.has\(r\)\)\)/);
- assert.match(js,/viewer\.rows\(new Set\(\[head,\.\.\.hits\]\)\);viewer\.search\(q\);/);
- assert.match(js,/viewer\.rows\(null\);countSheet/);
+ assert.match(js,/viewer\.embed\(host,file\.url,file\.name,sheet\.name,new Set\(\[head,\.\.\.hits\]\)\)/);
+ assert.match(js,/countSheet\(viewer\.search\(q\)\)/);
  assert.doesNotMatch(js,/GearHubExcelViewer\?\.open\(/);
  assert.match(js,/const SHEET='BC',LIMIT=200;/);
 });

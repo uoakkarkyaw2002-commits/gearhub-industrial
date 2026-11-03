@@ -97,7 +97,7 @@ test('one current Excel file is shown, replacement stays scoped, and the sheet c
  assert.match(platform,/DELETE FROM platform_files WHERE id=\? AND shop_id=\? AND kind='spreadsheet'/);
  assert.match(platform,/kind='spreadsheet' AND ready=1 ORDER BY rowid DESC LIMIT 1/);
  assert.match(map,/id="excel-sheet-search" type="search"/);
- assert.match(map,/const visibleRows=Array\.from\(\{length:rows\},\(_,r\)=>r\)\.filter/);
+ assert.match(map,/const visibleRows=\(rowFilter\?\[\.\.\.rowFilter\]\.sort\(\(a,b\)=>a-b\):Array\.from\(\{length:rows\},\(_,r\)=>r\)\)\.filter/);
  assert.match(map,/search\.addEventListener\('input'/);
 });
 
