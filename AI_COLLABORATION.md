@@ -31,7 +31,7 @@ _None._
 ## Handoff entries (newest first)
 
 ### 1.1.267: Excel search critical download and repeated search (Codex — in review)
-- Owner: optimize Excel search; preserve the real viewer and both search modes. Branch `codex/excel-search-speed`; PR pending (updated before handoff). No merge/deploy.
+- Owner: optimize Excel search; preserve the real viewer and both search modes. Branch `codex/excel-search-speed`; PR #346: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/346. No merge/deploy.
 - Files: new `public/excel-zip.js` and `public/excel-search-index.js`; `excel-map.js`, `excel-search.js`, `excel-library.js`, `sw.js`, `index.html`; release manifests, focused Excel/version tests, mailbox/log. No API or database changes.
 - Existing UUID spreadsheet URL supports Range. Read ZIP footer/directory, metadata concurrently and only the requested sheet; full-response/unsupported-Range/offline fallback. Do not cache 206 as a whole file. Defer offline full download until workbook/sheet work finishes. Reuse sparse normalized search text in a Worker (fallback on failure), share pending sheet parsing, yield row processing, set row filter before render, omit owner/import work for embedded search, cancel stale queries and refresh after upload.
 - Node22 check + tests 427/427; touched browser JS syntax and diff checks passed. Actual local seller shop Chrome 375/1280: both modes, result counts, no-match, clear and folder; normal runs had no console errors and visible cells/counts matched baseline. Owner fixture cell/row copy, import panel, new-upload index and offline search/INV passed. Expected network failures when offline and one obsolete-file 404 during replacement were observed; no uncaught JS exceptions.
