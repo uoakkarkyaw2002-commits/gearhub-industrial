@@ -84,7 +84,6 @@
     const headerUpdate=document.querySelector?.('header #app-update-action');if(headerUpdate){headerUpdate.hidden=!available;headerUpdate.textContent='Update available · '+release.version;}
     const centre=document.getElementById('app-update-notification');if(centre&&!available)centre.hidden=true;
     const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent||'');
-    if(isIOS&&navigator.standalone===true){document.getElementById('home-screen-action')?.setAttribute('hidden','');}
   }
   // New versions install by themselves (no pop-up): once per version per visit,
   // only while the page is in front and nothing is being typed, uploaded or paid.

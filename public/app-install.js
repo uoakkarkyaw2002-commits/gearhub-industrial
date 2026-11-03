@@ -16,8 +16,7 @@
   const standalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   function refresh() {
-    if(action&&standalone())action.hidden=true;
-    // Installed apps update by themselves, so this row only offers installing.
+    // 1.1.262 owner: the row shows inside an installed app too (copies the link and shows the steps).
     if (title) title.textContent = 'Add to Home Screen';
     if (help) help.textContent = appName+' ကို ဖုန်း app အဖြစ် တင်ရန်';
   }
@@ -40,29 +39,10 @@
   window.addEventListener('appinstalled', () => { installPrompt = null; if(button) button.hidden = true; message(appName+' app တင်ပြီးပါပြီ။ Home Screen မှာ ဖွင့်နိုင်ပါပြီ။'); refresh(); });
   async function activate() {
     if (standalone()) {
-      if(window.GearHubUpdates){const applied=await window.GearHubUpdates.apply();if(!applied)message("လက်ရှိလုပ်ဆောင်မှု/ရွေးထားသောဖိုင်ကို အရင်ပြီးစီးပါ။ Browser storage နှင့် internet ကိုလည်း စစ်ပေးပါ။");return;}
-      if (!navigator.onLine) { message('Update စစ်ဖို့ internet ချိတ်ပေးပါ။'); return; }
-      if(action) action.disabled = true;
-      message('App update ကို စစ်နေပါတယ်…');
-      try {
-        const registration = await (registrationPromise || (registrationPromise = register()));
-        if (!registration) throw new Error('unavailable');
-        await registration.update();
-        const worker = registration.installing || registration.waiting;
-        if (worker && worker.state !== 'activated') {
-          await new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => reject(new Error('timeout')), 30000);
-            worker.addEventListener('statechange', () => {
-              if(worker.state === 'activated') {clearTimeout(timeout); resolve();}
-              if(worker.state === 'redundant') {clearTimeout(timeout); reject(new Error('failed'));}
-            });
-          });
-        }
-        // Refresh HTML and settings even when no new service worker is needed.
-        localStorage.setItem("gh-lang","en");
-        window.location.reload();
-      } catch (_) { message('Update မလုပ်နိုင်သေးပါ။ Internet ချိတ်ထားပြီး ပြန်နိပ်ပေးပါ။'); }
-      finally { if(action) action.disabled = false; }
+      // Inside an installed app the browser menu is not there: copy this store's link and say where to paste it.
+      const link=location.origin+((location.pathname.match(/^\/shops\/[^/]+\//)||['/index.html'])[0]);
+      try{await navigator.clipboard.writeText(link)}catch(_){}
+      message('Link ကို copy ကူးပြီးပါပြီ။ '+(isIOS?'Safari':'Chrome')+' ကို ဖွင့်ပြီး လိပ်စာဘားမှာ paste လုပ်ပါ → '+(isIOS?'Share ⬆︎ → Add to Home Screen → Add':'⋮ → Add to Home screen / Install app')+' ကို နှိပ်ပါ။ / Link copied: open '+(isIOS?'Safari':'Chrome')+', paste it, then Add to Home Screen.');
       return;
     }
     if (installPrompt) {
