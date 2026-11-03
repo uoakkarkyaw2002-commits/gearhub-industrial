@@ -6,7 +6,7 @@
 
 **အချိန်အားလုံး စက္ကန့်ဖြစ်သည်။** ဆိုင် data ပေါ်ပြီး Loading cover ပျောက်သည့်အချိန်ကို “သုံးလို့ရချိန်” အဖြစ်တိုင်းသည်။ HTTP load event/LCP နှင့် မတူပါ။
 
-| ဆိုင် | Phone ပထမဖွင့် (median / range) | Phone ပြန်ဖွင့် (median / range) | PC ပထမဖွင့် | PC ပြန်ဖွင့် |
+| ဆိုင် | Phone ပထမဖွင့် (median / range) | Phone Refresh (median / range) | PC ပထမဖွင့် | PC Refresh |
 |---|---:|---:|---:|---:|
 | GearHub | 19.2 (8.9–26.5) | 4.3 (4.3–4.6) | 17.9 | 7.2 |
 | POLESTAR | 18.1 (12.2–48.3) | 6.5 (6.4–9.8) | 13.9 | 6.6 |
@@ -56,7 +56,7 @@ API တစ်ခုလျှင် သုံးကြိမ်၊ curl connectio
 | လုပ်ဆောင်ချက် | အလုပ်ပြင်ပြီး စမ်းရန် ရည်မှန်းချက် |
 |---|---:|
 | ပထမဆုံး ဆိုင်ဖွင့် (opening picture ကို ထားလျက်၊ တည်ငြိမ်သောလိုင်း) | 4–7 s |
-| ပြန်ဖွင့် / reload | 1.5–3 s |
+| သာမန် Refresh / reload | 1.5–3 s |
 | Search index ပြင်ပြီး Excel ပထမရှာ | 1–3 s |
 | အဆင်သင့် Excel index ထဲ နောက်တစ်ကြိမ်ရှာ | 0.3–0.8 s |
 
@@ -74,7 +74,7 @@ WebP quality 80၊ hero/nav width 960px၊ avatar logo 128px ဖြင့်သ�
 
 ## ၇။ စမ်းသပ်မှု၏ အကန့်အသတ်နှင့် မှတ်တမ်း
 
-- စုစုပေါင်း navigation samples **38** (ပထမ draft harness runs မပါ); Excel query samples 6။ Service worker ပိတ်မထားပါ။ Cold = အသစ်သော browser context၊ warm = အဲဒီ context ထဲ ပုံမှန် reload။ Warm ကို ပထမဖွင့်ပြီးမကြာမီတိုင်းထား၍ background pre-cache အားလုံး မပြီးနိုင်သေးပါ။
+- စုစုပေါင်း navigation samples **38** (ပထမ draft harness runs မပါ); Excel query samples 6။ Service worker ပိတ်မထားပါ။ Cold = အသစ်သော browser context၊ warm = အဲဒီ context ထဲ ပုံမှန် reload။ Warm ကို ပထမဖွင့်ပြီးမကြာမီတိုင်းထား၍ background pre-cache အားလုံး မပြီးနိုင်သေးပါ။ ပိတ်ထားပြီးနောက် PWA ပြန်ဖွင့်ခြင်းနှင့် မတူပါ။ Version အသစ်တင်သော Updating flower animation သည် အနည်းဆုံး ~4.9 s cycle ကို ပြီးစေသည့် သီးခြားလမ်းကြောင်းဖြစ်ပြီး ဤသာမန် Refresh target မပါဝင်ပါ။
 - Simulated 4G = 1.6 Mbps down / 0.75 Mbps up၊ added latency 150 ms၊ CPU 4× slower။ Real network ကွာဟမှု ထပ်ပါနေ၍ simulation ရလဒ်ကို normal run နှင့် controlled A/B comparison အဖြစ် မယူရပါ။
 - Session ကို ဆိုင်ရွေး/စာရိုက်ရန်သာ သုံးပြီး account login၊ credentials/cookies၊ product/order mutations မသုံးပါ။
 - Admin အတွင်း authenticated လုပ်ဆောင်ချက်၊ checkout/payment submit၊ AI photo removal၊ actual installed-app startup၊ real phones၊ true field INP၊ field p75 နှင့် server CPU/memory ကို မတိုင်းထားပါ။
