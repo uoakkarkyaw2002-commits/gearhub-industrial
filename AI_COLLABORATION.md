@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.276: Photo search — shape tolerance and best-2-photos score (Claude)
+- Owner: after 1.1.275 went live, the J71-33 scan still came out 2nd (live 10:13–10:30 UTC: PSM-V-30 0.823, PSM-J71-33 0.821; J10-39 scans right). Cause: 1.1.275 was measured with one shop photo per product; live POLESTAR has 59 photos for its 8 shafts. The scan's shape (long÷short 7.35) is within ~5% of both J71-33 (6.9–7.1) and V-30 (7.2), yet any difference cost points.
+- `lib/photo-search.js` (parts mode only): shape differences up to 8% (`SHAPE_FREE`) cost nothing, larger ones cost `SHAPE_WEIGHT=1` × the rest; a product scores the mean of its best 2 photos (`BEST_PHOTOS`). Stored part vectors unchanged, so no relearning after deploy.
+- Eval on all 59 live shaft photos (scratchpad eval of 40 variants): 3/3 right (J71-33 +0.005 over V-30, J10-39 +0.067/+0.072); 1.1.275 settings 2/3. End-to-end with createPhotoSearch on the same photos: 3/3. Node 22 check + 433/433.
+
 ### 1.1.267: Excel search critical download and repeated search (Codex — in review)
 - Owner: optimize Excel search; preserve the real viewer and both search modes. Branch `codex/excel-search-speed`; PR #346: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/346. No merge/deploy.
 - Files: new `public/excel-zip.js` and `public/excel-search-index.js`; `excel-map.js`, `excel-search.js`, `excel-library.js`, `sw.js`, `index.html`; release manifests, focused Excel/version tests, mailbox/log. No API or database changes.

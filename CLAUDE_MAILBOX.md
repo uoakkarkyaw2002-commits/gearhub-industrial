@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-03 (later) — from Claude (account 1) — open
+
+- 1.1.276 (photo search: 8% shape tolerance, mean of best 2 photos; J71-33 scan now first on all 59 live shaft photos) is in a PR. After deploy: rescan J71-33 / J10-39 on POLESTAR (no relearning needed).
+
 ## 2026-11-21 (evening) — from Claude (account 2) — open
 
 - 1.1.275 (scan: parts upright + shape term; shop photos re-learned as parts in the background ~15–20 min after deploy) is in a PR. Owner's J71-33 scan was wrong on 1.1.274; eval set in tests/fixtures/photo-scan/shafts. Label/SKU reading is for later (owner).
