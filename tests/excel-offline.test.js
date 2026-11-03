@@ -10,7 +10,15 @@ function worker(fetchImpl){
  const get=async url=>{let p;handlers.fetch({request:{method:'GET',mode:'cors',url:'https://shop.test'+url},respondWith:x=>p=x});return p&&await p};
  return{get,stores};
 }
-const ok=body=>({ok:true,body,clone(){return ok(body)}});
+const ok=(body,status=200)=>({ok:true,status,body,clone(){return ok(body,status)}});
+
+test('a partial Excel range is never saved as the complete offline workbook',async()=>{
+ let partial=true;const w=worker(async()=>partial?ok('part',206):ok('whole'));
+ assert.equal((await w.get('/api/platform/spreadsheets/range')).body,'part');
+ partial=false;
+ assert.equal((await w.get('/api/platform/spreadsheets/range')).body,'whole');
+ assert.equal((await w.get('/api/platform/spreadsheets/range')).body,'whole');
+});
 
 test('an Excel file is kept on the phone and opens from it offline',async()=>{
  let online=true,downloads=0;const w=worker(async()=>{if(!online)throw TypeError('offline');downloads++;return ok('xlsx')});

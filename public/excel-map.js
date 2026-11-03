@@ -82,12 +82,14 @@
 
  // ---- Workbook ----
  async function readBook(buffer){
-  const read=unzip(buffer),wb=xml(await read('xl/workbook.xml')),rels=xml(await read('xl/_rels/workbook.xml.rels'));
+  const read=typeof buffer==='function'?buffer:unzip(buffer);
+  const [wbText,relsText,themeText,sharedText,styleText]=await Promise.all(['xl/workbook.xml','xl/_rels/workbook.xml.rels','xl/theme/theme1.xml','xl/sharedStrings.xml','xl/styles.xml'].map((name,i)=>i<2?read(name):read(name).catch(()=>null)));
+  const wb=xml(wbText),rels=xml(relsText);
   const target={};all(rels,'Relationship').forEach(r=>{let t=r.getAttribute('Target')||'';t=t.startsWith('/')?t.slice(1):'xl/'+t.replace(/^\.\//,'');target[r.getAttribute('Id')]=t});
-  const themeHex=[];const scheme=one(xml(await read('xl/theme/theme1.xml').catch(()=>null)),'clrScheme');
+  const themeHex=[];const scheme=one(xml(themeText),'clrScheme');
   if(scheme){const named={};[...scheme.children].forEach(c=>{const s=one(c,'srgbClr'),y=one(c,'sysClr');named[c.localName]=s?s.getAttribute('val'):y?y.getAttribute('lastClr'):''});['lt1','dk1','lt2','dk2','accent1','accent2','accent3','accent4','accent5','accent6','hlink','folHlink'].forEach(k=>themeHex.push(named[k]||''))}
-  const shared=all(xml(await read('xl/sharedStrings.xml').catch(()=>null)),'si').map(si=>all(si,'t').filter(t=>t.parentNode.localName!=='rPh').map(t=>t.textContent).join(''));
-  const st=xml(await read('xl/styles.xml').catch(()=>null)),fmts={...BUILTIN};
+  const shared=all(xml(sharedText),'si').map(si=>all(si,'t').filter(t=>t.parentNode.localName!=='rPh').map(t=>t.textContent).join(''));
+  const st=xml(styleText),fmts={...BUILTIN};
   all(st,'numFmt').forEach(f=>fmts[f.getAttribute('numFmtId')]=f.getAttribute('formatCode'));
   const fonts=kids(one(st,'fonts'),'font').map(f=>({b:!!one(f,'b')&&one(f,'b').getAttribute('val')!=='0',i:!!one(f,'i')&&one(f,'i').getAttribute('val')!=='0',u:!!one(f,'u'),sz:+(one(f,'sz')?.getAttribute('val')||11),color:color(one(f,'color'),themeHex),name:one(f,'name')?.getAttribute('val')||''}));
   const fills=kids(one(st,'fills'),'fill').map(f=>{const p=one(f,'patternFill');return p&&p.getAttribute('patternType')&&p.getAttribute('patternType')!=='none'?color(one(p,'fgColor'),themeHex)||color(one(p,'bgColor'),themeHex):''});
@@ -107,13 +109,20 @@
  }
  const colIndex=ref=>{let n=0;for(const ch of ref.replace(/[0-9]/g,''))n=n*26+ch.charCodeAt(0)-64;return n-1};
  const colName=i=>{let s='';i++;while(i>0){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26)}return s};
- async function readSheet(sheet,from=book){
+ const sheetLoads=new WeakMap(),sheetJobs=new Set();
+ function readSheet(sheet,from=book){
+  if(!sheetLoads.has(sheet)){const job=parseSheet(sheet,from).catch(error=>{sheetLoads.delete(sheet);throw error});sheetLoads.set(sheet,job);sheetJobs.add(job);job.then(()=>sheetJobs.delete(job),()=>sheetJobs.delete(job))}
+  return sheetLoads.get(sheet);
+ }
+ async function parseSheet(sheet,from){
   if(sheet.cells)return sheet;
   const doc=xml(await from.read(sheet.path)),cells=new Map();let maxR=0,maxC=0;
   const fmt=one(doc,'sheetFormatPr'),defW=+(fmt?.getAttribute('defaultColWidth')||((+(fmt?.getAttribute('baseColWidth')||8))+0.71)),defH=+(fmt?.getAttribute('defaultRowHeight')||15);
   const widths={};all(doc,'col').forEach(c=>{for(let i=+c.getAttribute('min');i<=+c.getAttribute('max')&&i<=Math.min(MAX_COLS,+c.getAttribute('min')+1000);i++)widths[i-1]=c.getAttribute('hidden')==='1'?0:+c.getAttribute('width')});
   const heights={};
+  let parsedRows=0;
   for(const row of all(doc,'row')){
+   if(++parsedRows%250===0)await new Promise(resolve=>setTimeout(resolve,0));
    const r=+row.getAttribute('r')-1;if(r>=MAX_ROWS){sheet.truncated=true;break}
    if(row.getAttribute('hidden')==='1')heights[r]=0;else if(row.getAttribute('ht'))heights[r]=+row.getAttribute('ht');
    for(const c of kids(row,'c')){
@@ -308,7 +317,7 @@
   const cols=sheet.maxC+1,rows=sheet.maxR+1,px=w=>Math.round(((w??sheet.defW)*7+5)*zoom);
   const frozen=sheet.frozen||{r0:0,r1:0,c0:0,c1:0};
   // 1.1.225: the search's "ရှာတာပဲ" view shows only the header and the matching rows (rowFilter).
-  const visibleRows=Array.from({length:rows},(_,r)=>r).filter(r=>r>=frozen.r0&&sheet.heights[r]!==0&&(!rowFilter||rowFilter.has(r))),rowShown=new Set(visibleRows);
+  const visibleRows=(rowFilter?[...rowFilter].sort((a,b)=>a-b):Array.from({length:rows},(_,r)=>r)).filter(r=>r>=frozen.r0&&sheet.heights[r]!==0&&(!rowFilter||rowFilter.has(r))),rowShown=new Set(visibleRows);
   // Hidden columns (width 0 or hidden in Excel) are left out completely, like Excel.
   const visibleCols=Array.from({length:cols},(_,c)=>c).filter(c=>c>=frozen.c0&&sheet.widths[c]!==0),colShown=new Set(visibleCols);
   const widths=visibleCols.map(c=>px(sheet.widths[c])),total=46+widths.reduce((a,b)=>a+b,0);
@@ -534,7 +543,7 @@
  }
  async function showSheet(i){
   active=i;searchText='';search.value='';renderTabs();msg.textContent='Loading…';
-  try{const sheet=await readSheet(book.sheets[i]);renderSheet(sheet);data=tableData(sheet);renderMap()}catch(x){msg.textContent=x.message}
+  try{const sheet=await readSheet(book.sheets[i]);renderSheet(sheet);data=owner?tableData(sheet):null;renderMap()}catch(x){msg.textContent=x.message}
  }
  function renderMap(){
   if(!owner||!data){panel.hidden=true;return}panel.hidden=false;
@@ -550,9 +559,9 @@
  // sheetName (1.1.215): open that sheet first when the workbook has it (Search → Excel rows).
  // 1.1.224: each workbook is read once per page; the folder viewer and the search share it.
  const books=new Map();
- function loadBook(url){if(!books.has(url))books.set(url,(async()=>readBook(await (await fetch(url)).arrayBuffer()))().catch(x=>{books.delete(url);throw x}));return books.get(url)}
+ function loadBook(url){if(!books.has(url))books.set(url,(async()=>readBook(await window.GearHubExcelZip.open(url)))().catch(x=>{books.delete(url);throw x}));return books.get(url)}
  // The viewer may sit under the shop search bar (embedded, 1.1.224); the folder puts it back in its panel.
- function home(){if(rowFilter){rowFilter=null;section.classList.remove('excel-filtered');if(renderedSheet)renderSheet(renderedSheet,false)}if(section.parentElement!==card){card.append(section);section.classList.remove('excel-inline');inlineKey=''}}
+ function home(){rowFilter=null;section.classList.remove('excel-filtered');if(section.parentElement!==card){card.append(section);section.classList.remove('excel-inline');inlineKey=''}}
  let inlineKey='';
  async function openBook(b,sheetName,embedded){
   if(!embedded){home();box.hidden=true;setForm(true);card.classList.add('excel-sheet-open');fullScreen(true)}
@@ -561,7 +570,7 @@
    const name=b.dataset.excelName||'',blob=/\.csv$/i.test(name)?await (await fetch(b.dataset.excelPreview)).blob():null;
    if(/\.csv$/i.test(name))book=csvBook(await blob.text());else if(/\.xls[xm]$/i.test(name))book=await loadBook(b.dataset.excelPreview);else throw Error('Preview supports .xlsx, .xlsm and .csv. Old .xls files can only be downloaded.');
    if(!book.sheets.length)throw Error('This workbook has no visible sheets.');
-   owner=await access();const want=String(sheetName||'').trim().toLowerCase(),at=want?book.sheets.findIndex(s=>s.name.trim().toLowerCase()===want):-1;await showSheet(Math.max(0,at));return true;
+   owner=embedded?null:await access();const want=String(sheetName||'').trim().toLowerCase(),at=want?book.sheets.findIndex(s=>s.name.trim().toLowerCase()===want):-1;await showSheet(Math.max(0,at));return true;
   }catch(x){msg.textContent=x.message;return false}
  }
  box.addEventListener('click',e=>{const b=e.target.closest('[data-excel-preview]');if(b)openBook(b)});
@@ -586,15 +595,16 @@
  // 1.1.215 owner: a shop search also lists the matching Excel rows (public/excel-search.js); it reads a
  // sheet here and opens this viewer on that sheet with the same search.
  window.GearHubExcelViewer={
+  async idle(){await Promise.allSettled([...books.values()]);await Promise.allSettled([...sheetJobs])},
   async sheet(url,sheetName){const b=await loadBook(url),want=String(sheetName||'').trim().toLowerCase(),s=b.sheets.find(x=>x.name.trim().toLowerCase()===want)||b.sheets[0];return s?readSheet(s,b):null},
   // 1.1.224 owner: "Excel လို" search shows this very viewer under the shop search bar (original
   // column sizes, selection, copy, row select), driven by that bar.
-  async embed(host,url,name,sheetName){const key=url+'|'+sheetName;if(section.parentElement!==host){host.append(section);section.classList.add('excel-inline')}section.hidden=false;
-   if(inlineKey===key&&book)return true;const ok=await openBook({dataset:{excelPreview:url,excelName:name}},sheetName,true);inlineKey=ok?key:'';return ok},
+  async embed(host,url,name,sheetName,filter){const key=url+'|'+sheetName,changed=rowFilter!==filter;rowFilter=filter||null;section.classList.toggle('excel-filtered',!!rowFilter);if(section.parentElement!==host){host.append(section);section.classList.add('excel-inline')}section.hidden=false;
+   if(inlineKey===key&&book){if(changed&&renderedSheet)renderSheet(renderedSheet,false);return true}const ok=await openBook({dataset:{excelPreview:url,excelName:name}},sheetName,true);inlineKey=ok?key:'';return ok},
   rows(set){rowFilter=set||null;if(renderedSheet)renderSheet(renderedSheet,false);section.classList.toggle('excel-filtered',!!set)},
   search(query){search.value=query;searchText=query;find(0);return{at:foundAt,total:found.length}},
   step(n){find(n);return{at:foundAt,total:found.length}},
-  release(){if(section.classList.contains('excel-inline')){if(rowFilter){rowFilter=null;section.classList.remove('excel-filtered');if(renderedSheet)renderSheet(renderedSheet,false)}home();section.hidden=true}},
+  release(){if(section.classList.contains('excel-inline')){home();section.hidden=true}},
   async open(url,name,sheetName,query,row){document.getElementById('excel-library-open')?.click();if(await openBook({dataset:{excelPreview:url,excelName:name}},sheetName)&&query){search.value=query;searchText=query;find(0);const k=found.findIndex(([r])=>r===row);if(k>0){foundAt=k-1;find(1)}}}
  };
  search.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();find(e.shiftKey?-1:1)}});

@@ -21,10 +21,11 @@
  async function keepOffline(){
   if(!slug||!('caches' in window)||navigator.onLine===false)return;
   try{
+   await window.GearHubExcelViewer?.idle();
    const response=await fetch('/api/platform/store/'+encodeURIComponent(slug)+'/spreadsheets');if(!response.ok)return;
    const files=(await response.json()).files||[],cache=await caches.open('gearhub-excel-v1'),keep=new Set(files.map(file=>new URL(file.url,location.origin).href));
    for(const request of await cache.keys())if(/\/api\/platform\/spreadsheets\//.test(request.url)&&!keep.has(request.url))await cache.delete(request);
-   for(const url of keep)if(!(await cache.match(url))){const file=await fetch(url);if(file.ok)await cache.put(url,file)}
+   for(const url of keep)if(!(await cache.match(url))){const file=await fetch(url,{priority:'low'});if(file.ok)await cache.put(url,file)}
   }catch{}
  }
  const later=()=>setTimeout(keepOffline,3000);
@@ -48,5 +49,5 @@
    show(mac?'Downloaded. Unzip it on your Mac, open the .command file and choose the Excel file.':'Downloaded. Open it on the Windows PC and choose the Excel file.');autoState();
   }catch(error){show(error.message,true)}finally{button.disabled=false}
  }));
- form.addEventListener('submit',async event=>{event.preventDefault();if(!owner||!input.files?.[0])return;show('Uploading…');const data=new FormData();data.append('file',input.files[0]);try{const response=await fetch('/api/platform/shops/'+owner.id+'/spreadsheets',{method:'POST',headers:{'X-CSRF-Token':owner.csrfToken},body:data});const body=await response.json();if(!response.ok)throw Error(body.error||'Upload failed.');input.value='';updateChosenName();show('Uploaded.');await load();keepOffline()}catch(error){show(error.message,true)}});
+ form.addEventListener('submit',async event=>{event.preventDefault();if(!owner||!input.files?.[0])return;show('Uploading…');const data=new FormData();data.append('file',input.files[0]);try{const response=await fetch('/api/platform/shops/'+owner.id+'/spreadsheets',{method:'POST',headers:{'X-CSRF-Token':owner.csrfToken},body:data});const body=await response.json();if(!response.ok)throw Error(body.error||'Upload failed.');input.value='';updateChosenName();show('Uploaded.');await load();keepOffline();dispatchEvent(new Event('gearhub-excel-changed'))}catch(error){show(error.message,true)}});
 })();

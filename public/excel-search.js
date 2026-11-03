@@ -63,12 +63,10 @@
    const viewer=window.GearHubExcelViewer;if(!viewer)return null;
    const list=await (await fetch('/api/platform/store/'+encodeURIComponent(slug)+'/spreadsheets')).json();
    const files=(list.files||[]).filter(f=>/\.xls[xm]$/i.test(f.name));let first=null;
-   for(const file of files){const sheet=await viewer.sheet(file.url,SHEET);if(!sheet)continue;const found={file,sheet};if(sheet.name.trim().toLowerCase()===SHEET.toLowerCase())return found;first=first||found}
+   for(const file of files){const sheet=await viewer.sheet(file.url,SHEET);if(!sheet)continue;const index=await window.GearHubExcelIndex.forSheet(sheet),found={file,sheet,index};if(sheet.name.trim().toLowerCase()===SHEET.toLowerCase())return found;first=first||found}
    return first;
   })().catch(()=>{loading=null;return null}));
  }
- const visible=(sheet,c)=>sheet.widths?.[c]!==0;
- const text=(sheet,r,c)=>String(sheet.cells.get(r+','+c)?.text??'').trim();
  // 1.1.217: two views — only the matching rows ("ရှာတာပဲ"), or the sheet like Excel ("Excel လို").
  // 1.1.224 owner: the Excel view is the shop's real Excel viewer under the search bar — original column
  // and row sizes, drag-select, copy, row select — moved to the bar's ˄ ˅ and count.
@@ -80,25 +78,22 @@
   if(q.length<2){hideAll();return}
   const found=await workbook();if(mine!==turn)return;
   if(!found){hideAll();return}
-  const {file,sheet}=found,viewer=window.GearHubExcelViewer;
+  const {file,sheet,index}=found,viewer=window.GearHubExcelViewer;
   box.hidden=false;full(mode==='sheet');
   if(mode==='sheet'){
    rowsArea.innerHTML='';host.hidden=false;fit();
-   if(!await viewer.embed(host,file.url,file.name,sheet.name)||mine!==turn)return;
-   viewer.rows(null);countSheet(viewer.search(q));return;
+   if(!await viewer.embed(host,file.url,file.name,sheet.name,null)||mine!==turn)return;
+   countSheet(viewer.search(q));return;
   }
   // 1.1.225 owner: "ရှာတာပဲ" is the same Excel viewer showing only the header and the matching rows —
   // select, drag, copy and row select work right here; nothing opens the full viewer.
-  const cols=[];for(let c=0;c<=sheet.maxC;c++)if(visible(sheet,c))cols.push(c);
-  let head=0;for(let r=0;r<=sheet.maxR;r++){if(cols.filter(c=>text(sheet,r,c)).length>=2){head=r;break}}
-  const needle=q.toLocaleLowerCase(),hits=[];
-  for(let r=head+1;r<=sheet.maxR&&hits.length<LIMIT;r++){if(sheet.heights?.[r]===0)continue;if(cols.some(c=>text(sheet,r,c).toLocaleLowerCase().includes(needle)))hits.push(r)}
+  const head=index.head,hits=await index.search(q);if(mine!==turn)return;
   setCount(String(hits.length)+(hits.length>=LIMIT?'+':''),false);
   if(!hits.length){viewer.release();host.hidden=true;rowsArea.innerHTML='<p class="excel-results-none">Excel · '+esc(sheet.name)+' — No match</p>';return}
   rowsArea.innerHTML='';host.hidden=false;
   host.style.height=Math.round(window.innerHeight*.75)+'px';
-  if(!await viewer.embed(host,file.url,file.name,sheet.name)||mine!==turn)return;
-  viewer.rows(new Set([head,...hits]));viewer.search(q);
+  if(!await viewer.embed(host,file.url,file.name,sheet.name,new Set([head,...hits]))||mine!==turn)return;
+  viewer.search(q);
   // Fit the box to the drawn rows (up to three quarters of the screen; the sheet scrolls past that).
   await new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done)));if(mine!==turn)return;
   const g=host.querySelector('#excel-grid'),t=g?.querySelector('table');if(t){g.scrollTop=0;host.style.height=Math.min(window.innerHeight*.75,t.offsetHeight+2)+'px'}
@@ -119,7 +114,8 @@
   paint();help.after(pick);
   pick.addEventListener('click',e=>{const m=e.target.closest('[data-excel-mode]');if(!m)return;mode=m.dataset.excelMode;try{localStorage.setItem(MODE_KEY,mode)}catch{}paint();if(input.value.trim())show()});
  }
- input.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(show,300)});
+ input.addEventListener('input',()=>{++turn;clearTimeout(timer);if(input.value.trim().length<2)hideAll();timer=setTimeout(show,150)});
+ addEventListener('gearhub-excel-changed',()=>{++turn;loading?.then(found=>found?.index.dispose());loading=null;hideAll();if(input.value.trim().length>=2)show()});
  // The keyboard's Search key: next match in the Excel view, then the keyboard closes so the sheet shows.
  input.addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();if(mode==='sheet'&&!box.hidden)go(1);input.blur()});
  // Speed (1.1.224): the shop's workbook is read in the background once the page is idle, so the first
