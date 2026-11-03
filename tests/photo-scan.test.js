@@ -15,7 +15,7 @@ test('the scan button runs a live camera scanner and asks the shop server; the b
  assert.doesNotMatch(scan,/first time only|loadGraphModel/,'no on-phone model and no first-time message');
  assert.doesNotMatch(store,/photoScanIds/);
  assert.ok(!fs.existsSync(path.join(root,'public','vendor','tf.min.js')),'the on-phone model is gone');
- assert.match(index,/<script src="\/photo-scan\.js\?v=20261031-free-ai-1"><\/script>/);
+ assert.match(index,/<script src="\/photo-scan\.js\?v=1\.1\.270"><\/script>/);
 });
 
 test('the photo-search API is public per shop, rate limited, takes a picture and stays inside the shop',()=>{
@@ -63,10 +63,10 @@ test('the scanner counts seconds, stops after 15 s with "No match found", and sa
  const scan=read('public/photo-scan.js'),css=read('public/style.css');
  assert.match(scan,/const SURE=0\.6,LEAD=0\.03,LIMIT=15000;/);
  assert.match(scan,/clock=setInterval\(\(\)=>\{if\(started\)looking\(\)\},1000\)/,'a seconds count while it looks');
- assert.match(scan,/if\(elapsed\(\)\*1000>=LIMIT\)\{const seconds=elapsed\(\),thumb=URL\.createObjectURL\(blob\);stop\(\);none\(thumb,seconds,bestSeen\);return\}/,'never looks forever');
+ assert.match(scan,/if\(elapsed\(\)\*1000>=LIMIT\)\{const seconds=elapsed\(\),thumb=URL\.createObjectURL\(blob\);stop\(\);likely\(thumb,seconds,bestSeen\);return\}/,'never looks forever');
  assert.match(scan,/say\(t\('No match found','တူတာ မရှိပါ'\)/);
  assert.match(scan,/t\('found in ',''\)\+secs\(took\)/,'how many seconds it took');
  assert.match(scan,/why\(m,at===0\?matches\[1\]:null\)/,'each match says why');
- assert.match(scan,/if\(isSure\(a,b\)\)found\(r\.matches,thumb,seconds\);else none\(/,'a saved photo with no sure match says so too');
+ assert.match(scan,/if\(isSure\(a,b\)\)found\(r\.matches,thumb,seconds\);else likely\(/,'a saved photo with no sure match says so too');
  assert.match(css,/\.photo-scan-panel\{flex-wrap:wrap\}/);assert.match(css,/\.photo-scan-why\{flex:0 0 100%;/,'the reason is a full-width line under the result');
 });

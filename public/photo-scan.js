@@ -53,7 +53,7 @@
  function highlight(){
   document.querySelectorAll('#products article.photo-match').forEach(a=>a.classList.remove('photo-match'));
   if(!matches.length)return;const m=matches[at],p=productOf(m.id);
-  say(nameOf(m.id),(at===0?t('Best match','အတူဆုံး'):(at+1)+' / '+matches.length)+' · '+t('found in ','')+secs(took)+t('',' နဲ့ တွေ့')+(p?.sku?' · '+p.sku:''),why(m,at===0?matches[1]:null));
+  say(nameOf(m.id),(at===0?(matches[1]&&matches[0].score-matches[1].score<LEAD&&!matches[0].label?t('Closest · '+matches.length+' look alike, check ˄ ˅','အနီးဆုံး · '+matches.length+' ခု တူတယ်၊ ˄ ˅ နဲ့ စစ်ပါ'):t('Best match','အတူဆုံး')):(at+1)+' / '+matches.length)+' · '+t('found in ','')+secs(took)+t('',' နဲ့ တွေ့')+(p?.sku?' · '+p.sku:''),why(m,at===0?matches[1]:null));
   let el=card(m.id);
   // The match may be hidden by a search word or category: show the whole list, like Excel keeps every row.
   if(!el&&typeof renderProducts==='function'){const q=document.getElementById('search'),c=document.getElementById('category');if(q)q.value='';if(c)c.value='';renderProducts();el=card(m.id)}
@@ -64,6 +64,9 @@
  // The shop redraws its list now and then (refresh, language): put the highlight back on the new card.
  const list=document.getElementById('products');if(list)new MutationObserver(()=>{if(!matches.length)return;const el=card(matches[at].id);if(el&&!el.classList.contains('photo-match'))el.classList.add('photo-match')}).observe(list,{childList:true});
  function found(list,thumb,seconds){matches=list;at=0;took=seconds;if(thumb)strip.querySelector('.photo-scan-thumb').src=thumb;highlight()}
+ // 1.1.269 owner: two products alike (82% and 79%) gave "No match found" although the part is in the shop.
+ // When the closest is alike enough but another is just as close, show both (˄ ˅) instead of nothing.
+ function likely(thumb,seconds,best){if(best&&best.score>=SURE&&best.list?.length){found(best.list.filter(m=>m.score>=SURE-0.1).slice(0,3),thumb,seconds);return}none(thumb,seconds,best)}
  // Nothing sure: say so, how long it looked and why (the closest product was not alike enough, was
  // seen only for a moment, or two products looked the same).
  function none(thumb,seconds,best){
@@ -109,10 +112,10 @@
     // While the shop's photos are being learned the count waits (it starts again when ready).
     if(!r.ready){hint.textContent=t('Getting ready…','ပြင်ဆင်နေပါတယ်…');started=0;wait=1500}
     else{if(!started)started=performance.now();const [a,b]=r.matches,sure=isSure(a,b);
-     if(a&&!(bestSeen?.score>=a.score))bestSeen={id:a.id,score:a.score,next:b?b.score:0};
+     if(a&&!(bestSeen?.score>=a.score))bestSeen={id:a.id,score:a.score,next:b?b.score:0,list:r.matches};
      if(sure&&last===a.id){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();found(r.matches,thumb,seconds);return}
      last=sure?a.id:null;
-     if(elapsed()*1000>=LIMIT){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();none(thumb,seconds,bestSeen);return}
+     if(elapsed()*1000>=LIMIT){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();likely(thumb,seconds,bestSeen);return}
      looking()}}
   }catch(_){if(navigator.onLine===false)hint.textContent=t('Photo search needs the internet.','ပုံနဲ့ရှာဖို့ Internet လိုပါတယ်။');else if(started)looking();wait=1500}
   loop=setTimeout(tick,wait);
@@ -145,7 +148,7 @@
   try{const img=await createImageBitmap(file),blob=await jpeg(img,0,0,img.width,img.height);img.close?.();
    let r=await ask(blob);for(let i=0;i<40&&!r.ready;i++){say(t('Getting ready…','ပြင်ဆင်နေပါတယ်…'));await new Promise(q=>setTimeout(q,1500));r=await ask(blob)}
    const seconds=(performance.now()-begin)/1000,[a,b]=r.ready?r.matches:[];
-   if(isSure(a,b))found(r.matches,thumb,seconds);else none(thumb,seconds,a?{id:a.id,score:a.score,next:b?b.score:0}:null);
+   if(isSure(a,b))found(r.matches,thumb,seconds);else likely(thumb,seconds,a?{id:a.id,score:a.score,next:b?b.score:0,list:r.matches}:null);
   }catch(_){say(t('Photo search could not run','ပုံနဲ့ရှာတာ မရပါ'),navigator.onLine===false?t('It needs the internet.','Internet လိုပါတယ်။'):t('Try again.','ပြန်ကြိုးစားပါ။'))}
  });
 })();
