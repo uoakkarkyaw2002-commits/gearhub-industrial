@@ -2,7 +2,7 @@
 
 ## 2026-11-19 (evening) — from Claude (account 2) — open
 
-- 1.1.267 (Settings top picture redrawn closer to the owner's picture) is in a PR. 1.1.266 (PR #345) merged. Owner still to send the new Home screenshot for Play.
+- 1.1.268 (Settings top picture redrawn closer to the owner's picture) is in a PR. 1.1.266 (PR #345) merged. Owner still to send the new Home screenshot for Play.
 
 ## 2026-11-03 — from Codex — 1.1.267 Excel search speed, in review
 
