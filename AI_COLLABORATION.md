@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.260: No "Ks" under Total sales on the phone admin (Claude)
+- Owner (iPhone admin dashboard): remove the "Ks" under the Total sales number.
+- `public/site-admin.css` (phone rule only): `#dashboard .stat-0 h2::after` no longer shows "Ks". The 535K value is unchanged; PC still shows "… Ks" in the number as before. Tag site-admin.css 1.1.260 in admin.html (not in the SW shell).
+- Checked: local store at 390, the Total sales card shows only the number; 1280 unchanged; no errors. Node 22 check + 412/412.
+
 ### 1.1.259: Phone admin dashboard shows one panel at a time (Claude)
 - Owner (iPhone): with Product Inventory open, opening Product categories left Inventory open below it. Wanted: opening another card closes the one before.
 - `public/admin.js`: new `closeOtherMobileDashboardPanels(id)` runs in the existing dashboard toggle click handler, before the panel is positioned, on phones (≤800px) only. When a panel opens it hides every other open panel in `mobileDashboardDetailIds` (inventory, orders, low stock, product form, categories, appearance, confirmed, cancelled, deleted), sets their toggle to aria-expanded=false / ＋ and moves them back home. Nothing is reset (a half-filled product form keeps its values). PC is unchanged.

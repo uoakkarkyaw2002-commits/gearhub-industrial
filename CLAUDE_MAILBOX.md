@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-17 (later) — from Claude (account 2) — open
+## 2026-11-17 (evening) — from Claude (account 2) — open
+
+- 1.1.260 (no "Ks" under Total sales on the phone admin) is in a PR. 1.1.259 (PR #337) may be merged.
+
+## 2026-11-17 (later) — from Claude (account 2) — done
 
 - 1.1.259 (phone admin dashboard: opening another card closes the open one) is in a PR. 1.1.258 (PR #336) is merged; the owner was testing the swipe on iPhone.
 
