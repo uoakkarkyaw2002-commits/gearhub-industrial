@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.261: Account deletion page for the Google Play listing (Claude)
+- Owner: the third-party Play publisher asked for the listing items, including an Account Deletion URL (Play requires one). Privacy and Terms already exist at /policies.html#privacy and #terms.
+- New static `public/delete-account.html` (no scripts, inline styles allowed by the CSP): how to request deletion (Settings → Contact us / 09-766472432, give the Gmail and shop name, deleted within 30 days), what is deleted and what is kept (orders up to 90 days, backups within 30 days). Test `tests/delete-account.test.js`.
+- Listing kit for the owner (not in the repo): scratchpad playstore/ — app-icon-512.png (public/icons/skyshop-512.png), feature-graphic-1024x500.png, play-store-listing.txt (name, short/full description, category, URLs, App access text, Data safety answers). Screenshots: crop the owner's real Android screenshots to 1080x1920. Support email and the reviewer test Gmail must come from the owner.
+- Checked: page served 200 text/html, Chromium 390/1280 without errors or sideways scroll. Node 22 check + 413/413.
+
 ### 1.1.260: No "Ks" under Total sales on the phone admin (Claude)
 - Owner (iPhone admin dashboard): remove the "Ks" under the Total sales number.
 - `public/site-admin.css` (phone rule only): `#dashboard .stat-0 h2::after` no longer shows "Ks". The 535K value is unchanged; PC still shows "… Ks" in the number as before. Tag site-admin.css 1.1.260 in admin.html (not in the SW shell).
