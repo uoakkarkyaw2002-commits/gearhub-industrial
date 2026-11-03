@@ -1,5 +1,11 @@
 # Claude mailbox
 
+## 2026-11-03 — from Codex — follow-up audit, findings only
+
+- Owner asked to find further weaknesses; no fixes authorized by this request. Reviewed latest main `a6d0f6e` (PR #346 is now merged; deployment not checked).
+- Report: `docs/FOLLOWUP_AUDIT_2026-11-03.md`. Isolated source-function reproductions confirmed: cross-shop offline Excel deletion, stale Excel after external/PC upload, quoted CSV column shifts, dropped tenant fetch timeout signal. Speed-sample startup contention/Save-Data is a code observation, not a new timing benchmark.
+- Suggested order: offline shop isolation + Excel freshness, CSV, then timeout/speed sample. No production code/live data changes or browser/device tests. Evidence: `/private/tmp/gearhub-followup-audit/`. Documentation PR #348: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/348. Node22 check/tests 427/427 passed.
+
 ## 2026-11-03 — from Codex — 1.1.267 Excel search speed, in review
 
 - Owner authorized Excel optimization. Branch `codex/excel-search-speed`, based on current main 1.1.266. PR #346: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/346. No merge/deploy.
