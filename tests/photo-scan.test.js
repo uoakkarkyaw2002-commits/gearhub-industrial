@@ -9,13 +9,13 @@ test('the scan button runs a live camera scanner and asks the shop server; the b
  assert.match(scan,/const API='\/api\/platform\/store\/'\+encodeURIComponent\(decodeURIComponent\(slug\)\)\+'\/photo-search';/);
  assert.match(scan,/'X-CSRF-Token':await csrf\(\)/);
  assert.match(scan,/const SURE=0\.6,LEAD=0\.03,/,'blank or blurred frames (~0.35) never count');
- assert.match(scan,/if\(sure&&last===a\.id\)/,'the same product sure twice in a row');
+ assert.match(scan,/if\(quick\|\|\(sure&&last===a\.id\)\)/,'the same product sure twice in a row');
  assert.match(scan,/el\.classList\.add\('photo-match'\)/);
  assert.match(scan,/gallery\.type='file';gallery\.accept='image\/\*'/,'photos from the gallery');
  assert.doesNotMatch(scan,/first time only|loadGraphModel/,'no on-phone model and no first-time message');
  assert.doesNotMatch(store,/photoScanIds/);
  assert.ok(!fs.existsSync(path.join(root,'public','vendor','tf.min.js')),'the on-phone model is gone');
- assert.match(index,/<script src="\/photo-scan\.js\?v=1\.1\.270"><\/script>/);
+ assert.match(index,/<script src="\/photo-scan\.js\?v=1\.1\.271"><\/script>/);
 });
 
 test('the photo-search API is public per shop, rate limited, takes a picture and stays inside the shop',()=>{
@@ -61,7 +61,7 @@ test('closing a product (✕ or Back) keeps the shop where it was (iPhone jumped
 
 test('the scanner counts seconds, stops after 15 s with "No match found", and says why it matches',()=>{
  const scan=read('public/photo-scan.js'),css=read('public/style.css');
- assert.match(scan,/const SURE=0\.6,LEAD=0\.03,LIMIT=15000;/);
+ assert.match(scan,/const SURE=0\.6,LEAD=0\.03,LIMIT=8000;/);
  assert.match(scan,/clock=setInterval\(\(\)=>\{if\(started\)looking\(\)\},1000\)/,'a seconds count while it looks');
  assert.match(scan,/if\(elapsed\(\)\*1000>=LIMIT\)\{const seconds=elapsed\(\),thumb=URL\.createObjectURL\(blob\);stop\(\);likely\(thumb,seconds,bestSeen\);return\}/,'never looks forever');
  assert.match(scan,/say\(t\('No match found','တူတာ မရှိပါ'\)/);

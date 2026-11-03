@@ -1104,7 +1104,9 @@ body .hero.hero-image-only::after{inset:0;background:var(--hero-fill,none) cente
 .photo-scanner[hidden]{display:none}
 html.photo-scanner-open,html.photo-scanner-open body{overflow:hidden}
 .photo-scanner video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.photo-scanner-frame{position:absolute;left:50%;top:50%;width:min(62vw,62vh,320px);aspect-ratio:1;transform:translate(-50%,-50%);pointer-events:none}
+/* 1.1.271 owner: no need to fit the part into a small box — the scan uses most of the screen and looks closer at the middle. */
+.photo-scanner-frame{position:absolute;left:50%;top:50%;width:min(88vw,560px);height:min(64vh,640px);transform:translate(-50%,-50%);pointer-events:none}
+.photo-scanner-frame::after{content:"";position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border:3px solid #fff;border-radius:50%;filter:drop-shadow(0 1px 3px rgba(0,0,0,.4))}
 .photo-scanner-frame i{position:absolute;width:44px;height:44px;border:4px solid #fff;filter:drop-shadow(0 1px 3px rgba(0,0,0,.35))}
 .photo-scanner-frame i:nth-child(1){left:0;top:0;border-right:0;border-bottom:0;border-top-left-radius:22px}
 .photo-scanner-frame i:nth-child(2){right:0;top:0;border-left:0;border-bottom:0;border-top-right-radius:22px}

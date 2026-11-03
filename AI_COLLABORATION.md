@@ -38,6 +38,14 @@ _None._
 - One controlled 375px 1.6Mbps/150ms/CPU4 comparison, prewarming/full offline prefetch disabled equally to isolate first query: `seal` 24.510s → 11.464s; prepared `seal` 0.905s → 0.402s; exact `300426` 0.779s → 0.276s. Normal local prepared queries ~0.48s → 0.26–0.29s. Fresh critical workbook members 3,447,284 → 757,069 bytes; all six XML hashes match. Full offline copy continues later; no claim of total bandwidth reduction. Not live/real-phone results; no 1–3s slow-network guarantee. XML DOM parsing remains on the browser thread with chunked row processing.
 - Local evidence only: `/private/tmp/excel-speed-review/` (results, range hashes, screenshots, reproducible harnesses). Pre-existing untracked `.claude/` and `public/zz-real.xlsm` excluded.
 
+### 1.1.271: Faster photo scan, no small box to aim at (Claude)
+- Owner (iPhone, Drive Shaft): "found, but very slow; fitting the part into the box is awkward — scan the object in the middle by itself".
+- Cause of the wait: the shop has three look-alike shafts (Drive Shaft / Drive Shaft (R) / Drive Shaft (Long)), so the lead over the next product stayed under 3% and no frame counted as sure until the 15 s limit. Server time is small (DINOv2 ~50 ms per view locally, 3 views per frame).
+- `public/photo-scan.js`: QUICK — score ≥ 0.75 with a 5% lead is taken from one frame; STREAK — the same product on top (≥ 0.60) in 3 frames in a row is taken and shown with its look-alikes (˄ ˅); limit 15 s → 8 s, then likely()/No match as before.
+- `public/style.css`: the scanner frame is most of the screen (88vw × 64vh) with a small centre dot; the server already looks at the whole picture and two closer views of its middle, so the part only needs to be roughly in the middle.
+- Tags photo-scan.js / style.css 1.1.271 (index.html, admin.html style.css, sw.js). photo-scan tests updated on purpose.
+- Checked: fake camera + stubbed API in Chromium 390: clear match 0.6 s, three look-alikes 1.1 s (˄ ˅), nothing alike → No match at 8.1 s; no errors. Node 22 check + 430/430. Real phone/network not measured.
+
 ### 1.1.270: Photo search shows the alike products instead of No match (Claude)
 - Owner (iPhone, shaft part): scanner said "No match found — two products look almost the same (82% and 79%)" although the part is in the shop. `public/photo-scan.js`: new `likely()` — after 15 s (live) or for a gallery photo, if the closest is ≥ 60% alike it shows the products ≥ 50% (up to 3) with ˄ ˅ and the label "Closest · N look alike, check ˄ ˅"; below 60% it still says No match. Tag photo-scan.js 1.1.270 (index.html + sw.js).
 - photo-scan tests updated on purpose (tag, likely()). Checked: stubbed API 82/79/40 → 2 shown with ˄ ˅; 45/40 → No match; no errors. Node 22 check + 429/429.

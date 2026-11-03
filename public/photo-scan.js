@@ -11,7 +11,10 @@
  const API='/api/platform/store/'+encodeURIComponent(decodeURIComponent(slug))+'/photo-search';
  // A frame counts once the best photo scores this high and clearly ahead of the next product
  // (real matches scored ~0.9 on the shop's photos; blank or blurred frames ~0.35).
- const SURE=0.6,LEAD=0.03,LIMIT=15000;
+ const SURE=0.6,LEAD=0.03,LIMIT=8000;
+ // 1.1.271 owner ("found, but very slow"): a very clear match is taken from one frame, and the same product on top
+ // three frames in a row is taken even when look-alikes (Drive Shaft / Drive Shaft (R)) are close behind.
+ const QUICK=0.75,QUICK_LEAD=0.05,STREAK=3;
  const isSure=(a,b)=>!!a&&a.score>=SURE&&(!b||a.score-b.score>=LEAD);
  const my=()=>document.documentElement.lang==='my',t=(en,mm)=>my()?mm:en;
  const shopProducts=()=>typeof products!=='undefined'&&Array.isArray(products)?products:[];
@@ -86,7 +89,7 @@
   '<button type="button" class="photo-scanner-torch" aria-label="Flashlight" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8v3l-2 3v11a2 2 0 0 1-2 2 2 2 0 0 1-2-2V9L8 6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button><button type="button" class="photo-scanner-label" aria-label="Read the label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V4h8l10 10-8 8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="7.5" cy="8.5" r="1.6" fill="currentColor"/></svg><small>Part No.</small></button><span></span></div>';
  document.body.append(view);
  const video=view.querySelector('video'),hint=view.querySelector('.photo-scanner-hint'),torch=view.querySelector('.photo-scanner-torch'),frame=view.querySelector('.photo-scanner-frame');
- let stream=null,loop=0,last=null,pageY=0,started=0,clock=0,bestSeen=null;
+ let stream=null,loop=0,last=null,pageY=0,started=0,clock=0,bestSeen=null,streak={id:null,n:0};
  const elapsed=()=>(performance.now()-started)/1000;
  const looking=()=>{hint.textContent=t('Looking… ','ရှာနေပါတယ်… ')+Math.floor(elapsed())+t(' s',' စက္ကန့်')};
  // Closing the scanner returns to where the page was (iPhone forgets it while the page is locked).
@@ -98,7 +101,7 @@
   if(view.hidden){stream.getTracks().forEach(tr=>tr.stop());stream=null;return}
   video.srcObject=stream;try{await video.play()}catch(_){}
   const caps=stream.getVideoTracks()[0]?.getCapabilities?.();torch.hidden=!caps?.torch;
-  started=performance.now();bestSeen=null;clearInterval(clock);clock=setInterval(()=>{if(started)looking()},1000);
+  started=performance.now();bestSeen=null;streak={id:null,n:0};clearInterval(clock);clock=setInterval(()=>{if(started)looking()},1000);
   loop=setTimeout(tick,600);// let the camera settle and focus first
  }
  // The part inside the corner frame, as the video shows it (the video fills the screen, cropped).
@@ -113,7 +116,10 @@
     if(!r.ready){hint.textContent=t('Getting ready…','ပြင်ဆင်နေပါတယ်…');started=0;wait=1500}
     else{if(!started)started=performance.now();const [a,b]=r.matches,sure=isSure(a,b);
      if(a&&!(bestSeen?.score>=a.score))bestSeen={id:a.id,score:a.score,next:b?b.score:0,list:r.matches};
-     if(sure&&last===a.id){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();found(r.matches,thumb,seconds);return}
+     if(a&&a.score>=SURE){streak=streak.id===a.id?{id:a.id,n:streak.n+1}:{id:a.id,n:1}}else streak={id:null,n:0};
+     const quick=sure&&a.score>=QUICK&&(!b||a.score-b.score>=QUICK_LEAD);
+     if(quick||(sure&&last===a.id)){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();found(r.matches,thumb,seconds);return}
+     if(streak.n>=STREAK){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();found(r.matches.filter(m=>m.score>=SURE-0.1).slice(0,3),thumb,seconds);return}
      last=sure?a.id:null;
      if(elapsed()*1000>=LIMIT){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();likely(thumb,seconds,bestSeen);return}
      looking()}}
