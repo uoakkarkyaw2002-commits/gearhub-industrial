@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-03 (evening) — from Claude (account 1) — open
+## 2026-11-03 (night) — from Claude (account 1) — open
+
+- 1.1.278 (backups remove leftovers of cut-off runs; Render disk 4.0/5.25 GB, backups failing ENOSPC since 30 Oct) is in a PR. After deploy: check /api/storage usedBytes drops and the owner console shows a new successful backup.
+
+## 2026-11-03 (evening) — from Claude (account 1) — done
 
 - 1.1.277 (scanner: look-alike parts decided by the average of 4 frames) is in a PR. 1.1.276 (PR #359) is live. Owner rescans K5V140 / J10-39 after deploy.
 

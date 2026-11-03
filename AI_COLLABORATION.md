@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.278: Backups clean up after a cut-off run (Claude)
+- Owner: is the Render disk full? Live /api/storage: app data 4.0 GB of 5.25 GB (1.18 GB free); shops only ~0.44 GB (POLESTAR 352 MB, kaizen 86 MB, treebird 3 MB). Owner console: last successful backup 2026-10-30, every later one failed at stage disk-space (ENOSPC).
+- Cause (code): `lib/backups.js` removes its `.stage-*` copy of every photo and the `*.partial` archive only in `finally`; a restart mid-backup (deploy, out of memory) left them for ever, and `makeRoom()` only deleted finished `.tar.gz` files. Now `removeLeftovers()` runs before every backup (one backup at a time), and start() runs a backup at once because the last success is old, so live cleans up at the first start of 1.1.278. Not verified on the live disk (no shell access): the leftovers are the only writer found that matches ~3.5 GB.
+- Test in backup-disk.test.js. Node 22 check + 435/435.
+
 ### 1.1.277: Scanner — look-alike parts decided by the average of 4 frames (Claude)
 - Owner (live 1.1.276): scanning the K5V140 J71-33 shaft first showed K3V140 PSM-V-30, the next scan J71-33. Cause in `public/photo-scan.js`: two frames ≥80% with the same top product ended the scan even when the second product was within ±0.005 (J71-33 and V-30 both ~0.82), so two lucky frames decided.
 - Now when the top two are within `CLOSE=0.02` the streak rule does not stop; scores are added up per product and after `AVERAGE_FRAMES=4` the best average is shown (with the existing "Closest · look alike, check ˄ ˅"). Clear matches still stop after one frame. Thumbnails guarded when a frame has no picture.

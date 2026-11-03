@@ -8,7 +8,7 @@ function setup(t,env,drive){
  const service=createBackupService({db,dataDir:root,uploadDir:path.join(root,'uploads'),receiptDir:path.join(root,'receipts'),notifications,drive});
  t.after(()=>{service.stop();db.close();fs.rmSync(root,{recursive:true,force:true});for(const k of Object.keys(env)){if(previous[k]===undefined)delete process.env[k];else process.env[k]=previous[k];}});
  const count=()=>fs.readdirSync(path.join(root,'backups')).filter(n=>n.endsWith('.tar.gz')).length;
- return {service,count,sent};
+ return {service,count,sent,root};
 }
 const tick=()=>new Promise(r=>setTimeout(r,15));
 test('with an off-site copy, only 3 local backups stay on the small disk',async t=>{
@@ -44,4 +44,13 @@ test('with Google Drive connected, no backup stays on the Render disk; if Drive 
  assert.equal(service.status().retainedLocalCopies,0);assert.ok(service.status().last_offsite_success);
  fail=true;await assert.rejects(service.run());assert.equal(count(),1,'not lost when Drive is down');
  fail=false;await service.run();assert.equal(count(),0,'the next good upload clears it');
+});
+test('1.1.278: leftovers of a backup cut off by a restart (staging copy, unfinished archive) are removed by the next one',async t=>{
+ const {service,count,root}=setup(t,{BACKUP_EMAIL_ENABLED:undefined,BACKUP_S3_BUCKET:undefined,BACKUP_RETENTION:'3',BACKUP_MIN_FREE_MB:'50'});
+ const dir=path.join(root,'backups');fs.mkdirSync(path.join(dir,'.stage-abc123','gearhub-backup','platform-media'),{recursive:true});
+ fs.writeFileSync(path.join(dir,'.stage-abc123','gearhub-backup','platform-media','photo.jpg'),Buffer.alloc(8192,1));
+ fs.writeFileSync(path.join(dir,'gearhub-2026-10-31T00-00-00-000Z.tar.gz.partial'),Buffer.alloc(8192,2));
+ await service.run();await tick();
+ assert.deepEqual(fs.readdirSync(dir).filter(n=>/^\.stage-|\.partial$/.test(n)),[],'no staging copy or unfinished archive is left');
+ assert.equal(count(),1,'the new backup itself is complete');
 });
