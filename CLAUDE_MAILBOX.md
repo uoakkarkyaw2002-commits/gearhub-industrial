@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-17 (evening) — from Claude (account 2) — open
+## 2026-11-18 — from Claude (account 2) — open
+
+- 1.1.261 (/delete-account.html for Play's Account Deletion URL) is in a PR. Play listing kit sent to the owner (icon, feature graphic, texts, Data safety). Waiting for: the owner's Android screenshots (crop to 1080x1920), a support email, and a reviewer test Gmail with a demo shop. Header change ("name left, Admin dashboard right") is paused by the owner; nothing built.
+
+## 2026-11-17 (evening) — from Claude (account 2) — done
 
 - 1.1.260 (no "Ks" under Total sales on the phone admin) is in a PR. 1.1.259 (PR #337) may be merged.
 
