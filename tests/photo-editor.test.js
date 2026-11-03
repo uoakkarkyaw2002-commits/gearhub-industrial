@@ -37,7 +37,7 @@ test('1.1.228: cleaner model with tightened edges and speck removal; Erase / Res
 });
 test('1.1.229: BiRefNet is used only with enough memory, downloaded once, one photo at a time',()=>{
  const lib=read('lib/bg-remove.js'),server=read('server.js');
- assert.match(lib,/NEED_MEMORY = 1\.8e9/);assert.match(lib,/\/sys\/fs\/cgroup\/memory\.max/);
+ assert.match(lib,/NEED_MEMORY = 3\.5e9;/,'1.1.280: BiRefNet peaks at ~2 GB, so only on a 4 GB plan');assert.match(lib,/\/sys\/fs\/cgroup\/memory\.max/);
  assert.match(lib,/let kind = birefnetPath && memoryLimit\(\) >= NEED_MEMORY && room >= MODELS\.best\.need \? "best" :/);
  assert.match(lib,/fs\.statSync\(part\)\.size !== BIREFNET_BYTES/,'a broken download is not used');
  assert.match(lib,/const job = queue\.then\(\(\) => cut\(buffer, options\)\);/);
@@ -58,4 +58,10 @@ test('1.1.279: the model is picked by what the whole container has free (this se
  assert.match(lib,/const free = \(\) => memoryLimit\(\) - memoryUsed\(\);/);
  assert.match(lib,/const room = free\(\) - SPARE;/);
  const {memoryUsed}=require('../lib/bg-remove');assert.ok(memoryUsed()>0);
+});
+
+test('1.1.280: model needs are the measured peaks, so the 2 GB plan uses silueta and never BiRefNet',()=>{
+ const {MODELS,NEED_MEMORY}=require('../lib/bg-remove');
+ assert.deepEqual([MODELS.small.need,MODELS.fast.need,MODELS.best.need],[300e6,550e6,2.1e9]);
+ assert.ok(NEED_MEMORY>2*1024**3,'a 2 GB server never loads BiRefNet');
 });
