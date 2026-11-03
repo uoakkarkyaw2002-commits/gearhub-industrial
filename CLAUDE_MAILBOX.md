@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-20 (evening) — from Claude (account 2) — open
+## 2026-11-20 (night) — from Claude (account 2) — open
+
+- 1.1.272 (scanner overlaps frames, 448 px, shows s per photo) is in a PR. Owner said 1.1.271 took 9 s and was sometimes wrong (look-alike Drive Shafts). Ask for a screenshot of the result line (s per photo).
+
+## 2026-11-20 (evening) — from Claude (account 2) — done
 
 - 1.1.271 (faster photo scan: quick/streak acceptance, 8 s limit, big frame + centre dot) is in a PR. Owner tests on iPhone/Android with the Drive Shaft.
 

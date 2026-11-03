@@ -39,8 +39,8 @@
   if(!r.ok)throw Error('photo search '+r.status);return r.json();
  }
  // Pictures are made smaller (longest side 640) before sending: faster on mobile data, same answer.
- function jpeg(source,sx,sy,sw,sh){const s=Math.min(1,640/Math.max(sw,sh)),c=document.createElement('canvas');c.width=Math.round(sw*s);c.height=Math.round(sh*s);
-  c.getContext('2d').drawImage(source,sx,sy,sw,sh,0,0,c.width,c.height);return new Promise(res=>c.toBlob(res,'image/jpeg',.85))}
+ function jpeg(source,sx,sy,sw,sh,max=640,q=.85){const s=Math.min(1,max/Math.max(sw,sh)),c=document.createElement('canvas');c.width=Math.round(sw*s);c.height=Math.round(sh*s);
+  c.getContext('2d').drawImage(source,sx,sy,sw,sh,0,0,c.width,c.height);return new Promise(res=>c.toBlob(res,'image/jpeg',q))}
 
  // ---- Search bar button and the result strip (Excel-search style) -----------------------------------
  const button=document.createElement('button');button.type='button';button.className='photo-scan-button';button.setAttribute('aria-label','Search by photo');button.title='Search by photo';
@@ -56,7 +56,7 @@
  function highlight(){
   document.querySelectorAll('#products article.photo-match').forEach(a=>a.classList.remove('photo-match'));
   if(!matches.length)return;const m=matches[at],p=productOf(m.id);
-  say(nameOf(m.id),(at===0?(matches[1]&&matches[0].score-matches[1].score<LEAD&&!matches[0].label?t('Closest · '+matches.length+' look alike, check ˄ ˅','အနီးဆုံး · '+matches.length+' ခု တူတယ်၊ ˄ ˅ နဲ့ စစ်ပါ'):t('Best match','အတူဆုံး')):(at+1)+' / '+matches.length)+' · '+t('found in ','')+secs(took)+t('',' နဲ့ တွေ့')+(p?.sku?' · '+p.sku:''),why(m,at===0?matches[1]:null));
+  say(nameOf(m.id),(at===0?(matches[1]&&matches[0].score-matches[1].score<LEAD&&!matches[0].label?t('Closest · '+matches.length+' look alike, check ˄ ˅','အနီးဆုံး · '+matches.length+' ခု တူတယ်၊ ˄ ˅ နဲ့ စစ်ပါ'):t('Best match','အတူဆုံး')):(at+1)+' / '+matches.length)+' · '+t('found in ','')+secs(took)+t('',' နဲ့ တွေ့')+tripText()+(p?.sku?' · '+p.sku:''),why(m,at===0?matches[1]:null));
   let el=card(m.id);
   // The match may be hidden by a search word or category: show the whole list, like Excel keeps every row.
   if(!el&&typeof renderProducts==='function'){const q=document.getElementById('search'),c=document.getElementById('category');if(q)q.value='';if(c)c.value='';renderProducts();el=card(m.id)}
@@ -101,30 +101,41 @@
   if(view.hidden){stream.getTracks().forEach(tr=>tr.stop());stream=null;return}
   video.srcObject=stream;try{await video.play()}catch(_){}
   const caps=stream.getVideoTracks()[0]?.getCapabilities?.();torch.hidden=!caps?.torch;
-  started=performance.now();bestSeen=null;streak={id:null,n:0};clearInterval(clock);clock=setInterval(()=>{if(started)looking()},1000);
+  started=performance.now();bestSeen=null;streak={id:null,n:0};trips=[];clearInterval(clock);clock=setInterval(()=>{if(started)looking()},1000);
   loop=setTimeout(tick,600);// let the camera settle and focus first
  }
  // The part inside the corner frame, as the video shows it (the video fills the screen, cropped).
  function frameRegion(){const vw=video.videoWidth,vh=video.videoHeight;if(!vw||!vh)return null;const vb=video.getBoundingClientRect(),fb=frame.getBoundingClientRect(),s=Math.max(vb.width/vw,vb.height/vh),ox=(vb.width-vw*s)/2,oy=(vb.height-vh*s)/2;
   const x=Math.max(0,(fb.left-vb.left-ox)/s),y=Math.max(0,(fb.top-vb.top-oy)/s);return[x,y,Math.min(vw-x,fb.width/s),Math.min(vh-y,fb.height/s)]}
  // Keeps looking (one frame at a time): the same product sure twice in a row is the answer.
+ // 1.1.272 owner ("9 seconds, still slow"): each frame waited for the answer before the next one was taken, so the
+ // phone's round trip (upload + server) was paid three times in a row. Now up to two frames are on the way at once,
+ // and frames are smaller (448 px: the model looks at 224 px, the server's closest view is half the frame).
+ let inflight=0,trips=[];
+ const tripText=()=>trips.length?t(' · '+(trips.reduce((x,y)=>x+y,0)/trips.length/1000).toFixed(1)+' s per photo',' · ပုံတစ်ပုံ '+(trips.reduce((x,y)=>x+y,0)/trips.length/1000).toFixed(1)+' စက္ကန့်'):'';
+ function answer(r,blob){
+  if(view.hidden)return;
+  // While the shop's photos are being learned the count waits (it starts again when ready).
+  if(!r.ready){hint.textContent=t('Getting ready…','ပြင်ဆင်နေပါတယ်…');started=0;return}
+  if(!started)started=performance.now();const [a,b]=r.matches,sure=isSure(a,b);
+  if(a&&!(bestSeen?.score>=a.score))bestSeen={id:a.id,score:a.score,next:b?b.score:0,list:r.matches};
+  if(a&&a.score>=SURE){streak=streak.id===a.id?{id:a.id,n:streak.n+1}:{id:a.id,n:1}}else streak={id:null,n:0};
+  const quick=sure&&a.score>=QUICK&&(!b||a.score-b.score>=QUICK_LEAD);
+  if(quick||(sure&&last===a.id)){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();found(r.matches,thumb,seconds);return}
+  if(streak.n>=STREAK){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();found(r.matches.filter(m=>m.score>=SURE-0.1).slice(0,3),thumb,seconds);return}
+  last=sure?a.id:null;
+  if(elapsed()*1000>=LIMIT){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();likely(thumb,seconds,bestSeen);return}
+  looking();
+ }
  async function tick(){
-  if(view.hidden)return;let wait=250;
-  try{const region=frameRegion();
-   if(region){const blob=await jpeg(video,...region),r=await ask(blob);if(view.hidden)return;
-    // While the shop's photos are being learned the count waits (it starts again when ready).
-    if(!r.ready){hint.textContent=t('Getting ready…','ပြင်ဆင်နေပါတယ်…');started=0;wait=1500}
-    else{if(!started)started=performance.now();const [a,b]=r.matches,sure=isSure(a,b);
-     if(a&&!(bestSeen?.score>=a.score))bestSeen={id:a.id,score:a.score,next:b?b.score:0,list:r.matches};
-     if(a&&a.score>=SURE){streak=streak.id===a.id?{id:a.id,n:streak.n+1}:{id:a.id,n:1}}else streak={id:null,n:0};
-     const quick=sure&&a.score>=QUICK&&(!b||a.score-b.score>=QUICK_LEAD);
-     if(quick||(sure&&last===a.id)){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();found(r.matches,thumb,seconds);return}
-     if(streak.n>=STREAK){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();found(r.matches.filter(m=>m.score>=SURE-0.1).slice(0,3),thumb,seconds);return}
-     last=sure?a.id:null;
-     if(elapsed()*1000>=LIMIT){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();likely(thumb,seconds,bestSeen);return}
-     looking()}}
-  }catch(_){if(navigator.onLine===false)hint.textContent=t('Photo search needs the internet.','ပုံနဲ့ရှာဖို့ Internet လိုပါတယ်။');else if(started)looking();wait=1500}
-  loop=setTimeout(tick,wait);
+  if(view.hidden)return;
+  if(inflight>=2){loop=setTimeout(tick,120);return}
+  const region=frameRegion();if(!region){loop=setTimeout(tick,250);return}
+  let blob;try{blob=await jpeg(video,...region,448,.8)}catch(_){loop=setTimeout(tick,500);return}
+  if(view.hidden)return;
+  inflight++;const sent=performance.now();
+  ask(blob).then(r=>{trips.push(performance.now()-sent);if(trips.length>6)trips.shift();answer(r,blob)},()=>{if(view.hidden)return;if(navigator.onLine===false)hint.textContent=t('Photo search needs the internet.','ပုံနဲ့ရှာဖို့ Internet လိုပါတယ်။');else if(started)looking()}).finally(()=>{inflight--});
+  loop=setTimeout(tick,350);
  }
  view.querySelector('.photo-scanner-close').addEventListener('click',stop);
  // Free AI #7: read the part number on the label in the frame and open that product.
