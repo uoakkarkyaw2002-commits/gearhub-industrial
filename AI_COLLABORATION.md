@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.263: Settings design fixes for Android (Claude)
+- Owner: iPhone OK, Android not. On the Android phone (viewport ≤380px) an old style.css rule moved Light/Dark and English/မြန်မာ under the text; "Create new shop" / "My shops" (GearHub only) kept old icons; the subtitle still said "payment details" on both phones. The cause: a shop's saved texts (site.translations) override the default.
+- `public/settings-design.css`: ≤380px rows use `42px 1fr auto`, the segment is put back in column 3 / row 1, with smaller pills and icon. `public/settings-design.js`: icons for create-shop-action / my-shops-action; an old "payment details/information" (or Myanmar ငွေပေးချေမှု) subtitle is replaced on the page only. Saved data is not changed.
+- Checked: GearHub store as owner in Chromium at 360 and 390 (Android UA). Pills beside the text, no sideways scroll, new icons, subtitle replaced, no errors. Node 22 check + 416/416. Not on a real Android phone.
+
 ### 1.1.262: Settings in the owner's new design (Claude)
 - Owner sent a picture of the Settings page they want; bottom navigation stays as it is.
 - New `public/settings-design.css` + `public/settings-design.js` (index.html after install-guide.css / settings-alerts.js, both in the sw.js SHELL). Only `#profile-view.settings-new` is styled. Changes: the top picture gets a green wave and a green bottom tint; the logo sits in a white rounded tile. For the shop owner or GearHub owner (/api/platform/me, same check as settings-alerts.js) the name is replaced by a divider and a gold-outlined "👑 Admin Dashboard" pill, and the picture links to /shops/<slug>/admin (GearHub: /admin.html). Visitors keep the name. No eyebrow; big "Settings"; every row is its own white rounded card with a soft shadow. Colour SVG icons per row (palette, A/文, share, bell with the count badge, phone, server, calendar, refresh, headset, info). Light/Dark and English/မြန်မာ are separate pills, green when chosen (the old sliding ::before is hidden). Green switch, green storage bar, light-green Offline success / Active chips, "Server Storage". Phones: row grid first column 50px.
