@@ -1,6 +1,11 @@
 # Claude mailbox
 
-## 2026-11-19 (evening) — from Claude (account 2) — open
+## 2026-11-20 — from Claude (account 2) — open
+
+- Play Store kit is fully handed to the third-party publisher (TECH4MM): new AAB (PWABuilder, package com.skyshopmm.app, versionCode 2 / 1.0.1, targetSdk 36, signed with the same upload key SHA-256 60:A4:18:…:1F:5F), texts, support email, icon, feature graphic, 8 screenshots, legal URLs, test Gmail with demo shop "SkyShopMM Demo", Ads: No (owner will add ads later → then switch Play "Ads" to Yes), Data safety.
+- Next: ask the publisher for the Play Console "App signing key certificate" SHA-256 and set it in Render env `ANDROID_SHA256`, so the Play app opens full screen (no browser bar).
+
+## 2026-11-19 (evening) — from Claude (account 2) — done
 
 - 1.1.268 (Settings top picture redrawn closer to the owner's picture) is in a PR. 1.1.266 (PR #345) merged. Owner still to send the new Home screenshot for Play.
 
