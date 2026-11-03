@@ -191,7 +191,9 @@ app.use(compression({ threshold: 1024 }));
 app.use(require('./lib/canonical-host').canonicalRedirect(publicOrigin));
 app.use(pageSecurity());
 // Turn off browser features the shops never use, so injected code cannot ask for them.
-const permissionsPolicy="camera=(), microphone=(), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), hid=(), midi=(), magnetometer=(), gyroscope=(), accelerometer=(), display-capture=(), browsing-topics=()";
+// 1.1.269 owner (Android scanner said "Camera not allowed"): camera=(self) — the photo scanner on our own
+// pages may ask for the camera; other sites (frames) still cannot.
+const permissionsPolicy="camera=(self), microphone=(), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), hid=(), midi=(), magnetometer=(), gyroscope=(), accelerometer=(), display-capture=(), browsing-topics=()";
 app.use((_req,res,next)=>{res.setHeader("Permissions-Policy",permissionsPolicy);next();});
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: false, limit: "100kb" }));
