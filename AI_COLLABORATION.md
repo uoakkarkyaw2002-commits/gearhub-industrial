@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.258: Swipe products and orders into the Recycle Bin, with a red border, arrow and bin (Claude)
+- Owner: products could already be swiped left to delete, orders could not, and nothing showed what would happen. Wanted: pressing a card gives a red border and a right-to-left arrow (only while pressed); dragging opens a bin at the left corner; the card goes into the bin.
+- New `public/swipe-bin.js` (admin.html, after order-detail.js): product cards (`[data-mobile-product-id]` → POST /api/admin/products/<id>/trash) and order cards in Orders & payment (`#orders-table [data-order-open]` → DELETE /api/admin/orders/<id>, the existing "move to Deleted orders"). Hold 250 ms or start dragging left → red outline + "← Bin" pill on the card + a red bin at the card's left edge. The lid opens as the card follows the finger; past max(72px, 30% of the width) it is ready. On release it asks once (same as before); OK → the card shrinks into the bin, then the API is called and the list is refreshed. Vertical scroll cancels; a swipe never opens the order. Touch only; PC is unchanged.
+- `public/admin.js`: the old inventory swipe handler was removed, so a product is not moved twice. `tests/public-syntax.test.js`: the category-swipe regex had matched only because of that old handler; it was split on purpose (the category swipe is unchanged). New `tests/swipe-bin.test.js`.
+- Checked: local GearHub store (SEED_DEMO, 2 orders) in Chromium at 390 with touch (CDP touch events). Product swipe → confirm → trashed_at set; a short swipe does nothing; order swipe → confirm → status deleted, detail not opened. At 1280 an order click still opens its detail. No errors. Node 22 check + 411/411. Not tested on a real iPhone/Android.
+
 ### 1.1.257: "Create GearHub app" in GearHub's own Settings inside another app (Claude)
 - Owner: inside the SkyShopMM app, shop Settings had "Create <shop> app" but GearHub's own store (/index.html) had nothing (app-switch.js only knew /shops/<slug>/, and the normal Add to Home Screen row hides inside an installed app). Owner wants it everywhere.
 - `public/app-switch.js`: /index.html counts as the place 'gearhub' (name "GearHub", link /index.html). The row, sheet and Android copy-link steps are the same as for shops. Not shown when the app's own first page was the GearHub store.

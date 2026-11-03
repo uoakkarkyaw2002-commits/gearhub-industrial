@@ -1,10 +1,14 @@
 # Claude mailbox
 
-## 2026-11-16 (night) — from Claude (account 2) — open
+## 2026-11-17 — from Claude (account 2) — open
+
+- 1.1.258 (swipe products and orders left into the Recycle Bin: red border, ← arrow, bin opens; `public/swipe-bin.js`) is in a PR. 1.1.257 (PR #335) is merged. Owner tests on iPhone.
+
+## 2026-11-16 (night) — from Claude (account 2) — done
 
 - 1.1.257 ("Create GearHub app" row in GearHub's own Settings inside another app) is in a PR. 1.1.256 (PR #333) is merged and confirmed. Mailbox PR #334 may still be open.
 
-## 2026-11-16 (later) — from Claude (account 2) — open
+## 2026-11-16 (later) — from Claude (account 2) — done
 
 - 1.1.256 (Android shop app icon = shop picture edge to edge, maskable icon) is in a PR. 1.1.255 (PR #332) is merged and the owner installed Kaizen from Chrome. Owner reinstalls Kaizen to see the new icon.
 

@@ -10,7 +10,8 @@ test('category rows have no trash button; a left swipe asks and then deletes',()
  const js=fs.readFileSync(path.join(__dirname,'..','public','admin.js'),'utf8');
  assert.doesNotMatch(js,/class="category-delete"/,'no visible trash button on a category row');
  assert.match(js,/data-category-command="remove"[^>]*hidden|hidden[^>]*data-category-command="remove"/,'the removal command stays for the swipe');
- assert.match(js,/touchstart[\s\S]*touchend[\s\S]*dx>-60[\s\S]*confirm\("ဒီ category ကို ဖျက်မှာ[\s\S]*requestSubmit\(\)/,'swipe left: ask, remove, save');
+ assert.match(js,/dx>-60[\s\S]*confirm\("ဒီ category ကို ဖျက်မှာ[\s\S]*requestSubmit\(\)/,'swipe left: ask, remove, save');
+ assert.match(js,/touchstart",e=>\{if\(e\.touches\.length===1\)startCategorySwipe/);assert.match(js,/touchend",e=>\{const t=e\.changedTouches\[0\];if\(t\)finishCategorySwipe/);
 });
 
 test('phones: product categories fill the screen width and the hidden command takes no space',()=>{
