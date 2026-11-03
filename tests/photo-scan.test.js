@@ -15,7 +15,7 @@ test('the scan button runs a live camera scanner and asks the shop server; the b
  assert.doesNotMatch(scan,/first time only|loadGraphModel/,'no on-phone model and no first-time message');
  assert.doesNotMatch(store,/photoScanIds/);
  assert.ok(!fs.existsSync(path.join(root,'public','vendor','tf.min.js')),'the on-phone model is gone');
- assert.match(index,/<script src="\/photo-scan\.js\?v=1\.1\.274"><\/script>/);
+ assert.match(index,/<script src="\/photo-scan\.js\?v=1\.1\.277"><\/script>/);
 });
 
 test('the photo-search API is public per shop, rate limited, takes a picture and stays inside the shop',()=>{
@@ -63,7 +63,7 @@ test('the scanner counts seconds, stops after 15 s with "No match found", and sa
  const scan=read('public/photo-scan.js'),css=read('public/style.css');
  assert.match(scan,/const SURE=0\.6,LEAD=0\.03,LIMIT=8000;/);
  assert.match(scan,/clock=setInterval\(\(\)=>\{if\(started\)looking\(\)\},1000\)/,'a seconds count while it looks');
- assert.match(scan,/if\(elapsed\(\)\*1000>=LIMIT\)\{const seconds=elapsed\(\),thumb=URL\.createObjectURL\(blob\);stop\(\);likely\(thumb,seconds,bestSeen\);return\}/,'never looks forever');
+ assert.match(scan,/if\(elapsed\(\)\*1000>=LIMIT\)\{const seconds=elapsed\(\),thumb=blob\?URL\.createObjectURL\(blob\):'';stop\(\);likely\(thumb,seconds,bestSeen\);return\}/,'never looks forever');
  assert.match(scan,/say\(t\('No match found','တူတာ မရှိပါ'\)/);
  assert.match(scan,/t\('found in ',''\)\+secs\(took\)/,'how many seconds it took');
  assert.match(scan,/why\(m,at===0\?matches\[1\]:null\)/,'each match says why');
@@ -101,4 +101,11 @@ test('1.1.275: look-alike Drive Shafts — parts compared upright with their sha
   assert.equal(sku(shops[Number(r.matches[0].id)-1]),sku(f),f+' → '+r.matches.map(m=>sku(shops[m.id-1])+' '+m.score).join(', '));assert.equal(r.matches[0].view,3)}
  assert.ok(fs.readdirSync(path.join(media,'7','.photo-looks')).some(f=>f.endsWith('.dinov2s-part.f32')),'parts are kept next to the photos');
  fs.rmSync(media,{recursive:true,force:true});
+});
+
+test('1.1.277: two look-alike parts (within 0.02) are never decided by two lucky frames; four frames are averaged',()=>{
+ const scan=require('node:fs').readFileSync(require('node:path').join(__dirname,'../public/photo-scan.js'),'utf8');
+ assert.match(scan,/const close=b&&a\.score-b\.score<CLOSE;\n  if\(a&&!close&&streak\.n>=/);
+ assert.match(scan,/if\(frames>=AVERAGE_FRAMES\)\{const avg=\[\.\.\.tally\]\.map\(\(\[id,x\]\)=>\(\{\.\.\.x\.list,id,score:Math\.round\(x\.s\/frames\*1000\)\/1000\}\)\)\.sort/);
+ assert.match(scan,/tally=new Map\(\);frames=0;trips=\[\];/,'each scan starts afresh');
 });

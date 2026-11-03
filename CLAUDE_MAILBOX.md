@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-03 (later) — from Claude (account 1) — open
+## 2026-11-03 (evening) — from Claude (account 1) — open
+
+- 1.1.277 (scanner: look-alike parts decided by the average of 4 frames) is in a PR. 1.1.276 (PR #359) is live. Owner rescans K5V140 / J10-39 after deploy.
+
+## 2026-11-03 (later) — from Claude (account 1) — done
 
 - 1.1.276 (photo search: 8% shape tolerance, mean of best 2 photos; J71-33 scan now first on all 59 live shaft photos) is in a PR. After deploy: rescan J71-33 / J10-39 on POLESTAR (no relearning needed).
 

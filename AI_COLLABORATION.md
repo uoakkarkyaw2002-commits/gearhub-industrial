@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.277: Scanner — look-alike parts decided by the average of 4 frames (Claude)
+- Owner (live 1.1.276): scanning the K5V140 J71-33 shaft first showed K3V140 PSM-V-30, the next scan J71-33. Cause in `public/photo-scan.js`: two frames ≥80% with the same top product ended the scan even when the second product was within ±0.005 (J71-33 and V-30 both ~0.82), so two lucky frames decided.
+- Now when the top two are within `CLOSE=0.02` the streak rule does not stop; scores are added up per product and after `AVERAGE_FRAMES=4` the best average is shown (with the existing "Closest · look alike, check ˄ ˅"). Clear matches still stop after one frame. Thumbnails guarded when a frame has no picture.
+- Built-in browser on live POLESTAR (local scanner via test proxy, fake camera, scripted answers): V-30 wins frames 1–2, J71-33 frames 3–4 → shows DRIVE SHAFT(R) PSM-J71-33 after 4 frames (3.3 s); a clear 0.86 vs 0.79 match → Best match in 2.2 s. Tests: tag/streak pins updated on purpose, new 1.1.277 test. Node 22 check + 434/434.
+
 ### 1.1.276: Photo search — shape tolerance and best-2-photos score (Claude)
 - Owner: after 1.1.275 went live, the J71-33 scan still came out 2nd (live 10:13–10:30 UTC: PSM-V-30 0.823, PSM-J71-33 0.821; J10-39 scans right). Cause: 1.1.275 was measured with one shop photo per product; live POLESTAR has 59 photos for its 8 shafts. The scan's shape (long÷short 7.35) is within ~5% of both J71-33 (6.9–7.1) and V-30 (7.2), yet any difference cost points.
 - `lib/photo-search.js` (parts mode only): shape differences up to 8% (`SHAPE_FREE`) cost nothing, larger ones cost `SHAPE_WEIGHT=1` × the rest; a product scores the mean of its best 2 photos (`BEST_PHOTOS`). Stored part vectors unchanged, so no relearning after deploy.
