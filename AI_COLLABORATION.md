@@ -40,6 +40,7 @@ _None._
 
 ### 1.1.268: Settings top picture closer to the owner's picture (Claude)
 - Owner: 1.1.266 "not the same". Now one drawn SVG picture (green sky with a light glow at the top right, fluffy clouds at the right / centre / left, a lime band rising to the right, then the page colour; a dark-mode variant). It is used as `center bottom/cover` on the Settings hero; the hero is 134px tall. The Admin Dashboard pill is smaller, with a dark green fill and a lime border.
+- Owner: still not the same → the banner now IS the owner's picture: `public/images/settings-banner.jpg` (851x242, 21 KB) cut from it with the status bar removed and the POLESTAR logo / divider / pill painted out (row interpolation + feathered blur). Each shop's logo tile and the owner pill are drawn on top as before. Dark mode keeps the drawn SVG. Phones: compact rows like the picture (60px rows, 44px icons, 15.5px titles, 11px navy help text, smaller pills/switch, 31px title).
 - Not possible here: the owner's picture shows green behind the phone status bar (the app keeps its normal top bar).
 - Checked: hero element screenshots at 390/360 (owner and visitor), no errors. Node 22 check + 427/427.
 
