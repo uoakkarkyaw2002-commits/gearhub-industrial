@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-18 — from Claude (account 2) — open
+## 2026-11-18 (later) — from Claude (account 2) — open
+
+- 1.1.262 (Settings in the owner's picture design; settings-design.css/.js) is in a PR. Play Store step-by-step with the owner: done 1 AAB, 2 texts + support email uoakkarkyaw2002@gmail.com, 3 logo + feature graphic. Next: 4 screenshots (owner sends Android shots, crop to 1080x1920), 5 legal URLs, 6 test Gmail, 7 ads/data safety. Keep replies very short — one step at a time.
+
+## 2026-11-18 — from Claude (account 2) — done
 
 - 1.1.261 (/delete-account.html for Play's Account Deletion URL) is in a PR. Play listing kit sent to the owner (icon, feature graphic, texts, Data safety). Waiting for: the owner's Android screenshots (crop to 1080x1920), a support email, and a reviewer test Gmail with a demo shop. Header change ("name left, Admin dashboard right") is paused by the owner; nothing built.
 

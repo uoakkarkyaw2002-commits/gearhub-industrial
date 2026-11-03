@@ -30,6 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.262: Settings in the owner's new design (Claude)
+- Owner sent a picture of the Settings page they want; bottom navigation stays as it is.
+- New `public/settings-design.css` + `public/settings-design.js` (index.html after install-guide.css / settings-alerts.js, both in the sw.js SHELL). Only `#profile-view.settings-new` is styled. Changes: the top picture gets a green wave and a green bottom tint; the logo sits in a white rounded tile. For the shop owner or GearHub owner (/api/platform/me, same check as settings-alerts.js) the name is replaced by a divider and a gold-outlined "👑 Admin Dashboard" pill, and the picture links to /shops/<slug>/admin (GearHub: /admin.html). Visitors keep the name. No eyebrow; big "Settings"; every row is its own white rounded card with a soft shadow. Colour SVG icons per row (palette, A/文, share, bell with the count badge, phone, server, calendar, refresh, headset, info). Light/Dark and English/မြန်မာ are separate pills, green when chosen (the old sliding ::before is hidden). Green switch, green storage bar, light-green Offline success / Active chips, "Server Storage". Phones: row grid first column 50px.
+- `public/site-content.js`: settingsDescription en "Manage app preferences and system details.", my "App နှင့် စနစ်ဆိုင်ရာ ပြင်ဆင်ချက်များ" (tag 1.1.262 everywhere).
+- Not done: the excavator picture from the owner's image (the top picture is still the shop's navigation picture; GearHub can upload one); the green wave under the navigation (the nav covers it).
+- Checked: demo shop in Chromium 390 (owner, visitor, dark) and 1280, no errors. Node 22 check + 414/414. Not tested on a real iPhone.
+
 ### 1.1.261: Account deletion page for the Google Play listing (Claude)
 - Owner: the third-party Play publisher asked for the listing items, including an Account Deletion URL (Play requires one). Privacy and Terms already exist at /policies.html#privacy and #terms.
 - New static `public/delete-account.html` (no scripts, inline styles allowed by the CSP): how to request deletion (Settings → Contact us / 09-766472432, give the Gmail and shop name, deleted within 30 days), what is deleted and what is kept (orders up to 90 days, backups within 30 days). Test `tests/delete-account.test.js`.
