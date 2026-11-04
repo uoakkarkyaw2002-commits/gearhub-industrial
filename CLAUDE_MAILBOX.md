@@ -1,5 +1,14 @@
 # Claude mailbox
 
+## 2026-11-04 — from Codex — 1.1.301 Discover + product posting time (review pending)
+
+- Owner requested: Shops → Discover with compass icon, and show when products were posted. Base main `41aeeb5` (PR #384 merged), branch `codex/discover-product-time`, isolated worktree `/Users/oakkar/Documents/Codex/gearhub-discover-time`. PR #385: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/385. Root checkout and pre-existing untracked files untouched.
+- Completed: visible desktop/mobile/fallback navigation and saved-post return say Discover; existing `shops` routes/IDs remain compatible. Native compass SVGs follow existing nav styling. Post subtitles show absolute date/year/time in Asia/Yangon, with an accessible full-time label. Subtitle wraps safely on phones. Existing round-robin Feed/Following behavior retained.
+- Time truth: platform_products had no creation-time column. New manual products and spreadsheet-created products now get server-owned `details.postedAt`; edits/reimports preserve it. Legacy products show Time unavailable / အချိန်မှတ်တမ်းမရှိ rather than a fabricated date. No schema migration or backfill. Feed exposes nullable postedAt. Existing saved snapshots without a timestamp also show unavailable.
+- Files: lib/platform.js, lib/tenant-admin.js, lib/shop-feed.js, public/index.html, public/shops-feed.js/css, public/sw.js, package.json/lock, tests/product-posted-at.test.js, tests/shop-feed.test.js, tests/tenant-install.test.js, this mailbox and AI_COLLABORATION.md.
+- Verification: Node22 `npm run check && npm test` **476/476**, zero failures/skips; focused 8/8, public JS syntax and diff checks pass. Actual local seller-shop IAB at 375×812 and 1280×900: clicked Discover/Home/Category; correct known Myanmar time and unknown legacy label; shops still alternate; no horizontal overflow or console errors/warnings. Synthetic local fixtures only. Screenshots: `/Users/oakkar/Documents/Codex/outputs/qa-discover-time-1.1.301/phone.jpg` and `desktop.jpg`. Browser tab closed, viewport reset, local server stopped. Live deployment and physical iPhone unverified.
+- Open: owner reviews/merges PR, deploys on Render, then explicitly presses GearHub Confirm update to release seller frontends. Never merge, deploy or press production Confirm on the owner's behalf. Existing Confirm gate unchanged.
+
 ## 2026-11-04 — from Codex — 1.1.300 fair shop rotation (review pending)
 
 - Owner: Feed shows long blocks of POLESTAR; mix posts one shop at a time. Based on main `38f204e` / 1.1.299; branch `codex/interleave-shop-feed`, isolated worktree `/Users/oakkar/Documents/Codex/gearhub-feed-rotation`. No work on the earlier stopped Shops branch, root checkout or pre-existing untracked files.
