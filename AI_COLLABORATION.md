@@ -35,6 +35,13 @@ _None._
 - PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/371. No runtime changes in this continuation; files changed: mailbox/log only. Code head `d03f8bd` has Node22 check + tests 459/459 and green Production readiness/node22 (run 41778088940). Preparing for review with actual 375/1280 browser/physical-device verification still explicitly unverified. No merge/deploy or production confirmation.
 - Owner merges/deploys, checks GearHub Settings and seller versions, then presses Confirm update when satisfied. The feature controls seller frontend version changes; SQLite/disk-backed backend restarts remain possible during Render deploys.
 
+### 1.1.292: iPhone shop apps keep other shops inside the app (Claude)
+- Owner: from the installed Kaizen app, opening POLESTAR showed a Safari sheet (X, address bar, toolbar) — "looks like the website".
+- Cause: `/shops/<slug>/app.webmanifest` scope was the shop's own folder; iOS shows anything outside the scope in a Safari sheet.
+- Fix (lib/tenant-install.js): Apple devices (iPhone/iPad/iPod, Safari on Mac) get `scope:'/'` (like the admin manifest); Android/PC keep the shop scope so a shared shop link still opens that shop's own app (no app chooser). `Vary: User-Agent`. id/start_url unchanged.
+- iOS reads the manifest only when the app is added: the owner must delete and re-add each shop app (Kaizen, POLESTAR) on the iPhone after deploy.
+- Checks: Node 22 check + 464/464 (tenant-install test now checks both scopes; titlebar pin updated on purpose). Not testable in a desktop browser; not tested on the iPhone.
+
 ### 1.1.291: "User show" — the shop owner chooses what visitors see (Claude)
 - Owner: a "User show" button right of + Add Product; switch each product field on/off for visitors (SKU, Part No, Price, Stock, Description) and choose how many photos, from the first, they see.
 - Saved in settings JSON (seller: `platform_shops.settings.visitorView`; GearHub: `site_settings.settings_json.visitorView`; Appearance save keeps it). No new table or column.
