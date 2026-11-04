@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-09 (later) — from Claude (account 1) — open
+
+- 1.1.308 (personal posts: like/comment/save; comment names = SkyShop shop name; pencil edit) is in a PR. 1.1.307 (PR #391) merged.
+
 ## 2026-11-09 — from Claude (account 1) — open
 
 - 1.1.307 (search bar stays on top while scrolling found products; Trash plays the bin animation; no Refresh row) is in a PR. 1.1.306 (PR #390) merged.

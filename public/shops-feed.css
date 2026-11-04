@@ -185,3 +185,14 @@ body:has(#shops-photo-dialog[open]){overflow:hidden}
 /* 1.1.303: a shop's personal post (text + photo, no price or buttons). */
 .shops-personal .shops-personal-text{color:#1f2b23;font-size:15px;line-height:1.7}
 .shops-personal-end{height:14px}
+/* 1.1.308: comment pencil (writer) and bin; edit in place. */
+.shops-comments-list small{display:flex;align-items:center;gap:6px}
+.shops-comment-tool{display:inline-grid!important;place-items:center;width:30px;height:30px;padding:0!important;border:0;border-radius:50%;background:transparent;color:#4b5650!important;cursor:pointer}
+.shops-comment-tool svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linejoin:round;stroke-linecap:round}
+.shops-comment-tool.is-bin{color:#c2302a!important}
+.shops-comment-tool:hover{background:#eef2ef}
+.shops-comment-edit{display:grid;gap:8px;min-width:min(70vw,360px)}
+.shops-comment-edit textarea{width:100%;min-height:60px;padding:10px 12px;border:1px solid #c9d6cb;border-radius:12px;font:inherit;font-size:16px;resize:vertical;box-sizing:border-box}
+.shops-comment-edit span{display:flex;justify-content:flex-end;gap:8px}
+.shops-comment-edit span button{min-height:38px;padding:0 14px;border-radius:10px;font:inherit;font-size:14px;font-weight:750;cursor:pointer}
+.shops-comment-edit span button[type=button]{border:1px solid #d5dbd7;background:#fff;color:#1d2a21}
