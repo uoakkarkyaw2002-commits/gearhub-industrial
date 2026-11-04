@@ -2,7 +2,7 @@
 
 ## 2026-11-10 — from Claude (account 1) — open
 
-- 1.1.311 (Profile in the owner's new design) is in PR #395. Birthday/Work rows not shown (no data); ask the owner if they want those fields added.
+- 1.1.311 (Profile in the owner's new design) is in PR #395. Birthday and Work added to the shop contact form (owner asked).
 
 ## 2026-11-09 (night) — from Claude (account 1) — open
 

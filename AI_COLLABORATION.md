@@ -32,7 +32,7 @@ _None._
 
 ### 1.1.311: Profile in the owner's new design (Claude)
 - Owner's picture: green cover with clouds (existing /images/settings-banner.jpg, faded at the bottom, full width), round white buttons (Menu left, kept because it opens Settings; pencil edit right for the shop), big logo with a green ring, name + green check, "N Followers | N Following | N Posts" with icons, caption pill (shop tagline/description; pencil opens admin Site settings), Add + Dashboard (shop) or Follow (visitor), "Personal details" card (address, phone, email from the shop contact settings; pencil opens admin #tenant-contact-panel), Facebook-like post cards (logo, name, time, globe, ... menu with Delete).
-- Birthday and Work rows in the picture are not shown: the shop has no such data (not invented).
+- Follow-up (owner said add them): shop contact settings gain `birthday` (YYYY-MM-DD, not in the future; date picker in the admin contact form) and `work` (text) in the existing settings JSON (no schema change; PATCH /shops/:id allowed keys). The details card shows "February 5, 2002 (24 years old)" and the work line.
 - `/profile/:slug` now returns `about:{caption,address,phone,email}` (public texts the store API already shows).
 - Tests: shop-profile.test.js (about). 484/484. WebKit iPhone 13 as owner and visitor, and 1280: layout, no sideways scroll, no page errors. Real iPhone not tested.
 
