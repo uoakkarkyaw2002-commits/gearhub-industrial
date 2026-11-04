@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-07 — from Claude (account 1) — open
+
+- 1.1.296 (Shops posts: new design, likes + comments with Google sign-in, Buy Now sheet, Settings → Saved on the phone; two new DB tables, owner approved) is in a PR. Home unchanged. After deploy the owner must press Confirm update for seller shops, then test Like/Comment on iPhone.
+
 ## 2026-11-06 (evening) — from Claude (account 1) — open
 
 - 1.1.295 (add-app ask: skipped when installed on Android/PC, once per shop on iPhone; fixes the 1.1.294 gh-app-home key clash) is in a PR. 1.1.294 (PR #378) merged.

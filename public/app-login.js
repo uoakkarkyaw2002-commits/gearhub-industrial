@@ -7,10 +7,10 @@
  const read=()=>{try{const p=JSON.parse(localStorage.getItem(KEY)||"null");return p&&Date.now()-p.at<LIFE?p:null}catch{return null}};
  const clear=()=>{try{localStorage.removeItem(KEY)}catch{}};
  const me=async()=>(await fetch("/api/platform/me",{cache:"no-store",credentials:"same-origin"})).json();
- async function start(){
+ async function start(back){
   const id=[...crypto.getRandomValues(new Uint8Array(24))].map(b=>b.toString(16).padStart(2,"0")).join("");
   try{localStorage.setItem(KEY,JSON.stringify({id,at:Date.now()}))}catch{}
-  const m=await me(),r=await fetch("/api/platform/auth/start",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json","X-CSRF-Token":m.csrfToken||""},body:JSON.stringify({handoff:id})});
+  const m=await me(),r=await fetch("/api/platform/auth/start",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json","X-CSRF-Token":m.csrfToken||""},body:JSON.stringify({handoff:id,back:typeof back==="string"?back:""})});
   const d=await r.json().catch(()=>({}));if(!r.ok||!d.url)throw new Error(d.error||"Login unavailable.");
   if(!timer)timer=setInterval(()=>{if(!read())return clearInterval(timer);claim()},3000);
   location.href=d.url;
