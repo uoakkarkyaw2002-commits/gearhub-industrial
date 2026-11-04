@@ -1396,3 +1396,14 @@ html[data-visitor-hide~="stock"] .category-row-stock{display:none!important}
  .mobile-bottom-nav.nav-away{transform:translate3d(0,calc(100% + 40px),0)!important}
 }
 @media(prefers-reduced-motion:reduce){.mobile-bottom-nav,.mobile-bottom-nav.liquid{transition:none}}
+/* 1.1.294 owner: visiting another shop inside a shop app — Home, Category, Promotion, Cart and an exit button (visit-shop.js). */
+.mobile-bottom-nav .bottom-nav-item[hidden],.desktop-top-nav .desktop-nav-item[hidden]{display:none!important}
+body.visiting-shop .mobile-bottom-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+body.visiting-shop.no-promotions .mobile-bottom-nav{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+.visit-exit{text-decoration:none;color:#c2412d}
+.visit-exit svg{fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.mobile-bottom-nav .visit-exit>span{color:#d0402a!important}
+.mobile-bottom-nav .visit-exit>span>svg{width:30px;height:30px;stroke:#d0402a!important;stroke-width:2.4}
+.mobile-bottom-nav .visit-exit>small{color:#c2412d}
+.desktop-top-nav .visit-exit,.desktop-top-nav .visit-exit span{color:#c2412d!important}
+.desktop-top-nav .visit-exit svg{color:#c2412d}

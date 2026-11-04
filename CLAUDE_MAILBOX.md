@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-06 (later) — from Claude (account 1) — open
+
+- 1.1.294 (another shop inside a shop app: Home/Category/Promotion/Cart + red exit in the Settings place) is in a PR. 1.1.293 (PR #377) merged; owner re-added Kaizen Beauty and POLESTAR now opens inside the app.
+
 ## 2026-11-06 — from Claude (account 1) — open
 
 - 1.1.293 (phone bottom bar hides on scroll down, back on scroll up / stop) is in a PR. 1.1.292 (PR #376) merged; owner re-adds shop apps on iPhone to get the wide scope. Home-cart work still in `git stash`.
