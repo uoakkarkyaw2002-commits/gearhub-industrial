@@ -133,12 +133,6 @@
   back.addEventListener('click', () => { savedMode = false; render(); if (!initialized) load(true); });
   function render() { list.innerHTML = (savedMode ? savedList() : items).map(post).join(''); labels(); }
   let current = null;
-  // Feed mixes the shops (one post from each in turn); New Arrivals keeps the newest first.
-  function mix(list2) {
-    const groups = new Map(); for (const item of list2) { const k = slugOf(item); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(item); }
-    const out = []; while (out.length < list2.length) for (const group of groups.values()) if (group.length) out.push(group.shift());
-    return out;
-  }
   async function load(reset = false) {
     if (savedMode || (!reset && (loading || (initialized && nextBefore === null)))) return;
     if (reset) { current?.abort(); initialized = false; nextBefore = null; items = []; }
@@ -151,6 +145,7 @@
     const params = new URLSearchParams();
     if (!reset && nextBefore) params.set('before', nextBefore);
     if (query) params.set('q', query);
+    if (tab === 'feed' || tab === 'following') params.set('mode', 'mixed');
     if (tab === 'trending') params.set('mode', 'trending');
     if (tab === 'following') params.set('shops', shops.join(','));
     try {
@@ -161,8 +156,7 @@
       if (reset || !initialized) { items = []; list.innerHTML = ''; }
       const seen = new Set(items.map(item => item.id));
       if (stop !== current) return;
-      let fresh = incoming.filter(item => !seen.has(item.id));
-      if (tab === 'feed') fresh = mix(fresh);
+      const fresh = incoming.filter(item => !seen.has(item.id));
       items.push(...fresh);
       if (!savedMode) list.insertAdjacentHTML('beforeend', fresh.map(post).join(''));
       nextBefore = result.nextBefore || null;

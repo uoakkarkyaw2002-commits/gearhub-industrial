@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.300: Rotate Feed posts one shop at a time across pages (Codex — review pending)
+- Task: eliminate long POLESTAR-only blocks without redesigning the Shops feed. Base main `38f204e`; branch `codex/interleave-shop-feed`; isolated worktree `gearhub-feed-rotation`. PR link to follow. No merge/deploy or production Confirm update.
+- Files: `lib/shop-feed.js` (explicit mixed-mode round robin with per-shop keyset cursors; snapshot cap and last shop keep turns across pages; bounded cursor decoding/filter binding), `public/shops-feed.js` (Feed/Following opt in; remove per-page client shuffle), package/index/SW release tags, tenant-install/shop-feed pinned-tag tests, new `tests/shop-feed-rotation.test.js`, mailbox/log. No CSS, schema or unrelated feature changes. Existing newest-first/Trending behavior and owner confirmation gate preserved.
+- Validation: Node22 check + tests **473/473** (zero failures/skips), focused 7/7; touched public JS syntax and diff checks. Actual local IAB seller-shop 375×812 + 1280×900: alternating Kaizen/TREEBIRD/POLESTAR, continuation from 20 to 40 posts, Following of two shops alternates, New Arrivals remains newest-first, Home/Category work, no console error/warning or horizontal overflow. Screenshots under `/Users/oakkar/Documents/Codex/outputs/qa-feed-rotation-1.1.300/`; browser/fixture cleaned up. Physical phones and live deployment untested; owner merges/deploys and explicitly Confirms seller frontend updates.
+
 ### 2026-11-04: Owner selects Confirm update only (Codex — PR #371 review handoff)
 - Owner chose Confirm update only after pricing discussion. Database migration, paid Postgres and full zero-downtime infrastructure are outside this authorized scope; do not pursue them or repeat the approval request.
 - PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/371. No runtime changes in this continuation; files changed: mailbox/log only. Code head `d03f8bd` has Node22 check + tests 459/459 and green Production readiness/node22 (run 41778088940). Preparing for review with actual 375/1280 browser/physical-device verification still explicitly unverified. No merge/deploy or production confirmation.
