@@ -1,10 +1,14 @@
-const CACHE_NAME = "gearhub-shell-v85-1.1.305";
+const CACHE_NAME = "gearhub-shell-v85-1.1.306";
 const SHELL = ["/search-filter.css?v=1.1.305","/search-filter.js?v=1.1.305","/pull-refresh.js?v=1.1.304","/profile-menu.css?v=1.1.303","/profile-menu.js?v=1.1.303","/visit-shop.js?v=1.1.298","/nav-autohide.js?v=1.1.293","/shops-feed.css?v=1.1.303","/shops-feed.js?v=1.1.304","/release-control.css?v=1.1.288","/release-control.js?v=1.1.288","/signin.css?v=1.1.210","/platform.js?v=1.1.290","/shop-application.js?v=1.1.204","/images/signin-scene.webp?v=1.1.203","/images/signin-scene-phone.webp?v=1.1.209","/open-in-app.js?v=1.1.200","/app-switch.js?v=1.1.295","/install-guide.css?v=1.1.231","/install-guide.js?v=1.1.231","/product-phone.css?v=1.1.194","/product-phone.js?v=1.1.193","/photo-editor.css?v=1.1.229","/photo-editor.js?v=1.1.230","/product-ai.js?v=1.1.193","/images/product-ai-robot.png?v=1.1.193","/skyshop-splash.css?v=1.1.299","/skyshop-splash.js?v=1.1.299","/images/skyshop-splash-phone.jpg?v=1","/images/skyshop-splash-pc.jpg?v=1","/category-browser.js?v=20261028-same-name-1","/tenant-store.js?v=1.1.291","/excel-zip.js?v=1.1.267","/excel-map.js?v=1.1.285","/excel-select.js?v=1.1.226","/excel-auto-upload.js?v=1.1.192","/excel-library.js?v=1.1.285","/excel-search-index.js?v=1.1.267","/excel-search.js?v=1.1.305","/updates.js?v=1.1.288","/desktop.css?v=20261023-pcnav-2","/","/style.css?v=1.1.298","/site-content.js?v=1.1.302","/smart-search.js?v=1.1.296","/store.js?v=1.1.296","/similar-parts.js?v=1.1.235","/photo-scan.js?v=1.1.281","/net-speed.js?v=1.1.285","/liquid-nav.js?v=20261022-nav-drag-1","/card-tilt.js?v=20261023-tilt-1","/app-install.js?v=1.1.262","/settings.js?v=1.1.286","/app-badge.js?v=1.1.249","/app-login.js?v=1.1.296","/settings-alerts.js?v=1.1.251","/settings-design.css?v=1.1.268","/settings-design.js?v=1.1.296","/back-nav.js?v=1.1.303","/dialogs.js?v=20261026-keep-scroll-1","/footer.js?v=20261012-1","/images/hero-excavator.jpg","/app.webmanifest","/app-icon.png","/icons/icon.svg","/icons/apple-touch-icon.png","/qrcode.js?v=1.4.4"];
 const ADMIN_CACHE="gearhub-admin-v1",IMAGE_CACHE="gearhub-img-v1",EXCEL_CACHE="gearhub-excel-v1";
 const shopPath=pathname=>{const m=pathname.match(/^\/shops\/([a-z0-9-]+)(?:\/|$)/);return m?'/shops/'+m[1]+'/':null;};
 const offlineCache=pathname=>'gearhub-offline-v2:'+ (shopPath(pathname)||'root');
 // 1.1.287: "/" is saved after its redirect to /platform.html; Safari refuses a page the service worker answers with
 // a redirected copy ("Response served by service worker has redirections"), so the saved copy is handed over as a plain page.
+// 1.1.306 owner: during a Render deploy the server is down for a moment and Render shows its own black
+// "502 Bad Gateway" page. Pages now open from the saved copy instead; with no saved copy this short page
+// says the app is updating and opens itself again every few seconds.
+const busyPage = () => new Response('<!doctype html><html lang="my"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta http-equiv="refresh" content="5"><title>Updating…</title><body style="margin:0;display:grid;place-items:center;min-height:100vh;padding:24px;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif;background:#f5f7f1;color:#173c2a;text-align:center"><div><div style="width:56px;height:56px;margin:0 auto 18px;border:5px solid #cfe3cf;border-top-color:#1a7a2e;border-radius:50%;animation:s 1s linear infinite"></div><h1 style="margin:0 0 8px;font-size:20px">ခဏစောင့်ပါ — app ကို update လုပ်နေပါတယ်</h1><p style="margin:0;color:#52645a;font-size:15px;line-height:1.6">Updating… this page opens again by itself in a few seconds.<br>အင်တာနက် မရှိရင် ပြန်ချိတ်ပါ။</p></div><style>@keyframes s{to{transform:rotate(360deg)}}</style></body></html>', {status: 503, headers: {"Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store"}});
 const unredirect = r => r && r.redirected ? r.blob().then(body => new Response(body, {status: r.status, statusText: r.statusText, headers: r.headers})) : r;
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -45,8 +49,9 @@ self.addEventListener("fetch", event => {
   if (request.mode === "navigate" && (url.pathname === "/admin.html" || /^\/shops\/[^/]+\/admin\/?$/.test(url.pathname))) {
     event.respondWith(fetch(request).then(response => {
       if (response.ok) { const copy = response.clone(); caches.open(ADMIN_CACHE).then(cache => cache.put(url.pathname, copy)); }
+      if (response.status >= 500) throw new Error("server restarting");
       return response;
-    }).catch(async () => unredirect(await (await caches.open(ADMIN_CACHE)).match(url.pathname)) || new Response("Offline. Open this page once with internet first.", {status: 503, headers: {"Content-Type": "text/plain; charset=utf-8"}})));
+    }).catch(async () => unredirect(await (await caches.open(ADMIN_CACHE)).match(url.pathname)) || busyPage()));
     return;
   }
   if (request.mode === "navigate") {
@@ -54,7 +59,7 @@ self.addEventListener("fetch", event => {
       if (response.ok) { const copy = response.clone(); caches.open(CACHE_NAME).then(cache => cache.put(url.pathname === "/" ? "/" : request.url, copy)); }
       if (response.ok || response.status < 500) return response;
       throw new Error("server restarting");
-    }).catch(async () => unredirect(await (async()=>{const tenant=shopPath(url.pathname);if(tenant)return (await caches.open(offlineCache(url.pathname))).match(url.href).then(async saved=>saved||await (await caches.open(CACHE_NAME)).match(url.href)||new Response('This shop is unavailable offline. Connect to the internet to open it.',{status:503,headers:{'Content-Type':'text/plain'}}));return (await caches.open(offlineCache('/'))).match('/').then(saved=>saved||caches.match('/'));})())));
+    }).catch(async () => unredirect(await (async()=>{const tenant=shopPath(url.pathname);if(tenant)return (await caches.open(offlineCache(url.pathname))).match(url.href).then(async saved=>saved||await (await caches.open(CACHE_NAME)).match(url.href)||busyPage());return (await caches.open(offlineCache('/'))).match('/').then(async saved=>saved||await caches.match('/')||busyPage());})())));
     return;
   }
   if(url.pathname==="/app.webmanifest"){event.respondWith(fetch(request).then(response=>{if(response.ok){const copy=response.clone();caches.open(CACHE_NAME).then(cache=>cache.put(request,copy));}return response}).catch(()=>caches.match(request)));return;}

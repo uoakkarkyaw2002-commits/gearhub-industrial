@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-08 (late night) — from Claude (account 1) — open
+
+- 1.1.306 (during a deploy: saved page or "updating…" page instead of Render's 502) is in a PR. Zero downtime is not possible with the Render disk.
+
 ## 2026-11-08 (night) — from Claude (account 1) — open
 
 - 1.1.305 (one bin only — Trash in the filter list; ˄ ˅ beside the Excel count) is in a PR. 1.1.304 (PR #388) merged.
