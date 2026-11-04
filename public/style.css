@@ -1365,3 +1365,4 @@ body.alerts-history-open{overflow:hidden}
 .storage-more[hidden]{display:none}
 .storage-more p{margin:4px 0 0;font-size:12px;line-height:1.45;color:var(--muted,#66756b)}
 .storage-more b{color:var(--ink,#192820);font-weight:700}
+.storage-more .storage-shop{margin:0;padding-left:22px;font-size:11.5px}

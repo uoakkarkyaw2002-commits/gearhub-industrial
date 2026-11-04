@@ -376,7 +376,10 @@ app.get("/api/storage", async (_req, res) => {
   if (isGearHubOwner(_req)) {
    const [r2, gdrive] = await Promise.all([fileStore?.usage().catch(() => null), drive?.usage().catch(() => null)]);
    out.r2 = r2 ? { usedBytes: r2.bytes, files: r2.files, shopFileBytes: r2.fileBytes, freeBytes: 10 * 1024 ** 3 } : null;
-   out.drive = gdrive ? { usedBytes: gdrive.bytes, files: gdrive.files } : null;
+   out.drive = gdrive ? { usedBytes: gdrive.bytes, files: gdrive.files, limitBytes: drive.limit } : null;
+   // 1.1.284 owner: every seller shop's files together (from the file records, wherever the file is kept).
+   const shops = db.prepare("SELECT s.name, COALESCE(SUM(f.bytes),0) AS bytes FROM platform_shops s LEFT JOIN platform_files f ON f.shop_id=s.id AND f.ready=1 WHERE s.legacy=0 GROUP BY s.id ORDER BY bytes DESC").all();
+   out.shops = { usedBytes: shops.reduce((t, s) => t + Number(s.bytes || 0), 0), count: shops.length, top: shops.slice(0, 5).map(s => ({ name: s.name, usedBytes: Number(s.bytes || 0) })) };
   }
   res.json(out);
  } catch (err) {

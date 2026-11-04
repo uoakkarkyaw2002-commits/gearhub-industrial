@@ -58,3 +58,15 @@ test('1.1.283: Settings gets the whole R2 bucket size (shop files and backups), 
  assert.match(drive,/trashed=false and mimeType!='/,'only files GearHub put in Drive (drive.file scope)');
  assert.match(settings,/Cloudflare R2/);assert.match(settings,/Google Drive/);
 });
+
+test('1.1.284: R2 keeps only the newest backups, Google Drive stops at 1 TB, and the owner sees every shop\'s storage',()=>{
+ const {oldBackupKeys}=require('../lib/backups');
+ const keys=['gearhub/gearhub-2026-11-01T00-00-00-000Z.tar.gz','gearhub/gearhub-2026-11-03T00-00-00-000Z.tar.gz','gearhub/gearhub-2026-11-02T00-00-00-000Z.tar.gz','gearhub/gearhub-2026-11-04T00-00-00-000Z.tar.gz','gearhub/notes.txt'];
+ assert.deepEqual(oldBackupKeys(keys),['gearhub/gearhub-2026-11-01T00-00-00-000Z.tar.gz'],'newest 3 kept; other files never touched');
+ assert.equal(oldBackupKeys(keys,'1').length,3,'BACKUP_S3_KEEP=1 keeps only the newest');assert.equal(oldBackupKeys(keys,'0').length,1,'0 or nonsense falls back to 3');
+ const read=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
+ assert.match(read('lib/drive-backup.js'),/const DRIVE_LIMIT = 1024 \*\* 4;/);
+ assert.match(read('lib/drive-backup.js'),/if \(!connected\(\) \|\| full\(\)\) return 0;/,'no new photo copies past 1 TB');
+ assert.match(read('server.js'),/out\.shops = \{ usedBytes:/);
+ assert.match(read('public/settings.js'),/All shops/);
+});

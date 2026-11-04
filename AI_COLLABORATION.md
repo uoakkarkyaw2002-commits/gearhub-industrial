@@ -30,6 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.284: R2 keeps 3 backups; Google Drive capped at 1 TB; Settings shows all shops' storage (Claude)
+- Owner (live 1.1.283: R2 6.2 GB / 10 GB, Drive 3.0 GB, Render 98 MB): Cloudflare too big; add every shop's storage; allow Google Drive up to 1 TB.
+- `lib/backups.js`: after each R2 backup upload, archives under `BACKUP_S3_PREFIX` (gearhub/) beyond the newest `BACKUP_S3_KEEP` (3) are deleted (`oldBackupKeys`; only gearhub-*.tar.gz; shop files under files/ untouched). Drive still keeps 30.
+- `lib/drive-backup.js`: `DRIVE_LIMIT` 1 TB — backups throw and photo sweeps stop once the app's Drive files reach it (uses the last known size, refreshed in the background, so Drive errors still surface from the upload).
+- `/api/storage` (owner): `drive.limitBytes`, `shops {usedBytes,count,top[5]}` from platform_files. Settings: Drive line "X / 1.0 TB" with meter; "🏪 All shops" total + top 5 shops (names escaped).
+- Local page with mocked numbers at 1280 (no overflow). Node 22 check + 446/446.
+
 ### 1.1.283: Settings → Storage shows Render, Cloudflare R2 and Google Drive (Claude)
 - Owner: show the three storages (Render, Cloudflare, Google Drive — only what GearHub keeps there). After 1.1.282 + Render env `FILES_S3_BUCKET=gearhub-backups` and `FILES_CACHE_MB=50`, live /api/storage was 103 MB (was 855 MB).
 - `/api/storage` adds `r2` (whole bucket via ListObjectsV2: bytes, files, shop-file bytes, 10 GB free tier) and `drive` (all non-folder files the app made, drive.file scope) only for the GearHub owner (`isGearHubOwner`: GearHub admin session or owner Google account). Both cached 10 min. `settings.js` shows "🖥️ Render · …" plus the R2 line with a meter and the Drive line (`#storage-more`); customers see the Render line as before.
