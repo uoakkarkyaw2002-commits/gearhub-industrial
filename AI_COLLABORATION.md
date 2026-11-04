@@ -35,6 +35,10 @@ _None._
 - PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/371. No runtime changes in this continuation; files changed: mailbox/log only. Code head `d03f8bd` has Node22 check + tests 459/459 and green Production readiness/node22 (run 41778088940). Preparing for review with actual 375/1280 browser/physical-device verification still explicitly unverified. No merge/deploy or production confirmation.
 - Owner merges/deploys, checks GearHub Settings and seller versions, then presses Confirm update when satisfied. The feature controls seller frontend version changes; SQLite/disk-backed backend restarts remain possible during Render deploys.
 
+### 1.1.290: My shop page survives a server restart (Claude)
+- Owner's iPhone showed only "The string did not match the expected pattern" on platform.html (My shop) right after the 1.1.289 deploy: the restarting server answered with an HTML page and `r.json()` failed (Safari's wording). `public/platform.js` `api()` now parses text and throws a busy error ("Server is restarting… / Server ပြန်စနေပါတယ်"); the first load retries every 3 s (up to 2 min) and clears the message when it works. Test `tests/platform-restart.test.js`.
+- Checks: Node 22 check + 461/461 tests + new test. Browser: platform.html on a static server (HTML 404 for the API) shows the message and retries. Live server was healthy at the time of checking (1.1.289).
+
 ### 1.1.289: Shops tab — every shop's products as a feed (Codex started, Claude finished)
 - Owner: a "Shops" tab to the right of Home (GearHub and every shop) showing all shops' products like Facebook: shop name, then description, then photos.
 - Codex built it (lib/shop-feed.js `GET /api/platform/feed`, 20 per page by product id, each shop checked with publicShop and only its own ready photos; public/shops-feed.js/.css, Shops button in the phone and PC nav, photo viewer dialog, back-nav entry, tests/shop-feed.test.js) but stopped at its usage limit before testing.

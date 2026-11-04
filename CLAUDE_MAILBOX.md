@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-05 (later) — from Claude (account 1) — open
+
+- 1.1.290 (My shop page: server restart → "Server is restarting…" + auto retry instead of "The string did not match the expected pattern") is in a PR. 1.1.289 Shops tab (PR #373) is merged and live.
+
 ## 2026-11-05 — from Claude (account 1) — open
 
 - 1.1.289 Shops tab (feed of every shop's products) — Codex hit its limit; Claude finished and fixed it in worktree `gearhub-shops-feed`, branch `claude/shops-feed`, in a PR. After deploy check skyshopmm.com Shops tab with real shops; seller shops get it after Confirm update.

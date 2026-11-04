@@ -123,7 +123,10 @@
     if(writes)window.__gearhubPlatformPending=++pendingWrites>0;
     try {
       const r = await fetch("/api/platform" + url, { method, headers, body });
-      const v = await r.json();
+      // 1.1.290: while the server restarts after a deploy the reply is an HTML error page; iPhone then showed
+      // "The string did not match the expected pattern". Say what is happening instead (the page retries).
+      let v;
+      try { v = JSON.parse(await r.text()); } catch { throw Object.assign(Error("Server is restarting. Trying again… / Server ပြန်စနေပါတယ်၊ ခဏစောင့်ပါ…"), { busy: true }); }
       if (!r.ok) throw Error(v.error || "Request failed");
       return v;
     } finally {if(writes)window.__gearhubPlatformPending=--pendingWrites>0;}
@@ -583,6 +586,6 @@
     location.reload();
   };
   setInterval(async()=>{if(document.hidden||!me?.application||me.application.status!=="pending"||me.shop||pendingWrites)return;try{const state=await api("/me");if(state.shop||state.application?.status!==me.application.status){window.GearHubUpdates?.saveDraft?.();await load();}}catch{}},15000);
-  load().catch((e) => msg(e.message));
+  (function start(tries) { load().then(() => { if (tries) msg(""); }).catch((e) => { msg(e.message); if (e.busy && tries < 40) setTimeout(() => start(tries + 1), 3000); }); })(0);
   window.platformRefresh = load;
 })();
