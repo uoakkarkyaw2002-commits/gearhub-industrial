@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-06 (evening) — from Claude (account 1) — open
+
+- 1.1.295 (add-app ask: skipped when installed on Android/PC, once per shop on iPhone; fixes the 1.1.294 gh-app-home key clash) is in a PR. 1.1.294 (PR #378) merged.
+
 ## 2026-11-06 (later) — from Claude (account 1) — open
 
 - 1.1.294 (another shop inside a shop app: Home/Category/Promotion/Cart + red exit in the Settings place) is in a PR. 1.1.293 (PR #377) merged; owner re-added Kaizen Beauty and POLESTAR now opens inside the app.

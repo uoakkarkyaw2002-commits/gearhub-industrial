@@ -11,8 +11,10 @@
  if(!here||home===here)return;
  // 1.1.253 owner: Settings → "Create <shop> app" makes the shop's own app (its name and logo) from inside
  // another app (SkyShopMM Play app / another shop's app) at any time — the same sheet as the automatic ask.
- const auto=!get(localStorage,'gh-app-own:'+here)&&!get(sessionStorage,'gh-app-asked:'+here);
- if(auto)set(sessionStorage,'gh-app-asked:'+here,'1');
+ // 1.1.295 owner: "it does not know the app is already added — do not ask again". Android/PC can tell (this shop's
+ // manifest names itself in related_applications); iPhone cannot, so the automatic ask comes at most once per shop.
+ const auto=!get(localStorage,'gh-app-own:'+here)&&!get(localStorage,'gh-app-asked:'+here);
+ if(auto)set(localStorage,'gh-app-asked:'+here,'1');
  let name=gearhub?'GearHub':(document.title.trim().replace(/\s*Admin$/,'')||here).slice(0,40);
  const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
  const ua=navigator.userAgent,ios=/iphone|ipad|ipod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),android=/android/i.test(ua);
@@ -59,6 +61,7 @@
   row.addEventListener('click',()=>{name=shopName();fill();show()});
   share.after(row);
  }
- const start=()=>{addRow();if(auto)show()};
+ const installed=async()=>{try{return typeof navigator.getInstalledRelatedApps==='function'&&(await navigator.getInstalledRelatedApps()).length>0}catch{return false}};
+ const start=async()=>{addRow();if(!auto)return;if(await installed()){set(localStorage,'gh-app-own:'+here,'1');return}show()};
  document.readyState==='loading'?addEventListener('DOMContentLoaded',start,{once:true}):start();
 })();
