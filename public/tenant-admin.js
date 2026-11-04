@@ -50,9 +50,9 @@
   const host=document.createElement('section');host.className='panel';host.id='tenant-contact-panel';
   const title=document.createElement('h2');title.textContent='Shop contact & payment / ဆိုင်အချက်အလက်';host.append(title);
   const form=document.createElement('form');form.className='product-form';form.id='tenant-contact';
-  for(const key of ['name','description','phone','email','address','bankName','bankAccountName','bankAccountNumber','paymentInstructions']){
-   const label=document.createElement('label');label.textContent=({name:'Shop name',description:'About the shop',phone:'Contact phone',email:'Contact email',address:'Shop address',bankName:'Bank / wallet name',bankAccountName:'Account holder',bankAccountNumber:'Account number',paymentInstructions:'Transfer instructions'})[key];
-   const input=document.createElement('input');input.name=key;input.value=key==='name'?shop.name:shop.settings[key]||'';label.append(input);form.append(label);
+  for(const key of ['name','description','phone','email','address','birthday','work','bankName','bankAccountName','bankAccountNumber','paymentInstructions']){
+   const label=document.createElement('label');label.textContent=({name:'Shop name',description:'About the shop',phone:'Contact phone',email:'Contact email',address:'Shop address',birthday:'Birthday (Profile)',work:'Work (Profile)',bankName:'Bank / wallet name',bankAccountName:'Account holder',bankAccountNumber:'Account number',paymentInstructions:'Transfer instructions'})[key];
+   const input=document.createElement('input');input.name=key;if(key==='birthday'){input.type='date';input.max=new Date().toISOString().slice(0,10)}input.value=key==='name'?shop.name:shop.settings[key]||'';label.append(input);form.append(label);
   }
   const button=document.createElement('button');button.textContent='Save contact & payment';form.append(button);
   const message=document.createElement('p');message.setAttribute('role','status');form.append(message);

@@ -72,3 +72,94 @@
 body:has(#profile-sheet[open]){overflow:hidden}
 :root[data-theme="dark"] .profile-home-counts,:root[data-theme="dark"] .profile-post header b,:root[data-theme="dark"] .profile-post p{color:#e1f0de}
 :root[data-theme="dark"] .profile-post,:root[data-theme="dark"] .profile-sheet{background:#182b1e;border-color:#334b35;color:#e1f0de}
+/* 1.1.311 owner's profile design: green cover with clouds, big ringed logo, name + green check, counts with icons,
+   caption, Add + Dashboard, details card and Facebook-like post cards. */
+#profile-view.pm-home{padding-top:0}
+.profile-home{padding-top:0;gap:0;overflow:visible}
+.profile-cover{position:absolute;top:0;left:50%;width:100vw;max-width:none;height:300px;transform:translateX(-50%);background:url("/images/profile-cover.svg?v=2") center top/cover no-repeat;-webkit-mask:linear-gradient(#000 62%,#0000);mask:linear-gradient(#000 62%,#0000);pointer-events:none;z-index:0}
+.profile-home>:not(.profile-cover){position:relative;z-index:1}
+.profile-menu-open,.profile-edit{position:absolute!important;top:max(14px,env(safe-area-inset-top));z-index:3!important;display:grid;place-items:center;width:48px;height:48px;border:0;border-radius:50%;background:#fff;color:#1d2a21;box-shadow:0 3px 12px #173c2a29;text-decoration:none}
+.profile-menu-open{left:14px}
+.profile-edit{right:14px}
+.profile-edit[hidden]{display:none}
+.profile-edit svg{width:24px;height:24px;fill:none;stroke:#14532d;stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round}
+.profile-home-photo{width:178px;height:178px;margin-top:54px;border:6px solid #fff;outline:3px solid #2e9a3e;outline-offset:0;background:#fff;box-shadow:0 10px 30px #14532d33}
+.profile-home-photo img{object-fit:contain;padding:6px;box-sizing:border-box}
+.profile-home-title{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px;max-width:100%}
+.profile-home-title .profile-home-name{font-size:32px}
+.profile-verified{flex:0 0 30px;width:30px;height:30px;fill:#22a23c}
+.profile-home-counts{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:nowrap;margin:14px 0 0!important;color:#1d2a21;font-size:15px}
+.profile-home-counts span{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.profile-home-counts svg{width:24px;height:24px;fill:none;stroke:#1f8a37;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.profile-home-counts i{width:1px;height:22px;background:#d3dbd4}
+.profile-caption{display:flex;align-items:center;gap:12px;width:min(100%,640px);margin-top:16px;padding:12px 16px;border:1px solid #cfe3cf;border-radius:999px;background:#f1f8ef;box-sizing:border-box;text-align:left}
+.profile-caption[hidden],.profile-details[hidden]{display:none}
+.profile-caption>svg{flex:0 0 26px;width:26px;height:26px;color:#1f8a37}
+.profile-caption span{flex:1;min-width:0;color:#1f2b23;font-size:15px;line-height:1.45;overflow-wrap:anywhere}
+.profile-caption span.is-empty{color:#6e7a72}
+.profile-caption a,.profile-details header a{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:50%;color:#14532d}
+.profile-caption a svg,.profile-details header a svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.profile-home-actions{gap:14px;width:min(100%,640px)!important;margin-top:16px!important}
+.profile-home-actions>*{flex:1}
+.profile-add{min-height:56px!important;border-radius:999px!important;background:linear-gradient(180deg,#1f8a37,#156f2a)!important;box-shadow:0 6px 14px #156f2a40;font-size:19px!important}
+.profile-dashboard{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:56px;border:2px solid #2e9a3e;border-radius:999px;background:#fff;color:#14532d;font-size:19px;font-weight:800;text-decoration:none}
+.profile-dashboard svg{width:28px;height:28px}
+.profile-follow{min-height:56px!important;border-radius:999px!important}
+.profile-details{width:min(100%,640px);margin-top:16px;padding:16px 18px 8px;border:1px solid #e3e9e4;border-radius:22px;background:#fff;box-shadow:0 4px 18px #173c2a0d;box-sizing:border-box;text-align:left}
+.profile-details header{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.profile-details header b{flex:1;font-size:20px;color:#14241a}
+.profile-details-user{width:30px;height:30px;fill:#2e9a3e;stroke:none}
+.profile-details p{display:flex;align-items:center;gap:16px;margin:0;padding:11px 0;border-top:1px solid #edf1ee;font-size:15px;color:#1f2b23}
+.profile-details p:first-of-type{border-top:0}
+.profile-details p svg{flex:0 0 26px;width:26px;height:26px;fill:none;stroke:#14532d;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
+.profile-details p a{color:inherit;text-decoration:none;overflow-wrap:anywhere}
+.profile-details p.is-empty{color:#6e7a72}
+.profile-home-posts{margin-top:16px!important}
+.profile-post{padding:16px!important;border-radius:22px!important}
+.profile-post header{align-items:center!important;gap:12px!important}
+.profile-post-avatar{display:grid;place-items:center;flex:0 0 52px;width:52px;height:52px;overflow:hidden;border:2px solid #2e9a3e;border-radius:50%;background:#fff;color:#14532d;font-weight:800}
+.profile-post-avatar img{width:100%;height:100%;object-fit:contain}
+.profile-post-who{display:grid;flex:1;min-width:0}
+.profile-post-who b{font-size:17px!important}
+.profile-post-who small{display:flex;align-items:center;gap:4px;color:#6e7a72;font-size:13px}
+.profile-post-who small svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8}
+.profile-post-menu{position:relative}
+.profile-post-menu>button{display:grid;place-items:center;width:40px;height:40px;padding:0;border:0;border-radius:50%;background:transparent;cursor:pointer}
+.profile-dots{width:24px;height:24px;fill:#1d2a21}
+.profile-post-menu>span{position:absolute;right:0;top:42px;z-index:5;padding:6px;border:1px solid #e1e8e2;border-radius:14px;background:#fff;box-shadow:0 12px 30px #10201826}
+.profile-post-menu>span[hidden]{display:none}
+.profile-post-menu>span button{display:block;padding:10px 14px;border:0;border-radius:10px;background:transparent;color:#b42318;font:inherit;font-weight:750;white-space:nowrap;cursor:pointer}
+.profile-post p{font-size:16px!important}
+@media(max-width:420px){.profile-home-photo{width:156px;height:156px;margin-top:58px}.profile-home-title .profile-home-name{font-size:28px}.profile-home-counts{gap:7px;font-size:13px}.profile-home-counts span{gap:4px}.profile-home-counts svg{width:19px;height:19px}.profile-home-counts i{height:18px}.profile-dashboard{gap:6px}.profile-add,.profile-dashboard{font-size:17px!important}}
+:root[data-theme="dark"] .profile-details,:root[data-theme="dark"] .profile-dashboard{background:#182b1e;border-color:#334b35;color:#e1f0de}
+:root[data-theme="dark"] .profile-caption{background:#1f3326;border-color:#334b35}
+:root[data-theme="dark"] .profile-caption span,:root[data-theme="dark"] .profile-details p,:root[data-theme="dark"] .profile-details header b,:root[data-theme="dark"] .profile-home-counts{color:#e1f0de}
+/* 1.1.311 follow-up: closer to the owner's picture — lighter cover, smaller caption and buttons, filled count icons,
+   address with a bold first line. */
+.profile-home-photo{border-width:8px;outline-width:3px;outline-color:#3aa548}
+.profile-home-counts{gap:16px}
+.profile-home-counts span:not(:last-child) svg{fill:#2e9a3e;stroke:none}
+.profile-home-counts b{font-weight:800}
+.profile-home-counts i{background:#c9d3cb}
+.profile-caption{padding:8px 14px;margin-top:14px;background:#eef7ea;border-color:#d4e8d2}
+.profile-caption>svg{width:24px;height:24px;flex-basis:24px}
+.profile-caption a{width:32px;height:32px;flex-basis:32px}
+.profile-home-actions{margin-top:14px!important}
+.profile-add,.profile-dashboard,.profile-follow{min-height:50px!important;font-size:18px!important}
+.profile-add{background:linear-gradient(180deg,#1e8a35,#0f6a26)!important}
+.profile-dashboard{border:1.5px solid #9fd09f}
+.profile-details{padding:14px 16px 4px;margin-top:14px}
+.profile-details header b{font-size:19px}
+.profile-details p{padding:9px 0;gap:18px;font-size:14.5px}
+.profile-details p .profile-address{display:grid;gap:1px}
+.profile-details p .profile-address b{font-size:15px;color:#14241a}
+.profile-details p .profile-address small{color:#5a665e;font-size:13px;line-height:1.45}
+@media(max-width:420px){.profile-home-counts{gap:8px}}
+/* 1.1.311 owner: the same side gaps as the picture — boxes 14px from the screen edge on phones. */
+@media(max-width:850px){
+ #profile-view.pm-home{padding-left:14px!important;padding-right:14px!important}
+ #profile-view.pm-home .profile-home{padding-left:0;padding-right:0}
+ #profile-view.pm-home .profile-caption,#profile-view.pm-home .profile-home-actions,#profile-view.pm-home .profile-details,#profile-view.pm-home .profile-home-posts{width:100%!important;max-width:none}
+ #profile-view.pm-home .profile-home-actions{gap:12px}
+ #profile-view.pm-home .profile-post{padding:14px!important}
+}

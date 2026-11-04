@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" preserveAspectRatio="xMidYMin slice">
+ <defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3fae3a"/><stop offset=".45" stop-color="#7fd34a"/><stop offset="1" stop-color="#e9f8d9"/></linearGradient>
+  <linearGradient id="w1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2f9a35"/><stop offset=".6" stop-color="#5fc53e"/><stop offset="1" stop-color="#b9ea3d"/></linearGradient>
+  <linearGradient id="w2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8fdc5a"/><stop offset="1" stop-color="#dff76a"/></linearGradient>
+  <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f9ef" stop-opacity="0"/><stop offset="1" stop-color="#f4f9ef"/></linearGradient>
+  <radialGradient id="glow" cx=".75" cy=".15" r=".6"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+ </defs>
+ <rect width="900" height="420" fill="url(#sky)"/>
+ <rect width="900" height="420" fill="url(#glow)"/>
+ <path d="M0 210C150 150 260 250 430 220S700 120 900 150V420H0Z" fill="url(#w1)" opacity=".85"/>
+ <path d="M0 250C180 200 330 290 520 260S780 190 900 215V420H0Z" fill="url(#w2)" opacity=".9"/>
+ <path d="M0 280C200 245 360 320 560 295S800 240 900 262" fill="none" stroke="#fff" stroke-width="5" opacity=".85"/>
+ <path d="M0 300C220 270 380 340 580 318S820 268 900 290V420H0Z" fill="#c8ef7d" opacity=".75"/>
+ <g fill="#fff" opacity=".95"><ellipse cx="262" cy="196" rx="58" ry="17"/><circle cx="240" cy="183" r="20"/><circle cx="270" cy="174" r="27"/><circle cx="298" cy="188" r="17"/></g>
+ 
+</svg>

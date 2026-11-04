@@ -18,6 +18,11 @@ test('profile counts, follow, personal posts and who may post or delete',async t
  async function as(id){let cookie='';const keep=r=>{const c=r.headers.get('set-cookie');if(c)cookie=c.split(';')[0];return r};if(id)keep(await fetch(base+'/test-login/'+id,{method:'POST'}));const token=(await keep(await fetch(base+'/api/platform/me',{headers:{cookie}})).json()).csrfToken;return (url,method='GET',body)=>fetch(base+'/api/platform'+url,{method,headers:{cookie,'Content-Type':'application/json','X-CSRF-Token':token},body:body?JSON.stringify(body):undefined})}
  const guest=await as(0),buyer=await as(20),a=await as(10),b=await as(11),boss=await as(21);
  const json=async r=>(await r).json();
+ db.prepare('UPDATE platform_shops SET settings=? WHERE id=10').run(JSON.stringify({address:'Mandalay',phone:'09 1',email:'a@shop.test',appearance:{brandTagline:'Parts for every machine'}}));
+ assert.deepEqual((await json(guest('/profile/shop-a'))).about,{caption:'Parts for every machine',address:'Mandalay',phone:'09 1',email:'a@shop.test',birthday:'',work:''},'1.1.311: caption and details card');
+ assert.equal((await a('/shops/10','PATCH',{birthday:'2099-01-01'})).status,400,'no birthday in the future');
+ assert.equal((await a('/shops/10','PATCH',{birthday:'2002-02-05',work:'Jewelly Seal Machinery Spare Parts'})).status,200);
+ assert.deepEqual([(await json(guest('/profile/shop-a'))).about.birthday,(await json(guest('/profile/shop-a'))).about.work],['2002-02-05','Jewelly Seal Machinery Spare Parts'],'1.1.312: birthday and work');
  let p=await json(guest('/profile/shop-a'));assert.deepEqual([p.followers,p.following,p.posts,p.followed,p.canPost,p.shopId],[0,0,1,false,false,undefined]);
  assert.equal((await guest('/profile/shop-a/follow','POST',{})).status,401,'follow needs Google sign-in');
  assert.equal((await fetch(base+'/api/platform/profile/shop-a/follow',{method:'POST'})).status,403,'CSRF checked');

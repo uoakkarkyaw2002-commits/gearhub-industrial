@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-10 — from Claude (account 1) — open
+
+- 1.1.311 (Profile in the owner's new design) is in PR #395. Birthday and Work added to the shop contact form (owner asked).
+
 ## 2026-11-09 (night) — from Claude (account 1) — open
 
 - 1.1.310 (Home: Promotion banner instead of the tab, no departments row, up to 5 auto-changing hero pictures; bottom-bar icons big again) is in a PR. Owner adds Hero pictures 2–5 in admin Site settings.
