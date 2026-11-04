@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.311: Profile in the owner's new design (Claude)
+- Owner's picture: green cover with clouds (existing /images/settings-banner.jpg, faded at the bottom, full width), round white buttons (Menu left, kept because it opens Settings; pencil edit right for the shop), big logo with a green ring, name + green check, "N Followers | N Following | N Posts" with icons, caption pill (shop tagline/description; pencil opens admin Site settings), Add + Dashboard (shop) or Follow (visitor), "Personal details" card (address, phone, email from the shop contact settings; pencil opens admin #tenant-contact-panel), Facebook-like post cards (logo, name, time, globe, ... menu with Delete).
+- Birthday and Work rows in the picture are not shown: the shop has no such data (not invented).
+- `/profile/:slug` now returns `about:{caption,address,phone,email}` (public texts the store API already shows).
+- Tests: shop-profile.test.js (about). 484/484. WebKit iPhone 13 as owner and visitor, and 1280: layout, no sideways scroll, no page errors. Real iPhone not tested.
+
 ### 1.1.310: Home — no "Shop by department", Promotion banner, up to 5 hero pictures; bigger bottom-bar icons (Claude)
 - Owner's picture: `.popular-categories` hidden; the Promotion tab left the phone bottom bar (hidden by CSS, markup kept for the PC bar and tests) and became a green banner under the hero (`public/hero-slides.js` → button `data-store-view="promotion"`, opens the Promotion page; hidden with body.no-promotions and while searching).
 - Hero: up to 5 pictures (Hero + Hero picture 2–5 in admin Site settings; `heroImageUrl2..5` in lib/tenant-admin.js appearance keys and server.js site settings). store.js sends `gearhub:hero`; hero-slides.js cross-fades every 4.5 s, dots under it, swipe to change, pauses when the page is hidden. Note: `.hero.hero-image-only>*{display:none!important}` and other hero rules needed strong overrides for the slide layer (home-hero.css).
