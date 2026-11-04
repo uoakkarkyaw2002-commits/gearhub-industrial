@@ -2,6 +2,8 @@
 .search-filter{position:relative;flex:0 0 auto;align-self:center}
 .mobile-search:has(.search-filter){display:flex;align-items:center;gap:10px}
 .mobile-search:has(.search-filter)>.search-pill{flex:1 1 auto;min-width:0}
+/* The folder button moved into the filter list. */
+.mobile-search:has(.search-filter)>.excel-folder-button{display:none!important}
 .search-filter-button{display:grid;place-items:center;width:52px;height:52px;padding:0;border:2px solid #1d6b2c;border-radius:16px;background:#fff;color:#14532d;box-shadow:0 2px 10px #173c2a1a;cursor:pointer}
 .search-filter-button svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 .search-filter-button[aria-expanded="true"]{background:#eef7ea}
