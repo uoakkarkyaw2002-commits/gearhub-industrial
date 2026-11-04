@@ -60,7 +60,7 @@ test('1.1.244: Notifications switch only for the shop owner; app sign-in stays i
  assert.match(js,/if\(!store\?\.id\|\|!me\?\.user\|\|!\(me\.isOwner\|\|Number\(me\.shop\?\.id\)===Number\(store\.id\)\)\)return;/);
  assert.match(login,/\/api\/platform\/auth\/claim/);assert.match(login,/handoff:id/);
  assert.match(admin,/GearHubAppLogin\.standalone\(\)/);
- assert.match(pub('admin.html'),/app-login\.js\?v=1\.1\.243"><\/script><script src="\/tenant-admin\.js/);
+ assert.match(pub('admin.html'),/app-login\.js\?v=1\.1\.296"><\/script><script src="\/tenant-admin\.js/);
 });
 test('1.1.245: Notifications switch has its own class, so the older .settings-switch knob does not draw on it',()=>{
  assert.match(pub('settings-alerts.js'),/class="settings-toggle"/);assert.doesNotMatch(pub('settings-alerts.js'),/settings-switch"/);
