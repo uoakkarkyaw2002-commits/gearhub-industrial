@@ -6,6 +6,14 @@
 .mobile-search:has(.search-filter)>.excel-folder-button{display:none!important}
 /* 1.1.305: one bin only — Trash in the filter list; the bar keeps the count and ˄ ˅. */
 .mobile-search:has(.search-filter) .search-tools .search-clear{display:none!important}
+/* 1.1.307 owner: Trash plays the old bin animation — the bin shows in the bar only while it eats the letters. */
+body.bin-eating .mobile-search:has(.search-filter) .search-tools .search-clear{display:inline-grid!important}
+/* 1.1.307 owner: the search bar stays at the top while scrolling the found products. overflow-x:hidden on html and
+   body made body a scroll box of its own, so the sticky bar scrolled away; clip cuts the same sideways overflow
+   without that. */
+@supports (overflow:clip){@media(max-width:850px){html,body{overflow-x:clip}}}
+/* 1.1.307 owner: pull down to refresh replaces the Settings Refresh row. */
+#app-refresh-action{display:none!important}
 .search-filter-button{display:grid;place-items:center;width:52px;height:52px;padding:0;border:2px solid #1d6b2c;border-radius:16px;background:#fff;color:#14532d;box-shadow:0 2px 10px #173c2a1a;cursor:pointer}
 .search-filter-button svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 .search-filter-button[aria-expanded="true"]{background:#eef7ea}

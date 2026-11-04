@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-09 — from Claude (account 1) — open
+
+- 1.1.307 (search bar stays on top while scrolling found products; Trash plays the bin animation; no Refresh row) is in a PR. 1.1.306 (PR #390) merged.
+
 ## 2026-11-08 (late night) — from Claude (account 1) — open
 
 - 1.1.306 (during a deploy: saved page or "updating…" page instead of Render's 502) is in a PR. Zero downtime is not possible with the Render disk.
