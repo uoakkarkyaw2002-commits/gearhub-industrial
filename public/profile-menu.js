@@ -65,11 +65,13 @@
   edit.hidden=!can;if(can)edit.href=admin('#site-settings-content');
   actions.hidden=false;
   actions.innerHTML=can?'<button type="button" class="profile-add" data-pm="add">'+icon.add+'<span>'+t('add')+'</span></button><a class="profile-dashboard" href="'+admin()+'">'+ic.crown+'<span>Dashboard</span></a>':'<button type="button" class="profile-follow'+(info.followed?' is-on':'')+'" data-pm="follow">'+t(info.followed?'followed':'follow')+'</button>';
+  // The address: its last two parts in bold (e.g. "Mandalay, Myanmar"), the whole address small under it.
+  const address=v=>{const parts=v.split(',').map(x=>x.trim()).filter(Boolean);return parts.length>1?'<span class="profile-address"><b>'+esc(parts.slice(-2).join(', '))+'</b><small>'+esc(v)+'</small></span>':'<span>'+esc(v)+'</span>'};
   // 1.1.312: birthday (with age) and work rows.
   const born=about.birthday?(()=>{const d=new Date(about.birthday+'T00:00:00Z'),n=new Date();let age=n.getUTCFullYear()-d.getUTCFullYear();if(n.getUTCMonth()<d.getUTCMonth()||(n.getUTCMonth()===d.getUTCMonth()&&n.getUTCDate()<d.getUTCDate()))age--;return d.toLocaleDateString(my()?'my-MM':'en-US',{year:'numeric',month:'long',day:'numeric',timeZone:'UTC'})+' ('+age+(my()?' နှစ်':' years old')+')'})():'';
   const rows=[[ic.pin,about.address],[ic.phone,about.phone,'tel:'],[ic.mail,about.email,'mailto:'],[ic.cal,born],[ic.work,about.work]].filter(r=>r[1]);
   details.hidden=!rows.length&&!can;
-  details.innerHTML='<header>'+ic.user+'<b>'+t('details')+'</b>'+(can?'<a href="'+admin('#tenant-contact-panel')+'" aria-label="'+t('editDetails')+'">'+ic.pen+'</a>':'')+'</header>'+(rows.length?rows.map(([i,v,link])=>'<p>'+i+(link?'<a href="'+link+esc(v.replace(/\s+/g,link==='tel:'?'':' '))+'">'+esc(v)+'</a>':'<span>'+esc(v)+'</span>')+'</p>').join(''):'<p class="is-empty"><span>'+t('noDetails')+'</span></p>');
+  details.innerHTML='<header>'+ic.user+'<b>'+t('details')+'</b>'+(can?'<a href="'+admin('#tenant-contact-panel')+'" aria-label="'+t('editDetails')+'">'+ic.pen+'</a>':'')+'</header>'+(rows.length?rows.map(([i,v,link])=>'<p>'+i+(link?'<a href="'+link+esc(v.replace(/\s+/g,link==='tel:'?'':' '))+'">'+esc(v)+'</a>':i===ic.pin?address(v):'<span>'+esc(v)+'</span>')+'</p>').join(''):'<p class="is-empty"><span>'+t('noDetails')+'</span></p>');
  }
  const ago=iso=>{const s=(Date.parse(iso)-Date.now())/1000,f=new Intl.RelativeTimeFormat(my()?'my':'en',{numeric:'auto'});for(const [u,n] of [['year',31536e3],['month',2592e3],['day',86400],['hour',3600],['minute',60]])if(Math.abs(s)>=n)return f.format(Math.round(s/n),u);return my()?'ခုနကပဲ':'Just now'};
  function drawPosts(){

@@ -76,7 +76,7 @@ body:has(#profile-sheet[open]){overflow:hidden}
    caption, Add + Dashboard, details card and Facebook-like post cards. */
 #profile-view.pm-home{padding-top:0}
 .profile-home{padding-top:0;gap:0;overflow:visible}
-.profile-cover{position:absolute;top:0;left:50%;width:100vw;max-width:none;height:250px;transform:translateX(-50%);background:url("/images/settings-banner.jpg") center top/cover no-repeat;-webkit-mask:linear-gradient(#000 55%,#0000);mask:linear-gradient(#000 55%,#0000);pointer-events:none;z-index:0}
+.profile-cover{position:absolute;top:0;left:50%;width:100vw;max-width:none;height:300px;transform:translateX(-50%);background:url("/images/profile-cover.svg?v=2") center top/cover no-repeat;-webkit-mask:linear-gradient(#000 62%,#0000);mask:linear-gradient(#000 62%,#0000);pointer-events:none;z-index:0}
 .profile-home>:not(.profile-cover){position:relative;z-index:1}
 .profile-menu-open,.profile-edit{position:absolute!important;top:max(14px,env(safe-area-inset-top));z-index:3!important;display:grid;place-items:center;width:48px;height:48px;border:0;border-radius:50%;background:#fff;color:#1d2a21;box-shadow:0 3px 12px #173c2a29;text-decoration:none}
 .profile-menu-open{left:14px}
@@ -134,3 +134,24 @@ body:has(#profile-sheet[open]){overflow:hidden}
 :root[data-theme="dark"] .profile-details,:root[data-theme="dark"] .profile-dashboard{background:#182b1e;border-color:#334b35;color:#e1f0de}
 :root[data-theme="dark"] .profile-caption{background:#1f3326;border-color:#334b35}
 :root[data-theme="dark"] .profile-caption span,:root[data-theme="dark"] .profile-details p,:root[data-theme="dark"] .profile-details header b,:root[data-theme="dark"] .profile-home-counts{color:#e1f0de}
+/* 1.1.311 follow-up: closer to the owner's picture — lighter cover, smaller caption and buttons, filled count icons,
+   address with a bold first line. */
+.profile-home-photo{border-width:8px;outline-width:3px;outline-color:#3aa548}
+.profile-home-counts{gap:16px}
+.profile-home-counts span:not(:last-child) svg{fill:#2e9a3e;stroke:none}
+.profile-home-counts b{font-weight:800}
+.profile-home-counts i{background:#c9d3cb}
+.profile-caption{padding:8px 14px;margin-top:14px;background:#eef7ea;border-color:#d4e8d2}
+.profile-caption>svg{width:24px;height:24px;flex-basis:24px}
+.profile-caption a{width:32px;height:32px;flex-basis:32px}
+.profile-home-actions{margin-top:14px!important}
+.profile-add,.profile-dashboard,.profile-follow{min-height:50px!important;font-size:18px!important}
+.profile-add{background:linear-gradient(180deg,#1e8a35,#0f6a26)!important}
+.profile-dashboard{border:1.5px solid #9fd09f}
+.profile-details{padding:14px 16px 4px;margin-top:14px}
+.profile-details header b{font-size:19px}
+.profile-details p{padding:9px 0;gap:18px;font-size:14.5px}
+.profile-details p .profile-address{display:grid;gap:1px}
+.profile-details p .profile-address b{font-size:15px;color:#14241a}
+.profile-details p .profile-address small{color:#5a665e;font-size:13px;line-height:1.45}
+@media(max-width:420px){.profile-home-counts{gap:8px}}
