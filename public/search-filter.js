@@ -33,7 +33,8 @@
  menu.addEventListener('click',e=>{
   const item=e.target.closest('[data-scope]');if(!item)return;close();
   if(item.dataset.scope==='files'){document.getElementById('excel-library-open')?.click();return}
-  if(item.dataset.scope==='trash'){document.querySelector('.search-tools .search-clear')?.click();return}
+  // 1.1.305 owner: the bin is no longer in the bar (it showed twice); Trash here empties the search.
+  if(item.dataset.scope==='trash'){input.value='';input.dispatchEvent(new Event('input',{bubbles:true}));const c=document.querySelector('.search-tools .search-count');if(c)c.textContent='';document.querySelectorAll('.search-tools .search-step').forEach(s=>s.hidden=true);return}
   scope=item.dataset.scope;try{localStorage.setItem(KEY,scope)}catch{}paint();
   // Run the same search again in the chosen place.
   if(input.value.trim())input.dispatchEvent(new Event('input',{bubbles:true}));

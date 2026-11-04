@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-08 (night) — from Claude (account 1) — open
+
+- 1.1.305 (one bin only — Trash in the filter list; ˄ ˅ beside the Excel count) is in a PR. 1.1.304 (PR #388) merged.
+
 ## 2026-11-08 (evening) — from Claude (account 1) — open
 
 - 1.1.304 (search filter Product/Excel/Trash, pull-to-refresh with sound, new personal post first in Discover) is in PR #388. Trash = empty the search (owner confirmed). Excel files folder moved into the filter list (first item).

@@ -100,7 +100,8 @@
   // 1.1.225 owner: "ရှာတာပဲ" is the same Excel viewer showing only the header and the matching rows —
   // select, drag, copy and row select work right here; nothing opens the full viewer.
   const head=index.head,hits=await index.search(q);if(mine!==turn)return;
-  setCount(String(hits.length)+(hits.length>=LIMIT?'+':''),false);
+  // 1.1.305 owner: ˄ ˅ beside the number found in this view too.
+  setCount(String(hits.length)+(hits.length>=LIMIT?'+':''),hits.length>1);
   if(!hits.length){viewer.release();host.hidden=true;rowsArea.innerHTML='<p class="excel-results-none">Excel · '+esc(sheet.name)+' — No match</p>';return}
   rowsArea.innerHTML='';host.hidden=false;
   host.style.height=Math.round(window.innerHeight*.75)+'px';
@@ -118,7 +119,7 @@
   host.style.height=Math.max(320,window.innerHeight-host.getBoundingClientRect().top-below)+'px';
  }
  addEventListener('resize',()=>{if(mode==='sheet'&&!box.hidden)fit()});
- function go(step){if(mode!=='sheet'||box.hidden)return;const v=window.GearHubExcelViewer;if(v)countSheet(v.step(step))}
+ function go(step){if(box.hidden)return;const v=window.GearHubExcelViewer;if(v)countSheet(v.step(step))}
  // The view choice, in the Excel files panel beside the search bar.
  const help=document.querySelector('.excel-library-help');
  if(help){const pick=document.createElement('div');pick.className='excel-search-setting';
