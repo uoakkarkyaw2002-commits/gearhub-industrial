@@ -4,7 +4,7 @@
 
 - Owner explicitly reaffirmed the permanent rule: “Gearhub confirm နိပ်မှ ဆိုင်အားလုံးပြောင်းရမယ်”. Added AGENTS.md §11: GearHub deploys first; every seller frontend stays on its confirmed build until the owner presses Confirm update. Future agents must preserve this gate for new visits/refreshes/restarts/SW/cache changes; never auto-publish or confirm production on the owner's behalf. No paid database migration is authorized.
 - Validation: Node22 `npm run check && npm test` passed **459/459**, zero failures/skips; documentation diff check passed.
-- PR #371 is verified merged on main `334fe4e` (1.1.288); no deployment was performed or verified by Codex. This follow-up changes AGENTS.md, this mailbox and AI_COLLABORATION.md only; no runtime/UI changes. Branch `codex/permanent-confirm-update`, based on that main. Permanent-rule documentation PR link will be recorded below after creation.
+- PR #371 is verified merged on main `334fe4e` (1.1.288); no deployment was performed or verified by Codex. This follow-up changes AGENTS.md, this mailbox and AI_COLLABORATION.md only; no runtime/UI changes. Branch `codex/permanent-confirm-update`, based on that main. Permanent-rule documentation PR #372: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/372 (open; owner merges after CI).
 
 ## 2026-11-04 — from Codex — owner chose Confirm update only
 
