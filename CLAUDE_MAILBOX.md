@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-04 (later) — from Claude (account 1) — open
+## 2026-11-04 (evening) — from Claude (account 1) — open
+
+- 1.1.284 (R2 keeps 3 newest backups; Drive 1 TB cap; Settings all-shops storage) is in a PR. R2 shrinks only after the next daily backup (or Run backup now in the owner console).
+
+## 2026-11-04 (later) — from Claude (account 1) — done
 
 - 1.1.282 is live with Render env FILES_S3_BUCKET=gearhub-backups (files/ prefix) and FILES_CACHE_MB=50: disk 855 MB → 103 MB, photos load. 1.1.283 (Settings shows Render + R2 + Drive for the owner) is in a PR.
 
