@@ -3,19 +3,19 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const path=require('node:path');const vm=require('node:vm');
 const read=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
 
-function run({navType='navigate',updating=false,seconds=3,saved='1'}={}){const made=[];
+function run({navType='navigate',updating=false,seconds=3,saved='1',opened=false}={}){const made=[];
  const listeners={},timers=[],classes=new Set(),attrs={'data-sound':'/s.mp3'};let removed=false,played=0,now=0;
  const label={textContent:'Loading',after(){},style:{},complete:false,addEventListener(){},getAttribute(){return null}};let retries=0;
  const el={dataset:{seconds:String(seconds),get sound(){return attrs['data-sound']}},classList:{add:(...c)=>c.forEach(x=>classes.add(x)),remove:(...c)=>c.forEach(x=>classes.delete(x)),contains:c=>classes.has(c)},
   removeAttribute:k=>delete attrs[k],hasAttribute:k=>k in attrs,querySelector:()=>label,cloneNode(){return this},remove(){removed=true},get isConnected(){return !removed},contains:()=>false};
- const session=new Map(updating?[['gh-update-splash:/',saved]]:[]);
+ const session=new Map([...(updating?[['gh-update-splash:/',saved]]:[]),...(opened?[['sky-opened','1']]:[])]);
  const ctx={document:{createElement:()=>{const n={className:'',textContent:''};made.push(n);return n},getElementById:()=>removed?null:el,body:{querySelectorAll:()=>[],prepend(){}},addEventListener(){},removeEventListener(){}},
   sessionStorage:{getItem:k=>session.get(k)??null,setItem:(k,v)=>session.set(k,v),removeItem:k=>session.delete(k)},location:{pathname:'/'},performance:{getEntriesByType:()=>[{type:navType}]},
   addEventListener:(n,f)=>(listeners[n]=listeners[n]||[]).push(f),setTimeout:(f,ms)=>{timers.push({f,at:now+ms});return timers.length},setInterval:(f,ms)=>{const t={f,at:now+ms,every:ms};timers.push(t);return timers.length},clearInterval(){},navigator:{onLine:true},GearHubStore:{retry:()=>retries++},innerHeight:800,getComputedStyle:()=>({backgroundImage:'none'}),Image:class{},
   Audio:class{constructor(){this.preload=''}play(){played++;return Promise.resolve()}pause(){}},Promise,Date:{now:()=>1e12+now}};
  ctx.window=ctx;vm.runInNewContext(read('public/skyshop-splash.js'),ctx);
  const tick=async ms=>{const end=now+ms;while(true){const due=timers.filter(t=>t.at<=end).sort((a,b)=>a.at-b.at)[0];if(!due)break;now=due.at;if(due.every)due.at+=due.every;else timers.splice(timers.indexOf(due),1);due.f();await Promise.resolve();await Promise.resolve();}now=end;for(let i=0;i<5;i++)await new Promise(r=>setImmediate(r));};
- return {made,dbg:()=>ctx,classes,label,tick,fire:async(name='gearhub:store-shown')=>{(listeners[name]||[]).forEach(f=>f());await tick(0)},removedSoon:async()=>{await tick(600);return removed},played:()=>played,retries:()=>retries};
+ return {session,made,dbg:()=>ctx,classes,label,tick,fire:async(name='gearhub:store-shown')=>{(listeners[name]||[]).forEach(f=>f());await tick(0)},removedSoon:async()=>{await tick(600);return removed},played:()=>played,retries:()=>retries};
 }
 
 test('update: "Updating…" picture, no sound, held until the shop is drawn',async()=>{
@@ -102,4 +102,12 @@ test('Updating and Settings Refresh: the flowers always finish and continue acro
  assert.match(js,/return passed>=BLOOM_DONE&&phase>=BLOOM_DONE&&phase<BLOOM_DONE\+600/,'leaves only at full bloom');
  assert.match(js,/if\(done&&shown>=100&&Date\.now\(\)-started>=seconds\*1000&&bloomFinished\(\)\)setTimeout\(leave,150\)/);
  assert.match(settings,/if \(window\.GearHubSplash\?\.showUpdating\) \{ window\.GearHubSplash\.showUpdating\(\); setTimeout\(\(\) => location\.reload\(\), 80\); \}/);
+});
+
+test('1.1.299: the opening picture shows once per app session; another shop or back home gets the plain cover only',async()=>{
+ const first=run();assert.ok(!first.classes.has('is-quiet'),'opening the app shows the picture');assert.equal(first.session.get('sky-opened'),'1');
+ const later=run({opened:true});assert.ok(later.classes.has('is-quiet'));assert.equal(later.played(),0,'no sound');
+ await later.tick(3000);assert.ok(later.classes.has('is-quiet'),'the picture never comes back while waiting');assert.ok(!later.classes.has('show-loading'),'no Loading box either');
+ await later.fire();await later.tick(2600);assert.ok(await later.removedSoon());
+ const update=run({opened:true,updating:true});assert.ok(update.classes.has('is-updating'),'an update still shows Updating…');
 });
