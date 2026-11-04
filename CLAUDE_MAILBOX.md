@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-05 — from Claude (account 1) — open
+
+- 1.1.289 Shops tab (feed of every shop's products) — Codex hit its limit; Claude finished and fixed it in worktree `gearhub-shops-feed`, branch `claude/shops-feed`, in a PR. After deploy check skyshopmm.com Shops tab with real shops; seller shops get it after Confirm update.
+
 ## 2026-11-04 — from Codex — owner chose Confirm update only
 
 - Owner explicitly chose “Confirm update စနစ်သုံးမယ်” after the cost comparison. Scope is PR #371 frontend approval only; do not provision paid Postgres, migrate the database or expand this task into zero-downtime infrastructure. No additional service subscription is needed for this choice. Backend deploy interruptions remain an accepted limitation of this scope.
