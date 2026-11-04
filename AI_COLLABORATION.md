@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.305: Search bar — no second bin; ˄ ˅ beside the Excel count (Claude)
+- Owner (iPhone screenshot): the bin showed twice (bar + Trash in the filter list) and the Excel search had a count but no arrows. The bar's bin is hidden when the filter is there (search-filter.css); Trash in the list empties the search directly. excel-search.js: the matching-rows view shows ˄ ˅ when there is more than one match and they step through the matches like the sheet view.
+- Tests: search-filter.test.js updated. 480/480. WebKit iPhone 13 with the owner's workbook uploaded to the LOCAL test shop only: "carrier" → 60, ˄ ˅ shown, next → 2/60, 3/60 with the cell moving; no bin in the bar; Product → products count. Real iPhone not tested.
+
 ### 1.1.304: Search filter (Product / Excel / Trash), pull to refresh with sound, newest personal post first (Claude)
 - Owner: "post doesn't show in Discover" — it did (checked live: 3rd card, after two products). Now each personal post goes before the first product that is older (products without a time count as older), so a new post is on top.
 - Pull to refresh (new `public/pull-refresh.js`, touch screens only): pull down at the very top → round sign, short two-note sound (Web Audio, no file), Discover reloads posts (`GearHubShops.refresh`), other tabs reload products (`GearHubStore.retry`). Not while a sheet/photo/cart/Excel sheet is open or inside an inner scroller. The sign is gone after refreshing.

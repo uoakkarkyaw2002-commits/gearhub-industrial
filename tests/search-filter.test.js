@@ -8,7 +8,7 @@ test('search filter, pull to refresh and newest personal post first are wired',(
  assert.match(html,/excel-search\.js\?v=[0-9.]+"><\/script><script src="\/search-filter\.js/,'the filter loads after the Excel search that makes the bar tools');
  assert.ok(filter.indexOf('data-scope="files"')<filter.indexOf('data-scope="product"'),'Excel files is the first item');assert.match(css,/\.mobile-search:has\(\.search-filter\)>\.excel-folder-button\{display:none!important\}/,'no folder button on the right');
  for(const scope of ['files','product','excel','trash'])assert.match(filter,new RegExp('data-scope="'+scope+'"'));
- assert.match(filter,/\.search-tools \.search-clear'\)\?\.click\(\)/,'Trash empties the search with the bin');
+ assert.match(filter,/scope==='trash'\)\{input\.value='';/,'Trash empties the search');assert.match(css,/\.search-tools \.search-clear\{display:none!important\}/,'no second bin in the bar');assert.match(excel,/hits\.length>1\);/,'arrows beside the Excel count');
  assert.match(excel,/GearHubSearchScope\?\.get\(\)==='product'/,'Product shows no Excel rows');
  assert.match(css,/body\.searching\.scope-excel #products\{display:none!important\}/,'Excel shows only the Excel rows');
  assert.match(pull,/GearHubShops\.refresh/);assert.match(pull,/createOscillator/,'a short sound, no sound file');
