@@ -35,6 +35,12 @@ _None._
 - PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/371. No runtime changes in this continuation; files changed: mailbox/log only. Code head `d03f8bd` has Node22 check + tests 459/459 and green Production readiness/node22 (run 41778088940). Preparing for review with actual 375/1280 browser/physical-device verification still explicitly unverified. No merge/deploy or production confirmation.
 - Owner merges/deploys, checks GearHub Settings and seller versions, then presses Confirm update when satisfied. The feature controls seller frontend version changes; SQLite/disk-backed backend restarts remain possible during Render deploys.
 
+### 1.1.294: Visiting another shop inside a shop app — 4 tabs + exit (Claude)
+- Owner: 1.1.293 works (POLESTAR opens inside the Kaizen Beauty app after re-adding it). When in another shop, show only Home, Category, Promotion, Cart so it is clear; the exit goes in the Settings place.
+- `public/visit-shop.js` (installed app only — display-mode standalone / navigator.standalone): the first shop page of the app session is saved as home (`sessionStorage gh-app-home` + name). On any other shop (or GearHub `/`), `body.visiting-shop`, Shops + Settings hidden on the phone bar and the PC bar, and a red "ပြန်ထွက်" link back to home ("Back to <name>"). Browser tabs never change.
+- `style.css`: hidden items, 5 (4 without promotions) columns, red exit icon/label (the old header rule painted the PC label white).
+- Checks: Node 22 check + 466/466 (new tests/visit-shop.test.js). Browser 375/1280 with a simulated standalone app: bar = Home|Category|Promotion|Cart|exit, link to /shops/kaizen-beauty/. Not tested on a phone.
+
 ### 1.1.293: Phone bottom bar hides on scroll down, returns on scroll up (Claude)
 - Owner (screen recording, not viewable here — no ffmpeg): show the bottom navigation while nothing happens; hide it while scrolling down; show it again on scroll up; smooth.
 - `public/nav-autohide.js`: phones only (≤850px); hides after >6px down past 80px; shows on >6px up, near the top, 1.2 s after scrolling stops, on a tap at the bottom edge, and never while searching or a drawer/modal/dialog is open. `style.css`: `.nav-away` slides 100%+40px down (bubble included) with a .34s ease; the liquid `--liquid-x` transition is kept; reduced motion = no animation.
