@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.302: Profile tab (person icon) with ☰ Menu → old Settings (Claude)
+- Owner (Facebook profile/menu pictures): the bottom bar's Settings place shows a person ("Profile", existing `navProfile` text). Profile shows only the shop's profile photo (same as the Settings profile card) and name for now; ☰ at the top left opens the old Settings page unchanged, with "‹ Menu" to go back. Tapping Profile again always opens the profile. Phone Back closes the menu (`profile-menu` in back-nav overlays).
+- New `public/profile-menu.js` / `.css` (in index.html + SW SHELL); index.html nav buttons (phone + PC); back-nav.js. Version 1.1.302 (main was 1.1.301 from Codex).
+- Test: tests/profile-menu.test.js. 477/477. WebKit iPhone 13 + 1280: Profile label, only photo+name visible, Menu shows Settings, back, reopen = profile; no page errors. Real iPhone not tested.
+
 ### 1.1.301: Discover compass navigation and truthful product posting time (Codex — review pending)
 - Task: rename visible Shops navigation to Discover with a compass; show original product posting date/time. Base main `41aeeb5`; branch `codex/discover-product-time`; isolated worktree `gearhub-discover-time`. PR #385: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/385. No merge/deploy/production Confirm.
 - Files: `lib/platform.js` and `lib/tenant-admin.js` capture server-owned `details.postedAt` on first manual/spreadsheet creation; `lib/shop-feed.js` adds nullable postedAt to public posts; `public/shops-feed.js/css` render accessible Myanmar date/time and legacy unavailable text; `public/index.html` visible labels/native compass SVGs; package/SW/install and feed tag pins; new `tests/product-posted-at.test.js`; mailbox/log. No schema migration, invented legacy dates, unrelated redesign or route rename. Edits/reimports preserve original timestamps. Existing feed rotation and GearHub Confirm gate retained.
