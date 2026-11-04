@@ -681,6 +681,9 @@ app.put("/api/admin/site-settings", adminOnly, (req,res) => {
  const appIconUrl = cleanSiteImageUrl(body.appIconUrl ?? previous.appIconUrl), navigationBackgroundUrl = cleanSiteImageUrl(body.navigationBackgroundUrl ?? previous.navigationBackgroundUrl);
  const categoryBannerUrl = cleanSiteImageUrl(body.categoryBannerUrl ?? previous.categoryBannerUrl);
  const logoUrl = cleanSiteImageUrl(body.logoUrl), wallpaperUrl = cleanSiteImageUrl(body.wallpaperUrl), heroImageUrl = cleanSiteImageUrl(body.heroImageUrl);
+ // 1.1.310 owner: up to 5 hero pictures that change by themselves.
+ const moreHero = Object.fromEntries([2,3,4,5].map(n => ["heroImageUrl" + n, cleanSiteImageUrl(body["heroImageUrl" + n] ?? previous["heroImageUrl" + n])]));
+ if (Object.values(moreHero).some(v => v === null)) return res.status(400).json({error:"Hero picture URLs must be HTTPS or an uploaded image."});
  const navigationImageOpacity = Math.max(0,Math.min(100,Math.round(Number(body.navigationImageOpacity ?? previous.navigationImageOpacity ?? 65)||0)));
  if (categoryBannerUrl === null || appIconUrl === null || navigationBackgroundUrl === null || logoUrl === null || wallpaperUrl === null || heroImageUrl === null) return res.status(400).json({error:"Logo and background image URLs must be HTTPS or an uploaded image."});
  const color = value => /^#[0-9a-f]{6}$/i.test(String(value || "")) ? String(value).toLowerCase() : null;
@@ -710,7 +713,7 @@ app.put("/api/admin/site-settings", adminOnly, (req,res) => {
   brandName: cleanText(body.brandName ?? previous.brandName, 80),
   brandTagline: cleanText(body.brandTagline ?? previous.brandTagline, 120),
   heroIcon: cleanText(body.heroIcon ?? previous.heroIcon, 12) || "⚙️",
-  logoUrl, appIconUrl, categoryBannerUrl, navigationBackgroundUrl, navigationImageOpacity, wallpaperUrl, heroImageUrl, colors, payment, translations,
+  logoUrl, appIconUrl, categoryBannerUrl, navigationBackgroundUrl, navigationImageOpacity, wallpaperUrl, heroImageUrl, ...moreHero, colors, payment, translations,
   layout:normalizeSiteLayout(body.layout ?? previous.layout, previous.layout)
  };
  db.prepare(`INSERT INTO site_settings(id,settings_json,updated_at) VALUES(1,?,CURRENT_TIMESTAMP)

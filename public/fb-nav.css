@@ -2,15 +2,16 @@
    icon sits in a light pill, tabs change at once (no sliding bubble or notch) and a tap leaves no dark square. */
 @media(max-width:850px){
  html .mobile-bottom-nav,html .mobile-bottom-nav *{-webkit-tap-highlight-color:transparent}
- html .mobile-bottom-nav.liquid{background:#fff!important;border-top:1px solid #e6ebe5!important;filter:none!important;box-shadow:0 -2px 12px #1834260f!important;border-radius:22px 22px 0 0;padding:6px 6px calc(6px + env(safe-area-inset-bottom))!important;min-height:calc(64px + env(safe-area-inset-bottom))!important;align-items:center}
+ html .mobile-bottom-nav.liquid{background:#fff!important;border-top:1px solid #e6ebe5!important;filter:none!important;box-shadow:0 -2px 12px #1834260f!important;border-radius:22px 22px 0 0;padding:6px 6px calc(6px + env(safe-area-inset-bottom))!important;min-height:calc(72px + env(safe-area-inset-bottom))!important;align-items:center}
  html .mobile-bottom-nav.liquid::before{display:none!important}
  html .mobile-bottom-nav.liquid .liquid-nav-bubble{display:none!important}
- html .mobile-bottom-nav.liquid .bottom-nav-item{justify-content:center;min-height:54px;padding:0 2px}
- html .mobile-bottom-nav.liquid .bottom-nav-item>span{width:min(100%,66px);height:46px;border-radius:16px;transform:none!important;transition:background-color .15s ease!important}
+ html .mobile-bottom-nav.liquid .bottom-nav-item{justify-content:center;min-height:60px;padding:0 2px}
+ html .mobile-bottom-nav.liquid .bottom-nav-item>span{width:min(100%,72px);height:54px;border-radius:16px;transform:none!important;transition:background-color .15s ease!important}
  html .mobile-bottom-nav.liquid .bottom-nav-item.active>span{background:#e3f3df!important;transform:none!important}
  html .mobile-bottom-nav.liquid .bottom-nav-item>small{display:none}
  html .mobile-bottom-nav.liquid .bottom-nav-item:active>span{transform:scale(.92)!important;transition:transform .08s ease!important}
- html .mobile-bottom-nav.liquid .bottom-nav-item>span>svg{width:30px;height:30px}
+ /* 1.1.310 owner: icons as big as before (41px). */
+ html .mobile-bottom-nav.liquid .bottom-nav-item>span>svg{width:41px;height:41px}
  :root[data-theme="dark"] .mobile-bottom-nav.liquid{background:#142119!important;border-top-color:#33453a!important}
  :root[data-theme="dark"] .mobile-bottom-nav.liquid .bottom-nav-item.active>span{background:#28442c!important}
 }
