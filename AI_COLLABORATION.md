@@ -36,6 +36,7 @@ _None._
 - Owner merges/deploys, checks GearHub Settings and seller versions, then presses Confirm update when satisfied. The feature controls seller frontend version changes; SQLite/disk-backed backend restarts remain possible during Render deploys.
 
 ### 1.1.293: Phone bottom bar hides on scroll down, returns on scroll up (Claude)
+- Also in 1.1.293 (owner: "Android, iOS and PC must all be the same, leave nothing out"): every shop app manifest now has `scope:'/'` on all devices (1.1.292 was Apple only). Trade-off told to the owner: on Android a shop link opened from another app (e.g. Telegram) may ask which installed shop app to use. Installed apps keep their old scope until re-added.
 - Owner (screen recording, not viewable here — no ffmpeg): show the bottom navigation while nothing happens; hide it while scrolling down; show it again on scroll up; smooth.
 - `public/nav-autohide.js`: phones only (≤850px); hides after >6px down past 80px; shows on >6px up, near the top, 1.2 s after scrolling stops, on a tap at the bottom edge, and never while searching or a drawer/modal/dialog is open. `style.css`: `.nav-away` slides 100%+40px down (bubble included) with a .34s ease; the liquid `--liquid-x` transition is kept; reduced motion = no animation.
 - Checks: Node 22 check + 465/465 (new tests/nav-autohide.test.js). Browser 375: logic checked with scroll events and the hidden offset (123px); the test pane pauses animation frames, so the slide itself was not watched. Not tested on the iPhone.
