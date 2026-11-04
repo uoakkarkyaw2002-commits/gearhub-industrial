@@ -1386,3 +1386,6 @@ body.alerts-history-open{overflow:hidden}
 .storage-backup-download{border:1px solid #26833c;background:#fff;color:#1f6f33}
 .storage-backup-actions>*:focus-visible{outline:3px solid #98d94d;outline-offset:2px}
 :root[data-theme="dark"] .storage-more{border-color:#2b3b30}:root[data-theme="dark"] .storage-card{background:#1d2c22;border-color:#2b3b30}:root[data-theme="dark"] .storage-card-icon{background:#253b2b}:root[data-theme="dark"] .storage-card-title span,:root[data-theme="dark"] .storage-backup-state{color:#b7f36b}:root[data-theme="dark"] .storage-backup-download{background:#17251c;color:#b7f36b;border-color:#3f7d4d}
+/* 1.1.291 owner "User show": what the shop owner hides from visitors (html[data-visitor-hide]). */
+html[data-visitor-hide~="price"] .product .price,html[data-visitor-hide~="price"] .product .promo-badge,html[data-visitor-hide~="price"] .category-product-row .price{display:none!important}
+html[data-visitor-hide~="stock"] .category-row-stock{display:none!important}

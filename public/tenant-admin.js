@@ -109,6 +109,7 @@
     if(/^\/products\/\d+\/(?:trash|restore|delete-permanently)$/.test(suffix)&&method==='POST')return await call(suffix,options);
     if(suffix==='/orders'&&method==='GET')return json((await snapshot()).orders.map(order));
     if(suffix==='/categories')return await call('/categories',options);
+    if(suffix==='/visitor-view')return await call('/visitor-view',options);
     if(suffix==='/site-settings')return await call('/appearance',options);
     if(/^\/orders\/\d+$/.test(suffix)&&['PATCH','DELETE'].includes(method))return await call(suffix,options);
     if(suffix==='/trash'&&method==='DELETE')return await call('/trash',options);

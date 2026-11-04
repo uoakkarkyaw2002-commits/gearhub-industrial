@@ -35,6 +35,15 @@ _None._
 - PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/371. No runtime changes in this continuation; files changed: mailbox/log only. Code head `d03f8bd` has Node22 check + tests 459/459 and green Production readiness/node22 (run 41778088940). Preparing for review with actual 375/1280 browser/physical-device verification still explicitly unverified. No merge/deploy or production confirmation.
 - Owner merges/deploys, checks GearHub Settings and seller versions, then presses Confirm update when satisfied. The feature controls seller frontend version changes; SQLite/disk-backed backend restarts remain possible during Render deploys.
 
+### 1.1.291: "User show" — the shop owner chooses what visitors see (Claude)
+- Owner: a "User show" button right of + Add Product; switch each product field on/off for visitors (SKU, Part No, Price, Stock, Description) and choose how many photos, from the first, they see.
+- Saved in settings JSON (seller: `platform_shops.settings.visitorView`; GearHub: `site_settings.settings_json.visitorView`; Appearance save keeps it). No new table or column.
+- Routes: `GET/PUT /api/platform/shops/:id/visitor-view` (lib/tenant-admin.js, permission products) and `GET/PUT /api/admin/visitor-view` (server.js, adminOnly); seller admin maps `/visitor-view` in public/tenant-admin.js.
+- Visitors: `lib/visitor-view.js` strips SKU / Part No / description and extra photos from `/api/platform/store/:slug`, GearHub `/api/products` and the Shops feed. Price and stock stay in the data (the cart needs them) and are hidden on the page (`config.visitorHide` → `html[data-visitor-hide]` CSS; feed sends price null). The shop owner / GearHub owner always get everything (`viewer: "manager"`).
+- UI: public/user-show.js + user-show.css (switch sheet; phone: Add Product 2/3 + User show 1/3; PC: sixth toolbar column).
+- Checks: Node 22 check + 464/464 tests (new tests/visitor-view.test.js). Real local server (test admin) phone 375 + PC 1280: button placement, sheet switches save, visitor page shows no SKU/price; no new console errors. Seller shop admin path covered by tests only.
+- The paused home-cart work (owner said stop) is in `git stash` "paused 1.1.291 home cart"; if resumed it needs a new version number.
+
 ### 1.1.290: My shop page survives a server restart (Claude)
 - Owner's iPhone showed only "The string did not match the expected pattern" on platform.html (My shop) right after the 1.1.289 deploy: the restarting server answered with an HTML page and `r.json()` failed (Safari's wording). `public/platform.js` `api()` now parses text and throws a busy error ("Server is restarting… / Server ပြန်စနေပါတယ်"); the first load retries every 3 s (up to 2 min) and clears the message when it works. Test `tests/platform-restart.test.js`.
 - Checks: Node 22 check + 461/461 tests + new test. Browser: platform.html on a static server (HTML 404 for the API) shows the message and retries. Live server was healthy at the time of checking (1.1.289).
