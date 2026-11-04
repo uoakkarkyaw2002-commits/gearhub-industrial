@@ -155,3 +155,11 @@ body:has(#profile-sheet[open]){overflow:hidden}
 .profile-details p .profile-address b{font-size:15px;color:#14241a}
 .profile-details p .profile-address small{color:#5a665e;font-size:13px;line-height:1.45}
 @media(max-width:420px){.profile-home-counts{gap:8px}}
+/* 1.1.311 owner: the same side gaps as the picture — boxes 14px from the screen edge on phones. */
+@media(max-width:850px){
+ #profile-view.pm-home{padding-left:14px!important;padding-right:14px!important}
+ #profile-view.pm-home .profile-home{padding-left:0;padding-right:0}
+ #profile-view.pm-home .profile-caption,#profile-view.pm-home .profile-home-actions,#profile-view.pm-home .profile-details,#profile-view.pm-home .profile-home-posts{width:100%!important;max-width:none}
+ #profile-view.pm-home .profile-home-actions{gap:12px}
+ #profile-view.pm-home .profile-post{padding:14px!important}
+}
