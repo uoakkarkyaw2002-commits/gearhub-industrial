@@ -471,3 +471,5 @@ window.addEventListener("resize",()=>{
   if(window.matchMedia("(min-width:1100px)").matches)setDesktopAdminView("inventory-panel");
   else document.querySelectorAll(".desktop-admin-view-hidden").forEach(node=>node.classList.remove("desktop-admin-view-hidden"));
 });
+// 1.1.303 owner: Profile → + Add → Work opens the admin with the Add Product form (?add=1).
+(()=>{if(new URLSearchParams(location.search).get("add")!=="1")return;let tries=0;const timer=setInterval(()=>{const add=document.getElementById("inventory-add-product"),ready=document.getElementById("login-view")?.classList.contains("hidden");if(++tries>60)return clearInterval(timer);if(!add||!ready)return;clearInterval(timer);history.replaceState(history.state,"",location.pathname+location.hash);setTimeout(()=>add.click(),800)},500)})();

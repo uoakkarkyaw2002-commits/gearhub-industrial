@@ -5,9 +5,9 @@
   const dialog = document.getElementById('shops-photo-dialog'), photo = document.getElementById('shops-photo-image');
   const words = {
     en:{timeUnknown:'Time unavailable',posted:'Posted',myanmarTime:'Myanmar time',product:'Product',kicker:'FROM EVERY SHOP',intro:'A little discovery. A new favourite. Products from every shop, together.',loading:'Finding products…',more:'Load more',retry:'Try again',empty:'A fresh start. Products will appear here when shops add them.',failed:'Products could not load. Please try again.',done:'You’re all caught up.',visit:'Visit shop',read:'See more',less:'See less',noPhoto:'No photo yet',soldOut:'Out of stock',photos:'View photos',close:'Close photos',prev:'Previous photo',next:'Next photo',
-      verified:'Verified shop',menu:'More options',like:'Like',comment:'Comments',buy:'Buy Now',save:'Save',saved:'Saved',quantity:'Quantity',addCart:'Add to Cart',added:'Added to cart',notEnough:'Not enough stock',closeSheet:'Close',write:'Write a comment…',send:'Send',signIn:'Sign in with Google to like and comment',signInButton:'Continue with Google',noComments:'No comments yet. Be the first.',remove:'Delete',savedKicker:'ON THIS PHONE',savedTitle:'Saved',savedIntro:'Posts you saved. They stay on this phone.',savedEmpty:'Nothing saved yet. Tap the bookmark on a post to keep it here.',backToShops:'← Discover',savedRow:'Posts you saved',error:'Something went wrong. Please try again.',search:'Shop name and product',tabFeed:'Feed',tabFollowing:'Following',tabTrending:'Trending',tabNew:'New Arrivals',followEmpty:'Follow shops from the ••• menu on a post to see them here.',trendingEmpty:'No liked or commented posts yet.',noResults:'Nothing found. Try another word.',follow:'Follow',unfollow:'Following ✓',bell:'Notifications',account:'Settings'},
+      verified:'Verified shop',menu:'More options',like:'Like',comment:'Comments',buy:'Buy Now',save:'Save',saved:'Saved',quantity:'Quantity',addCart:'Add to Cart',added:'Added to cart',notEnough:'Not enough stock',closeSheet:'Close',write:'Write a comment…',send:'Send',signIn:'Sign in with Google to like, comment and follow',signInButton:'Continue with Google',noComments:'No comments yet. Be the first.',remove:'Delete',savedKicker:'ON THIS PHONE',savedTitle:'Saved',savedIntro:'Posts you saved. They stay on this phone.',savedEmpty:'Nothing saved yet. Tap the bookmark on a post to keep it here.',backToShops:'← Discover',savedRow:'Posts you saved',error:'Something went wrong. Please try again.',search:'Shop name and product',tabFeed:'Feed',tabFollowing:'Following',tabTrending:'Trending',tabNew:'New Arrivals',followEmpty:'Follow shops from the ••• menu on a post to see them here.',trendingEmpty:'No liked or commented posts yet.',noResults:'Nothing found. Try another word.',follow:'Follow',unfollow:'Following ✓',bell:'Notifications',account:'Settings'},
     my:{timeUnknown:'အချိန်မှတ်တမ်းမရှိ',posted:'တင်ထားသောအချိန်',myanmarTime:'မြန်မာစံတော်ချိန်',product:'ပစ္စည်း',kicker:'ဆိုင်အသီးသီးမှ ပစ္စည်းများ',intro:'ဆိုင်အသီးသီးက ပစ္စည်းတွေကို တစ်နေရာတည်းမှာ ကြည့်ရှုပါ။',loading:'ပစ္စည်းများ ရှာဖွေနေပါသည်…',more:'ထပ်ကြည့်ရန်',retry:'ပြန်စမ်းရန်',empty:'ဆိုင်တွေ ပစ္စည်းတင်တဲ့အခါ ဒီနေရာမှာ ပြပေးပါမယ်။',failed:'ပစ္စည်းများ မရနိုင်သေးပါ။ ပြန်စမ်းကြည့်ပါ။',done:'ပစ္စည်းအားလုံး ကြည့်ပြီးပါပြီ။',visit:'ဆိုင်သို့သွားရန်',read:'ဆက်ဖတ်ရန်',less:'လျှော့ပြရန်',noPhoto:'ဓာတ်ပုံ မတင်ရသေးပါ',soldOut:'ပစ္စည်းကုန်နေပါသည်',photos:'ဓာတ်ပုံများ ကြည့်ရန်',close:'ဓာတ်ပုံ ပိတ်ရန်',prev:'ရှေ့ပုံ',next:'နောက်ပုံ',
-      verified:'အတည်ပြုထားသော ဆိုင်',menu:'နောက်ထပ်',like:'Like',comment:'မှတ်ချက်များ',buy:'ဝယ်မယ်',save:'သိမ်းမယ်',saved:'သိမ်းထားပြီး',quantity:'အရေအတွက်',addCart:'ခြင်းထဲထည့်',added:'ခြင်းထဲ ထည့်ပြီးပါပြီ',notEnough:'လက်ကျန် မလုံလောက်ပါ',closeSheet:'ပိတ်ရန်',write:'မှတ်ချက် ရေးပါ…',send:'ပို့မယ်',signIn:'Like နဲ့ မှတ်ချက်ရေးဖို့ Google နဲ့ ဝင်ပါ',signInButton:'Google နဲ့ ဝင်မယ်',noComments:'မှတ်ချက် မရှိသေးပါ။ ပထမဆုံး ရေးလိုက်ပါ။',remove:'ဖျက်မယ်',savedKicker:'ဒီဖုန်းထဲမှာ',savedTitle:'သိမ်းထားသည်များ',savedIntro:'သိမ်းထားတဲ့ post များ။ ဒီဖုန်းထဲမှာပဲ ရှိပါတယ်။',savedEmpty:'သိမ်းထားတာ မရှိသေးပါ။ Post ပေါ်က 🔖 ကို နှိပ်ပြီး သိမ်းပါ။',backToShops:'← Discover',savedRow:'သိမ်းထားတဲ့ post များ',error:'မအောင်မြင်ပါ။ ပြန်စမ်းကြည့်ပါ။',search:'ဆိုင်နာမည်နဲ့ ပစ္စည်း ရှာရန်',tabFeed:'Feed',tabFollowing:'Following',tabTrending:'Trending',tabNew:'New Arrivals',followEmpty:'Post ပေါ်က ••• ထဲမှာ Follow နှိပ်ထားတဲ့ ဆိုင်တွေ ဒီမှာ ပေါ်ပါမယ်။',trendingEmpty:'Like / မှတ်ချက် ရထားတဲ့ post မရှိသေးပါ။',noResults:'မတွေ့ပါ။ တခြားစကားလုံးနဲ့ ရှာကြည့်ပါ။',follow:'Follow',unfollow:'Following ✓',bell:'အသိပေးချက်များ',account:'Settings'}
+      verified:'အတည်ပြုထားသော ဆိုင်',menu:'နောက်ထပ်',like:'Like',comment:'မှတ်ချက်များ',buy:'ဝယ်မယ်',save:'သိမ်းမယ်',saved:'သိမ်းထားပြီး',quantity:'အရေအတွက်',addCart:'ခြင်းထဲထည့်',added:'ခြင်းထဲ ထည့်ပြီးပါပြီ',notEnough:'လက်ကျန် မလုံလောက်ပါ',closeSheet:'ပိတ်ရန်',write:'မှတ်ချက် ရေးပါ…',send:'ပို့မယ်',signIn:'Like၊ မှတ်ချက်ရေး၊ Follow လုပ်ဖို့ Google နဲ့ ဝင်ပါ',signInButton:'Google နဲ့ ဝင်မယ်',noComments:'မှတ်ချက် မရှိသေးပါ။ ပထမဆုံး ရေးလိုက်ပါ။',remove:'ဖျက်မယ်',savedKicker:'ဒီဖုန်းထဲမှာ',savedTitle:'သိမ်းထားသည်များ',savedIntro:'သိမ်းထားတဲ့ post များ။ ဒီဖုန်းထဲမှာပဲ ရှိပါတယ်။',savedEmpty:'သိမ်းထားတာ မရှိသေးပါ။ Post ပေါ်က 🔖 ကို နှိပ်ပြီး သိမ်းပါ။',backToShops:'← Discover',savedRow:'သိမ်းထားတဲ့ post များ',error:'မအောင်မြင်ပါ။ ပြန်စမ်းကြည့်ပါ။',search:'ဆိုင်နာမည်နဲ့ ပစ္စည်း ရှာရန်',tabFeed:'Feed',tabFollowing:'Following',tabTrending:'Trending',tabNew:'New Arrivals',followEmpty:'Post ပေါ်က ••• ထဲမှာ Follow နှိပ်ထားတဲ့ ဆိုင်တွေ ဒီမှာ ပေါ်ပါမယ်။',trendingEmpty:'Like / မှတ်ချက် ရထားတဲ့ post မရှိသေးပါ။',noResults:'မတွေ့ပါ။ တခြားစကားလုံးနဲ့ ရှာကြည့်ပါ။',follow:'Follow',unfollow:'Following ✓',bell:'အသိပေးချက်များ',account:'Settings'}
   };
   const t = key => words[document.documentElement.lang === 'my' ? 'my' : 'en'][key];
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -39,7 +39,7 @@
     people:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.3-5.5 6.5-5.5s5.7 1.9 6.5 5.5z"/><path d="M15 4.8a3.3 3.3 0 0 1 0 6.4M17.5 14.6c2 .7 3.4 2.6 4 5.4"/></svg>',
     photos:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="14" height="14" rx="2.5"/><path d="M17 21H5.5A2.5 2.5 0 0 1 3 18.5V7"/></svg>'
   };
-  let active = false, loading = false, initialized = false, nextBefore = null, items = [], lastLoaded = 0, failed = false, savedMode = false;
+  let active = false, loading = false, initialized = false, nextBefore = null, items = [], lastLoaded = 0, failed = false, savedMode = false, postsNext, productsDone = false;
   let gallery = null, photoIndex = 0;
   // Saved posts stay on this phone (owner's choice): a copy of each post, newest first.
   const SAVED = 'gh-saved-posts';
@@ -56,8 +56,20 @@
   const slugOf = item => item.shop.slug || item.shop.url.split('/')[2];
   const followed = () => { try { const v = JSON.parse(localStorage.getItem(FOLLOW) || '[]'); return Array.isArray(v) ? v.filter(x => typeof x === 'string') : []; } catch { return []; } };
   let tab = 'feed', query = '';
-  const find = id => items.find(item => item.id === id) || savedList().find(item => item.id === id);
+  const find = id => items.find(item => String(item.id) === String(id)) || savedList().find(item => String(item.id) === String(id));
+  // 1.1.303: a shop's personal post (photos + text): no price, Buy Now, likes or Save.
+  function personal(item) {
+    const images = item.images || [], text = item.body || '', long = text.length > 160 || text.split('\n').length > 3;
+    const avatar = item.shop.logo ? '<img src="' + esc(item.shop.logo) + '" alt="" loading="lazy" decoding="async">' : esc([...item.shop.name.trim()][0] || 'S');
+    return '<article class="shops-post shops-personal" data-feed-id="' + item.id + '">' +
+      '<header class="shops-post-header"><a class="shops-post-avatar" href="' + esc(item.shop.url) + '" tabindex="-1" aria-hidden="true">' + avatar + '</a><div><span class="shops-post-name"><a class="shops-post-shop" href="' + esc(item.shop.url) + '">' + esc(item.shop.name) + '</a><span title="' + esc(t('verified')) + '">' + icon.verified + '</span></span><span class="shops-post-subtitle">' + icon.globe + '<span aria-hidden="true">·</span>' + postTime(item.postedAt) + '</span></div>' +
+      '<div class="shops-post-menu"><button type="button" class="shops-post-more" data-feed-menu="' + item.id + '" aria-haspopup="true" aria-expanded="false" aria-label="' + esc(t('menu')) + '">' + icon.dots + '</button><div class="shops-post-menu-list" hidden><a href="' + esc(item.shop.url) + '">' + esc(t('visit')) + ' ↗</a><button type="button" data-feed-follow="' + esc(slugOf(item)) + '">' + esc(t(followed().includes(slugOf(item)) ? 'unfollow' : 'follow')) + '</button></div></div></header>' +
+      (text ? '<div class="shops-post-caption"><p class="shops-post-description shops-personal-text' + (long ? ' is-clamped' : '') + '" id="shops-description-' + item.id + '">' + esc(text) + '</p>' + (long ? '<button type="button" class="shops-read-more" data-feed-expand="' + item.id + '" aria-controls="shops-description-' + item.id + '" aria-expanded="false">' + esc(t('read')) + '</button>' : '') + '</div>' : '<div class="shops-post-caption"></div>') +
+      (images.length ? '<div class="shops-post-media"><button type="button" data-feed-photo="' + item.id + '" data-photo-index="0" aria-label="' + esc(t('photos') + ' · ' + images.length) + '"><img src="' + esc(images[0]) + '" alt="" loading="lazy" decoding="async">' + (images.length > 1 ? '<span class="shops-photo-count">' + icon.photos + images.length + '</span>' : '') + '</button></div>' : '') +
+      '<div class="shops-personal-end"></div></article>';
+  }
   function post(item) {
+    if (item.kind === 'post') return personal(item);
     const images = item.images || [], text = item.description || '', long = text.length > 110 || text.split('\n').length > 2;
     const initials = [...item.shop.name.trim()].slice(0, 1).join('') || 'S';
     const avatar = item.shop.logo ? '<img src="' + esc(item.shop.logo) + '" alt="" loading="lazy" decoding="async">' : esc(initials);
@@ -122,11 +134,23 @@
     const off = !row || row.hidden, dot = button.querySelector('i'), noDot = !count || count.hidden;
     if (button.hidden !== off) button.hidden = off; if (dot.hidden !== noDot) dot.hidden = noDot;
   }
+  // 1.1.303: follows are kept in the Google account (followers count is real). The phone keeps a copy for drawing;
+  // shops followed on this phone before signing in move to the account once.
+  let follower = false;
+  async function syncFollows(first) {
+    try {
+      if (first) { const local = followed(); let moved = false; try { moved = localStorage.getItem(FOLLOW + ':moved') === '1'; } catch {}
+        if (local.length && !moved) { await call('/api/platform/profile/following/import', 'POST', {slugs:local}); try { localStorage.setItem(FOLLOW + ':moved', '1'); } catch {} } }
+      const d = await call('/api/platform/profile/following');
+      follower = d.signedIn; if (d.signedIn) try { localStorage.setItem(FOLLOW, JSON.stringify(d.slugs)); } catch {}
+    } catch {}
+  }
+  addEventListener('gearhub:follows-changed', () => { syncFollows(false).then(() => { if (tab === 'following') load(true); }); });
   let meLoaded = false;
   async function account() {
     if (meLoaded) return; meLoaded = true;
     try { const me = await (await fetch('/api/platform/me', {cache:'no-store',credentials:'same-origin'})).json(); csrf = me.csrfToken || csrf;
-      if (me.user?.name) { const b = top.querySelector('.shops-top-me'); b.classList.add('signed-in'); b.textContent = [...me.user.name.trim()][0] || '?'; } } catch {}
+      if (me.user?.name) { const b = top.querySelector('.shops-top-me'); b.classList.add('signed-in'); b.textContent = [...me.user.name.trim()][0] || '?'; await syncFollows(true); } } catch {}
   }
   top.querySelector('.shops-top-bell').addEventListener('click', () => document.querySelector('.settings-alerts-row')?.click());
   top.querySelector('.shops-top-me').addEventListener('click', () => window.showStoreView?.('profile'));
@@ -142,7 +166,7 @@
   let current = null;
   async function load(reset = false) {
     if (savedMode || (!reset && (loading || (initialized && nextBefore === null)))) return;
-    if (reset) { current?.abort(); initialized = false; nextBefore = null; items = []; }
+    if (reset) { current?.abort(); initialized = false; nextBefore = null; items = []; postsNext = undefined; productsDone = false; }
     loading = true; failed = false;
     const shops = followed();
     if (tab === 'following' && !shops.length) { list.innerHTML = ''; loading = false; initialized = true; labels(); return; }
@@ -156,17 +180,30 @@
     if (tab === 'trending') params.set('mode', 'trending');
     if (tab === 'following') params.set('shops', shops.join(','));
     try {
-      const response = await fetch('/api/platform/feed' + (params.toString() ? '?' + params : ''), {cache:'no-store',credentials:'same-origin',signal:stop.signal});
-      if (!response.ok) throw Error('Feed unavailable');
-      const result = await response.json();
-      const incoming = Array.isArray(result.items) ? result.items : [];
+      // 1.1.303: the shops' personal posts come in between the products (one after every two), never in Trending.
+      const wantPosts = tab !== 'trending' && postsNext !== null;
+      const postParams = new URLSearchParams();
+      if (postsNext) postParams.set('before', postsNext);
+      if (query) postParams.set('q', query);
+      if (tab === 'following') postParams.set('shops', shops.join(','));
+      const [response, postsResult] = await Promise.all([
+        productsDone ? null : fetch('/api/platform/feed' + (params.toString() ? '?' + params : ''), {cache:'no-store',credentials:'same-origin',signal:stop.signal}),
+        wantPosts ? fetch('/api/platform/posts' + (postParams.toString() ? '?' + postParams : ''), {cache:'no-store',credentials:'same-origin',signal:stop.signal}).then(r => r.ok ? r.json() : {items:[], nextBefore:null}).catch(() => ({items:[], nextBefore:null})) : null]);
+      if (response && !response.ok) throw Error('Feed unavailable');
+      const result = response ? await response.json() : {items:[], nextBefore:null};
+      const products = Array.isArray(result.items) ? result.items : [], extra = Array.isArray(postsResult?.items) ? postsResult.items : [];
+      if (postsResult) postsNext = postsResult.nextBefore || null;
+      const incoming = [];
+      for (let i = 0, j = 0; i < products.length || j < extra.length;) { if (i < products.length) incoming.push(products[i++]); if (i < products.length) incoming.push(products[i++]); if (j < extra.length) incoming.push(extra[j++]); }
       if (reset || !initialized) { items = []; list.innerHTML = ''; }
       const seen = new Set(items.map(item => item.id));
       if (stop !== current) return;
       const fresh = incoming.filter(item => !seen.has(item.id));
       items.push(...fresh);
       if (!savedMode) list.insertAdjacentHTML('beforeend', fresh.map(post).join(''));
-      nextBefore = result.nextBefore || null;
+      if (response) productsDone = !result.nextBefore;
+      // An empty cursor means: no more products, but personal posts are still coming.
+      nextBefore = response && result.nextBefore ? result.nextBefore : postsNext ? '' : null;
       initialized = true; lastLoaded = Date.now();
     } catch {
       if (stop !== current) return;
@@ -316,8 +353,11 @@
     if (menu) { const pop = menu.nextElementSibling, open = pop.hidden; closeMenus(pop); pop.hidden = !open; menu.setAttribute('aria-expanded', String(open)); return; }
     const follow = event.target.closest('[data-feed-follow]');
     if (follow) {
-      const slug = follow.dataset.feedFollow, list2 = followed(), on = !list2.includes(slug);
-      try { localStorage.setItem(FOLLOW, JSON.stringify(on ? [...list2, slug].slice(-100) : list2.filter(x => x !== slug))); } catch {}
+      const slug = follow.dataset.feedFollow, list2 = followed();
+      let on;
+      try { on = (await call('/api/platform/profile/' + encodeURIComponent(slug) + '/follow', 'POST', {})).followed; }
+      catch (error) { closeMenus(); if (error.status === 401) signInSheet(find(follow.closest('[data-feed-id]')?.dataset.feedId)); else window.toast?.(error.message); return; }
+      try { localStorage.setItem(FOLLOW, JSON.stringify(on ? [...list2.filter(x => x !== slug), slug].slice(-100) : list2.filter(x => x !== slug))); } catch {}
       list.querySelectorAll('[data-feed-follow="' + CSS.escape(slug) + '"]').forEach(b => { b.textContent = t(on ? 'unfollow' : 'follow'); });
       closeMenus(); window.toast?.(t(on ? 'unfollow' : 'follow'));
       if (tab === 'following') load(true);
@@ -349,7 +389,7 @@
     }
     const button = event.target.closest('[data-feed-photo]');
     if (!button) return;
-    gallery = find(Number(button.dataset.feedPhoto));
+    gallery = find(button.dataset.feedPhoto);
     if (!gallery?.images?.length) return;
     photoIndex = Number(button.dataset.photoIndex) || 0; showPhoto();
     dialog.classList.add('open'); dialog.showModal();
@@ -367,7 +407,7 @@
   document.getElementById('shops-photo-next').addEventListener('click', () => move(1));
   dialog.addEventListener('keydown', event => { if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); move(event.key === 'ArrowLeft' ? -1 : 1); } });
   more.addEventListener('click', () => load(!initialized || nextBefore === null));
-  if ('IntersectionObserver' in window) new IntersectionObserver(entries => { if (active && !savedMode && !failed && nextBefore && entries.some(entry => entry.isIntersecting)) load(); }, {rootMargin:'300px'}).observe(more);
+  if ('IntersectionObserver' in window) new IntersectionObserver(entries => { if (active && !savedMode && !failed && nextBefore !== null && entries.some(entry => entry.isIntersecting)) load(); }, {rootMargin:'300px'}).observe(more);
   new MutationObserver(() => { if (initialized || savedMode) render(); else labels(); }).observe(document.documentElement, {attributes:true,attributeFilter:['lang']});
   // Settings → Saved opens the Shops tab with the saved posts; the Shops tab itself shows the feed again.
   document.addEventListener('click', event => { if (event.target.closest('[data-store-view="shops"]')) savedMode = false; }, true);
