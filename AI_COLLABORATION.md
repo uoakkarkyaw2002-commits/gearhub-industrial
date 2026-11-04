@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.306: No black Render "502 Bad Gateway" during a deploy (Claude)
+- Owner (iPhone screenshot during a deploy). Cause: Render stops the server while it deploys (the persistent disk rules out zero-downtime deploys, see the Codex 1.1.288 note) and answers with its own 502 page. The service worker already used the saved copy for shop pages on 5xx, but admin pages passed the 502 through, and a page with no saved copy showed plain text.
+- public/sw.js: admin pages treat 5xx like offline (saved copy); with no saved copy any page shows `busyPage()` — "ခဏစောင့်ပါ — app ကို update လုပ်နေပါတယ်" with a spinner, meta refresh every 5 s, status 503, never cached. Seller shops get it after Confirm update (shop SW comes from the saved build).
+- Not fixable here: the very first visit with no service worker yet, or a browser without one, still sees Render's page; true zero downtime needs moving off the attached disk (owner chose not to).
+- Tests: tests/sw-busy.test.js runs the real sw.js in a VM against a fake 502 (admin saved copy, admin/shop updating page). 482/482. Browser check not possible: Playwright WebKit cannot load the app on http://localhost (upgrade-insecure-requests) and the in-app pane refuses service workers.
+
 ### 1.1.305: Search bar — no second bin; ˄ ˅ beside the Excel count (Claude)
 - Owner (iPhone screenshot): the bin showed twice (bar + Trash in the filter list) and the Excel search had a count but no arrows. The bar's bin is hidden when the filter is there (search-filter.css); Trash in the list empties the search directly. excel-search.js: the matching-rows view shows ˄ ˅ when there is more than one match and they step through the matches like the sheet view.
 - Tests: search-filter.test.js updated. 480/480. WebKit iPhone 13 with the owner's workbook uploaded to the LOCAL test shop only: "carrier" → 60, ˄ ˅ shown, next → 2/60, 3/60 with the cell moving; no bin in the bar; Product → products count. Real iPhone not tested.
