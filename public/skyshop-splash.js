@@ -68,7 +68,10 @@
  // hidden by the site's referrer policy, so the page leaves a timestamp when it is closed).
  let left=0;try{left=Number(sessionStorage.getItem("sky-left"))||0}catch{}
  addEventListener("pagehide",()=>{try{sessionStorage.setItem("sky-left",String(Date.now()))}catch{}});
- const quiet=!updating&&((nav&&nav.type!=="navigate")||Date.now()-left<8000);
+ // 1.1.299 owner: the opening picture shows only when the app (or tab) is opened. Going to another shop or
+ // back to your own shop later in the same session gets the plain cover only, never the picture again.
+ let seen=false;try{seen=sessionStorage.getItem("sky-opened")==="1";sessionStorage.setItem("sky-opened","1")}catch{}
+ const quiet=!updating&&(seen||(nav&&nav.type!=="navigate")||Date.now()-left<8000);
  const seconds=updating?1.2:quiet?0:Math.min(10,Math.max(0.5,Number(el.dataset.seconds)||3));
  let audio=null;
  if(updating)prepareUpdate(el);
@@ -117,9 +120,9 @@
   if(done&&shown>=100&&Date.now()-started>=seconds*1000&&bloomFinished())setTimeout(leave,150);
  },50);
  // On a fast line nothing but the picture shows; the Loading box appears only if it takes a while.
- setTimeout(()=>{if(!gone)el.classList.add('show-loading')},updating?0:quiet?1200:seconds*1000+1200);
+ if(!seen||updating)setTimeout(()=>{if(!gone)el.classList.add('show-loading')},updating?0:quiet?1200:seconds*1000+1200);
  // A reload shows a plain cover; if the shop is not ready soon, show the picture and the counter.
- if(quiet)setTimeout(()=>{if(!gone)el.classList.remove('is-quiet')},700);
+ if(quiet&&!seen)setTimeout(()=>{if(!gone)el.classList.remove('is-quiet')},700);
 
  const wait=ms=>new Promise(r=>setTimeout(r,ms));
  const loaded=img=>new Promise(r=>{if(img.complete)return r();img.addEventListener('load',r,{once:true});img.addEventListener('error',r,{once:true})});

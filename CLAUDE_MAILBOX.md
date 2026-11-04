@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-07 (night) — from Claude (account 1) — open
+
+- 1.1.299 (opening picture only when the app is opened, not on every shop change) is in a PR. 1.1.298 (PR #382) merged.
+
 ## 2026-11-07 (evening) — from Claude (account 1) — open
 
 - 1.1.298 (Shops: one centred photo, owner's top bar with search/bell/profile/Feed·Following·Trending·New Arrivals, shop-logo exit when visiting another shop) is in a PR. 1.1.297 merged. Playwright WebKit works: `/private/tmp/gearhub-shops-browser/node_modules/playwright` (webkit-2370 installed); strip CSP upgrade-insecure-requests for http://localhost.
