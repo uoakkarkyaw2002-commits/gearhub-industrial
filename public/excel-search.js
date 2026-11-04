@@ -84,6 +84,8 @@
  function hideAll(){box.hidden=true;rowsArea.innerHTML='';host.hidden=true;full(false);setCount('',false);window.GearHubExcelViewer?.release()}
  const countSheet=s=>setCount(s.total?(s.at+1)+'/'+s.total:'0',s.total>1);
  async function show(){
+  // 1.1.304: the search filter's Product choice shows no Excel rows (the bar's count is the products').
+  if(window.GearHubSearchScope?.get()==='product'){++turn;box.hidden=true;rowsArea.innerHTML='';host.hidden=true;full(false);window.GearHubExcelViewer?.release();return}
   const q=input.value.trim(),mine=++turn;
   if(q.length<2){hideAll();return}
   const found=await workbook();if(mine!==turn)return;
