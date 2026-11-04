@@ -66,6 +66,11 @@ test('deploys keep seller HTML, admin, worker and lazy assets pinned until the G
   vm.runInNewContext(workerBefore,{self:{location:{origin:base},addEventListener:(n,f)=>workerHandlers[n]=f,clients:{claim:async()=>{}}},caches:{keys:async()=>['gearhub-shell-v85-old:shop-qa-a','gearhub-shell-v85-old:shop-qa-b','gearhub-shell-v85-new:gearhub'],delete:async key=>deleted.push(key)}});
   let activation;workerHandlers.activate({waitUntil:p=>activation=p});await activation;
   assert.deepEqual(deleted,['gearhub-shell-v85-old:shop-qa-a']);
+  const rootFetch=[];
+  vm.runInNewContext(releases.worker(),{URL,self:{location:{origin:base},clients:{get:async id=>({url:base+(id==='seller'?'/shops/qa-a/':'/index.html')})},addEventListener:(name,fn)=>{if(name==='fetch')rootFetch.push(fn);}},fetch:async url=>url});
+  const legacyCheck=async id=>{let reply;for(const fn of rootFetch)fn({clientId:id,request:{url:base+'/api/app-release',method:'GET'},respondWith:value=>reply=value});return reply;};
+  assert.equal(await legacyCheck('gearhub'),base+'/api/app-release?preview=gearhub','existing GearHub pages update on the first deploy');
+  assert.equal(await legacyCheck('seller'),base+'/api/app-release','legacy seller pages never bypass approval');
   const lazy = await get('/app-builds/1.1.287/excel-search-index.js');
   assert.match(lazy, /new Worker\('\/app-builds\/1\.1\.287\/excel-search-index\.js/);
   assert.equal((await fetch(base+'/app-builds/1.1.287/files.json')).status,404);
