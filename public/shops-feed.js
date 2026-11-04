@@ -24,7 +24,7 @@
       '<header class="shops-post-header"><a class="shops-post-avatar" href="' + esc(item.shop.url) + '" tabindex="-1" aria-hidden="true">' + avatar + '</a><div><a class="shops-post-shop" href="' + esc(item.shop.url) + '">' + esc(item.shop.name) + '</a><span class="shops-post-subtitle">' + esc(item.category || t('product')) + '</span></div><a class="shops-post-go" href="' + esc(item.shop.url) + '" aria-label="' + esc(t('visit') + ' · ' + item.shop.name) + '">↗</a></header>' +
       '<div class="shops-post-caption"><h2 id="shops-post-title-' + item.id + '">' + esc(title(item)) + '</h2>' +
       (text ? '<p class="shops-post-description' + (long ? ' is-clamped' : '') + '" id="shops-description-' + item.id + '">' + esc(text) + '</p>' + (long ? '<button type="button" class="shops-read-more" data-feed-expand="' + item.id + '" aria-controls="shops-description-' + item.id + '" aria-expanded="false">' + esc(t('read')) + '</button>' : '') : '') +
-      '<div class="shops-post-price"><span>' + money(item.price) + '</span>' + (item.originalPrice !== null ? '<del>' + money(item.originalPrice) + '</del>' : '') + (item.stock === 0 ? '<small>' + esc(t('soldOut')) + '</small>' : '') + '</div></div>' + pictures +
+      (item.price === null && item.stock !== 0 ? '' : '<div class="shops-post-price">' + (item.price === null ? '' : '<span>' + money(item.price) + '</span>' + (item.originalPrice !== null ? '<del>' + money(item.originalPrice) + '</del>' : '')) + (item.stock === 0 ? '<small>' + esc(t('soldOut')) + '</small>' : '') + '</div>') + '</div>' + pictures +
       '<footer class="shops-post-footer"><a href="' + esc(item.shop.url) + '">' + esc(t('visit')) + '<span aria-hidden="true">→</span></a></footer></article>';
   }
   function labels() {

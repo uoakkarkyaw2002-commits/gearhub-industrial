@@ -14,6 +14,7 @@ const { promisify } = require("util");
 const execFileAsync = promisify(execFile);
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+const visitorView = require("./lib/visitor-view");
 const {passwordError, csrfToken, validToken, originGuard, pageSecurity} = require("./lib/security");
 const {createBackupService} = require("./lib/backups");
 const {createNotifications} = require("./lib/notifications");
@@ -704,6 +705,7 @@ app.put("/api/admin/site-settings", adminOnly, (req,res) => {
   payment[key] = cleanText(body.payment?.[key] ?? previous.payment[key], max);
  }
  const settings = {
+  visitorView: previous.visitorView,
   siteTitle: cleanText(body.siteTitle ?? previous.siteTitle, 160),
   brandName: cleanText(body.brandName ?? previous.brandName, 80),
   brandTagline: cleanText(body.brandTagline ?? previous.brandTagline, 120),
@@ -717,11 +719,25 @@ app.put("/api/admin/site-settings", adminOnly, (req,res) => {
 });
 app.get("/api/config", (req,res) => {
  const site = getSiteSettings();
- res.json({ ...site.payment, site });
+ res.setHeader("Vary", "Cookie");
+ res.json({ ...site.payment, site, visitorHide: isGearHubOwner(req) ? [] : visitorView.hidden(site.visitorView) });
 });
 app.get("/api/products", (req,res) => {
  const rows = db.prepare("SELECT * FROM products WHERE active=1 ORDER BY id DESC").all();
- res.json(rows.map(publicProduct));
+ // 1.1.291 owner "User show": visitors get only what the GearHub owner chose (Admin → User show).
+ const view = visitorView.normalize(getSiteSettings().visitorView);
+ res.setHeader("Vary", "Cookie");
+ res.json(isGearHubOwner(req) ? rows.map(publicProduct) : rows.map(p => visitorView.forVisitorMain(publicProduct(p), view)));
+});
+app.get("/api/admin/visitor-view", adminOnly, (_req,res) => res.json(visitorView.normalize(getSiteSettings().visitorView)));
+app.put("/api/admin/visitor-view", adminOnly, (req,res) => {
+ const b = req.body || {}, saved = (() => { try { return JSON.parse(db.prepare("SELECT settings_json FROM site_settings WHERE id=1").get()?.settings_json || "{}"); } catch { return {}; } })();
+ for (const f of visitorView.FIELDS) if (f in b && typeof b[f] !== "boolean") return res.status(400).json({error:"Choose on or off."});
+ if ("photos" in b && !(Number.isSafeInteger(b.photos) && b.photos >= 0 && b.photos <= visitorView.MAX_PHOTOS)) return res.status(400).json({error:"Photos must be 0 (all) to "+visitorView.MAX_PHOTOS+"."});
+ saved.visitorView = visitorView.normalize({ ...visitorView.normalize(saved.visitorView), ...b });
+ db.prepare(`INSERT INTO site_settings(id,settings_json,updated_at) VALUES(1,?,CURRENT_TIMESTAMP)
+  ON CONFLICT(id) DO UPDATE SET settings_json=excluded.settings_json,updated_at=CURRENT_TIMESTAMP`).run(JSON.stringify(saved));
+ res.json(saved.visitorView);
 });
 app.get("/api/categories", (_req,res) => res.json(getCategories(true)));
 app.post("/api/orders", (req,res) => receiptUpload.single("receipt")(req,res,async err => {

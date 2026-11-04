@@ -35,7 +35,10 @@
     const a=Object.fromEntries(Object.entries(b.appearance||{}).filter(([,v])=>!(typeof v==='string'&&!v.trim())));
     // Text copied from GearHub's own defaults is rewritten to this shop's name.
     for(const language of ['en','my'])for(const [k,v] of Object.entries(a.translations?.[language]||{}))if(typeof v==='string'&&/gear\s*hub/i.test(v))a.translations[language][k]=v.replace(/gear\s*hub/gi,s.name);
-    result.site={...result.site,...a,translations:{en:{...result.site.translations.en,...a.translations?.en},my:{...result.site.translations.my,...a.translations?.my}}};for(const language of ['en','my'])if(/^GEARHUB APP$/i.test(result.site.translations[language].settingsEyebrow||''))result.site.translations[language].settingsEyebrow=s.name+' APP';return result;
+    result.site={...result.site,...a,translations:{en:{...result.site.translations.en,...a.translations?.en},my:{...result.site.translations.my,...a.translations?.my}}};for(const language of ['en','my'])if(/^GEARHUB APP$/i.test(result.site.translations[language].settingsEyebrow||''))result.site.translations[language].settingsEyebrow=s.name+' APP';
+    // 1.1.291 owner "User show": fields the shop owner hides from visitors (the owner sees everything).
+    const vv=b.visitorView||{};result.visitorHide=s.viewer==='visitor'?['sku','partNo','price','stock','description'].filter(f=>vv[f]===false):[];
+    return result;
   }
   function prepare(s){
     document.querySelectorAll('a[href^="/admin.html"]').forEach(a=>a.href='/shops/'+encodeURIComponent(slug)+'/admin');

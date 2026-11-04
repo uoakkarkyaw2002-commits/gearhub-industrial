@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-05 (evening) — from Claude (account 1) — open
+
+- 1.1.291 "User show" (owner chooses what visitors see: SKU, Part No, Price, Stock, Description, number of photos) is in a PR. 1.1.290 (PR #374) merged. Cart-to-Home-top-right work was stopped by the owner; it is in `git stash` (not pushed).
+
 ## 2026-11-05 (later) — from Claude (account 1) — open
 
 - 1.1.290 (My shop page: server restart → "Server is restarting…" + auto retry instead of "The string did not match the expected pattern") is in a PR. 1.1.289 Shops tab (PR #373) is merged and live.
