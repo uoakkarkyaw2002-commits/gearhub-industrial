@@ -312,10 +312,10 @@ const orderPush=createOrderPush({db,subject:publicOrigin,log:logError});
 app.locals.orderPush=orderPush;
 // Opt-in additive platform migration; legacy tables/routes remain unchanged.
 // Google Drive copy of the daily backup and of every shop photo (the owner connects it once in the owner console).
-let drive=null;
+let drive=null,fileStore=null;
 if(process.env.PLATFORM_ENABLED==='true'){
  // 1.1.282: shop files also kept in Cloudflare R2; the disk keeps a cache (lib/file-store.js, off without FILES_S3_BUCKET).
- const files=require('./lib/file-store').createFileStore({db,dataDir,log:(event,...detail)=>console.error(JSON.stringify({event,detail}))});files.start();
+ const files=fileStore=require('./lib/file-store').createFileStore({db,dataDir,log:(event,...detail)=>console.error(JSON.stringify({event,detail}))});files.start();
  drive=require('./lib/drive-backup').createDrive({db,ensure:files.ensureLocal,clientId:process.env.GOOGLE_CLIENT_ID,clientSecret:process.env.GOOGLE_CLIENT_SECRET,media:path.join(dataDir,'platform-media'),log:(event,detail)=>console.error(JSON.stringify({event,detail}))});
  const shopAlias=require('./lib/shop-alias');app.use(shopAlias.aliasMiddleware(db));
  const {createPlatform}=require('./lib/platform');
@@ -343,6 +343,12 @@ app.get("/admin.html", (req, res) => {
  res.sendFile(path.join(__dirname, "public", "admin.html"));
 });
 
+// 1.1.283: the GearHub owner — signed in to the GearHub admin, or with the owner's Google account.
+function isGearHubOwner(req) {
+ if (req.session?.admin) return true;
+ if (process.env.PLATFORM_ENABLED !== "true" || !req.session?.platformUser) return false;
+ try { const u = db.prepare("SELECT * FROM platform_users WHERE id=?").get(req.session.platformUser); return require("./lib/platform-model").isOwner(db, u, String(process.env.PLATFORM_OWNER_EMAIL || "").trim()); } catch { return false; }
+}
 // Report storage for the filesystem that actually holds the database and uploads.
 // The API returns byte counts only; it never exposes server paths or file names.
 app.get("/api/storage", async (_req, res) => {
@@ -365,7 +371,14 @@ app.get("/api/storage", async (_req, res) => {
   const disk = await fs.promises.statfs(dataDir);
   const diskCapacityBytes = Number(disk.blocks) * Number(disk.bsize);
   const diskAvailableBytes = Number(disk.bavail) * Number(disk.bsize);
-  res.json({ usedBytes: appDataBytes, capacityBytes: diskCapacityBytes, availableBytes: diskAvailableBytes });
+  const out = { usedBytes: appDataBytes, capacityBytes: diskCapacityBytes, availableBytes: diskAvailableBytes };
+  // 1.1.283 owner: the GearHub owner also sees Cloudflare R2 and Google Drive (customers see the Render disk only).
+  if (isGearHubOwner(_req)) {
+   const [r2, gdrive] = await Promise.all([fileStore?.usage().catch(() => null), drive?.usage().catch(() => null)]);
+   out.r2 = r2 ? { usedBytes: r2.bytes, files: r2.files, shopFileBytes: r2.fileBytes, freeBytes: 10 * 1024 ** 3 } : null;
+   out.drive = gdrive ? { usedBytes: gdrive.bytes, files: gdrive.files } : null;
+  }
+  res.json(out);
  } catch (err) {
   logError("storage_lookup_failure",err);
   res.status(503).json({ error: "Storage information is temporarily unavailable." });

@@ -4,7 +4,8 @@ const Database=require('better-sqlite3'),{createFileStore}=require('../lib/file-
 function fakeR2(){const objects=new Map(),calls=[];return {objects,calls,async send({name,input}){calls.push(name+' '+input.Key);
  if(name==='PutObjectCommand'){const parts=[];for await(const c of input.Body)parts.push(c);objects.set(input.Key,Buffer.concat(parts));return {}}
  if(name==='GetObjectCommand'){if(!objects.has(input.Key))throw Object.assign(Error('NoSuchKey'),{name:'NoSuchKey'});return {Body:Readable.from([objects.get(input.Key)])}}
- if(name==='DeleteObjectCommand'){objects.delete(input.Key);return {}}}}}
+ if(name==='DeleteObjectCommand'){objects.delete(input.Key);return {}}
+ if(name==='ListObjectsV2Command'){return {Contents:[...objects].map(([Key,b])=>({Key,Size:b.length})),IsTruncated:false}}}}}
 function setup(t,opts={}){const dataDir=fs.mkdtempSync(path.join(os.tmpdir(),'file-store-'));const db=new Database(':memory:');t.after(()=>{db.close();fs.rmSync(dataDir,{recursive:true,force:true})});
  const shopDir=path.join(dataDir,'platform-media','7');fs.mkdirSync(path.join(shopDir,'.photo-looks'),{recursive:true});
  const put=(name,bytes,ageMin=30)=>{const f=path.join(shopDir,name);fs.writeFileSync(f,Buffer.alloc(bytes,name.length));const when=new Date(Date.now()-ageMin*60000);fs.utimesSync(f,when,when);return f};
@@ -47,4 +48,13 @@ test('every reader of shop files fetches a missing one back first',()=>{
  assert.match(read('lib/drive-backup.js'),/const file = await ensure\(path\.join\(media, String\(shop\.id\), f\.filename\)\);/);
  assert.match(read('lib/tenant-install.js'),/if\(!fs\.existsSync\(p\)\)\{files\?\.ensureLocal\(p\)/);
  assert.match(read('server.js'),/createFileStore\(\{db,dataDir,/);
+});
+
+test('1.1.283: Settings gets the whole R2 bucket size (shop files and backups), and only the GearHub owner sees R2 and Drive',async t=>{
+ const {put,store,r2}=setup(t);put('a.jpg',300);await store.sweep();r2.objects.set('gearhub/backup.tar.gz',Buffer.alloc(700));
+ assert.deepEqual(await store.usage(),{bytes:1000,files:2,fileBytes:300,bucket:'gearhub-files'});
+ const server=fs.readFileSync(path.join(__dirname,'..','server.js'),'utf8'),drive=fs.readFileSync(path.join(__dirname,'..','lib','drive-backup.js'),'utf8'),settings=fs.readFileSync(path.join(__dirname,'..','public','settings.js'),'utf8');
+ assert.match(server,/if \(isGearHubOwner\(_req\)\) \{/);
+ assert.match(drive,/trashed=false and mimeType!='/,'only files GearHub put in Drive (drive.file scope)');
+ assert.match(settings,/Cloudflare R2/);assert.match(settings,/Google Drive/);
 });
