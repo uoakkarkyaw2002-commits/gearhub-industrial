@@ -38,9 +38,24 @@ test('profile counts, follow, personal posts and who may post or delete',async t
  assert.deepEqual((await json(guest('/posts?q=stock'))).items.map(i=>i.postId),[made.item.postId]);
  assert.deepEqual((await json(guest('/posts?shops=shop-b'))).items,[]);
  assert.ok((await json(guest('/feed'))).items.every(i=>i.kind!=='post'&&i.name==='Part'),'personal posts never become products');
+ // 1.1.308: likes and comments on a personal post; comments show the SkyShop name; the writer edits.
+ const pid='p'+made.item.postId;
+ assert.deepEqual(await json(buyer('/feed/shop-a/'+pid+'/like','POST',{})),{liked:true,likes:1});
+ assert.equal((await buyer('/feed/shop-b/'+pid+'/like','POST',{})).status,404,'only under its own shop');
+ assert.equal((await buyer('/feed/shop-a/p999/like','POST',{})).status,404);
+ let cm=await json(b('/feed/shop-a/'+pid+'/comments','POST',{body:'Nice'}));assert.equal(cm.comments[0].name,'Shop B','a shop owner comments as the shop');
+ await new Promise(r=>setTimeout(r,3100));
+ cm=await json(boss('/feed/shop-a/'+pid+'/comments','POST',{body:'Hi'}));assert.equal(cm.comments[1].name,'SkyShopMM','the GearHub owner without a shop');
+ cm=await json(buyer('/feed/shop-a/'+pid+'/comments','POST',{body:'Price?'}));assert.equal(cm.comments[2].name,'Buyer');assert.deepEqual([cm.comments[2].canEdit,cm.comments[0].canEdit],[true,false]);
+ const cid=cm.comments[2].id;
+ assert.equal((await b('/feed/shop-a/'+pid+'/comments/'+cid,'PUT',{body:'x'})).status,403,'only the writer edits');
+ assert.equal((await json(buyer('/feed/shop-a/'+pid+'/comments/'+cid,'PUT',{body:'Price please?'}))).comments[2].body,'Price please?');
+ const listed=(await json(buyer('/posts?shop=shop-a'))).items.find(i=>i.id===pid);assert.deepEqual([listed.likes,listed.comments,listed.liked],[1,3,true]);
+ assert.equal((await json(guest('/feed/shop-a/'+made.item.postId+'/comments'))).count,0,'a product with the same number is separate');
  assert.equal((await b('/profile/shop-a/posts/'+made.item.postId,'DELETE')).status,403);
  assert.equal((await a('/profile/shop-a/posts/'+made.item.postId,'DELETE')).status,200);
  assert.equal((await json(guest('/profile/shop-a'))).posts,2);
+ assert.equal(db.prepare('SELECT COUNT(*) n FROM platform_post_comments WHERE shop_id=10 AND product_id=?').get(-made.item.postId).n,0,'removing a post removes its comments');
 });
 
 test('the profile page, + Add sheet and Work link are wired',()=>{

@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.308: Personal posts get ❤ / 💬 / 🔖; comments show the SkyShop name; writer can edit (Claude)
+- Owner: personal posts should have everything a product post has except Buy Now. Like / comments / save now work on personal posts (`/feed/:slug/p<id>/…`). They reuse `platform_post_likes` / `platform_post_comments` with product_id = -<post id> (no schema change; never collides with product ids); deleting a personal post deletes its likes/comments. `/posts` items carry likes/comments/liked.
+- Comment names: the writer's shop name (brandName or name) if they own a shop, "SkyShopMM" for the GearHub owner without a shop, else the Google name.
+- New PUT `/feed/:slug/:id/comments/:comment` — writer only; the sheet shows a pencil (writer) beside a bin icon (writer, shop owner, GearHub owner), editing in place.
+- Tests: shop-profile.test.js extended; shop-feed tag updated on purpose. 482/482. WebKit iPhone 13 as the POLESTAR owner (local session): personal card has like/comment/save, like → 1, comment shows "POLESTAR", edit → "Hello again". The profile page's own post list is unchanged (no buttons there). Real iPhone not tested.
+
 ### 1.1.307: Search bar stays on top; Trash plays the bin animation; no Refresh row (Claude)
 - Owner (iPhone screenshots): in Product search, scrolling down lost the search bar. Cause: old phone rules `html,body{overflow-x:hidden}` (style.css, Oct 2026) make body its own scroll box in WebKit, so the 1.1.222 sticky bar scrolled away (measured on live: top -890 after scrolling). search-filter.css now sets `overflow-x:clip` (same sideways cut, no scroll box) inside `@supports (overflow:clip)` on ≤850px. WebKit: bar top 0 after scrolling 1500px; scrollWidth = width on Home/Discover/Category/Profile.
 - Trash in the filter list plays the old bin animation (body.bin-eating shows the bar's bin while it eats the letters), then hides it.
