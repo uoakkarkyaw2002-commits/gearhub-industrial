@@ -29,5 +29,14 @@
  addEventListener('touchmove',e=>{if(!tracking)return;const dy=e.touches[0].clientY-startY,dx=Math.abs(e.touches[0].clientX-startX);if(window.scrollY>0||dy<=0||dx>dy){if(pull)reset();return}pull=dy*.5;draw()},{passive:true});
  addEventListener('touchend',()=>{if(!tracking)return;tracking=false;if(pull>=PULL)refresh();else if(pull)reset()},{passive:true});
  addEventListener('touchcancel',()=>{tracking=false;if(!busy)reset()},{passive:true});
+ // 1.1.309 owner: like Facebook, tapping Home (or Discover) again while it is open goes back to the top and reloads.
+ document.addEventListener('click',e=>{
+  const tab=e.target.closest('.mobile-bottom-nav [data-store-view="home"],.mobile-bottom-nav [data-store-view="shops"]');
+  if(!tab||busy||!tab.classList.contains('active'))return;
+  const view=document.getElementById(tab.dataset.storeView==='home'?'catalog':'shops-view');
+  if(view&&view.classList.contains('store-view-hidden'))return;
+  if(window.scrollY>0)window.scrollTo({top:0,behavior:'smooth'});
+  setTimeout(refresh,window.scrollY>0?350:0);
+ },true);
  window.GearHubPullRefresh={refresh};
 })();

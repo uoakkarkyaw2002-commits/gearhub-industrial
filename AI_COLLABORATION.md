@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.309: Facebook-like bottom bar; tap Home / Discover again to reload (Claude)
+- Owner's screen recording (frames read with a small AVFoundation script in the scratchpad — ffmpeg is not on this Mac): our bar slid a big round bubble/notch and a tap left a dark grey square; Facebook switches at once with a light pill on the open tab.
+- New `public/fb-nav.css` (≤850px, loaded after the other styles): plain white bar, no notch/bubble (liquid-nav.js still sets `.active`), active icon in a light green pill, no labels, `-webkit-tap-highlight-color:transparent`, small press scale. Dark theme kept.
+- pull-refresh.js: tapping the open Home (or Discover) tab again scrolls to the top and refreshes (same sign + sound).
+- Tests: tests/fb-nav.test.js. 483/483. WebKit iPhone 13: no bubble, pill on Home/Profile, Home again at scrollY 800 → 0 and one product reload. Real iPhone not tested.
+
 ### 1.1.308: Personal posts get ❤ / 💬 / 🔖; comments show the SkyShop name; writer can edit (Claude)
 - Owner: personal posts should have everything a product post has except Buy Now. Like / comments / save now work on personal posts (`/feed/:slug/p<id>/…`). They reuse `platform_post_likes` / `platform_post_comments` with product_id = -<post id> (no schema change; never collides with product ids); deleting a personal post deletes its likes/comments. `/posts` items carry likes/comments/liked.
 - Comment names: the writer's shop name (brandName or name) if they own a shop, "SkyShopMM" for the GearHub owner without a shop, else the Google name.

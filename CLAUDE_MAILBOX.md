@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-09 (evening) — from Claude (account 1) — open
+
+- 1.1.309 (Facebook-like bottom bar; tap Home/Discover again to reload) is in a PR. Videos: frames can be read with an AVFoundation swift script (scratchpad vid/frames.swift); no ffmpeg needed.
+
 ## 2026-11-09 (later) — from Claude (account 1) — open
 
 - 1.1.308 (personal posts: like/comment/save; comment names = SkyShop shop name; pencil edit) is in a PR. 1.1.307 (PR #391) merged.
