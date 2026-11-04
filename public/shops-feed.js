@@ -194,7 +194,12 @@
       const products = Array.isArray(result.items) ? result.items : [], extra = Array.isArray(postsResult?.items) ? postsResult.items : [];
       if (postsResult) postsNext = postsResult.nextBefore || null;
       const incoming = [];
-      for (let i = 0, j = 0; i < products.length || j < extra.length;) { if (i < products.length) incoming.push(products[i++]); if (i < products.length) incoming.push(products[i++]); if (j < extra.length) incoming.push(extra[j++]); }
+      // 1.1.304 owner: a new personal post comes first (like Facebook) — each post goes before the first product
+      // that is older than it (a product without a time counts as older); products keep their order.
+      const when = item => Date.parse(item.postedAt || '') || 0;
+      for (let i = 0, j = 0; i < products.length || j < extra.length;) {
+        if (j < extra.length && (i >= products.length || when(extra[j]) >= when(products[i]))) incoming.push(extra[j++]); else incoming.push(products[i++]);
+      }
       if (reset || !initialized) { items = []; list.innerHTML = ''; }
       const seen = new Set(items.map(item => item.id));
       if (stop !== current) return;
@@ -416,7 +421,7 @@
     if (typeof window.showStoreView === 'function') window.showStoreView('shops'); else render();
     render(); scrollTo(0, 0); window.GearHubBackNav?.record();
   });
-  window.GearHubShops = {setActive(value) { active = value; if (active) { brand(); bell(); account(); } if (active && savedMode) render(); else if (active && (!initialized || Date.now() - lastLoaded > 60000)) load(true); }};
+  window.GearHubShops = {refresh() { if (savedMode) { render(); return Promise.resolve(); } return load(true); }, setActive(value) { active = value; if (active) { brand(); bell(); account(); } if (active && savedMode) render(); else if (active && (!initialized || Date.now() - lastLoaded > 60000)) load(true); }};
   // Back from Google sign-in (?view=shops) or a Buy Now from another shop (?cart=1).
   const params = new URLSearchParams(location.search);
   if (params.has('view') || params.has('cart')) {

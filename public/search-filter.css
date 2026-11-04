@@ -1,0 +1,29 @@
+/* 1.1.304 owner's picture: filter button left of the search bar with Product / Excel / Trash; pull-to-refresh sign. */
+.search-filter{position:relative;flex:0 0 auto;align-self:center}
+.mobile-search:has(.search-filter){display:flex;align-items:center;gap:10px}
+.mobile-search:has(.search-filter)>.search-pill{flex:1 1 auto;min-width:0}
+.search-filter-button{display:grid;place-items:center;width:52px;height:52px;padding:0;border:2px solid #1d6b2c;border-radius:16px;background:#fff;color:#14532d;box-shadow:0 2px 10px #173c2a1a;cursor:pointer}
+.search-filter-button svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.search-filter-button[aria-expanded="true"]{background:#eef7ea}
+.search-filter-menu{position:absolute;top:calc(100% + 12px);left:0;z-index:60;display:grid;gap:8px;width:min(78vw,290px);padding:12px;border:1px solid #d9e8da;border-radius:20px;background:#fff;box-shadow:0 14px 34px #10201833}
+.search-filter-menu::before{content:"";position:absolute;top:-8px;left:20px;width:14px;height:14px;background:#fff;border-left:1px solid #d9e8da;border-top:1px solid #d9e8da;transform:rotate(45deg)}
+.search-filter-menu[hidden],.search-filter-menu [hidden]{display:none}
+.search-filter-menu button{position:relative;display:flex;align-items:center;gap:14px;min-height:52px;padding:0 14px;border:0;border-radius:14px;background:#f3f5f3;color:#1d2a21;font:inherit;font-size:17px;font-weight:650;text-align:left;cursor:pointer}
+.search-filter-menu button span{flex:1}
+.search-filter-menu button>svg{flex:0 0 26px;width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
+.search-filter-menu .search-filter-trash{stroke:#d0302a}
+.search-filter-menu button i{flex:0 0 22px;width:22px;height:22px;border:2px solid #9aa59e;border-radius:50%;box-sizing:border-box}
+.search-filter-menu button.on{background:#1a6b25;color:#fff}
+.search-filter-menu button.on>svg:not(.search-filter-excel){stroke:#fff}
+.search-filter-menu button.on i{border-color:#fff;background:radial-gradient(circle,#fff 0 4px,transparent 5px)}
+/* Product: Excel rows stay hidden. Excel: only the Excel rows show while searching. */
+body.searching.scope-product .excel-results{display:none!important}
+body.searching.scope-excel #products{display:none!important}
+#products .product.search-hit{outline:3px solid #f2c94c;outline-offset:2px;transition:outline-color .3s}
+.pull-refresh{position:fixed;top:calc(env(safe-area-inset-top) + 8px);left:50%;z-index:2000;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#fff;box-shadow:0 3px 12px #10201833;opacity:0;transform:translate(-50%,-56px);pointer-events:none}
+.pull-refresh svg{width:22px;height:22px;fill:none;stroke:#9aa59e;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.pull-refresh.ready svg,.pull-refresh.spinning svg{stroke:#1a7a2e}
+.pull-refresh.spinning svg{animation:pull-spin .7s linear infinite}
+@keyframes pull-spin{to{transform:rotate(360deg)}}
+:root[data-theme="dark"] .search-filter-button,:root[data-theme="dark"] .search-filter-menu,:root[data-theme="dark"] .search-filter-menu::before{background:#182b1e;color:#e1f0de;border-color:#334b35}
+:root[data-theme="dark"] .search-filter-menu button:not(.on){background:#253b28;color:#e1f0de}
