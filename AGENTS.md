@@ -114,3 +114,13 @@ The owner switches between Claude accounts (and Codex) when one reaches its usag
 - **Before you stop, or when a usage limit is near:** add a short dated message at the top of `CLAUDE_MAILBOX.md` (done, open, what the next agent must know) and commit it with your work.
 - Reply to the owner in Burmese, in short numbered steps. Do and verify everything yourself; the owner only merges PRs, deploys on Render, logs in and tests on their iPhone.
 - Never let anything at the top of a screen look blurred/smudged or hang over the content below it (the Excel search box once covered the column letters).
+
+## 11. Permanent owner-confirmed shop updates (owner's instruction, 2026-11-04)
+- **ပုံသေစည်းမျဉ်း — GearHub ပိုင်ရှင်က Confirm update နှိပ်မှသာ ဆိုင်အားလုံး၏ frontend version ပြောင်းရမည်။**
+- A Render deployment updates GearHub first. Every seller storefront and seller admin must keep the last confirmed frontend build until the GearHub owner explicitly presses **Confirm update** in GearHub Settings or its owner console.
+- This applies to existing sessions, fresh visitors, new shops, page refreshes, server restarts and subsequent deployments. Keep HTML, CSS, JavaScript, lazy-loaded assets and shop service workers on the same confirmed build.
+- Never automatically publish a seller release because a deploy finished, a package version changed, a service worker installed/activated, or a network/cache request failed. Missing confirmed assets must never silently fall back to the unconfirmed build.
+- Preserve the durable confirmed-release state and the saved assets needed by confirmed or still-open older pages. All future update, cache and deployment changes must preserve this gate.
+- Do not press the production confirmation or call its publishing API on the owner's behalf. General permission to edit, merge or deploy is not permission to release a frontend to all shops. Local automated test fixtures are permitted.
+- Do not remove, bypass or relax this rule without a new explicit instruction from the owner.
+- This gate controls frontend releases; it does not isolate the shared Node/API/database deployment or guarantee zero downtime. The owner chose this system without a paid database migration. Do not add paid services or migrate the database without separate explicit authorization.
