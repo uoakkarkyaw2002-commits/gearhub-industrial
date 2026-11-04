@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-08 (later) — from Claude (account 1) — open
+
+- 1.1.303 (Profile: real followers/following/posts, Follow, + Add Personal/Work; two new tables approved by the owner) is in a PR. Video posts are for later (owner chose photos + text first).
+
 ## 2026-11-08 — from Claude (account 1) — open
 
 - 1.1.302 (Settings place = Profile person icon; Profile = photo + name only; ☰ Menu opens old Settings) is in a PR. Owner said nothing else on Profile for now.

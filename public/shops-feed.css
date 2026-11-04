@@ -182,3 +182,6 @@ body:has(#shops-photo-dialog[open]){overflow:hidden}
 :root[data-theme="dark"] .shops-buy-qty,:root[data-theme="dark"] .shops-comments-list p,:root[data-theme="dark"] .shops-qty,:root[data-theme="dark"] .shops-buy-photo{background:#253b28}
 :root[data-theme="dark"] .shops-like{background:#4a2026!important}
 :root[data-theme="dark"] .shops-post-price>span,:root[data-theme="dark"] .shops-read-more,:root[data-theme="dark"] #shops-feed-more{color:#b8df9b}
+/* 1.1.303: a shop's personal post (text + photo, no price or buttons). */
+.shops-personal .shops-personal-text{color:#1f2b23;font-size:15px;line-height:1.7}
+.shops-personal-end{height:14px}

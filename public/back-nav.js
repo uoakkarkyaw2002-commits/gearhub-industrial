@@ -7,7 +7,7 @@
  // The shop keeps its own place: the browser's own restore put back the scroll it saved while a photo
  // had the page locked (the top), so closing a product jumped to the top of the shop.
  if('scrollRestoration' in history)history.scrollRestoration='manual';
- const overlays=[["profile-menu","profile-menu-close"],["shops-sheet","shops-sheet-close"],["shops-photo-dialog","shops-photo-close"],["gallery-modal","gallery-close"],["checkout-modal","checkout-close"],["share-modal","share-close"],["drawer","cart-close"]];
+ const overlays=[["profile-sheet","profile-sheet-close"],["profile-menu","profile-menu-close"],["shops-sheet","shops-sheet-close"],["shops-photo-dialog","shops-photo-close"],["gallery-modal","gallery-close"],["checkout-modal","checkout-close"],["share-modal","share-close"],["drawer","cart-close"]];
  const openOverlay=()=>overlays.find(([id])=>document.getElementById(id)?.classList.contains("open"))?.[0]||"";
  const snapshot=()=>({view:storeView,open:categoryProductsOpen,direct:categoryDirectOnly,sel:selectedCategory,exp:[...expandedCategoryNames],overlay:openOverlay()});
  const key=s=>[s.view,s.view==="category"?[s.open,s.direct,s.sel].join("|"):"",s.overlay].join("#");
