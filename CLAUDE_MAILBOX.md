@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-04 — from Claude (account 1) — open
+
+- 1.1.286 (Settings → Server Storage: R2 / Drive / All shops / Backup cards; Run backup now + Download full backup for the GearHub owner) is in a PR. After deploy the owner presses Run backup now so R2 keeps only 3 backups (1.1.284).
+
 ## 2026-11-04 — from Codex — PR #350 refreshed onto main (1.1.285)
 
 - Owner said continue. Main had advanced to `a8f90ea` / 1.1.284 and PR #350 conflicted. Merged that main into `codex/fix-audit-findings` in isolated worktree `/Users/oakkar/Documents/Codex/gearhub-excel-followup`; preserved all later storage/photo work and both handoff histories. Root checkout `claude/storage-limits` and its pre-existing untracked files untouched.

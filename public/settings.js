@@ -82,15 +82,42 @@
     // 1.1.283 owner: the GearHub owner also sees where the rest is kept — Cloudflare R2 and Google Drive.
     const more = byId("storage-more"), { r2, drive, shops } = storageData;
     if (!more) return;
-    const lines = [];
-    if (r2) lines.push(`<p><b>☁️ Cloudflare R2</b> ${formatBytes(r2.usedBytes)} / ${formatBytes(r2.freeBytes)} free · ${r2.files} files</p><span class="storage-meter"><i style="width:${Math.min(100, Math.max(2, r2.usedBytes / r2.freeBytes * 100))}%"></i></span>`);
-    if (drive) lines.push(`<p><b>📁 Google Drive</b> ${formatBytes(drive.usedBytes)} / ${formatBytes(drive.limitBytes || 1024 ** 4)} · ${drive.files} files (GearHub only)</p><span class="storage-meter"><i style="width:${Math.min(100, Math.max(2, drive.usedBytes / (drive.limitBytes || 1024 ** 4) * 100))}%"></i></span>`);
-    const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-    if (shops) lines.push(`<p><b>🏪 All shops</b> ${formatBytes(shops.usedBytes)} · ${shops.count} shops</p>` + (shops.top || []).map(s => `<p class="storage-shop">${esc(s.name)} · ${formatBytes(s.usedBytes)}</p>`).join(""));
+    const lines = [], esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    // 1.1.286 owner: one tidy card per place (R2, Drive, all shops) and the backup buttons under them.
+    const card = (kind, icon, title, size, note, used, total, extra = "") => `<div class="storage-card storage-${kind}"><span class="storage-card-icon" aria-hidden="true">${icon}</span><div class="storage-card-copy"><p class="storage-card-title"><b>${title}</b><span>${size}</span></p>${note ? `<p class="storage-card-note">${note}</p>` : ""}${total ? `<span class="storage-meter"><i style="width:${Math.min(100, Math.max(2, used / total * 100))}%"></i></span>` : ""}${extra}</div></div>`;
+    if (r2) lines.push(card("r2", "☁️", "Cloudflare R2", formatBytes(r2.usedBytes), `${formatBytes(r2.freeBytes)} free · ${r2.files} files`, r2.usedBytes, r2.freeBytes));
+    if (drive) lines.push(card("drive", "📁", "Google Drive", `${formatBytes(drive.usedBytes)} / ${formatBytes(drive.limitBytes || 1024 ** 4)}`, `${drive.files} files · GearHub only`, drive.usedBytes, drive.limitBytes || 1024 ** 4));
+    if (shops) lines.push(card("allshops", "🏪", "All shops", formatBytes(shops.usedBytes), `${shops.count} shops`, 0, 0, (shops.top || []).length ? `<ul class="storage-shops">${shops.top.map(s => `<li><span>${esc(s.name)}</span><b>${formatBytes(s.usedBytes)}</b></li>`).join("")}</ul>` : ""));
+    const { backup } = storageData;
+    if (backup) {
+      const when = v => v ? new Date(v).toLocaleString("en-GB", { timeZone: "Asia/Yangon", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "None yet";
+      const state = backupRunning || backup.running ? "Backup running… / Backup လုပ်နေပါတယ်" : backup.lastFailure && (!backup.lastSuccess || backup.lastFailure > backup.lastSuccess) ? "Last backup failed / Backup မအောင်မြင်ပါ" : backupMessage;
+      lines.push(`<div class="storage-card storage-backup"><span class="storage-card-icon" aria-hidden="true">🛟</span><div class="storage-card-copy"><p class="storage-card-title"><b>Backup</b><span>${esc(when(backup.lastSuccess))}</span></p><p class="storage-card-note">Off-site: ${backup.offsite ? esc(when(backup.lastOffsite)) : "Not configured"}</p>${state ? `<p class="storage-backup-state">${esc(state)}</p>` : ""}<div class="storage-backup-actions"><button type="button" id="storage-backup-run" class="storage-backup-run"${backupRunning || backup.running ? " disabled" : ""}>⟳ Run backup now</button><a id="storage-backup-download" class="storage-backup-download" href="/api/admin/backup" download>⬇ Download full backup</a></div></div></div>`);
+    }
     more.innerHTML = lines.join("");
     more.hidden = !lines.length;
     if (lines.length) label.textContent = "🖥️ Render · " + label.textContent;
   }
+  let backupRunning = false, backupMessage = "";
+  document.addEventListener("click", async event => {
+    const button = event.target.closest?.("#storage-backup-run");
+    if (!button || backupRunning) return;
+    backupRunning = true;
+    backupMessage = "";
+    renderStorageUsage();
+    try {
+      const { csrfToken } = await (await fetch("/api/admin/csrf", { cache: "no-store", credentials: "same-origin" })).json();
+      const response = await fetch("/api/admin/backup/run", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken }, body: "{}" });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || "Backup failed");
+      backupMessage = "Backup completed ✓ / Backup ပြီးပါပြီ";
+    } catch (error) {
+      backupMessage = error.message || "Backup failed";
+    } finally {
+      backupRunning = false;
+      updateStorageUsage();
+    }
+  });
   async function updateStorageUsage() {
     try {
       const response = await (window.GearHubTenantStore ? window.GearHubTenantStore.fetch("/api/storage") : fetch("/api/storage", { cache: "no-store" }));
