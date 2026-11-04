@@ -35,6 +35,13 @@ _None._
 - PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/371. No runtime changes in this continuation; files changed: mailbox/log only. Code head `d03f8bd` has Node22 check + tests 459/459 and green Production readiness/node22 (run 41778088940). Preparing for review with actual 375/1280 browser/physical-device verification still explicitly unverified. No merge/deploy or production confirmation.
 - Owner merges/deploys, checks GearHub Settings and seller versions, then presses Confirm update when satisfied. The feature controls seller frontend version changes; SQLite/disk-backed backend restarts remain possible during Render deploys.
 
+### 1.1.289: Shops tab — every shop's products as a feed (Codex started, Claude finished)
+- Owner: a "Shops" tab to the right of Home (GearHub and every shop) showing all shops' products like Facebook: shop name, then description, then photos.
+- Codex built it (lib/shop-feed.js `GET /api/platform/feed`, 20 per page by product id, each shop checked with publicShop and only its own ready photos; public/shops-feed.js/.css, Shops button in the phone and PC nav, photo viewer dialog, back-nav entry, tests/shop-feed.test.js) but stopped at its usage limit before testing.
+- Claude fixed: the feed query used a non-existent `deleted_at` column (it is `trashed_at`; the error stopped createPlatform, failing tests/app-login); script order (smart-search + store share a tag, store must be followed by liquid-nav); post footer painted dark green by the site `footer` rule; grid photos fill their tiles (cover), a single photo keeps its own shape; feed is a 744px centred column on PC. Test pin in tests/free-ai.test.js updated on purpose.
+- Seller shops get the tab after the owner presses Confirm update (1.1.288 release gate).
+- Checks: Node 22 check + tests (461, last run 460 + the fixed pin re-run). Browser 375/1280 with a mocked feed: Shops tab, 1/2/3/5/no-photo posts, See more, photo viewer next/close, no console errors, no overflow. Not tested with live shop data.
+
 ### 1.1.288: GearHub confirms seller frontend releases (Codex — draft, backend downtime unresolved)
 - Task: deploy GearHub first; hold all seller storefront/admin builds until owner Confirm update. PR #371: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/371. Branch `codex/owner-confirmed-updates`, base main `7997fef`; no merge/deploy or Render mutation.
 - Files: new `lib/shop-releases.js`, `public/release-control.js`/CSS, `release-seed/` baseline archive/README, `tests/shop-releases.test.js`; server/platform/tenant installation integration; existing owner console form, updates client, page/SW asset tags, package manifests, version/tag/notification fixtures, mailbox/log.
