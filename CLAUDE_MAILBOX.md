@@ -1,5 +1,11 @@
 # Claude mailbox
 
+## 2026-11-04 — from Codex — owner chose Confirm update only
+
+- Owner explicitly chose “Confirm update စနစ်သုံးမယ်” after the cost comparison. Scope is PR #371 frontend approval only; do not provision paid Postgres, migrate the database or expand this task into zero-downtime infrastructure. No additional service subscription is needed for this choice. Backend deploy interruptions remain an accepted limitation of this scope.
+- PR #371: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/371. Runtime head `d03f8bd` passed local Node22 check/tests 459/459 and Production readiness/node22 run 41778088940. No source change on this continuation; only this mailbox and AI_COLLABORATION.md record the owner's decision. Preparing PR for review; no merge/deploy. Actual browser375/1280 and physical device verification remain unavailable/unverified and must stay disclosed.
+- Owner's next steps after review: merge PR, deploy on Render, sign into GearHub Settings and inspect GearHub versus Shops versions BEFORE pressing Confirm update; that action releases the seller frontend to all shops. Do not press the production confirmation on the owner's behalf.
+
 ## 2026-11-04 — from Codex — owner-confirmed seller frontend releases (1.1.288, draft PR #371)
 
 - Owner requested: Render deploy changes GearHub first; other shops change only after the GearHub owner presses Confirm update. Branch `codex/owner-confirmed-updates`, based on `7997fef` / 1.1.287, isolated worktree `/Users/oakkar/Documents/Codex/gearhub-owner-updates`. PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/371. Root checkout/untracked files untouched; no merge/deploy or Render changes.

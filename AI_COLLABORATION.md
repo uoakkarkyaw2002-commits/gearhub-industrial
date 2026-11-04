@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 2026-11-04: Owner selects Confirm update only (Codex — PR #371 review handoff)
+- Owner chose Confirm update only after pricing discussion. Database migration, paid Postgres and full zero-downtime infrastructure are outside this authorized scope; do not pursue them or repeat the approval request.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/371. No runtime changes in this continuation; files changed: mailbox/log only. Code head `d03f8bd` has Node22 check + tests 459/459 and green Production readiness/node22 (run 41778088940). Preparing for review with actual 375/1280 browser/physical-device verification still explicitly unverified. No merge/deploy or production confirmation.
+- Owner merges/deploys, checks GearHub Settings and seller versions, then presses Confirm update when satisfied. The feature controls seller frontend version changes; SQLite/disk-backed backend restarts remain possible during Render deploys.
+
 ### 1.1.288: GearHub confirms seller frontend releases (Codex — draft, backend downtime unresolved)
 - Task: deploy GearHub first; hold all seller storefront/admin builds until owner Confirm update. PR #371: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/371. Branch `codex/owner-confirmed-updates`, base main `7997fef`; no merge/deploy or Render mutation.
 - Files: new `lib/shop-releases.js`, `public/release-control.js`/CSS, `release-seed/` baseline archive/README, `tests/shop-releases.test.js`; server/platform/tenant installation integration; existing owner console form, updates client, page/SW asset tags, package manifests, version/tag/notification fixtures, mailbox/log.
