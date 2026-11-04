@@ -59,5 +59,6 @@ test('the feed page has the new post design, Buy Now sheet, saved posts in Setti
   assert.match(html,/id="saved-posts-action"/);
   assert.match(read('public/back-nav.js'),/\["shops-sheet","shops-sheet-close"\]/);
   assert.match(server,/if \(stored\.back\) return res\.redirect\(stored\.back\);/);
+  assert.match(read('public/shops-feed.css'),/\.shops-post-track\{[^}]*overflow-y:hidden;touch-action:pan-x pan-y;/,'1.1.297: a drag on a photo scrolls the page');
   assert.match(server,/DELETE FROM platform_post_comments WHERE shop_id=\?/,'deleting a shop removes its comments');
 });

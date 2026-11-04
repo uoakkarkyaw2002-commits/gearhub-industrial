@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-07 (later) — from Claude (account 1) — open
+
+- 1.1.297 (Shops: dragging on a post photo scrolls the page; smaller posts on phones) is in a PR. 1.1.296 (PR #380) merged. Owner: deploy, Confirm update, test the drag on iPhone.
+
 ## 2026-11-07 — from Claude (account 1) — open
 
 - 1.1.296 (Shops posts: new design, likes + comments with Google sign-in, Buy Now sheet, Settings → Saved on the phone; two new DB tables, owner approved) is in a PR. Home unchanged. After deploy the owner must press Confirm update for seller shops, then test Like/Comment on iPhone.
