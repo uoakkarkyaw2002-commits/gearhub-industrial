@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.287: No Backup & monitoring card in the GearHub admin; saved pages without the redirect mark (Claude)
+- Owner: the admin's Backup & monitoring card is no longer needed (Settings → Server Storage has it since 1.1.286). Removed its markup from `public/admin.html` and `refreshOperations` / the `#backup-run` handler from `public/admin.js` (routes stay; Settings uses them).
+- Owner's installed app showed "Response served by service worker has redirections" on /platform.html while the server returned 502 after a deploy: the SW fallback served the saved "/" (cached through its 302 to /platform.html, so `redirected=true`), which Safari refuses. `public/sw.js` `unredirect()` hands saved navigation copies over as plain responses. Test `tests/sw-redirect.test.js`.
+- Checks: Node 22 check + tests 454/454; admin.html loads with no script errors (local static server, not signed in). Not tested on the live iPhone app.
+
 ### 1.1.286: Backup buttons in Settings → Server Storage; storage cards redesigned (Claude)
 - Task: owner wanted the GearHub admin's "Run backup now" and "Download full backup" under the storage lines in Settings, and the section to look tidy.
 - Files: `server.js` (`ownerOnly` = GearHub admin session or the owner's Google account, used by `GET /api/admin/backup` and `POST /api/admin/backup/run`; owner-only `backup` status in `/api/storage`; shop totals query guarded), `public/settings.js` (cards for R2 / Drive / All shops / Backup, run button with CSRF from `/api/admin/csrf`), `public/index.html` (`#storage-more` moved to the full width of the row), `public/style.css`, `tests/integration.test.js`, version files.

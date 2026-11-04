@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-04 (night) — from Claude (account 1) — open
+
+- 1.1.287 (admin Backup & monitoring card removed; SW no longer serves a redirected saved page — iPhone app error during a deploy restart) is in a PR. 1.1.286 (PR #369) is merged. Owner presses Run backup now in Settings after deploy.
+
 ## 2026-11-04 — from Claude (account 1) — open
 
 - 1.1.286 (Settings → Server Storage: R2 / Drive / All shops / Backup cards; Run backup now + Download full backup for the GearHub owner) is in a PR. After deploy the owner presses Run backup now so R2 keeps only 3 backups (1.1.284).

@@ -1,8 +1,11 @@
-const CACHE_NAME = "gearhub-shell-v85-1.1.286";
+const CACHE_NAME = "gearhub-shell-v85-1.1.287";
 const SHELL = ["/signin.css?v=1.1.210","/platform.js?v=1.1.241","/shop-application.js?v=1.1.204","/images/signin-scene.webp?v=1.1.203","/images/signin-scene-phone.webp?v=1.1.209","/open-in-app.js?v=1.1.200","/app-switch.js?v=1.1.257","/install-guide.css?v=1.1.231","/install-guide.js?v=1.1.231","/product-phone.css?v=1.1.194","/product-phone.js?v=1.1.193","/photo-editor.css?v=1.1.229","/photo-editor.js?v=1.1.230","/product-ai.js?v=1.1.193","/images/product-ai-robot.png?v=1.1.193","/skyshop-splash.css?v=20261022-solid-1","/skyshop-splash.js?v=20261022-solid-1","/images/skyshop-splash-phone.jpg?v=1","/images/skyshop-splash-pc.jpg?v=1","/category-browser.js?v=20261028-same-name-1","/tenant-store.js?v=1.1.285","/excel-zip.js?v=1.1.267","/excel-map.js?v=1.1.285","/excel-select.js?v=1.1.226","/excel-auto-upload.js?v=1.1.192","/excel-library.js?v=1.1.285","/excel-search-index.js?v=1.1.267","/excel-search.js?v=1.1.285","/updates.js?v=1.1.262","/desktop.css?v=20261023-pcnav-2","/","/style.css?v=1.1.286","/site-content.js?v=1.1.262","/smart-search.js?v=1.1.265","/store.js?v=1.1.265","/similar-parts.js?v=1.1.235","/photo-scan.js?v=1.1.281","/net-speed.js?v=1.1.285","/liquid-nav.js?v=20261022-nav-drag-1","/card-tilt.js?v=20261023-tilt-1","/app-install.js?v=1.1.262","/settings.js?v=1.1.286","/app-badge.js?v=1.1.249","/app-login.js?v=1.1.243","/settings-alerts.js?v=1.1.251","/settings-design.css?v=1.1.268","/settings-design.js?v=1.1.263","/back-nav.js?v=20261026-keep-scroll-1","/dialogs.js?v=20261026-keep-scroll-1","/footer.js?v=20261012-1","/images/hero-excavator.jpg","/app.webmanifest","/app-icon.png","/icons/icon.svg","/icons/apple-touch-icon.png","/qrcode.js?v=1.4.4"];
 const ADMIN_CACHE="gearhub-admin-v1",IMAGE_CACHE="gearhub-img-v1",EXCEL_CACHE="gearhub-excel-v1";
 const shopPath=pathname=>{const m=pathname.match(/^\/shops\/([a-z0-9-]+)(?:\/|$)/);return m?'/shops/'+m[1]+'/':null;};
 const offlineCache=pathname=>'gearhub-offline-v2:'+ (shopPath(pathname)||'root');
+// 1.1.287: "/" is saved after its redirect to /platform.html; Safari refuses a page the service worker answers with
+// a redirected copy ("Response served by service worker has redirections"), so the saved copy is handed over as a plain page.
+const unredirect = r => r && r.redirected ? r.blob().then(body => new Response(body, {status: r.status, statusText: r.statusText, headers: r.headers})) : r;
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
 });
@@ -43,7 +46,7 @@ self.addEventListener("fetch", event => {
     event.respondWith(fetch(request).then(response => {
       if (response.ok) { const copy = response.clone(); caches.open(ADMIN_CACHE).then(cache => cache.put(url.pathname, copy)); }
       return response;
-    }).catch(async () => (await caches.open(ADMIN_CACHE)).match(url.pathname) || new Response("Offline. Open this page once with internet first.", {status: 503, headers: {"Content-Type": "text/plain; charset=utf-8"}})));
+    }).catch(async () => unredirect(await (await caches.open(ADMIN_CACHE)).match(url.pathname)) || new Response("Offline. Open this page once with internet first.", {status: 503, headers: {"Content-Type": "text/plain; charset=utf-8"}})));
     return;
   }
   if (request.mode === "navigate") {
@@ -51,7 +54,7 @@ self.addEventListener("fetch", event => {
       if (response.ok) { const copy = response.clone(); caches.open(CACHE_NAME).then(cache => cache.put(url.pathname === "/" ? "/" : request.url, copy)); }
       if (response.ok || response.status < 500) return response;
       throw new Error("server restarting");
-    }).catch(async () => (async()=>{const tenant=shopPath(url.pathname);if(tenant)return (await caches.open(offlineCache(url.pathname))).match(url.href).then(async saved=>saved||await (await caches.open(CACHE_NAME)).match(url.href)||new Response('This shop is unavailable offline. Connect to the internet to open it.',{status:503,headers:{'Content-Type':'text/plain'}}));return (await caches.open(offlineCache('/'))).match('/').then(saved=>saved||caches.match('/'));})()));
+    }).catch(async () => unredirect(await (async()=>{const tenant=shopPath(url.pathname);if(tenant)return (await caches.open(offlineCache(url.pathname))).match(url.href).then(async saved=>saved||await (await caches.open(CACHE_NAME)).match(url.href)||new Response('This shop is unavailable offline. Connect to the internet to open it.',{status:503,headers:{'Content-Type':'text/plain'}}));return (await caches.open(offlineCache('/'))).match('/').then(saved=>saved||caches.match('/'));})())));
     return;
   }
   if(url.pathname==="/app.webmanifest"){event.respondWith(fetch(request).then(response=>{if(response.ok){const copy=response.clone();caches.open(CACHE_NAME).then(cache=>cache.put(request,copy));}return response}).catch(()=>caches.match(request)));return;}
