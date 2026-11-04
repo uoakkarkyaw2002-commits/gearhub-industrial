@@ -30,12 +30,66 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.285: Refresh the five Excel reliability fixes onto current main (Codex — draft)
+- Task: continue PR #350; merge latest main `a8f90ea` / 1.1.284 to resolve conflicts while preserving later storage/photo changes. Branch `codex/fix-audit-findings`; isolated worktree `gearhub-excel-followup`. PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/350.
+- Files in this continuation: package manifests, index/SW, tenant-install + Excel upload/network asset tests, mailbox/log. Resolved only release/asset/log conflicts; runtime fixes from the original entry below are unchanged. UI markup matches main apart from release/asset versions; no layout/API/schema changes.
+- Validation after merge: Node 22 `npm run check && npm test` passed **452/452**, zero failures/skips; all six touched runtime JS syntax checks and `git diff --check` passed. Full log: `/private/tmp/gearhub-285-tests.log`. Latest-head CI is checked separately after pushing.
+- Browser: previous actual 375×812/1280×900 checks cover the same runtime fixes; no fresh browser run in this continuation (tools unavailable). Offline E2E remains unverified due to the earlier browser URL-security denial; unit/VM coverage exists. Keep draft, do not merge/deploy. Root checkout and pre-existing untracked files untouched.
+
 ### 1.1.269: Fix five follow-up audit findings (Codex — UI verified, review pending)
 - Authorized: all five items from the owner's audit follow-up. Base main `43c73a1`, branch `codex/fix-audit-findings`; PR #350: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/350. No merge/deploy or unrelated Play Store changes.
 - Runtime files: `public/excel-library.js`, `sw.js` (shop-scoped cache + matching legacy migration; legacy preserved), `excel-search.js` (30s ID checks during visible searches and on focus/online/upload; unchanged-ID reuse; offline fallback), `excel-map.js` (quoted/multiline CSV), `tenant-store.js` (8s shared fetch and consumer cancellation), `net-speed.js` (readiness/Excel idle + 15s delay, Save-Data, cooldown/deadline). Version/assets in package manifests/index/SW/install test use 1.1.269. No API/schema/layout changes.
 - Added `tests/followup-regressions.test.js`; expanded SW offline migration tests; existing VM fixtures now expose native AbortSignal and pinned asset tests follow the new tags. Node22 check + full tests 433/433; focused regression run 30/30; touched public JS syntax and diff checks passed.
 - Follow-up after owner enabled Browser: actual IAB local seller-shop 375×812 / 1280×900 UI passed both search modes, no-match recovery, same-page upload, external-tab replacement on subsequent search without reloading, and CSV quoting/column values. Actual controls clicked; screenshots inspected (no header overlap/page overflow); normal app console error/warning logs empty. No source changes in this continuation. Evidence: `/Users/oakkar/Documents/Codex/outputs/qa-1.1.269-2026-11-03/`.
 - Offline E2E remains unverified: after stopping the local fixture origin, IAB navigation returned ERR_CONNECTION_REFUSED; Chrome tool access was then rejected by its URL security policy. No workaround/bypass attempted. Offline isolation/migration passed unit/VM tests; no physical phone, live deployment or measured startup claims. Pre-existing untracked `.claude/` and `public/zz-real.xlsm` untouched.
+
+### 1.1.284: R2 keeps 3 backups; Google Drive capped at 1 TB; Settings shows all shops' storage (Claude)
+- Owner (live 1.1.283: R2 6.2 GB / 10 GB, Drive 3.0 GB, Render 98 MB): Cloudflare too big; add every shop's storage; allow Google Drive up to 1 TB.
+- `lib/backups.js`: after each R2 backup upload, archives under `BACKUP_S3_PREFIX` (gearhub/) beyond the newest `BACKUP_S3_KEEP` (3) are deleted (`oldBackupKeys`; only gearhub-*.tar.gz; shop files under files/ untouched). Drive still keeps 30.
+- `lib/drive-backup.js`: `DRIVE_LIMIT` 1 TB — backups throw and photo sweeps stop once the app's Drive files reach it (uses the last known size, refreshed in the background, so Drive errors still surface from the upload).
+- `/api/storage` (owner): `drive.limitBytes`, `shops {usedBytes,count,top[5]}` from platform_files. Settings: Drive line "X / 1.0 TB" with meter; "🏪 All shops" total + top 5 shops (names escaped).
+- Local page with mocked numbers at 1280 (no overflow). Node 22 check + 446/446.
+
+### 1.1.283: Settings → Storage shows Render, Cloudflare R2 and Google Drive (Claude)
+- Owner: show the three storages (Render, Cloudflare, Google Drive — only what GearHub keeps there). After 1.1.282 + Render env `FILES_S3_BUCKET=gearhub-backups` and `FILES_CACHE_MB=50`, live /api/storage was 103 MB (was 855 MB).
+- `/api/storage` adds `r2` (whole bucket via ListObjectsV2: bytes, files, shop-file bytes, 10 GB free tier) and `drive` (all non-folder files the app made, drive.file scope) only for the GearHub owner (`isGearHubOwner`: GearHub admin session or owner Google account). Both cached 10 min. `settings.js` shows "🖥️ Render · …" plus the R2 line with a meter and the Drive line (`#storage-more`); customers see the Render line as before.
+- Local static page with a mocked /api/storage at 1280 and 375: lines shown, no overflow. Not verified with real R2/Drive numbers (owner-only). Node 22 check + 445/445.
+
+### 1.1.282: Shop files kept in Cloudflare R2; Render disk keeps a cache (Claude)
+- Owner: everything shops upload lands on the fixed-size Render disk; move it all ("အကုန်ရွှေ့ထား"), shops upload at any time.
+- New `lib/file-store.js` (off until Render env `FILES_S3_BUCKET` is set; endpoint/keys default to BACKUP_S3_*; `FILES_S3_PREFIX` default `files/`, `FILES_CACHE_MB` default 400). Every 10 min (first at +1 min) each `platform-media/<shop>/<file>` older than 10 min is PutObject to R2 and recorded in the new additive table `file_store(key,bytes,stored_at,used_at)`. While the local copy is over the cache size, the least recently used files that R2 has (and `.opt.webp` variants) leave the disk. `ensureLocal(path)` fetches a file back from R2 before it is read. Hidden learning folders (.photo-looks, .scan-examples) and scene/splash stay local.
+- Readers wired: images (variants), spreadsheets (Range still from the local file), receipts, receipt OCR, photo search learning (`ensure` option), Drive photo copy (`ensure` option), shop app icon (logo fetched back for the next request). Deletes: file discard, replaced spreadsheets and shop delete remove the R2 copies. Also: the unused BiRefNet download (224 MB) is deleted on plans under 3.5 GB.
+- Backups/Drive: daily archives now contain only the files still on the disk; R2 keeps every file (and Drive keeps photo originals). Not verified against real R2 (owner must create the bucket and set the env); tests use a fake R2. Node 22 check + 444/444.
+
+### 1.1.281: Scanner learns from the shop owner's confirmations; labels read while scanning (Claude)
+- Owner asked how to make scan AI better and approved "1 + 2" (incl. storing confirmed scans).
+- #1 `lib/photo-search.js`: `addExample(shop, product, image)` saves a 640 px JPEG in `media/<shop>/.scan-examples/<product>-<id>.jpg` (newest 6 per product), and `photos()` adds them as extra photos (`scan:true`) of active products, so both the look and the upright-part modes learn them. They are left out of "photo N of M" (`learned:true` instead) and of Similar parts. No DB schema change. Route `POST /api/platform/store/:slug/scan-example?product=` (raw image, 30/min): shop owner or GearHub owner only (403 otherwise). `public/photo-scan.js`: after a result, the shop owner (me.isOwner or me.shop.id = store id) sees "✓ ဒါမှန်တယ် / This is right" under the strip (pick another with ˄ ˅ first); it sends the answered camera frame; reason text says "matches a scan you confirmed earlier".
+- #2 the live scanner sends a 1280 px frame to the existing `/read-label` (OCR) from 1.5 s and every 3.5 s; a Part No./SKU match stops the scan with that product (label reason).
+- Built-in browser on live POLESTAR via test proxy (mocked owner/answers, gallery picture): button shown for the owner, POST to scan-example?product=277, "✓ Learned"; hidden for a visitor; 375 px: full-width button, no overflow. Tests: addExample learning (J71-33 first, learned, higher score, newest 6, not in Similar), owner-only route, auto-label. Node 22 check + 439/439. Live OCR load during scans not measured (one OCR at a time on the server).
+
+### 1.1.280: Background removal uses measured memory needs; BiRefNet only on 4 GB plans (Claude)
+- 1.1.279 live, Remove background still failed after ~10 s on the 2 GB plan (pump and a simple sensor photo). Measured one helper run here with bg-worker.js session options: U²-Netp peak 275 MB, silueta 520 MB (0.6 s), BiRefNet 2046 MB (18 s; fixed 1024 px input, smaller sizes rejected). The old guesses (150 MB / 300 MB / 1 GB) let BiRefNet start; it alone fills 2 GB, so Render restarted the server.
+- `lib/bg-remove.js`: needs 300 MB / 550 MB / 2.1 GB; `NEED_MEMORY` 3.5e9, so the 2 GB plan never loads or uses BiRefNet (silueta). The BiRefNet file already downloaded on the live disk (224 MB, `DATA_DIR/models`) is left unused. Local run on a shop photo: silueta, 0.6 s. Node 22 check + 437/437.
+
+### 1.1.279: Remove background picks its AI by the container's free memory (Claude)
+- Owner (Render 2 GB): Edit photo → Remove background failed after ~10 s with "The server is busy" (the client's text for a non-JSON ≥500, i.e. the server restarted — the route itself always answers JSON). Cause in `lib/bg-remove.js`: BiRefNet (~1 GB while working) was chosen whenever the plan had ≥1.8 GB and the model was downloaded, without checking what was in use (main server + DINOv2/OCR, the scan cut-out helper ~220 MB, photo learning).
+- Now free memory = cgroup `memory.max − memory.current` (all processes; falls back to this process's RSS), less 150 MB spare: BiRefNet only with ≥1 GB room, silueta with ≥300 MB, else U²-Netp. Not verified on live (no memory metrics or logs here); if it still fails, the next step is to stop the scan helper before BiRefNet runs.
+- Tests: photo-editor pins updated on purpose + new 1.1.279 test. Node 22 check + 436/436.
+
+### 1.1.278: Backups clean up after a cut-off run (Claude)
+- Owner: is the Render disk full? Live /api/storage: app data 4.0 GB of 5.25 GB (1.18 GB free); shops only ~0.44 GB (POLESTAR 352 MB, kaizen 86 MB, treebird 3 MB). Owner console: last successful backup 2026-10-30, every later one failed at stage disk-space (ENOSPC).
+- Cause (code): `lib/backups.js` removes its `.stage-*` copy of every photo and the `*.partial` archive only in `finally`; a restart mid-backup (deploy, out of memory) left them for ever, and `makeRoom()` only deleted finished `.tar.gz` files. Now `removeLeftovers()` runs before every backup (one backup at a time), and start() runs a backup at once because the last success is old, so live cleans up at the first start of 1.1.278. Not verified on the live disk (no shell access): the leftovers are the only writer found that matches ~3.5 GB.
+- Test in backup-disk.test.js. Node 22 check + 435/435.
+
+### 1.1.277: Scanner — look-alike parts decided by the average of 4 frames (Claude)
+- Owner (live 1.1.276): scanning the K5V140 J71-33 shaft first showed K3V140 PSM-V-30, the next scan J71-33. Cause in `public/photo-scan.js`: two frames ≥80% with the same top product ended the scan even when the second product was within ±0.005 (J71-33 and V-30 both ~0.82), so two lucky frames decided.
+- Now when the top two are within `CLOSE=0.02` the streak rule does not stop; scores are added up per product and after `AVERAGE_FRAMES=4` the best average is shown (with the existing "Closest · look alike, check ˄ ˅"). Clear matches still stop after one frame. Thumbnails guarded when a frame has no picture.
+- Built-in browser on live POLESTAR (local scanner via test proxy, fake camera, scripted answers): V-30 wins frames 1–2, J71-33 frames 3–4 → shows DRIVE SHAFT(R) PSM-J71-33 after 4 frames (3.3 s); a clear 0.86 vs 0.79 match → Best match in 2.2 s. Tests: tag/streak pins updated on purpose, new 1.1.277 test. Node 22 check + 434/434.
+
+### 1.1.276: Photo search — shape tolerance and best-2-photos score (Claude)
+- Owner: after 1.1.275 went live, the J71-33 scan still came out 2nd (live 10:13–10:30 UTC: PSM-V-30 0.823, PSM-J71-33 0.821; J10-39 scans right). Cause: 1.1.275 was measured with one shop photo per product; live POLESTAR has 59 photos for its 8 shafts. The scan's shape (long÷short 7.35) is within ~5% of both J71-33 (6.9–7.1) and V-30 (7.2), yet any difference cost points.
+- `lib/photo-search.js` (parts mode only): shape differences up to 8% (`SHAPE_FREE`) cost nothing, larger ones cost `SHAPE_WEIGHT=1` × the rest; a product scores the mean of its best 2 photos (`BEST_PHOTOS`). Stored part vectors unchanged, so no relearning after deploy.
+- Eval on all 59 live shaft photos (scratchpad eval of 40 variants): 3/3 right (J71-33 +0.005 over V-30, J10-39 +0.067/+0.072); 1.1.275 settings 2/3. End-to-end with createPhotoSearch on the same photos: 3/3. Node 22 check + 433/433.
 
 ### 1.1.267: Excel search critical download and repeated search (Codex — in review)
 - Owner: optimize Excel search; preserve the real viewer and both search modes. Branch `codex/excel-search-speed`; PR #346: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/346. No merge/deploy.
@@ -44,6 +98,50 @@ _None._
 - Node22 check + tests 427/427; touched browser JS syntax and diff checks passed. Actual local seller shop Chrome 375/1280: both modes, result counts, no-match, clear and folder; normal runs had no console errors and visible cells/counts matched baseline. Owner fixture cell/row copy, import panel, new-upload index and offline search/INV passed. Expected network failures when offline and one obsolete-file 404 during replacement were observed; no uncaught JS exceptions.
 - One controlled 375px 1.6Mbps/150ms/CPU4 comparison, prewarming/full offline prefetch disabled equally to isolate first query: `seal` 24.510s → 11.464s; prepared `seal` 0.905s → 0.402s; exact `300426` 0.779s → 0.276s. Normal local prepared queries ~0.48s → 0.26–0.29s. Fresh critical workbook members 3,447,284 → 757,069 bytes; all six XML hashes match. Full offline copy continues later; no claim of total bandwidth reduction. Not live/real-phone results; no 1–3s slow-network guarantee. XML DOM parsing remains on the browser thread with chunked row processing.
 - Local evidence only: `/private/tmp/excel-speed-review/` (results, range hashes, screenshots, reproducible harnesses). Pre-existing untracked `.claude/` and `public/zz-real.xlsm` excluded.
+
+### 1.1.275: Look-alike parts — compare the parts upright, with their shape (Claude)
+- Owner (live 1.1.273/274): a DRIVE SHAFT(R) PSM-J71-33 scan on grass was answered wrong; "the model is still weak, make this the best now" (label/SKU reading later).
+- Eval set from the owner's screenshots (tests/fixtures/photo-scan/shafts): 3 real scans (2 × PSM-J10-39, 1 × PSM-J71-33) vs 5 look-alike shafts (J10-39, J71-33, R220, V30 Short, V31 Long). Methods tried: cut scan only (live) 2/3 first; cut both 3/3 but J71-33 lost to V31; + upright turn + shape term 0.3 × |log(long÷short ratio)| → 3/3 first with the widest margins (0.087 / 0.057 / 0.035). Upside-down matching and 3-segment matching were worse.
+- `lib/object-crop.js` partView(): silueta/U²-Netp mask → part on white, turned so the long axis (mask PCA) is upright, trimmed; returns { jpeg, aspect }.
+- `lib/photo-search.js`: learnParts() (after learn(); in warm() too) stores each shop photo's part look + aspect in `.photo-looks/<id>.dinov2s-part.f32` (385 floats). When a shop's parts are ready, ranked() scores part·part − 0.3·shape (view 3); until then the 1.1.273 way, and learning is kicked off in the background. ~1 s per shop photo, once (≈15–20 min for ~1000 photos after the first deploy, in the background; scans work meanwhile).
+- Test: the 3 scans each find their own SKU first. Node 22 check + 433/433. Only 3 labelled scans — more owner scans with SKUs would let us tune further.
+
+### 1.1.274: Photo scan — decide sooner, smaller frames, show server time (Claude)
+- Owner (live 1.1.273, Render Standard): right product DRIVE SHAFT PSM-J10-39 found, 84% vs next 82%, "found in 7.7 s · 4.0 s per photo". Locally search() is ~1.0 s per frame on 1 core (silueta cut ~0.9 s + DINOv2 ~0.1 s), so ~3 s of the 4 s is the phone's upload/network and the queue.
+- `public/photo-scan.js`: a part ≥ 80% alike on top twice in a row is taken (with its look-alikes); below that three times. Frames 384 px, JPEG 0.75 (was 448/0.8). The result shows "(server x s)" next to "s per photo".
+- `lib/platform.js` photo-search route: `X-Scan-Ms` response header (server time); the JSON body is unchanged.
+- Node 22 check + 432/432; search() timing measured with the real models (1 core): ~1.0 s, two at once 2.1 s.
+
+### 1.1.273: Photo search compares the part alone, not the background (Claude)
+- Owner: "I want the part exact — don't remember the background, remember only the part." Shop photos are parts on white; scans are parts on grass/tables, and the background pulled the look away.
+- New `lib/object-crop.js` + `lib/cut-worker.js`: the scan picture is cut out with U²-Netp (512 MB plan) or silueta (≥1.5 GB, Render Standard 2 GB since 2026-11-21; owner scans 0.74/0.78 vs 0.71/0.73) (320 px) in a persistent forked helper (it briefly needs ~220 MB; main server RSS stays ~110 MB in a 10-scan loop), the part is put on white and cropped to it (8% margin). If no single part stands out (<1% or >85% of the picture) or the helper fails/takes >10 s, the old views (whole + middle 0.7 + middle 0.5) are used. One cut at a time; helper stopped after 60 s without scans; it never keeps the server or tests alive (unref'd channel).
+- `lib/photo-search.js` ranked(): with a part → only view 3 (the part) is compared. `public/photo-scan.js`: reason says "(the part only, background removed)" for view 3.
+- Measured on the owner's real scans of the Drive Shaft on grass vs the shop photo: right product 0.69/0.65 → 0.71/0.73, unrelated product 0.21/0.15 → 0.20/0.14. Cut ~0.45 s per frame here (1 core); expect ~1 s on Render 0.5 CPU. Fixtures tests/fixtures/photo-scan/ (owner's photos, small); new test: the cut leaves almost no grass and the shaft wins by view 3.
+- Risk: on the 512 MB plan helper + server are close to the limit during a scan; if the helper is killed the scan silently falls back to the old views.
+- Node 22 check + 432/432.
+
+### 1.1.272: Photo scan overlaps frames (Claude)
+- Owner after 1.1.271: "9 seconds, still slow; sometimes wrong". Each frame waited for its answer before the next was taken, so the live round trip (phone upload + Render) was paid 3× for look-alikes.
+- `public/photo-scan.js`: tick() takes a frame every 350 ms with up to 2 requests on the way; answers are handled in answer() (same rules: quick / twice / streak 3 / 8 s limit). Frames are 448 px JPEG q0.8 (was 640/0.85). The result line shows the average round trip ("· 2.5 s per photo") so the owner's screenshot tells where the time goes.
+- Wrong answers: the three Drive Shafts look almost the same to the model; the list with ˄ ˅ shows the look-alikes. More photos per product from other angles (and on plain background) help; nothing else changed on the server.
+- Checked: fake camera + API delayed 2.5 s: clear 3.1 s (unchanged), look-alikes 8.6 s → 3.5 s, none 8.2 s; no errors. Node 22 check + 431/431.
+
+### 1.1.271: Faster photo scan, no small box to aim at (Claude)
+- Owner (iPhone, Drive Shaft): "found, but very slow; fitting the part into the box is awkward — scan the object in the middle by itself".
+- Cause of the wait: the shop has three look-alike shafts (Drive Shaft / Drive Shaft (R) / Drive Shaft (Long)), so the lead over the next product stayed under 3% and no frame counted as sure until the 15 s limit. Server time is small (DINOv2 ~50 ms per view locally, 3 views per frame).
+- `public/photo-scan.js`: QUICK — score ≥ 0.75 with a 5% lead is taken from one frame; STREAK — the same product on top (≥ 0.60) in 3 frames in a row is taken and shown with its look-alikes (˄ ˅); limit 15 s → 8 s, then likely()/No match as before.
+- `public/style.css`: the scanner frame is most of the screen (88vw × 64vh) with a small centre dot; the server already looks at the whole picture and two closer views of its middle, so the part only needs to be roughly in the middle.
+- Tags photo-scan.js / style.css 1.1.271 (index.html, admin.html style.css, sw.js). photo-scan tests updated on purpose.
+- Checked: fake camera + stubbed API in Chromium 390: clear match 0.6 s, three look-alikes 1.1 s (˄ ˅), nothing alike → No match at 8.1 s; no errors. Node 22 check + 430/430. Real phone/network not measured.
+
+### 1.1.270: Photo search shows the alike products instead of No match (Claude)
+- Owner (iPhone, shaft part): scanner said "No match found — two products look almost the same (82% and 79%)" although the part is in the shop. `public/photo-scan.js`: new `likely()` — after 15 s (live) or for a gallery photo, if the closest is ≥ 60% alike it shows the products ≥ 50% (up to 3) with ˄ ˅ and the label "Closest · N look alike, check ˄ ˅"; below 60% it still says No match. Tag photo-scan.js 1.1.270 (index.html + sw.js).
+- photo-scan tests updated on purpose (tag, likely()). Checked: stubbed API 82/79/40 → 2 shown with ˄ ˅; 45/40 → No match; no errors. Node 22 check + 429/429.
+
+### 1.1.269: Camera allowed for the photo scanner (Claude)
+- Owner (Android app, scan button): "Camera not allowed. Choose a photo instead." Cause: server.js sent `Permissions-Policy: camera=()` on every page (security headers commit 7702b3a), so browsers refused getUserMedia before asking. The live scanner could never open a camera (any phone).
+- `server.js`: `camera=(self)` (own pages only; frames from other sites still blocked); everything else unchanged. Tests: new camera-policy test; integration test header check updated on purpose.
+- Checked: real server in Chromium with a fake camera — before: getUserMedia NotAllowedError, after: OK. Node 22 check + 428/428. After deploy the phone may still ask "Allow camera?" once; if the owner pressed Block before, allow it in the app/site settings.
 
 ### 1.1.268: Settings top picture closer to the owner's picture (Claude)
 - Owner: 1.1.266 "not the same". Now one drawn SVG picture (green sky with a light glow at the top right, fluffy clouds at the right / centre / left, a lime band rising to the right, then the page colour; a dark-mode variant). It is used as `center bottom/cover` on the Settings hero; the hero is 134px tall. The Admin Dashboard pill is smaller, with a dark green fill and a lime border.

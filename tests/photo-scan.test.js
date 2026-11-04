@@ -9,13 +9,13 @@ test('the scan button runs a live camera scanner and asks the shop server; the b
  assert.match(scan,/const API='\/api\/platform\/store\/'\+encodeURIComponent\(decodeURIComponent\(slug\)\)\+'\/photo-search';/);
  assert.match(scan,/'X-CSRF-Token':await csrf\(\)/);
  assert.match(scan,/const SURE=0\.6,LEAD=0\.03,/,'blank or blurred frames (~0.35) never count');
- assert.match(scan,/if\(sure&&last===a\.id\)/,'the same product sure twice in a row');
+ assert.match(scan,/if\(quick\|\|\(sure&&last===a\.id\)\)/,'the same product sure twice in a row');
  assert.match(scan,/el\.classList\.add\('photo-match'\)/);
  assert.match(scan,/gallery\.type='file';gallery\.accept='image\/\*'/,'photos from the gallery');
  assert.doesNotMatch(scan,/first time only|loadGraphModel/,'no on-phone model and no first-time message');
  assert.doesNotMatch(store,/photoScanIds/);
  assert.ok(!fs.existsSync(path.join(root,'public','vendor','tf.min.js')),'the on-phone model is gone');
- assert.match(index,/<script src="\/photo-scan\.js\?v=20261031-free-ai-1"><\/script>/);
+ assert.match(index,/<script src="\/photo-scan\.js\?v=1\.1\.281"><\/script>/);
 });
 
 test('the photo-search API is public per shop, rate limited, takes a picture and stays inside the shop',()=>{
@@ -45,7 +45,7 @@ test('the server finds the product whose photo looks like the scan (real model r
  await ps.learn(shop);
  const r=await ps.search(shop,scan);
  assert.equal(r.ready,true);assert.deepEqual(r.matches.map(m=>m.id),['1','2']);assert.ok(r.matches[0].score>r.matches[1].score);
- assert.deepEqual({photo:r.matches[0].photo,photos:r.matches[0].photos},{photo:1,photos:1},'says which of the product\'s photos matched (the reason)');assert.ok([0,1,2].includes(r.matches[0].view));
+ assert.deepEqual({photo:r.matches[0].photo,photos:r.matches[0].photos},{photo:1,photos:1},'says which of the product\'s photos matched (the reason)');assert.ok([0,1,2,3].includes(r.matches[0].view));
  assert.ok(fs.existsSync(path.join(media,'7','.photo-looks','img1.dinov2s.f32')),'looks are kept next to the photos');
  fs.rmSync(media,{recursive:true,force:true});
 });
@@ -61,12 +61,80 @@ test('closing a product (✕ or Back) keeps the shop where it was (iPhone jumped
 
 test('the scanner counts seconds, stops after 15 s with "No match found", and says why it matches',()=>{
  const scan=read('public/photo-scan.js'),css=read('public/style.css');
- assert.match(scan,/const SURE=0\.6,LEAD=0\.03,LIMIT=15000;/);
+ assert.match(scan,/const SURE=0\.6,LEAD=0\.03,LIMIT=8000;/);
  assert.match(scan,/clock=setInterval\(\(\)=>\{if\(started\)looking\(\)\},1000\)/,'a seconds count while it looks');
- assert.match(scan,/if\(elapsed\(\)\*1000>=LIMIT\)\{const seconds=elapsed\(\),thumb=URL\.createObjectURL\(blob\);stop\(\);none\(thumb,seconds,bestSeen\);return\}/,'never looks forever');
+ assert.match(scan,/if\(elapsed\(\)\*1000>=LIMIT\)\{const seconds=elapsed\(\),thumb=blob\?URL\.createObjectURL\(blob\):'';stop\(\);likely\(thumb,seconds,bestSeen\);return\}/,'never looks forever');
  assert.match(scan,/say\(t\('No match found','တူတာ မရှိပါ'\)/);
  assert.match(scan,/t\('found in ',''\)\+secs\(took\)/,'how many seconds it took');
  assert.match(scan,/why\(m,at===0\?matches\[1\]:null\)/,'each match says why');
- assert.match(scan,/if\(isSure\(a,b\)\)found\(r\.matches,thumb,seconds\);else none\(/,'a saved photo with no sure match says so too');
+ assert.match(scan,/if\(isSure\(a,b\)\)found\(r\.matches,thumb,seconds\);else likely\(/,'a saved photo with no sure match says so too');
  assert.match(css,/\.photo-scan-panel\{flex-wrap:wrap\}/);assert.match(css,/\.photo-scan-why\{flex:0 0 100%;/,'the reason is a full-width line under the result');
+});
+
+test('1.1.273: a real scan on grass is matched by the part alone (background cut away)',async()=>{
+ const os=require('node:os'),sharp=require('sharp'),Database=require('better-sqlite3'),{createPhotoSearch}=require('../lib/photo-search'),{objectOnWhite}=require('../lib/object-crop');
+ const fx=f=>fs.readFileSync(path.join(__dirname,'fixtures','photo-scan',f));
+ const scan=fx('scan-shaft-on-grass.jpg'),part=await objectOnWhite(scan);
+ assert.ok(part,'the shaft stands out from the grass');
+ const {data}=await sharp(part).resize(32,32,{fit:'fill'}).raw().toBuffer({resolveWithObject:true});
+ let green=0;for(let i=0;i<data.length;i+=3)if(data[i+1]>data[i]+30&&data[i+1]>data[i+2]+30)green++;
+ assert.ok(green<32*32*0.05,'almost no grass is left ('+green+' green pixels)');
+ const media=fs.mkdtempSync(path.join(os.tmpdir(),'photo-real-'));fs.mkdirSync(path.join(media,'7'));
+ const db=new Database(':memory:');db.exec("CREATE TABLE platform_shops(id INTEGER,legacy INTEGER);CREATE TABLE platform_products(id INTEGER,shop_id INTEGER,image_id TEXT,details TEXT,active INTEGER);CREATE TABLE platform_files(id TEXT,shop_id INTEGER,kind TEXT,ready INTEGER,filename TEXT)");
+ for(const [pid,f] of [[1,'shop-drive-shaft.jpg'],[2,'shop-throttle-sensor.jpg']]){const id='p'+pid;fs.writeFileSync(path.join(media,'7',id+'.jpg'),fx(f));db.prepare('INSERT INTO platform_products VALUES(?,7,?,?,1)').run(pid,id,JSON.stringify({imageIds:[id]}));db.prepare("INSERT INTO platform_files VALUES(?,7,'image',1,?)").run(id,id+'.jpg')}
+ const ps=createPhotoSearch({db,media}),shop={id:7};await ps.learn(shop);
+ const r=await ps.search(shop,scan);
+ assert.equal(r.matches[0].id,'1');assert.equal(r.matches[0].view,3,'matched by the part alone');assert.ok(r.matches[0].score-r.matches[1].score>0.3);
+ fs.rmSync(media,{recursive:true,force:true});
+});
+
+test('1.1.275: look-alike Drive Shafts — parts compared upright with their shape; the right one is first for every owner scan',async()=>{
+ const os=require('node:os'),Database=require('better-sqlite3'),{createPhotoSearch}=require('../lib/photo-search');
+ const dir=path.join(__dirname,'fixtures','photo-scan','shafts'),files=fs.readdirSync(dir);
+ const shops=files.filter(f=>f.startsWith('shop-')),scans=files.filter(f=>f.startsWith('scan-'));
+ const media=fs.mkdtempSync(path.join(os.tmpdir(),'photo-shafts-'));fs.mkdirSync(path.join(media,'7'));
+ const db=new Database(':memory:');db.exec("CREATE TABLE platform_shops(id INTEGER,legacy INTEGER);CREATE TABLE platform_products(id INTEGER,shop_id INTEGER,image_id TEXT,details TEXT,active INTEGER);CREATE TABLE platform_files(id TEXT,shop_id INTEGER,kind TEXT,ready INTEGER,filename TEXT)");
+ const sku=f=>f.replace(/^(shop|scan)-|(-[ab])?\.jpg$/g,'');
+ shops.forEach((f,i)=>{const id='s'+i;fs.copyFileSync(path.join(dir,f),path.join(media,'7',id+'.jpg'));db.prepare('INSERT INTO platform_products VALUES(?,7,?,?,1)').run(i+1,id,JSON.stringify({imageIds:[id]}));db.prepare("INSERT INTO platform_files VALUES(?,7,'image',1,?)").run(id,id+'.jpg')});
+ const ps=createPhotoSearch({db,media}),shop={id:7};await ps.learnParts(shop);
+ for(const f of scans){const r=await ps.search(shop,fs.readFileSync(path.join(dir,f)));
+  assert.equal(sku(shops[Number(r.matches[0].id)-1]),sku(f),f+' → '+r.matches.map(m=>sku(shops[m.id-1])+' '+m.score).join(', '));assert.equal(r.matches[0].view,3)}
+ assert.ok(fs.readdirSync(path.join(media,'7','.photo-looks')).some(f=>f.endsWith('.dinov2s-part.f32')),'parts are kept next to the photos');
+ fs.rmSync(media,{recursive:true,force:true});
+});
+
+test('1.1.277: two look-alike parts (within 0.02) are never decided by two lucky frames; four frames are averaged',()=>{
+ const scan=require('node:fs').readFileSync(require('node:path').join(__dirname,'../public/photo-scan.js'),'utf8');
+ assert.match(scan,/const close=b&&a\.score-b\.score<CLOSE;\n  if\(a&&!close&&streak\.n>=/);
+ assert.match(scan,/if\(frames>=AVERAGE_FRAMES\)\{const avg=\[\.\.\.tally\]\.map\(\(\[id,x\]\)=>\(\{\.\.\.x\.list,id,score:Math\.round\(x\.s\/frames\*1000\)\/1000\}\)\)\.sort/);
+ assert.match(scan,/tally=new Map\(\);frames=0;trips=\[\];/,'each scan starts afresh');
+});
+
+test('1.1.281: a scan the shop owner confirmed is learned as an extra photo of that product (newest 6 kept); Similar parts ignore it',async()=>{
+ const os=require('node:os'),Database=require('better-sqlite3'),{createPhotoSearch}=require('../lib/photo-search');
+ const dir=path.join(__dirname,'fixtures','photo-scan','shafts'),shops=fs.readdirSync(dir).filter(f=>f.startsWith('shop-'));
+ const media=fs.mkdtempSync(path.join(os.tmpdir(),'photo-teach-'));fs.mkdirSync(path.join(media,'7'));
+ const db=new Database(':memory:');db.exec("CREATE TABLE platform_shops(id INTEGER,legacy INTEGER);CREATE TABLE platform_products(id INTEGER,shop_id INTEGER,image_id TEXT,details TEXT,active INTEGER);CREATE TABLE platform_files(id TEXT,shop_id INTEGER,kind TEXT,ready INTEGER,filename TEXT);");
+ shops.forEach((f,i)=>{const id='s'+i;fs.copyFileSync(path.join(dir,f),path.join(media,'7',id+'.jpg'));db.prepare('INSERT INTO platform_products VALUES(?,7,?,?,1)').run(i+1,id,JSON.stringify({imageIds:[id]}));db.prepare("INSERT INTO platform_files VALUES(?,7,'image',1,?)").run(id,id+'.jpg')});
+ const ps=createPhotoSearch({db,media}),shop={id:7},j71=shops.findIndex(f=>f.includes('J71-33'))+1,scan=fs.readFileSync(path.join(dir,'scan-J71-33.jpg'));
+ await ps.learnParts(shop);
+ assert.deepEqual(await ps.addExample(shop,999,scan),{ok:false,error:'Product not found.'},'only this shop\'s active products');
+ const before=(await ps.search(shop,scan)).matches.find(m=>Number(m.id)===j71).score;
+ const r=await ps.addExample(shop,j71,scan);assert.equal(r.ok,true);
+ await ps.learnParts(shop);
+ const found=await ps.search(shop,scan);
+ assert.equal(Number(found.matches[0].id),j71);assert.equal(found.matches[0].learned,true,'the reason can say it matches a confirmed scan');
+ assert.ok(found.matches[0].score>before+0.03,'clearly closer than before ('+before+' → '+found.matches[0].score+')');
+ for(let i=0;i<7;i++)await ps.addExample(shop,j71,scan);
+ assert.equal(fs.readdirSync(path.join(media,'7','.scan-examples')).filter(n=>n.startsWith(j71+'-')).length,6,'newest 6 kept');
+ const sim=await ps.similar(shop,j71);assert.ok(!sim.products.some(p=>Number(p.id)===j71));
+ fs.rmSync(media,{recursive:true,force:true});
+});
+
+test('1.1.281: the scanner offers "This is right" only to the shop owner, and reads labels while it looks',()=>{
+ const scan=fs.readFileSync(path.join(__dirname,'../public/photo-scan.js'),'utf8'),platform=fs.readFileSync(path.join(__dirname,'../lib/platform.js'),'utf8');
+ assert.match(scan,/me\.isOwner\|\|Number\(me\.shop\?\.id\)===Number\(store\.id\)/);
+ assert.match(scan,/if\(lastBlob&&list\.length\)isShopOwner\(\)\.then\(ok=>\{if\(ok&&matches===list\)right\.hidden=false\}\)/);
+ assert.match(platform,/if \(s\.owner_id !== u\.id && !model\.isOwner\(db, u, ownerEmail\)\) fail\(403, "Only the shop owner can teach the scanner\."\);/);
+ assert.match(scan,/if\(performance\.now\(\)-lastLabel>=LABEL_EVERY\)\{lastLabel=performance\.now\(\);autoLabel\(region\)\}/);
 });

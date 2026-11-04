@@ -191,7 +191,9 @@ app.use(compression({ threshold: 1024 }));
 app.use(require('./lib/canonical-host').canonicalRedirect(publicOrigin));
 app.use(pageSecurity());
 // Turn off browser features the shops never use, so injected code cannot ask for them.
-const permissionsPolicy="camera=(), microphone=(), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), hid=(), midi=(), magnetometer=(), gyroscope=(), accelerometer=(), display-capture=(), browsing-topics=()";
+// 1.1.269 owner (Android scanner said "Camera not allowed"): camera=(self) — the photo scanner on our own
+// pages may ask for the camera; other sites (frames) still cannot.
+const permissionsPolicy="camera=(self), microphone=(), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), hid=(), midi=(), magnetometer=(), gyroscope=(), accelerometer=(), display-capture=(), browsing-topics=()";
 app.use((_req,res,next)=>{res.setHeader("Permissions-Policy",permissionsPolicy);next();});
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: false, limit: "100kb" }));
@@ -310,14 +312,16 @@ const orderPush=createOrderPush({db,subject:publicOrigin,log:logError});
 app.locals.orderPush=orderPush;
 // Opt-in additive platform migration; legacy tables/routes remain unchanged.
 // Google Drive copy of the daily backup and of every shop photo (the owner connects it once in the owner console).
-let drive=null;
+let drive=null,fileStore=null;
 if(process.env.PLATFORM_ENABLED==='true'){
- drive=require('./lib/drive-backup').createDrive({db,clientId:process.env.GOOGLE_CLIENT_ID,clientSecret:process.env.GOOGLE_CLIENT_SECRET,media:path.join(dataDir,'platform-media'),log:(event,detail)=>console.error(JSON.stringify({event,detail}))});
+ // 1.1.282: shop files also kept in Cloudflare R2; the disk keeps a cache (lib/file-store.js, off without FILES_S3_BUCKET).
+ const files=fileStore=require('./lib/file-store').createFileStore({db,dataDir,log:(event,...detail)=>console.error(JSON.stringify({event,detail}))});files.start();
+ drive=require('./lib/drive-backup').createDrive({db,ensure:files.ensureLocal,clientId:process.env.GOOGLE_CLIENT_ID,clientSecret:process.env.GOOGLE_CLIENT_SECRET,media:path.join(dataDir,'platform-media'),log:(event,detail)=>console.error(JSON.stringify({event,detail}))});
  const shopAlias=require('./lib/shop-alias');app.use(shopAlias.aliasMiddleware(db));
  const {createPlatform}=require('./lib/platform');
- app.use('/api/platform',createPlatform({db,dataDir,publicOrigin,orderPush,drive,notifyApplication:details=>notifications.application(details)}));
+ app.use('/api/platform',createPlatform({db,dataDir,publicOrigin,orderPush,drive,files,notifyApplication:details=>notifications.application(details)}));
  shopAlias.syncAll(db);
- require('./lib/tenant-install').installTenantApps(app,{db,dataDir,publicDir:path.join(__dirname,'public'),publicOrigin});
+ require('./lib/tenant-install').installTenantApps(app,{db,dataDir,publicDir:path.join(__dirname,'public'),publicOrigin,files});
 }
 app.get('/api/app-release', (_req,res)=>{
  res.set('Cache-Control','no-store');
@@ -339,6 +343,12 @@ app.get("/admin.html", (req, res) => {
  res.sendFile(path.join(__dirname, "public", "admin.html"));
 });
 
+// 1.1.283: the GearHub owner — signed in to the GearHub admin, or with the owner's Google account.
+function isGearHubOwner(req) {
+ if (req.session?.admin) return true;
+ if (process.env.PLATFORM_ENABLED !== "true" || !req.session?.platformUser) return false;
+ try { const u = db.prepare("SELECT * FROM platform_users WHERE id=?").get(req.session.platformUser); return require("./lib/platform-model").isOwner(db, u, String(process.env.PLATFORM_OWNER_EMAIL || "").trim()); } catch { return false; }
+}
 // Report storage for the filesystem that actually holds the database and uploads.
 // The API returns byte counts only; it never exposes server paths or file names.
 app.get("/api/storage", async (_req, res) => {
@@ -361,7 +371,17 @@ app.get("/api/storage", async (_req, res) => {
   const disk = await fs.promises.statfs(dataDir);
   const diskCapacityBytes = Number(disk.blocks) * Number(disk.bsize);
   const diskAvailableBytes = Number(disk.bavail) * Number(disk.bsize);
-  res.json({ usedBytes: appDataBytes, capacityBytes: diskCapacityBytes, availableBytes: diskAvailableBytes });
+  const out = { usedBytes: appDataBytes, capacityBytes: diskCapacityBytes, availableBytes: diskAvailableBytes };
+  // 1.1.283 owner: the GearHub owner also sees Cloudflare R2 and Google Drive (customers see the Render disk only).
+  if (isGearHubOwner(_req)) {
+   const [r2, gdrive] = await Promise.all([fileStore?.usage().catch(() => null), drive?.usage().catch(() => null)]);
+   out.r2 = r2 ? { usedBytes: r2.bytes, files: r2.files, shopFileBytes: r2.fileBytes, freeBytes: 10 * 1024 ** 3 } : null;
+   out.drive = gdrive ? { usedBytes: gdrive.bytes, files: gdrive.files, limitBytes: drive.limit } : null;
+   // 1.1.284 owner: every seller shop's files together (from the file records, wherever the file is kept).
+   const shops = db.prepare("SELECT s.name, COALESCE(SUM(f.bytes),0) AS bytes FROM platform_shops s LEFT JOIN platform_files f ON f.shop_id=s.id AND f.ready=1 WHERE s.legacy=0 GROUP BY s.id ORDER BY bytes DESC").all();
+   out.shops = { usedBytes: shops.reduce((t, s) => t + Number(s.bytes || 0), 0), count: shops.length, top: shops.slice(0, 5).map(s => ({ name: s.name, usedBytes: Number(s.bytes || 0) })) };
+  }
+  res.json(out);
  } catch (err) {
   logError("storage_lookup_failure",err);
   res.status(503).json({ error: "Storage information is temporarily unavailable." });

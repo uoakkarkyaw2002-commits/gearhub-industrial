@@ -11,7 +11,10 @@
  const API='/api/platform/store/'+encodeURIComponent(decodeURIComponent(slug))+'/photo-search';
  // A frame counts once the best photo scores this high and clearly ahead of the next product
  // (real matches scored ~0.9 on the shop's photos; blank or blurred frames ~0.35).
- const SURE=0.6,LEAD=0.03,LIMIT=15000;
+ const SURE=0.6,LEAD=0.03,LIMIT=8000;
+ // 1.1.271 owner ("found, but very slow"): a very clear match is taken from one frame, and the same product on top
+ // three frames in a row is taken even when look-alikes (Drive Shaft / Drive Shaft (R)) are close behind.
+ const QUICK=0.75,QUICK_LEAD=0.05,STREAK=3,CLOSE=0.02,AVERAGE_FRAMES=4;
  const isSure=(a,b)=>!!a&&a.score>=SURE&&(!b||a.score-b.score>=LEAD);
  const my=()=>document.documentElement.lang==='my',t=(en,mm)=>my()?mm:en;
  const shopProducts=()=>typeof products!=='undefined'&&Array.isArray(products)?products:[];
@@ -22,22 +25,31 @@
  function why(m,next){
   // Free AI #7: found by the code on its label.
   if(m.label)return t('Why: the label says '+m.label+' — its '+(m.field==='sku'?'SKU':'Part No.'),'ဘာကြောင့်: label ပေါ်မှာ '+m.label+' လို့ ပါလို့ ('+(m.field==='sku'?'SKU':'Part No.')+')');
-  const photo=m.photo?(my()?'ပုံ '+m.photo+'/'+m.photos+' နဲ့ ':' to its photo '+m.photo+' of '+m.photos):'',close=m.view?t(' (close-up of the middle)',' (အလယ်ကို အနီးကပ်)'):'';
+  const photo=m.learned?t(' to a scan you confirmed earlier','အရင် မှန်တယ်လို့ အတည်ပြုထားတဲ့ scan နဲ့ '):m.photo?(my()?'ပုံ '+m.photo+'/'+m.photos+' နဲ့ ':' to its photo '+m.photo+' of '+m.photos):'',close=m.view===3?t(' (the part only, background removed)',' (နောက်ခံဖယ်ပြီး ပစ္စည်းကိုပဲ)'):m.view?t(' (close-up of the middle)',' (အလယ်ကို အနီးကပ်)'):'';
   const lead=next?t('; next closest product '+pct(next.score),'။ ဒုတိယ အတူဆုံး '+pct(next.score)):'';
   return t('Why: '+pct(m.score)+' alike in shape, colour and surface'+photo+close+lead,'ဘာကြောင့်: '+photo+'ပုံသဏ္ဌာန်၊ အရောင်၊ မျက်နှာပြင် '+pct(m.score)+' တူ'+close+lead);
  }
 
  let token=null;
  async function csrf(){if(token)return token;const me=await (await fetch('/api/platform/me',{credentials:'same-origin'})).json();return token=me.csrfToken}
+ // 1.1.281 owner: the shop's owner (or GearHub) can tell the scanner "this is right"; that camera picture is
+ // learned as an extra photo of the product, so look-alike parts are told apart better each time.
+ let ownerCheck=null,lastBlob=null;
+ const isShopOwner=()=>ownerCheck||(ownerCheck=Promise.all([fetch('/api/platform/me',{cache:'no-store',credentials:'same-origin'}).then(r=>r.json()),fetch('/api/platform/store/'+encodeURIComponent(decodeURIComponent(slug)),{cache:'no-store'}).then(r=>r.json())]).then(([me,store])=>!!(me?.user&&store?.id&&(me.isOwner||Number(me.shop?.id)===Number(store.id)))).catch(()=>false));
+ async function teach(id){
+  const send=async()=>fetch('/api/platform/store/'+encodeURIComponent(decodeURIComponent(slug))+'/scan-example?product='+encodeURIComponent(id),{method:'POST',credentials:'same-origin',headers:{'Content-Type':'image/jpeg','X-CSRF-Token':await csrf()},body:lastBlob});
+  let r=await send();if(r.status===403&&token){token=null;r=await send()}
+  if(!r.ok)throw Error((await r.json().catch(()=>({}))).error||'Could not save');
+ }
  // Sends a picture (JPEG) and returns {ready, matches:[{id,score}]} or {ready:false} while learning.
  async function ask(blob){
   const send=async()=>fetch(API,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'image/jpeg','X-CSRF-Token':await csrf()},body:blob});
   let r=await send();if(r.status===403){token=null;r=await send()}
-  if(!r.ok)throw Error('photo search '+r.status);return r.json();
+  if(!r.ok)throw Error('photo search '+r.status);const body=await r.json(),ms=Number(r.headers.get('X-Scan-Ms'));if(ms>=0&&r.headers.has('X-Scan-Ms'))body.serverMs=ms;return body;
  }
  // Pictures are made smaller (longest side 640) before sending: faster on mobile data, same answer.
- function jpeg(source,sx,sy,sw,sh){const s=Math.min(1,640/Math.max(sw,sh)),c=document.createElement('canvas');c.width=Math.round(sw*s);c.height=Math.round(sh*s);
-  c.getContext('2d').drawImage(source,sx,sy,sw,sh,0,0,c.width,c.height);return new Promise(res=>c.toBlob(res,'image/jpeg',.85))}
+ function jpeg(source,sx,sy,sw,sh,max=640,q=.85){const s=Math.min(1,max/Math.max(sw,sh)),c=document.createElement('canvas');c.width=Math.round(sw*s);c.height=Math.round(sh*s);
+  c.getContext('2d').drawImage(source,sx,sy,sw,sh,0,0,c.width,c.height);return new Promise(res=>c.toBlob(res,'image/jpeg',q))}
 
  // ---- Search bar button and the result strip (Excel-search style) -----------------------------------
  const button=document.createElement('button');button.type='button';button.className='photo-scan-button';button.setAttribute('aria-label','Search by photo');button.title='Search by photo';
@@ -45,7 +57,7 @@
  const gallery=document.createElement('input');gallery.type='file';gallery.accept='image/*';gallery.hidden=true;
  pill.append(button,gallery);
  const strip=document.createElement('div');strip.className='photo-scan-panel';strip.hidden=true;strip.setAttribute('role','status');
- strip.innerHTML='<img class="photo-scan-thumb" alt=""><div class="photo-scan-copy"><strong></strong><small></small></div><button type="button" class="photo-scan-step" data-step="-1" aria-label="Previous match">˄</button><button type="button" class="photo-scan-step" data-step="1" aria-label="Next match">˅</button><button type="button" class="photo-scan-clear" aria-label="Clear photo search">✕</button><span class="photo-scan-why"></span>';
+ strip.innerHTML='<img class="photo-scan-thumb" alt=""><div class="photo-scan-copy"><strong></strong><small></small></div><button type="button" class="photo-scan-step" data-step="-1" aria-label="Previous match">˄</button><button type="button" class="photo-scan-step" data-step="1" aria-label="Next match">˅</button><button type="button" class="photo-scan-clear" aria-label="Clear photo search">✕</button><span class="photo-scan-why"></span><button type="button" class="photo-scan-right" hidden>✓ ဒါမှန်တယ် / This is right</button>';
  pill.closest('.mobile-search').after(strip);
  const say=(head,sub,reason)=>{strip.hidden=false;strip.querySelector('strong').textContent=head;strip.querySelector('small').textContent=sub||'';strip.querySelector('.photo-scan-why').textContent=reason||'';strip.querySelectorAll('.photo-scan-step').forEach(b=>b.hidden=matches.length<2)};
  let matches=[],at=0,took=0;
@@ -53,17 +65,24 @@
  function highlight(){
   document.querySelectorAll('#products article.photo-match').forEach(a=>a.classList.remove('photo-match'));
   if(!matches.length)return;const m=matches[at],p=productOf(m.id);
-  say(nameOf(m.id),(at===0?t('Best match','အတူဆုံး'):(at+1)+' / '+matches.length)+' · '+t('found in ','')+secs(took)+t('',' နဲ့ တွေ့')+(p?.sku?' · '+p.sku:''),why(m,at===0?matches[1]:null));
+  say(nameOf(m.id),(at===0?(matches[1]&&matches[0].score-matches[1].score<LEAD&&!matches[0].label?t('Closest · '+matches.length+' look alike, check ˄ ˅','အနီးဆုံး · '+matches.length+' ခု တူတယ်၊ ˄ ˅ နဲ့ စစ်ပါ'):t('Best match','အတူဆုံး')):(at+1)+' / '+matches.length)+' · '+t('found in ','')+secs(took)+t('',' နဲ့ တွေ့')+tripText()+(p?.sku?' · '+p.sku:''),why(m,at===0?matches[1]:null));
   let el=card(m.id);
   // The match may be hidden by a search word or category: show the whole list, like Excel keeps every row.
   if(!el&&typeof renderProducts==='function'){const q=document.getElementById('search'),c=document.getElementById('category');if(q)q.value='';if(c)c.value='';renderProducts();el=card(m.id)}
   if(el){el.classList.add('photo-match');el.scrollIntoView({behavior:'smooth',block:'center'})}
  }
  strip.addEventListener('click',e=>{const step=e.target.closest('[data-step]');if(step&&matches.length){at=(at+Number(step.dataset.step)+matches.length)%matches.length;highlight();return}
+  const right=e.target.closest('.photo-scan-right');
+  if(right&&matches.length&&lastBlob){right.disabled=true;right.textContent=t('Saving…','မှတ်နေပါတယ်…');teach(matches[at].id).then(()=>{right.textContent=t('✓ Learned — next scans will know it','✓ မှတ်ပြီးပါပြီ — နောက် scan တွေမှာ ပိုမှန်ပါမယ်')},()=>{right.disabled=false;right.textContent=t('Could not save — try again','မမှတ်နိုင်ပါ — ပြန်နှိပ်ပါ')});return}
   if(e.target.closest('.photo-scan-clear')){matches=[];strip.hidden=true;document.querySelectorAll('#products article.photo-match').forEach(a=>a.classList.remove('photo-match'))}});
  // The shop redraws its list now and then (refresh, language): put the highlight back on the new card.
  const list=document.getElementById('products');if(list)new MutationObserver(()=>{if(!matches.length)return;const el=card(matches[at].id);if(el&&!el.classList.contains('photo-match'))el.classList.add('photo-match')}).observe(list,{childList:true});
- function found(list,thumb,seconds){matches=list;at=0;took=seconds;if(thumb)strip.querySelector('.photo-scan-thumb').src=thumb;highlight()}
+ function found(list,thumb,seconds){matches=list;at=0;took=seconds;if(thumb)strip.querySelector('.photo-scan-thumb').src=thumb;highlight();
+  const right=strip.querySelector('.photo-scan-right');right.hidden=true;right.disabled=false;right.textContent=t('✓ This is right','✓ ဒါမှန်တယ်');
+  if(lastBlob&&list.length)isShopOwner().then(ok=>{if(ok&&matches===list)right.hidden=false})}
+ // 1.1.269 owner: two products alike (82% and 79%) gave "No match found" although the part is in the shop.
+ // When the closest is alike enough but another is just as close, show both (˄ ˅) instead of nothing.
+ function likely(thumb,seconds,best){if(best&&best.score>=SURE&&best.list?.length){found(best.list.filter(m=>m.score>=SURE-0.1).slice(0,3),thumb,seconds);return}none(thumb,seconds,best)}
  // Nothing sure: say so, how long it looked and why (the closest product was not alike enough, was
  // seen only for a moment, or two products looked the same).
  function none(thumb,seconds,best){
@@ -83,7 +102,7 @@
   '<button type="button" class="photo-scanner-torch" aria-label="Flashlight" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8v3l-2 3v11a2 2 0 0 1-2 2 2 2 0 0 1-2-2V9L8 6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button><button type="button" class="photo-scanner-label" aria-label="Read the label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V4h8l10 10-8 8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="7.5" cy="8.5" r="1.6" fill="currentColor"/></svg><small>Part No.</small></button><span></span></div>';
  document.body.append(view);
  const video=view.querySelector('video'),hint=view.querySelector('.photo-scanner-hint'),torch=view.querySelector('.photo-scanner-torch'),frame=view.querySelector('.photo-scanner-frame');
- let stream=null,loop=0,last=null,pageY=0,started=0,clock=0,bestSeen=null;
+ let stream=null,loop=0,last=null,pageY=0,started=0,clock=0,bestSeen=null,streak={id:null,n:0},tally=new Map(),frames=0;
  const elapsed=()=>(performance.now()-started)/1000;
  const looking=()=>{hint.textContent=t('Looking… ','ရှာနေပါတယ်… ')+Math.floor(elapsed())+t(' s',' စက္ကန့်')};
  // Closing the scanner returns to where the page was (iPhone forgets it while the page is locked).
@@ -95,27 +114,64 @@
   if(view.hidden){stream.getTracks().forEach(tr=>tr.stop());stream=null;return}
   video.srcObject=stream;try{await video.play()}catch(_){}
   const caps=stream.getVideoTracks()[0]?.getCapabilities?.();torch.hidden=!caps?.torch;
-  started=performance.now();bestSeen=null;clearInterval(clock);clock=setInterval(()=>{if(started)looking()},1000);
+  started=performance.now();lastLabel=started-LABEL_EVERY+LABEL_FIRST;bestSeen=null;streak={id:null,n:0};tally=new Map();frames=0;trips=[];works=[];clearInterval(clock);clock=setInterval(()=>{if(started)looking()},1000);
   loop=setTimeout(tick,600);// let the camera settle and focus first
  }
  // The part inside the corner frame, as the video shows it (the video fills the screen, cropped).
  function frameRegion(){const vw=video.videoWidth,vh=video.videoHeight;if(!vw||!vh)return null;const vb=video.getBoundingClientRect(),fb=frame.getBoundingClientRect(),s=Math.max(vb.width/vw,vb.height/vh),ox=(vb.width-vw*s)/2,oy=(vb.height-vh*s)/2;
   const x=Math.max(0,(fb.left-vb.left-ox)/s),y=Math.max(0,(fb.top-vb.top-oy)/s);return[x,y,Math.min(vw-x,fb.width/s),Math.min(vh-y,fb.height/s)]}
  // Keeps looking (one frame at a time): the same product sure twice in a row is the answer.
+ // 1.1.272 owner ("9 seconds, still slow"): each frame waited for the answer before the next one was taken, so the
+ // phone's round trip (upload + server) was paid three times in a row. Now up to two frames are on the way at once,
+ // and frames are smaller (448 px: the model looks at 224 px, the server's closest view is half the frame).
+ let inflight=0,trips=[],works=[];
+ const avg=a=>(a.reduce((x,y)=>x+y,0)/a.length/1000).toFixed(1),tripText=()=>trips.length?t(' · '+avg(trips)+' s per photo',' · ပုံတစ်ပုံ '+avg(trips)+' စက္ကန့်')+(works.length?t(' (server '+avg(works)+' s)',' (server '+avg(works)+')'):''):'';
+ function answer(r,blob){
+  if(view.hidden)return;
+  if(blob)lastBlob=blob;
+  // While the shop's photos are being learned the count waits (it starts again when ready).
+  if(!r.ready){hint.textContent=t('Getting ready…','ပြင်ဆင်နေပါတယ်…');started=0;return}
+  if(!started)started=performance.now();const [a,b]=r.matches,sure=isSure(a,b);
+  if(a&&!(bestSeen?.score>=a.score))bestSeen={id:a.id,score:a.score,next:b?b.score:0,list:r.matches};
+  if(a&&a.score>=SURE){streak=streak.id===a.id?{id:a.id,n:streak.n+1}:{id:a.id,n:1}}else streak={id:null,n:0};
+  const quick=sure&&a.score>=QUICK&&(!b||a.score-b.score>=QUICK_LEAD);
+  if(quick||(sure&&last===a.id)){const seconds=elapsed(),thumb=blob?URL.createObjectURL(blob):'';stop();found(r.matches,thumb,seconds);return}
+  // 1.1.274: a clearly alike part (≥ 80%) on top twice in a row is enough; otherwise three times.
+  // 1.1.277 owner (K5V140 J71-33 shown as K3V140 V-30 first, right the next time): two look-alike parts
+  // (within CLOSE) swap places from frame to frame, so two lucky frames must not decide. Their scores are
+  // added up over the frames instead, and after AVERAGE_FRAMES the best average is the answer.
+  frames++;for(const m of r.matches){const x=tally.get(m.id)||{s:0,list:m};x.s+=m.score;tally.set(m.id,x)}
+  const close=b&&a.score-b.score<CLOSE;
+  if(a&&!close&&streak.n>=(a.score>=0.8?2:STREAK)){const seconds=elapsed(),thumb=blob?URL.createObjectURL(blob):'';stop();found(r.matches.filter(m=>m.score>=SURE-0.1).slice(0,3),thumb,seconds);return}
+  if(frames>=AVERAGE_FRAMES){const avg=[...tally].map(([id,x])=>({...x.list,id,score:Math.round(x.s/frames*1000)/1000})).sort((p,q)=>q.score-p.score);
+   if(avg[0]&&avg[0].score>=SURE){const seconds=elapsed(),thumb=blob?URL.createObjectURL(blob):'';stop();found(avg.filter(m=>m.score>=SURE-0.1).slice(0,3),thumb,seconds);return}}
+  last=sure?a.id:null;
+  if(elapsed()*1000>=LIMIT){const seconds=elapsed(),thumb=blob?URL.createObjectURL(blob):'';stop();likely(thumb,seconds,bestSeen);return}
+  looking();
+ }
  async function tick(){
-  if(view.hidden)return;let wait=250;
-  try{const region=frameRegion();
-   if(region){const blob=await jpeg(video,...region),r=await ask(blob);if(view.hidden)return;
-    // While the shop's photos are being learned the count waits (it starts again when ready).
-    if(!r.ready){hint.textContent=t('Getting ready…','ပြင်ဆင်နေပါတယ်…');started=0;wait=1500}
-    else{if(!started)started=performance.now();const [a,b]=r.matches,sure=isSure(a,b);
-     if(a&&!(bestSeen?.score>=a.score))bestSeen={id:a.id,score:a.score,next:b?b.score:0};
-     if(sure&&last===a.id){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();found(r.matches,thumb,seconds);return}
-     last=sure?a.id:null;
-     if(elapsed()*1000>=LIMIT){const seconds=elapsed(),thumb=URL.createObjectURL(blob);stop();none(thumb,seconds,bestSeen);return}
-     looking()}}
-  }catch(_){if(navigator.onLine===false)hint.textContent=t('Photo search needs the internet.','ပုံနဲ့ရှာဖို့ Internet လိုပါတယ်။');else if(started)looking();wait=1500}
-  loop=setTimeout(tick,wait);
+  if(view.hidden)return;
+  if(inflight>=2){loop=setTimeout(tick,120);return}
+  const region=frameRegion();if(!region){loop=setTimeout(tick,250);return}
+  let blob;try{blob=await jpeg(video,...region,384,.75)}catch(_){loop=setTimeout(tick,500);return}
+  if(view.hidden)return;
+  inflight++;const sent=performance.now();
+  ask(blob).then(r=>{trips.push(performance.now()-sent);if(trips.length>6)trips.shift();if(r.serverMs>=0){works.push(r.serverMs);if(works.length>6)works.shift()}answer(r,blob)},()=>{if(view.hidden)return;if(navigator.onLine===false)hint.textContent=t('Photo search needs the internet.','ပုံနဲ့ရှာဖို့ Internet လိုပါတယ်။');else if(started)looking()}).finally(()=>{inflight--});
+  if(performance.now()-lastLabel>=LABEL_EVERY){lastLabel=performance.now();autoLabel(region)}
+  loop=setTimeout(tick,350);
+ }
+ // 1.1.281 owner: while the camera looks, the label is read too (every LABEL_EVERY ms, from LABEL_FIRST):
+ // a Part No. or SKU printed on the part tells look-alike parts apart for certain.
+ const LABEL_FIRST=1500,LABEL_EVERY=3500;let lastLabel=0,labelBusy=false;
+ async function autoLabel(region){
+  if(labelBusy||view.hidden)return;labelBusy=true;
+  try{
+   const c=document.createElement('canvas'),k=Math.min(1,1280/Math.max(region[2],region[3]));c.width=Math.round(region[2]*k);c.height=Math.round(region[3]*k);c.getContext('2d').drawImage(video,...region,0,0,c.width,c.height);
+   const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.9));if(!blob||view.hidden)return;
+   const r=await fetch(LABEL,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'image/jpeg','X-CSRF-Token':await csrf()},body:blob});
+   if(!r.ok)return;const d=await r.json();
+   if(d.matches?.length&&!view.hidden){const seconds=elapsed(),thumb=URL.createObjectURL(blob);lastBlob=blob;stop();found(d.matches.map(m=>({id:m.id,score:1,label:m.code,field:m.field})),thumb,seconds)}
+  }catch(_){}finally{labelBusy=false}
  }
  view.querySelector('.photo-scanner-close').addEventListener('click',stop);
  // Free AI #7: read the part number on the label in the frame and open that product.
@@ -129,7 +185,7 @@
    const send=async()=>fetch(LABEL,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'image/jpeg','X-CSRF-Token':await csrf()},body:blob});
    let r=await send();if(r.status===403){token=null;r=await send()}
    const d=await r.json();if(!r.ok)throw Error(d.error);
-   if(d.matches?.length){const thumb=URL.createObjectURL(blob);stop();found(d.matches.map(m=>({id:m.id,score:1,label:m.code,field:m.field})),thumb,(performance.now()-begin)/1000);return}
+   if(d.matches?.length){const thumb=URL.createObjectURL(blob);lastBlob=blob;stop();found(d.matches.map(m=>({id:m.id,score:1,label:m.code,field:m.field})),thumb,(performance.now()-begin)/1000);return}
    hint.textContent=d.codes?.length?t('No product has '+d.codes.slice(0,2).join(' / '),d.codes.slice(0,2).join(' / ')+' နဲ့ ပစ္စည်း မရှိပါ'):t('No part number on the label. Hold it closer.','Label မှာ part number မတွေ့ပါ။ ပိုနီးနီး ချိန်ပါ။');
   }catch(_){hint.textContent=before}
   finally{button.disabled=false}
@@ -142,10 +198,10 @@
  gallery.addEventListener('change',async()=>{
   const file=gallery.files?.[0];gallery.value='';if(!file)return;
   const thumb=URL.createObjectURL(file),begin=performance.now();stop();strip.querySelector('.photo-scan-thumb').src=thumb;say(t('Searching…','ရှာနေပါတယ်…'));
-  try{const img=await createImageBitmap(file),blob=await jpeg(img,0,0,img.width,img.height);img.close?.();
+  try{const img=await createImageBitmap(file),blob=await jpeg(img,0,0,img.width,img.height);img.close?.();lastBlob=blob;
    let r=await ask(blob);for(let i=0;i<40&&!r.ready;i++){say(t('Getting ready…','ပြင်ဆင်နေပါတယ်…'));await new Promise(q=>setTimeout(q,1500));r=await ask(blob)}
    const seconds=(performance.now()-begin)/1000,[a,b]=r.ready?r.matches:[];
-   if(isSure(a,b))found(r.matches,thumb,seconds);else none(thumb,seconds,a?{id:a.id,score:a.score,next:b?b.score:0}:null);
+   if(isSure(a,b))found(r.matches,thumb,seconds);else likely(thumb,seconds,a?{id:a.id,score:a.score,next:b?b.score:0,list:r.matches}:null);
   }catch(_){say(t('Photo search could not run','ပုံနဲ့ရှာတာ မရပါ'),navigator.onLine===false?t('It needs the internet.','Internet လိုပါတယ်။'):t('Try again.','ပြန်ကြိုးစားပါ။'))}
  });
 })();

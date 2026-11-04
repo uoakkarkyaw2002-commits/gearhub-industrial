@@ -1,5 +1,12 @@
 # Claude mailbox
 
+## 2026-11-04 — from Codex — PR #350 refreshed onto main (1.1.285)
+
+- Owner said continue. Main had advanced to `a8f90ea` / 1.1.284 and PR #350 conflicted. Merged that main into `codex/fix-audit-findings` in isolated worktree `/Users/oakkar/Documents/Codex/gearhub-excel-followup`; preserved all later storage/photo work and both handoff histories. Root checkout `claude/storage-limits` and its pre-existing untracked files untouched.
+- Resolved release/asset/log conflicts; 1.1.285 in both manifests, index build/about, SW cache and install test. Five changed script tags match index/SW; focused asset assertions now expect 1.1.285. The original six runtime changes remain unchanged apart from SW release/asset lines; no layout/API/schema changes relative to main.
+- Validation after merge: Node 22 `npm run check && npm test` passed **452/452**, zero failures/skips; all six touched runtime JS syntax checks and `git diff --check` passed. Full log: `/private/tmp/gearhub-285-tests.log`. Latest-head CI is checked separately after pushing.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/350. Still draft because offline browser E2E is unverified (previous IAB connection refusal and Chrome URL-security denial; no bypass). Previous actual 375×812/1280×900 UI evidence remains under `/Users/oakkar/Documents/Codex/outputs/qa-1.1.269-2026-11-03/`; not rerun after this merge because browser tools are unavailable in this continuation. No merge/deploy.
+
 ## 2026-11-03 — from Codex — 1.1.269 follow-up fixes, browser UI verified
 
 - Owner explicitly authorized all five audited fixes. Branch `codex/fix-audit-findings`, based on main `43c73a1` / 1.1.268. PR #350: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/350. No merge/deploy; do not resume unrelated Play Store work.
@@ -8,6 +15,66 @@
 - Git push helper pointed at a deleted temp gh binary. Downloaded official gh 2.103.2 to `/private/tmp/gearhub-gh-cli/`; used a per-command credential-helper override with the existing keyring login. No global authentication changes.
 - Local Node22 `npm run check` + `npm test` passed 433/433; focused regression run 30/30; touched public JS syntax and diff checks passed. Browser access was subsequently enabled by the owner. Actual IAB seller-shop 375×812 / 1280×900 UI passed: row/sheet search modes, no-match recovery, actual upload/file-opening controls, quoted CSV (comma/escaped quote/multiline with correct 100/200 columns), same-page upload, and external-tab replacement seen by a subsequent search without reloading the original page. Normal application console logs were clear; screenshots visually inspected with no header overlap/page overflow. Full offline browser navigation remains unverified: stopping the local origin produced ERR_CONNECTION_REFUSED in IAB; Chrome authority was then denied by the tool URL security policy, and no bypass was attempted. Cache isolation/migration remain covered by passing unit/VM tests; physical phones untested. Screenshot evidence: `/Users/oakkar/Documents/Codex/outputs/qa-1.1.269-2026-11-03/`. No runtime code changed in this verification continuation; existing UI/CSS, APIs, schemas and live data unchanged. Pre-existing `.claude/` and `public/zz-real.xlsm` excluded.
 
+
+## 2026-11-04 (evening) — from Claude (account 1) — open
+
+- 1.1.284 (R2 keeps 3 newest backups; Drive 1 TB cap; Settings all-shops storage) is in a PR. R2 shrinks only after the next daily backup (or Run backup now in the owner console).
+
+## 2026-11-04 (later) — from Claude (account 1) — done
+
+- 1.1.282 is live with Render env FILES_S3_BUCKET=gearhub-backups (files/ prefix) and FILES_CACHE_MB=50: disk 855 MB → 103 MB, photos load. 1.1.283 (Settings shows Render + R2 + Drive for the owner) is in a PR.
+
+## 2026-11-04 — from Claude (account 1) — done
+
+- 1.1.282 (shop files to Cloudflare R2, Render disk = 400 MB cache, lib/file-store.js) is in a PR. Owner steps: create R2 bucket `gearhub-files`, make sure the R2 API token (same as backups) can use it, add Render env `FILES_S3_BUCKET=gearhub-files`, deploy. Then check Render logs for `file_store_sweep` / `file_store_copy_failure` and that /api/storage usedBytes drops; Render plan is back to $7 (512 MB); scan/remove-background work is paused by the owner.
+
+## 2026-11-03 (midnight) — from Claude (account 1) — done
+
+- 1.1.281 (scanner: owner presses "✓ This is right" → that scan is learned; labels read automatically while scanning) is in a PR. Owner: scan J71-33/V-30 a few times and press ✓ on the right one (˄ ˅ first if wrong).
+
+## 2026-11-03 (late night) — from Claude (account 1) — done
+
+- 1.1.280 (background removal: measured needs — BiRefNet peaks 2.0 GB, so the 2 GB plan uses silueta) is in a PR. 1.1.279 did not fix it. Owner retests Remove background after deploy.
+
+## 2026-11-03 (late) — from Claude (account 1) — done
+
+- 1.1.279 (Remove background chooses BiRefNet/silueta/U²-Netp by the container's real free memory; it crashed the 2 GB server after ~10 s) is in a PR. 1.1.278 is live: disk 0.86/5.25 GB, backup OK 2026-11-03 12:31Z. Owner retests Remove background after deploy (the response header X-Bg-Model says which AI ran).
+
+## 2026-11-03 (night) — from Claude (account 1) — done
+
+- 1.1.278 (backups remove leftovers of cut-off runs; Render disk 4.0/5.25 GB, backups failing ENOSPC since 30 Oct) is in a PR. After deploy: check /api/storage usedBytes drops and the owner console shows a new successful backup.
+
+## 2026-11-03 (evening) — from Claude (account 1) — done
+
+- 1.1.277 (scanner: look-alike parts decided by the average of 4 frames) is in a PR. 1.1.276 (PR #359) is live. Owner rescans K5V140 / J10-39 after deploy.
+
+## 2026-11-03 (later) — from Claude (account 1) — done
+
+- 1.1.276 (photo search: 8% shape tolerance, mean of best 2 photos; J71-33 scan now first on all 59 live shaft photos) is in a PR. After deploy: rescan J71-33 / J10-39 on POLESTAR (no relearning needed).
+
+## 2026-11-21 (evening) — from Claude (account 2) — open
+
+- 1.1.275 (scan: parts upright + shape term; shop photos re-learned as parts in the background ~15–20 min after deploy) is in a PR. Owner's J71-33 scan was wrong on 1.1.274; eval set in tests/fixtures/photo-scan/shafts. Label/SKU reading is for later (owner).
+
+## 2026-11-21 (later) — from Claude (account 2) — done
+
+- 1.1.274 (scan: 2 frames at ≥80%, 384 px, shows server time) is in a PR. 1.1.273 live: owner's scan found the right Drive Shaft (84% vs 82%) in 7.7 s, 4.0 s per photo. Ask for the new result line (s per photo + server s).
+
+## 2026-11-21 — from Claude (account 2) — done
+
+- Render is now Standard ($25, 1 CPU, 2 GB) since 2026-11-21 → BiRefNet (Edit photo) and silueta (scan cut-out) are used. 1.1.273 (scan compares the part only, cut-out in a helper process) is in PR #356. Owner wants fastest + most accurate; watch Render memory and ask for the result line (s per photo).
+
+## 2026-11-20 (night) — from Claude (account 2) — done
+
+- 1.1.272 (scanner overlaps frames, 448 px, shows s per photo) is in a PR. Owner said 1.1.271 took 9 s and was sometimes wrong (look-alike Drive Shafts). Ask for a screenshot of the result line (s per photo).
+
+## 2026-11-20 (evening) — from Claude (account 2) — done
+
+- 1.1.271 (faster photo scan: quick/streak acceptance, 8 s limit, big frame + centre dot) is in a PR. Owner tests on iPhone/Android with the Drive Shaft.
+
+## 2026-11-20 (later) — from Claude (account 2) — done
+
+- 1.1.269 (camera=(self)) and 1.1.270 (photo search shows alike products) merged (PR #351, #352). Owner confirmed the camera opens. Background-removal AI: disk is 5 GB but BiRefNet needs ≥1.8 GB RAM ($25 plan); owner has not decided.
 ## 2026-11-20 — from Claude (account 2) — open
 
 - Play Store kit is fully handed to the third-party publisher (TECH4MM): new AAB (PWABuilder, package com.skyshopmm.app, versionCode 2 / 1.0.1, targetSdk 36, signed with the same upload key SHA-256 60:A4:18:…:1F:5F), texts, support email, icon, feature graphic, 8 screenshots, legal URLs, test Gmail with demo shop "SkyShopMM Demo", Ads: No (owner will add ads later → then switch Play "Ads" to Yes), Data safety.
