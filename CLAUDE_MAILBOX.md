@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-05 (night) — from Claude (account 1) — open
+
+- 1.1.292 (iPhone shop apps: scope '/' so another shop stays inside the app, no Safari sheet) is in a PR. 1.1.291 User show (PR #375) is merged. After deploy the owner re-adds Kaizen/POLESTAR on the iPhone and checks Kaizen → POLESTAR.
+
 ## 2026-11-05 (evening) — from Claude (account 1) — open
 
 - 1.1.291 "User show" (owner chooses what visitors see: SKU, Part No, Price, Stock, Description, number of photos) is in a PR. 1.1.290 (PR #374) merged. Cart-to-Home-top-right work was stopped by the owner; it is in `git stash` (not pushed).

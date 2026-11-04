@@ -11,7 +11,7 @@ test('a stylesheet or script that fails during a deploy falls back to a saved co
 });
 
 test('installed store app on PC hides the title bar; admin app is unchanged',()=>{
- assert.match(read('lib/tenant-install.js'),/scope:i\.base,display:'standalone',display_override:\['window-controls-overlay','standalone'\]/);
+ assert.match(read('lib/tenant-install.js'),/scope:apple\(req\)\?'\/':i\.base,display:'standalone',display_override:\['window-controls-overlay','standalone'\]/);
  assert.match(read('server.js'),/manifest\.display_override=\["window-controls-overlay","standalone"\];[\s\S]*?res\.set[\s\S]*?\napp\.get\("\/admin\.webmanifest"/);
  const css=read('public/desktop.css');
  assert.match(css,/@media \(display-mode:window-controls-overlay\)\{\n html::after\{[^}]*height:env\(titlebar-area-height,0px\);background:#fff;-webkit-app-region:drag/);
