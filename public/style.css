@@ -1389,3 +1389,10 @@ body.alerts-history-open{overflow:hidden}
 /* 1.1.291 owner "User show": what the shop owner hides from visitors (html[data-visitor-hide]). */
 html[data-visitor-hide~="price"] .product .price,html[data-visitor-hide~="price"] .product .promo-badge,html[data-visitor-hide~="price"] .category-product-row .price{display:none!important}
 html[data-visitor-hide~="stock"] .category-row-stock{display:none!important}
+/* 1.1.293 owner: the phone bottom bar slides away while scrolling down and back when scrolling up (nav-autohide.js). */
+@media(max-width:850px){
+ .mobile-bottom-nav{transition:transform .34s cubic-bezier(.2,.8,.2,1)}
+ .mobile-bottom-nav.liquid{transition:--liquid-x .5s cubic-bezier(.65,0,.35,1),transform .34s cubic-bezier(.2,.8,.2,1)}
+ .mobile-bottom-nav.nav-away{transform:translate3d(0,calc(100% + 40px),0)!important}
+}
+@media(prefers-reduced-motion:reduce){.mobile-bottom-nav,.mobile-bottom-nav.liquid{transition:none}}

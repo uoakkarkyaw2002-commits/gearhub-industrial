@@ -35,6 +35,11 @@ _None._
 - PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/371. No runtime changes in this continuation; files changed: mailbox/log only. Code head `d03f8bd` has Node22 check + tests 459/459 and green Production readiness/node22 (run 41778088940). Preparing for review with actual 375/1280 browser/physical-device verification still explicitly unverified. No merge/deploy or production confirmation.
 - Owner merges/deploys, checks GearHub Settings and seller versions, then presses Confirm update when satisfied. The feature controls seller frontend version changes; SQLite/disk-backed backend restarts remain possible during Render deploys.
 
+### 1.1.293: Phone bottom bar hides on scroll down, returns on scroll up (Claude)
+- Owner (screen recording, not viewable here — no ffmpeg): show the bottom navigation while nothing happens; hide it while scrolling down; show it again on scroll up; smooth.
+- `public/nav-autohide.js`: phones only (≤850px); hides after >6px down past 80px; shows on >6px up, near the top, 1.2 s after scrolling stops, on a tap at the bottom edge, and never while searching or a drawer/modal/dialog is open. `style.css`: `.nav-away` slides 100%+40px down (bubble included) with a .34s ease; the liquid `--liquid-x` transition is kept; reduced motion = no animation.
+- Checks: Node 22 check + 465/465 (new tests/nav-autohide.test.js). Browser 375: logic checked with scroll events and the hidden offset (123px); the test pane pauses animation frames, so the slide itself was not watched. Not tested on the iPhone.
+
 ### 1.1.292: iPhone shop apps keep other shops inside the app (Claude)
 - Owner: from the installed Kaizen app, opening POLESTAR showed a Safari sheet (X, address bar, toolbar) — "looks like the website".
 - Cause: `/shops/<slug>/app.webmanifest` scope was the shop's own folder; iOS shows anything outside the scope in a Safari sheet.

@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-06 — from Claude (account 1) — open
+
+- 1.1.293 (phone bottom bar hides on scroll down, back on scroll up / stop) is in a PR. 1.1.292 (PR #376) merged; owner re-adds shop apps on iPhone to get the wide scope. Home-cart work still in `git stash`.
+
 ## 2026-11-05 (night) — from Claude (account 1) — open
 
 - 1.1.292 (iPhone shop apps: scope '/' so another shop stays inside the app, no Safari sheet) is in a PR. 1.1.291 User show (PR #375) is merged. After deploy the owner re-adds Kaizen/POLESTAR on the iPhone and checks Kaizen → POLESTAR.
