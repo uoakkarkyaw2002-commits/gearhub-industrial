@@ -37,7 +37,7 @@ test('static files skip sessions, are gzip-ready and session expiry writes are t
 test('tenant storefront downloads the shop once for concurrent requests',async()=>{
   const vm=require('node:vm');let calls=0;const window={};
   const shop={name:'A',settings:{},products:[],service:{usedBytes:0,storageLimit:1,endsAt:null,state:'active'}};
-  vm.runInNewContext(pub('tenant-store.js'),{window,document:{querySelectorAll:()=>[],querySelector:()=>null},location:{pathname:'/shops/a/',origin:'https://x.test'},Response,URL,encodeURIComponent,decodeURIComponent,fetch:async()=>{calls++;await new Promise(r=>setTimeout(r,10));return new Response(JSON.stringify(shop));}});
+  vm.runInNewContext(pub('tenant-store.js'),{window,document:{querySelectorAll:()=>[],querySelector:()=>null},location:{pathname:'/shops/a/',origin:'https://x.test'},Response,AbortSignal,URL,encodeURIComponent,decodeURIComponent,fetch:async()=>{calls++;await new Promise(r=>setTimeout(r,10));return new Response(JSON.stringify(shop));}});
   await Promise.all(['/api/products','/api/categories','/api/config','/api/storage'].map(u=>window.GearHubTenantStore.fetch(u)));
   assert.equal(calls,1);
 });

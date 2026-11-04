@@ -4,8 +4,8 @@
 // (1 MB of random bytes: a plain file, so no server work, no compression and no phone cache). The time
 // counts from the first byte, so the wait for a far server is not counted as slow speed (the shop's
 // compressed catalogue, ~28 KB, read 228 KB/s on a phone showing 1.80 MB/s). Reading stops after
-// 1.5 s, so slow connections spend little data. Measured when the shop opens, every 3 minutes while
-// it is on screen, on returning to the app and when the phone comes back online.
+// 1.5 s, with an 8 s overall deadline. Sampling waits for catalogue/Excel work and a 15 s delay,
+// respects Save-Data, and runs at most once per 3 minutes while the page is visible.
 (()=>{
  const avatar=document.querySelector('.home-profile-banner .settings-profile-avatar');if(!avatar)return;
  const SAMPLE='/speed-test.bin',READ_MS=1500;
@@ -18,7 +18,8 @@
  function show(level,value,title){badge.dataset.level=level;text.textContent=value;badge.title=title;badge.setAttribute('aria-label',title)}
  // Bytes per second after the first byte arrived, and the wait for that first byte (ms).
  async function sample(){
-  const stop=new AbortController(),asked=performance.now();
+  const stop=new AbortController(),asked=performance.now(),deadline=setTimeout(()=>stop.abort(),8000);
+  try{
   const r=await fetch(SAMPLE+'?speed='+Date.now(),{cache:'no-store',credentials:'omit',signal:stop.signal});
   if(!r.ok||!r.body)throw Error(r.status);
   const reader=r.body.getReader();let start=0,first=0,bytes=0;
@@ -29,13 +30,20 @@
   // Too little after the first piece to time (a very fast or buffered answer): count the whole download.
   const bps=bytes>=64*1024&&seconds>0.05?bytes/seconds:(bytes+first)/Math.max(0.05,(performance.now()-asked)/1000);
   return {bps,delay:start-asked};
+  }finally{clearTimeout(deadline)}
  }
- let busy=false;
+ let busy=false,ready=false,last=0,pending=0;
  async function measure(){
-  if(busy||document.hidden)return;
+  if(busy||document.hidden||!ready)return;
+  if(navigator.connection?.saveData){show('normal','–','Data saver: active speed test skipped');return}
+  if(last&&Date.now()-last<180000)return;
   if(navigator.onLine===false){show('offline','Offline','No internet');return}
+  if(document.body.classList.contains('searching')){schedule();return}
   busy=true;
   try{
+   await window.GearHubExcelSearchIdle?.();await window.GearHubExcelViewer?.idle();
+   if(document.hidden||navigator.onLine===false||navigator.connection?.saveData||document.body.classList.contains('searching')){schedule();return}
+   last=Date.now();
    const {bps,delay}=await sample();
    // A very long wait for the first byte (bad signal) is never shown as good.
    const level=bps>=GOOD&&delay<2000?'good':bps>=NORMAL?'normal':'low';
@@ -43,7 +51,10 @@
   }catch(_){if(navigator.onLine===false)show('offline','Offline','No internet');else show('low','–','Connection problem')}
   finally{busy=false}
  }
- setTimeout(measure,1500);setInterval(measure,180000);
- addEventListener('online',measure);addEventListener('offline',()=>show('offline','Offline','No internet'));
- document.addEventListener('visibilitychange',()=>{if(!document.hidden)measure()});
+ function schedule(){clearTimeout(pending);pending=setTimeout(measure,15000)}
+ const start=()=>{ready=true;schedule()};
+ addEventListener('gearhub:data-ready',start);addEventListener('load',()=>{if(!document.getElementById('sky-splash'))start()},{once:true});
+ setInterval(schedule,180000);
+ addEventListener('online',schedule);addEventListener('offline',()=>show('offline','Offline','No internet'));
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule()});
 })();

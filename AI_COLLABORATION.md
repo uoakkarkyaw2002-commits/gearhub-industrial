@@ -30,6 +30,19 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.285: Refresh the five Excel reliability fixes onto current main (Codex — draft)
+- Task: continue PR #350; merge latest main `a8f90ea` / 1.1.284 to resolve conflicts while preserving later storage/photo changes. Branch `codex/fix-audit-findings`; isolated worktree `gearhub-excel-followup`. PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/350.
+- Files in this continuation: package manifests, index/SW, tenant-install + Excel upload/network asset tests, mailbox/log. Resolved only release/asset/log conflicts; runtime fixes from the original entry below are unchanged. UI markup matches main apart from release/asset versions; no layout/API/schema changes.
+- Validation after merge: Node 22 `npm run check && npm test` passed **452/452**, zero failures/skips; all six touched runtime JS syntax checks and `git diff --check` passed. Full log: `/private/tmp/gearhub-285-tests.log`. Latest-head CI is checked separately after pushing.
+- Browser: previous actual 375×812/1280×900 checks cover the same runtime fixes; no fresh browser run in this continuation (tools unavailable). Offline E2E remains unverified due to the earlier browser URL-security denial; unit/VM coverage exists. Keep draft, do not merge/deploy. Root checkout and pre-existing untracked files untouched.
+
+### 1.1.269: Fix five follow-up audit findings (Codex — UI verified, review pending)
+- Authorized: all five items from the owner's audit follow-up. Base main `43c73a1`, branch `codex/fix-audit-findings`; PR #350: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/350. No merge/deploy or unrelated Play Store changes.
+- Runtime files: `public/excel-library.js`, `sw.js` (shop-scoped cache + matching legacy migration; legacy preserved), `excel-search.js` (30s ID checks during visible searches and on focus/online/upload; unchanged-ID reuse; offline fallback), `excel-map.js` (quoted/multiline CSV), `tenant-store.js` (8s shared fetch and consumer cancellation), `net-speed.js` (readiness/Excel idle + 15s delay, Save-Data, cooldown/deadline). Version/assets in package manifests/index/SW/install test use 1.1.269. No API/schema/layout changes.
+- Added `tests/followup-regressions.test.js`; expanded SW offline migration tests; existing VM fixtures now expose native AbortSignal and pinned asset tests follow the new tags. Node22 check + full tests 433/433; focused regression run 30/30; touched public JS syntax and diff checks passed.
+- Follow-up after owner enabled Browser: actual IAB local seller-shop 375×812 / 1280×900 UI passed both search modes, no-match recovery, same-page upload, external-tab replacement on subsequent search without reloading, and CSV quoting/column values. Actual controls clicked; screenshots inspected (no header overlap/page overflow); normal app console error/warning logs empty. No source changes in this continuation. Evidence: `/Users/oakkar/Documents/Codex/outputs/qa-1.1.269-2026-11-03/`.
+- Offline E2E remains unverified: after stopping the local fixture origin, IAB navigation returned ERR_CONNECTION_REFUSED; Chrome tool access was then rejected by its URL security policy. No workaround/bypass attempted. Offline isolation/migration passed unit/VM tests; no physical phone, live deployment or measured startup claims. Pre-existing untracked `.claude/` and `public/zz-real.xlsm` untouched.
+
 ### 1.1.284: R2 keeps 3 backups; Google Drive capped at 1 TB; Settings shows all shops' storage (Claude)
 - Owner (live 1.1.283: R2 6.2 GB / 10 GB, Drive 3.0 GB, Render 98 MB): Cloudflare too big; add every shop's storage; allow Google Drive up to 1 TB.
 - `lib/backups.js`: after each R2 backup upload, archives under `BACKUP_S3_PREFIX` (gearhub/) beyond the newest `BACKUP_S3_KEEP` (3) are deleted (`oldBackupKeys`; only gearhub-*.tar.gz; shop files under files/ untouched). Drive still keeps 30.

@@ -21,7 +21,7 @@ test('seller page HTML shows the shop name and never GearHub',()=>{
 
 test('tenant config ignores blank appearance fields and rewrites copied GearHub text',async()=>{
  const snapshot={name:'POLESTAR',settings:{logoId:'logo-1',description:'Spare parts',appearance:{brandName:'',siteTitle:' ',logoUrl:'',heroImageUrl:'',translations:{en:{settingsEyebrow:'GEARHUB APP',footer:'Your trusted GearHub source'},my:{}}}},products:[],service:{}};
- const context={location:{pathname:'/shops/polestar/',origin:'https://example.test'},Response,URL,JSON,Object,Math,Set,Promise,Error,encodeURIComponent,decodeURIComponent,
+ const context={location:{pathname:'/shops/polestar/',origin:'https://example.test'},Response,AbortSignal,URL,JSON,Object,Math,Set,Promise,Error,encodeURIComponent,decodeURIComponent,
   fetch:async()=>new Response(JSON.stringify(snapshot),{status:200,headers:{'content-type':'application/json'}}),
   document:{querySelectorAll:()=>[],querySelector:()=>null}};
  context.window=context;vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../public/tenant-store.js'),'utf8'),context);

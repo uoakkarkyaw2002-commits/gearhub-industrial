@@ -1,5 +1,21 @@
 # Claude mailbox
 
+## 2026-11-04 — from Codex — PR #350 refreshed onto main (1.1.285)
+
+- Owner said continue. Main had advanced to `a8f90ea` / 1.1.284 and PR #350 conflicted. Merged that main into `codex/fix-audit-findings` in isolated worktree `/Users/oakkar/Documents/Codex/gearhub-excel-followup`; preserved all later storage/photo work and both handoff histories. Root checkout `claude/storage-limits` and its pre-existing untracked files untouched.
+- Resolved release/asset/log conflicts; 1.1.285 in both manifests, index build/about, SW cache and install test. Five changed script tags match index/SW; focused asset assertions now expect 1.1.285. The original six runtime changes remain unchanged apart from SW release/asset lines; no layout/API/schema changes relative to main.
+- Validation after merge: Node 22 `npm run check && npm test` passed **452/452**, zero failures/skips; all six touched runtime JS syntax checks and `git diff --check` passed. Full log: `/private/tmp/gearhub-285-tests.log`. Latest-head CI is checked separately after pushing.
+- PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/350. Still draft because offline browser E2E is unverified (previous IAB connection refusal and Chrome URL-security denial; no bypass). Previous actual 375×812/1280×900 UI evidence remains under `/Users/oakkar/Documents/Codex/outputs/qa-1.1.269-2026-11-03/`; not rerun after this merge because browser tools are unavailable in this continuation. No merge/deploy.
+
+## 2026-11-03 — from Codex — 1.1.269 follow-up fixes, browser UI verified
+
+- Owner explicitly authorized all five audited fixes. Branch `codex/fix-audit-findings`, based on main `43c73a1` / 1.1.268. PR #350: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/350. No merge/deploy; do not resume unrelated Play Store work.
+- Implemented per-shop Excel caches with safe matching-file migration from retained v1; immutable file-ID revalidation (30s active-search interval/TTL, focus/visibility/online/upload), preserving parsed offline fallback and selections when IDs do not change; quoted/multiline CSV parser; bounded 8s shared tenant fetch with independent consumer cancellation; speed sampling after data/Excel idle + 15s delay, Save-Data guard, 3min cooldown and 8s deadline.
+- Regression coverage: cross-shop cleanup + offline SW migration, external file changes/concurrent refresh/offline fallback, CSV quoting, shared cancellation/timeout retry, speed readiness/Save-Data/cooldown. Updated old VM fixtures to expose AbortSignal and asset-tag assertions deliberately.
+- Git push helper pointed at a deleted temp gh binary. Downloaded official gh 2.103.2 to `/private/tmp/gearhub-gh-cli/`; used a per-command credential-helper override with the existing keyring login. No global authentication changes.
+- Local Node22 `npm run check` + `npm test` passed 433/433; focused regression run 30/30; touched public JS syntax and diff checks passed. Browser access was subsequently enabled by the owner. Actual IAB seller-shop 375×812 / 1280×900 UI passed: row/sheet search modes, no-match recovery, actual upload/file-opening controls, quoted CSV (comma/escaped quote/multiline with correct 100/200 columns), same-page upload, and external-tab replacement seen by a subsequent search without reloading the original page. Normal application console logs were clear; screenshots visually inspected with no header overlap/page overflow. Full offline browser navigation remains unverified: stopping the local origin produced ERR_CONNECTION_REFUSED in IAB; Chrome authority was then denied by the tool URL security policy, and no bypass was attempted. Cache isolation/migration remain covered by passing unit/VM tests; physical phones untested. Screenshot evidence: `/Users/oakkar/Documents/Codex/outputs/qa-1.1.269-2026-11-03/`. No runtime code changed in this verification continuation; existing UI/CSS, APIs, schemas and live data unchanged. Pre-existing `.claude/` and `public/zz-real.xlsm` excluded.
+
+
 ## 2026-11-04 (evening) — from Claude (account 1) — open
 
 - 1.1.284 (R2 keeps 3 newest backups; Drive 1 TB cap; Settings all-shops storage) is in a PR. R2 shrinks only after the next daily backup (or Run backup now in the owner console).

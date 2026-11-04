@@ -3,11 +3,11 @@ const {test}=require('node:test');const assert=require('node:assert/strict');con
 const read=f=>fs.readFileSync(path.join(__dirname,'..','public',f),'utf8');
 
 function worker(fetchImpl){
- const handlers={},stores=new Map();
+ const handlers={},stores=new Map();let clientPath=null;
  const cacheFor=name=>{if(!stores.has(name))stores.set(name,new Map());const m=stores.get(name);return{match:async r=>m.get(typeof r==='string'?r:r.url),put:async(r,v)=>{m.set(typeof r==='string'?r:r.url,v)}}};
- const ctx={URL,self:{location:{origin:'https://shop.test'},addEventListener:(t,f)=>handlers[t]=f},caches:{open:async n=>cacheFor(n),match:async()=>undefined},fetch:fetchImpl,Response:{error:()=>'ERROR'}};
+ const ctx={URL,self:{clients:{get:async()=>({url:'https://shop.test'+clientPath})},location:{origin:'https://shop.test'},addEventListener:(t,f)=>handlers[t]=f},caches:{open:async n=>cacheFor(n),match:async()=>undefined},fetch:fetchImpl,Response:{error:()=>'ERROR'}};
  vm.runInNewContext(read('sw.js'),ctx);
- const get=async url=>{let p;handlers.fetch({request:{method:'GET',mode:'cors',url:'https://shop.test'+url},respondWith:x=>p=x});return p&&await p};
+ const get=async (url,shop)=>{clientPath=shop||null;let p;handlers.fetch({clientId:clientPath?'page':null,request:{method:'GET',mode:'cors',url:'https://shop.test'+url},respondWith:x=>p=x});return p&&await p};
  return{get,stores};
 }
 const ok=(body,status=200)=>({ok:true,status,body,clone(){return ok(body,status)}});
@@ -47,4 +47,17 @@ test('Excel full screen: plain white top bar, sheet starts below it',()=>{
  assert.match(css,/\.excel-fullscreen \.excel-preview::before\{content:"";position:absolute;top:0;left:0;right:0;height:50px;background:#fff/);
  assert.match(css,/\.excel-fullscreen \.excel-sheet-search input\{-webkit-appearance:none;appearance:none;box-shadow:none/);
  assert.match(css,/\.excel-fullscreen \.excel-sheet\{margin-top:50px\}/);
+});
+
+test('service worker keeps shop caches separate and migrates a legacy workbook offline',async()=>{
+ let online=true,n=0;const w=worker(async()=>{if(!online)throw Error('offline');return ok('file'+(++n))});
+ assert.equal((await w.get('/api/platform/spreadsheets/a','/shops/a/')).body,'file1');
+ assert.equal((await w.get('/api/platform/spreadsheets/b','/shops/b/')).body,'file2');
+ online=false;
+ assert.equal((await w.get('/api/platform/spreadsheets/a','/shops/a/')).body,'file1');
+ assert.equal((await w.get('/api/platform/spreadsheets/b','/shops/b/')).body,'file2');
+ w.stores.set('gearhub-excel-v1',new Map([['https://shop.test/api/platform/spreadsheets/legacy',ok('legacy')]]));
+ assert.equal((await w.get('/api/platform/spreadsheets/legacy','/shops/a/')).body,'legacy');
+ assert.equal(w.stores.get('gearhub-excel-v2:a').get('https://shop.test/api/platform/spreadsheets/legacy').body,'legacy');
+ assert.ok(w.stores.get('gearhub-excel-v1').has('https://shop.test/api/platform/spreadsheets/legacy'));
 });
