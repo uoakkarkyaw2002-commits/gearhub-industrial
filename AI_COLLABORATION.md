@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.307: Search bar stays on top; Trash plays the bin animation; no Refresh row (Claude)
+- Owner (iPhone screenshots): in Product search, scrolling down lost the search bar. Cause: old phone rules `html,body{overflow-x:hidden}` (style.css, Oct 2026) make body its own scroll box in WebKit, so the 1.1.222 sticky bar scrolled away (measured on live: top -890 after scrolling). search-filter.css now sets `overflow-x:clip` (same sideways cut, no scroll box) inside `@supports (overflow:clip)` on ≤850px. WebKit: bar top 0 after scrolling 1500px; scrollWidth = width on Home/Discover/Category/Profile.
+- Trash in the filter list plays the old bin animation (body.bin-eating shows the bar's bin while it eats the letters), then hides it.
+- Settings Refresh row hidden (`#app-refresh-action`) — pull down to refresh replaces it. The Settings → Refresh code stays (updates.js still uses its own reload).
+- Tests: search-filter.test.js updated. 482/482. WebKit iPhone 13 with 40 extra local test products. Real iPhone not tested.
+
 ### 1.1.306: No black Render "502 Bad Gateway" during a deploy (Claude)
 - Owner (iPhone screenshot during a deploy). Cause: Render stops the server while it deploys (the persistent disk rules out zero-downtime deploys, see the Codex 1.1.288 note) and answers with its own 502 page. The service worker already used the saved copy for shop pages on 5xx, but admin pages passed the 502 through, and a page with no saved copy showed plain text.
 - public/sw.js: admin pages treat 5xx like offline (saved copy); with no saved copy any page shows `busyPage()` — "ခဏစောင့်ပါ — app ကို update လုပ်နေပါတယ်" with a spinner, meta refresh every 5 s, status 503, never cached. Seller shops get it after Confirm update (shop SW comes from the saved build).

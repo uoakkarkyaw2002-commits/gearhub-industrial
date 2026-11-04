@@ -34,7 +34,13 @@
   const item=e.target.closest('[data-scope]');if(!item)return;close();
   if(item.dataset.scope==='files'){document.getElementById('excel-library-open')?.click();return}
   // 1.1.305 owner: the bin is no longer in the bar (it showed twice); Trash here empties the search.
-  if(item.dataset.scope==='trash'){input.value='';input.dispatchEvent(new Event('input',{bubbles:true}));const c=document.querySelector('.search-tools .search-count');if(c)c.textContent='';document.querySelectorAll('.search-tools .search-step').forEach(s=>s.hidden=true);return}
+  if(item.dataset.scope==='trash'){
+   // 1.1.307 owner: the old bin animation — the bin opens in the bar and the typed letters jump into it.
+   const bin=document.querySelector('.search-tools .search-clear');
+   if(!bin||!input.value){input.value='';input.dispatchEvent(new Event('input',{bubbles:true}));return}
+   document.body.classList.add('bin-eating');requestAnimationFrame(()=>bin.click());
+   const done=()=>{if(input.value&&!input.readOnly)return setTimeout(done,200);if(input.readOnly)return setTimeout(done,200);document.body.classList.remove('bin-eating')};setTimeout(done,600);
+   return}
   scope=item.dataset.scope;try{localStorage.setItem(KEY,scope)}catch{}paint();
   // Run the same search again in the chosen place.
   if(input.value.trim())input.dispatchEvent(new Event('input',{bubbles:true}));
