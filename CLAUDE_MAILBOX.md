@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-08 — from Claude (account 1) — open
+
+- 1.1.302 (Settings place = Profile person icon; Profile = photo + name only; ☰ Menu opens old Settings) is in a PR. Owner said nothing else on Profile for now.
+
 ## 2026-11-04 — from Codex — 1.1.301 Discover + product posting time (review pending)
 
 - Owner requested: Shops → Discover with compass icon, and show when products were posted. Base main `41aeeb5` (PR #384 merged), branch `codex/discover-product-time`, isolated worktree `/Users/oakkar/Documents/Codex/gearhub-discover-time`. PR #385: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/385. Root checkout and pre-existing untracked files untouched.

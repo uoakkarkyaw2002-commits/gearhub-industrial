@@ -1,0 +1,17 @@
+/* 1.1.302: Profile page (photo + name) and the ☰ Menu that opens the old Settings. Nothing here is fixed or sticky. */
+#profile-view.pm-home>:not(.profile-home){display:none!important}
+#profile-view:not(.pm-home)>.profile-home{display:none}
+.profile-menu-bar{display:none}
+#profile-view.pm-menu>.profile-menu-bar{display:flex;align-items:center;gap:8px;margin:0 0 12px}
+.profile-home{position:relative;display:grid;justify-items:center;gap:14px;padding:64px 16px 40px;text-align:center}
+.profile-menu-open,#profile-menu-close{display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:#fff;color:#1d2a21;box-shadow:0 2px 10px #173c2a1f;cursor:pointer}
+.profile-menu-open{position:absolute;top:8px;left:8px}
+.profile-menu-open svg,#profile-menu-close svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.profile-menu-bar b{font-size:20px;font-weight:800;color:#173c2a}
+.profile-home-photo{display:grid;place-items:center;width:168px;height:168px;overflow:hidden;border:5px solid #fff;border-radius:50%;background:#eef5ea;box-shadow:0 8px 28px #173c2a29;color:#4a7a4f;font-size:64px}
+.profile-home-photo img{width:100%;height:100%;object-fit:cover}
+.profile-home-photo img[hidden],.profile-home-photo span[hidden]{display:none}
+.profile-home-name{margin:0;color:#14241a;font-size:28px;font-weight:800;letter-spacing:-.01em;line-height:1.25;overflow-wrap:anywhere}
+.profile-home-name:empty{display:none}
+:root[data-theme="dark"] .profile-home-name,:root[data-theme="dark"] .profile-menu-bar b{color:#e1f0de}
+:root[data-theme="dark"] .profile-menu-open,:root[data-theme="dark"] #profile-menu-close{background:#253b28;color:#e1f0de}
