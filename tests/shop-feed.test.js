@@ -51,6 +51,6 @@ test('Shops navigation preserves existing destinations and the confirmed build g
   }
   assert.match(read('store.js'),/window\.GearHubShops\?\.setActive\(storeView==="shops"\)/);
   assert.match(read('back-nav.js'),/\["shops-photo-dialog","shops-photo-close"\]/);
-  assert.match(read('sw.js'),/"\/shops-feed\.js\?v=1\.1\.297"/);
+  assert.match(read('sw.js'),/"\/shops-feed\.js\?v=1\.1\.298"/);
   assert.match(fs.readFileSync(path.join(__dirname,'../lib/shop-releases.js'),'utf8'),/function published\(\)/,'feed frontend follows the existing saved-build approval gate');
 });

@@ -3,6 +3,39 @@
 body.no-promotions .mobile-bottom-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important}
 #shops-view.shops-view{max-width:744px;margin-inline:auto}
 .shops-view{--feed-ink:#173c2a;--feed-muted:#708178;max-width:744px;min-height:calc(100svh - 160px);padding-top:24px;padding-bottom:calc(var(--bottom-nav-h,80px) + 32px)}
+/* 1.1.298 owner's picture: green top with brand, search, bell and profile; four tabs under it. Not sticky. */
+.shops-top{margin:0 0 16px}
+.shops-top[hidden],.shops-feed-heading[hidden]{display:none}
+.shops-top-bar{display:flex;align-items:center;gap:16px;padding:18px 20px;border-radius:22px;background:linear-gradient(115deg,#0f4421 0%,#165c28 55%,#1f6f2c 100%);color:#fff}
+.shops-top-brand{display:flex;align-items:center;gap:10px;min-width:0;flex:0 1 auto}
+.shops-top-logo{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;overflow:hidden;border-radius:50%;background:#fff;color:#16632a;font-size:20px;font-weight:800}
+.shops-top-logo img{width:100%;height:100%;object-fit:cover}
+.shops-top-brand>span:last-child{display:grid;min-width:0}
+.shops-top-brand b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:20px;font-weight:800;letter-spacing:-.01em;line-height:1.2}
+.shops-top-brand small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#e3f1df;font-size:12px;line-height:1.4}
+.shops-top-brand small:empty{display:none}
+.shops-top-search{display:flex;align-items:center;gap:10px;flex:1;min-width:0;height:46px;padding:0 16px;border-radius:999px;background:#fff;color:#1d2a21;box-shadow:0 3px 10px #00000026}
+.shops-top-search svg{flex:0 0 22px;width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.shops-top-search input{flex:1;min-width:0;height:100%;margin:0;padding:0;border:0;outline:0;background:transparent;color:#1d2a21;font:inherit;font-size:16px}
+.shops-top-search input::placeholder{color:#7b857e}
+.shops-top-search:focus-within{box-shadow:0 0 0 3px #b7f36b88}
+.shops-top-bell,.shops-top-me{position:relative;display:grid;place-items:center;flex:0 0 46px;width:46px;height:46px;padding:0;border:0;border-radius:50%;cursor:pointer}
+.shops-top-bell[hidden]{display:none}
+.shops-top-bell{background:transparent;color:#fff}
+.shops-top-bell svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.shops-top-bell i{position:absolute;top:7px;right:8px;width:11px;height:11px;border-radius:50%;background:#ef2b2b;box-shadow:0 0 0 2px #165c28}
+.shops-top-bell i[hidden]{display:none}
+.shops-top-me{background:#fff;color:#123d1d;font-size:19px;font-weight:800}
+.shops-top-me svg{width:30px;height:30px;fill:currentColor}
+.shops-tabs{display:flex;gap:10px;margin-top:14px;overflow-x:auto;scrollbar-width:none;padding:2px}
+.shops-tabs::-webkit-scrollbar{display:none}
+.shops-tabs button{display:inline-flex;align-items:center;gap:8px;flex:0 0 auto;min-height:44px;padding:0 18px;border:0;border-radius:999px;background:#fff;color:#1d2a21;box-shadow:0 2px 10px #173c2a14;font:inherit;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap}
+.shops-tabs button svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linejoin:round;stroke-linecap:round}
+.shops-tabs button>b{font-size:18px;line-height:1}
+.shops-tabs button.on{background:#1a6b25;color:#fff;box-shadow:0 0 0 3px #fff,0 3px 12px #1a6b2540}
+.shops-post-menu-list button{display:block;width:100%;padding:11px 12px;border:0;border-radius:10px;background:transparent;color:#1d3024;font:inherit;font-size:14px;font-weight:650;text-align:left;cursor:pointer}
+.shops-post-menu-list button:hover{background:#f0f6ed}
+@media(max-width:850px){.shops-top{margin:-12px -10px 14px}.shops-top-bar{flex-wrap:wrap;gap:12px 10px;padding:14px 14px 16px;border-radius:0 0 22px 22px}.shops-top-brand{flex:1 1 0}.shops-top-logo{flex-basis:38px;width:38px;height:38px}.shops-top-brand b{font-size:18px}.shops-top-brand small{font-size:11px}.shops-top-bell,.shops-top-me{flex-basis:40px;width:40px;height:40px}.shops-top-me svg{width:26px;height:26px}.shops-top-search{order:3;flex:1 0 100%;height:44px}.shops-tabs{gap:8px;margin-top:12px;padding:2px 10px}.shops-tabs button{min-height:40px;padding:0 14px;font-size:14px}}
 .shops-feed-heading{padding:8px 6px 26px}
 .shops-feed-kicker{color:#53815f;font-size:10px;font-weight:800;letter-spacing:.14em;line-height:1.8}
 .shops-feed-heading h1{margin:7px 0 10px;color:var(--feed-ink);font-size:clamp(30px,4vw,40px);letter-spacing:-.045em;line-height:1.15}
@@ -36,15 +69,12 @@ body.no-promotions .mobile-bottom-nav{grid-template-columns:repeat(5,minmax(0,1f
 .shops-post-price>span{color:#1d7a37;font-size:16px;font-weight:800;letter-spacing:.01em}
 .shops-post-price del{color:#93a096;font-size:12px}
 .shops-post-price small{margin-left:auto;border-radius:6px;padding:4px 7px;background:#f4f1e9;color:#8a7859;font-size:11px}
-.shops-post-media{position:relative;margin:0 12px;overflow:hidden;border-radius:18px;background:#f3f5f2}
-/* 1.1.297 owner: a drag on a photo must scroll the page — the frame only scrolls sideways (overflow-x:auto alone made it scroll up/down too). */
-.shops-post-track{display:flex;aspect-ratio:var(--feed-ratio,1);max-height:420px;overflow-x:auto;overflow-y:hidden;touch-action:pan-x pan-y;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
-.shops-post-track::-webkit-scrollbar{display:none}
-.shops-post-track>button{flex:0 0 100%;display:grid;place-items:center;height:100%;touch-action:pan-x pan-y;margin:0;padding:0;border:0;border-radius:0;background:#f3f5f2;scroll-snap-align:center;cursor:zoom-in}
-.shops-post-track img{display:block;width:100%;height:100%;object-fit:contain}
-.shops-post-dots{position:absolute;left:0;right:0;bottom:12px;display:flex;justify-content:center;gap:7px;pointer-events:none}
-.shops-post-dots i{width:9px;height:9px;border-radius:50%;background:#ffffffa6;box-shadow:0 0 0 1px #00000029,0 1px 3px #0000002e;transition:background .2s,transform .2s}
-.shops-post-dots i.on{background:#fff;transform:scale(1.1)}
+.shops-post-media{position:relative;margin:0 12px;overflow:hidden;border:1px solid #edf0ed;border-radius:18px;background:#fff}
+/* 1.1.298: one photo, drawn in the middle of a frame shaped like the photo (iPhone drew the old carousel slide narrower than its frame). */
+.shops-post-media>button{position:relative;display:block;width:100%;aspect-ratio:var(--feed-ratio,1);max-height:420px;margin:0;padding:0;border:0;border-radius:0;background:#fff;cursor:zoom-in}
+.shops-post-media img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;object-position:center}
+.shops-photo-count{position:absolute;right:10px;bottom:10px;display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;background:#14251bb8;color:#fff;font-size:13px;font-weight:750;line-height:1}
+.shops-photo-count svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
 .shops-post-no-photo{display:grid;justify-items:center;align-content:center;gap:12px;min-height:170px;margin:0 12px;border-radius:18px;background:#f6f8f3;color:#92a28e;font-size:12px}
 .shops-post-no-photo svg{width:43px;height:43px;fill:none;stroke:currentColor;stroke-width:1.5}
 .shops-post-actions{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:0;padding:14px 18px 16px;border:0;background:transparent;color:inherit;text-align:left}
@@ -139,7 +169,7 @@ body:has(#shops-sheet[open]){overflow:hidden}
 #shops-photo-prev{left:0}#shops-photo-next{right:0}
 #shops-photo-count{margin:10px 0 0;text-align:center;font-size:12px;color:#c8d9ca}
 body:has(#shops-photo-dialog[open]){overflow:hidden}
-@media(max-width:850px){.shops-view{width:100%;padding:12px 10px calc(var(--bottom-nav-h,80px) + 22px)}.shops-feed-heading{padding:8px 5px 20px}.shops-feed-heading h1{font-size:32px}.shops-feed-heading p{font-size:12px}.shops-feed-list{gap:14px}.shops-post{border-radius:18px}.shops-post-header{gap:10px;padding:11px 12px 4px}.shops-post-avatar{flex-basis:38px;width:38px;height:38px;font-size:17px}.shops-post-shop{font-size:14.5px}.shops-verified{width:16px;height:16px}.shops-post-subtitle{font-size:11.5px}.shops-post-more{width:34px;height:34px}.shops-post-caption{padding:2px 12px 8px}.shops-post-caption h2{font-size:14.5px;line-height:1.5;margin-bottom:2px}.shops-post-description{font-size:13px;line-height:1.65}.shops-post-description.is-clamped{-webkit-line-clamp:2}.shops-read-more{min-height:26px}.shops-post-price{margin-top:4px}.shops-post-price>span{font-size:14.5px}.shops-post-media,.shops-post-no-photo{margin:0 10px;border-radius:14px}.shops-post-track{max-height:min(250px,32svh)}.shops-post-no-photo{min-height:110px}.shops-post-actions{padding:8px 10px 10px;gap:2px}.shops-post-actions>button{min-height:38px;padding:0 8px;font-size:14px;gap:6px}.shops-post-actions svg{width:22px;height:22px}.shops-sep{height:24px}.shops-like{padding:0 12px!important}.shops-buy{padding:0 12px!important;border-width:1.5px!important}.shops-sheet{padding-inline:16px}.shops-buy-photo{flex-basis:96px;width:96px;height:92px}.shops-sheet-primary,.shops-sheet-outline{font-size:16px}.shops-photo-dialog{height:100svh;border:0;border-radius:0;padding:12px;padding-top:max(12px,env(safe-area-inset-top));padding-bottom:max(12px,env(safe-area-inset-bottom))}}
+@media(max-width:850px){.shops-view{width:100%;padding:12px 10px calc(var(--bottom-nav-h,80px) + 22px)}.shops-feed-heading{padding:8px 5px 20px}.shops-feed-heading h1{font-size:32px}.shops-feed-heading p{font-size:12px}.shops-feed-list{gap:14px}.shops-post{border-radius:18px}.shops-post-header{gap:10px;padding:11px 12px 4px}.shops-post-avatar{flex-basis:38px;width:38px;height:38px;font-size:17px}.shops-post-shop{font-size:14.5px}.shops-verified{width:16px;height:16px}.shops-post-subtitle{font-size:11.5px}.shops-post-more{width:34px;height:34px}.shops-post-caption{padding:2px 12px 8px}.shops-post-caption h2{font-size:14.5px;line-height:1.5;margin-bottom:2px}.shops-post-description{font-size:13px;line-height:1.65}.shops-post-description.is-clamped{-webkit-line-clamp:2}.shops-read-more{min-height:26px}.shops-post-price{margin-top:4px}.shops-post-price>span{font-size:14.5px}.shops-post-media,.shops-post-no-photo{margin:0 10px;border-radius:14px}.shops-post-media>button{max-height:min(250px,32svh)}.shops-post-no-photo{min-height:110px}.shops-post-actions{padding:8px 10px 10px;gap:2px}.shops-post-actions>button{min-height:38px;padding:0 8px;font-size:14px;gap:6px}.shops-post-actions svg{width:22px;height:22px}.shops-sep{height:24px}.shops-like{padding:0 12px!important}.shops-buy{padding:0 12px!important;border-width:1.5px!important}.shops-sheet{padding-inline:16px}.shops-buy-photo{flex-basis:96px;width:96px;height:92px}.shops-sheet-primary,.shops-sheet-outline{font-size:16px}.shops-photo-dialog{height:100svh;border:0;border-radius:0;padding:12px;padding-top:max(12px,env(safe-area-inset-top));padding-bottom:max(12px,env(safe-area-inset-bottom))}}
 @media(max-width:390px){.mobile-bottom-nav .bottom-nav-item>small{font-size:9px}.mobile-bottom-nav .bottom-nav-item>span{max-width:42px}}
 @media(prefers-reduced-motion:reduce){.shops-feed-skeleton::after{animation:none}}
 :root[data-theme="dark"] .shops-view{--feed-ink:#e1f0de;--feed-muted:#a1b4a1}

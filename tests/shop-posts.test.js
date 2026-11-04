@@ -45,20 +45,31 @@ test('likes and comments: signed-in only, CSRF checked, per shop, removable by w
   assert.equal((await(await ownerA('/feed/shop-a/'+a+'/comments')).json()).comments[0].canDelete,true,'the shop owner can remove comments on the shop');
   assert.equal((await(await boss('/feed/shop-a/'+a+'/comments/'+id,'DELETE')).json()).count,0,'the GearHub owner can remove it too');
   feed=await(await ownerB('/feed')).json();assert.deepEqual([feed.items.find(i=>i.id===a).likes,feed.items.find(i=>i.id===a).liked],[1,true]);
+  // 1.1.298: search, Trending and Following.
+  const ids=r=>r.items.map(i=>i.id);
+  assert.deepEqual(ids(await(await guest('/feed?q=part%20b')).json()),[b],'product name');
+  assert.deepEqual(ids(await(await guest('/feed?q=a-1')).json()),[a],'SKU');
+  assert.deepEqual(ids(await(await guest('/feed?q=shop%20b')).json()),[b],'shop name');
+  assert.deepEqual(ids(await(await guest('/feed?q=%25')).json()),[],'% is a letter, not a wildcard');
+  const trend=await(await guest('/feed?mode=trending')).json();assert.deepEqual([ids(trend),trend.nextBefore],[[a],null],'only liked or commented posts, most first');
+  assert.deepEqual(ids(await(await guest('/feed?shops=shop-b')).json()),[b],'Following = the shops this phone follows');
+  assert.deepEqual(ids(await(await guest('/feed?shops=nope')).json()),[]);
   db.prepare('UPDATE platform_shops SET settings=? WHERE id=10').run(JSON.stringify({visitorView:{sku:false,partNo:false}}));
+  assert.deepEqual(ids(await(await guest('/feed?q=a-1')).json()),[],'a hidden SKU is not searchable');
   feed=await(await guest('/feed')).json();assert.deepEqual([feed.items.find(i=>i.id===a).sku,feed.items.find(i=>i.id===a).partNo],['',''],'User show switches still hide SKU / Part No');
 });
 
 test('the feed page has the new post design, Buy Now sheet, saved posts in Settings and comes back after sign-in', () => {
   const read=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
   const js=read('public/shops-feed.js'),html=read('public/index.html'),server=read('lib/platform.js'),store=read('public/store.js');
-  for(const hook of ['data-feed-like','data-feed-comments','data-feed-buy','data-feed-save','data-feed-menu','shops-post-dots'])assert.ok(js.includes(hook),hook);
+  for(const hook of ['data-feed-like','data-feed-comments','data-feed-buy','data-feed-save','data-feed-menu','shops-photo-count','data-feed-tab','data-feed-follow','shops-top-search'])assert.ok(js.includes(hook),hook);
   assert.match(js,/const SAVED = 'gh-saved-posts';/,'saved posts stay on the phone');
   assert.match(js,/const key = 'gh-shop-cart:' \+/,'Buy Now writes the cart of the post\'s own shop');
   assert.match(store,/addEventListener\("gearhub:cart-changed"/);
   assert.match(html,/id="saved-posts-action"/);
   assert.match(read('public/back-nav.js'),/\["shops-sheet","shops-sheet-close"\]/);
   assert.match(server,/if \(stored\.back\) return res\.redirect\(stored\.back\);/);
-  assert.match(read('public/shops-feed.css'),/\.shops-post-track\{[^}]*overflow-y:hidden;touch-action:pan-x pan-y;/,'1.1.297: a drag on a photo scrolls the page');
+  assert.doesNotMatch(read('public/shops-feed.css'),/shops-post-track/,'1.1.298: one photo per post, no sideways scroller to catch a drag');
+  assert.match(read('public/shops-feed.css'),/\.shops-post-media img\{position:absolute;inset:0;/,'the photo is drawn in the middle of its frame on iPhone');
   assert.match(server,/DELETE FROM platform_post_comments WHERE shop_id=\?/,'deleting a shop removes its comments');
 });

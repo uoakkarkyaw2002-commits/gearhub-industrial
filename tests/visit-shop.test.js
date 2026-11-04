@@ -1,11 +1,11 @@
 // 1.1.294 owner: another shop inside a shop app shows Home, Category, Promotion, Cart and an exit back to the app's shop.
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const read=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
-function run({standalone=true,path:p,home}){
- const store=new Map(home?[['gh-app-home',home.split('/')[2]],['gh-app-home-path',home],['gh-app-home-name','Kaizen Beauty']]:[]),appended=[],hidden=[],body=new Set();
+function run({standalone=true,path:p,home,logo}){
+ const store=new Map(home?[['gh-app-home',home.split('/')[2]],['gh-app-home-path',home],['gh-app-home-name','Kaizen Beauty'],...(logo?[['gh-app-home-logo',logo]]:[])]:[]),appended=[],hidden=[],body=new Set();
  const nav={querySelectorAll:()=>[{set hidden(v){hidden.push(v)}},{set hidden(v){hidden.push(v)}}],append:e=>appended.push(e)};
  const win={location:{pathname:p},navigator:{},matchMedia:q=>({matches:standalone&&/standalone/.test(q)}),sessionStorage:{getItem:k=>store.get(k)??null,setItem:(k,v)=>store.set(k,v)},addEventListener(){},setTimeout(){},
-  document:{body:{classList:{add:c=>body.add(c)}},querySelector:s=>/nav/.test(s)?nav:null,createElement:()=>({setAttribute(k,v){this[k]=v}})}};
+  document:{body:{classList:{add:c=>body.add(c)}},querySelector:s=>/nav/.test(s)?nav:null,createElement:()=>({classes:new Set(),get classList(){return {add:c=>this.classes.add(c)}},setAttribute(k,v){this[k]=v}})}};
  vm.runInNewContext(read('public/visit-shop.js'),win);return {store,appended,hidden,body};
 }
 test('the first shop of the app session is home; another shop gets the exit button, a browser tab never does',()=>{
@@ -17,4 +17,10 @@ test('the first shop of the app session is home; another shop gets the exit butt
  const index=read('public/index.html'),sw=read('public/sw.js'),css=read('public/style.css');
  const tag=index.match(/<script src="(\/visit-shop\.js\?v=[^"]+)"><\/script><script src="\/smart-search\.js/)[1];assert.ok(sw.includes('"'+tag+'"'));
  assert.match(css,/body\.visiting-shop \.mobile-bottom-nav\{grid-template-columns:repeat\(5,minmax\(0,1fr\)\)!important\}/);
+});
+
+test('1.1.298: the exit shows the app shop logo and name instead of the red sign',()=>{
+ let r=run({path:'/shops/polestar/',home:'/shops/kaizen-beauty/',logo:'/api/platform/images/logo-1'});
+ assert.match(r.appended[0].innerHTML,/<img class="visit-exit-logo" src="\/api\/platform\/images\/logo-1" alt="">/);assert.match(r.appended[0].innerHTML,/<small>Kaizen Beauty<\/small>/);assert.ok(r.appended[0].classes.has('has-logo'));
+ r=run({path:'/shops/polestar/',home:'/shops/kaizen-beauty/',logo:'//evil.example/x.png'});assert.doesNotMatch(r.appended[0].innerHTML,/evil/,'only this site\'s own pictures');assert.match(r.appended[0].innerHTML,/ပြန်ထွက်/);
 });
