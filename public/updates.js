@@ -64,6 +64,7 @@
     );
   }
   const shop=location.pathname.match(/^\/shops\/([^/]+)/);
+  const releaseUrl='/api/app-release'+(shop?'?shop='+encodeURIComponent(shop[1]):'?preview=gearhub');
   const scope=shop?'/shops/'+shop[1]+'/':location.pathname==='/platform.html'?'/platform.html':'/';
   const versionKey='gh-app-version:'+scope,notifiedKey='gh-update-notified:'+scope,updateSplashKey='gh-update-splash:'+scope;
   const buildVersion=document.querySelector?.('meta[name="gearhub-build-version"]')?.content;
@@ -85,7 +86,7 @@
     const centre=document.getElementById('app-update-notification');if(centre&&!available)centre.hidden=true;
     const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent||'');
   }
-  // New versions install by themselves (no pop-up): once per version per visit,
+  // Owner-confirmed versions install without a pop-up: once per version per visit,
   // only while the page is in front and nothing is being typed, uploaded or paid.
   let autoTimer;
   function autoApply(){
@@ -99,12 +100,12 @@
   }
   async function check() {
     try {
-      const r=await fetch('/api/app-release',{cache:'no-store'});if(!r.ok)return;
+      const r=await fetch(releaseUrl,{cache:'no-store'});if(!r.ok)return;
       const next=await r.json();if(!/^\d+\.\d+\.\d+$/.test(next.version||''))return;release=next;
       if(release.platformEnabled&&!document.querySelector?.('[data-platform-link]')){const nav=document.querySelector?.('header nav');if(nav){const a=document.createElement('a');a.href='/platform.html';a.dataset.platformLink='true';a.textContent='My shop';nav.append(a);}}
       let seen=localStorage.getItem(versionKey)||buildVersion||localStorage.getItem('gh-app-version');
       if(!seen){seen=release.version;localStorage.setItem(versionKey,seen);}
-      available=Boolean((buildVersion||seen)!==release.version||registration?.waiting);
+      available=Boolean((buildVersion||seen)!==release.version);
       renderUpdate();autoApply();
     }catch{const status=document.getElementById('app-update-status');if(status)status.textContent='Cannot check updates. Reconnect and try again. / အင်တာနက် စစ်ပေးပါ။';}
   }
@@ -173,12 +174,12 @@
   document.addEventListener?.('pointerdown',()=>{if(notificationsOn())enableSound();},{passive:true});
   document.addEventListener?.('keydown',()=>{if(notificationsOn())enableSound();});
   document.addEventListener?.('visibilitychange',()=>{if(document.visibilityState!=='hidden')check();});
-  // A new worker takes over by itself after a deploy. Reload once, and only when this page is
+  // A worker switch is not approval. Reload only for the server-approved version, when this page is
   // older than the server's version (a page that is already new must not reload again).
   async function reloadWhenSafe(){
     if(reloading)return;
     if(blocked()){setTimeout(reloadWhenSafe,1000);return;}
-    try{const r=await fetch('/api/app-release',{cache:'no-store'});const next=r.ok?await r.json():null;if(next?.version&&next.version===buildVersion)return;}catch{}
+    try{const r=await fetch(releaseUrl,{cache:'no-store'});if(!r.ok)return;const next=await r.json();if(!next?.version||next.version===buildVersion)return;}catch{return;}
     if(reloading)return;
     reloading=true;
     saveDraft();

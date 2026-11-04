@@ -81,7 +81,7 @@ test("an update with a waiting new version always finishes (no stop at 80%)", as
       addEventListener: (type, fn) => { (swHandlers[type] ||= []).push(fn); },
     };
     const context = {
-      window, document: { querySelectorAll: () => [], getElementById: () => null }, navigator: { serviceWorker },
+      window, document: { querySelectorAll: () => [], getElementById: () => null, querySelector: q => q.startsWith("meta") ? {content:"1.1.0"} : null }, navigator: { serviceWorker },
       isSecureContext: true, sessionStorage: store(new Map()), localStorage: store(new Map()),
       location: { pathname: "/shops/fixture/", reload: () => reloads++ },
       fetch: async () => ({ ok: true, json: async () => ({ version: "9.9.9" }) }),
