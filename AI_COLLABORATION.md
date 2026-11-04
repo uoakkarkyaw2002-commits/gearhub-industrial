@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 2026-11-04: Permanent owner-confirmed frontend release rule (Codex)
+- Owner explicitly made the GearHub Confirm update gate permanent. AGENTS.md §11 requires the owner to press Confirm update before any seller frontend version changes, including fresh visits/refreshes/restarts and worker/cache updates. General edit/merge/deploy authorization must not be treated as production rollout confirmation; tests use local fixtures only.
+- Validation: Node22 `npm run check && npm test` passed **459/459**, zero failures/skips; documentation diff check passed.
+- Files: AGENTS.md, CLAUDE_MAILBOX.md, AI_COLLABORATION.md. Documentation only; no runtime/UI changes. PR #371 is verified merged as main `334fe4e`; this rule follow-up uses branch `codex/permanent-confirm-update` from that main. No merge/deploy or production confirmation by Codex. Documentation PR #372: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/372 (open; owner merges after CI).
+
 ### 2026-11-04: Owner selects Confirm update only (Codex — PR #371 review handoff)
 - Owner chose Confirm update only after pricing discussion. Database migration, paid Postgres and full zero-downtime infrastructure are outside this authorized scope; do not pursue them or repeat the approval request.
 - PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/371. No runtime changes in this continuation; files changed: mailbox/log only. Code head `d03f8bd` has Node22 check + tests 459/459 and green Production readiness/node22 (run 41778088940). Preparing for review with actual 375/1280 browser/physical-device verification still explicitly unverified. No merge/deploy or production confirmation.
