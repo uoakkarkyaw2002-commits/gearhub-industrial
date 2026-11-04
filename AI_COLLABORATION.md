@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.286: Backup buttons in Settings → Server Storage; storage cards redesigned (Claude)
+- Task: owner wanted the GearHub admin's "Run backup now" and "Download full backup" under the storage lines in Settings, and the section to look tidy.
+- Files: `server.js` (`ownerOnly` = GearHub admin session or the owner's Google account, used by `GET /api/admin/backup` and `POST /api/admin/backup/run`; owner-only `backup` status in `/api/storage`; shop totals query guarded), `public/settings.js` (cards for R2 / Drive / All shops / Backup, run button with CSRF from `/api/admin/csrf`), `public/index.html` (`#storage-more` moved to the full width of the row), `public/style.css`, `tests/integration.test.js`, version files.
+- Checks: Node 22 `npm run check` + `npm test` 453/453. Browser 375 and 1280 with mocked `/api/storage`: cards, running → completed state, CSRF header sent, no page overflow. Not tested against the live server or the owner's Google session.
+
 ### 1.1.285: Refresh the five Excel reliability fixes onto current main (Codex — draft)
 - Task: continue PR #350; merge latest main `a8f90ea` / 1.1.284 to resolve conflicts while preserving later storage/photo changes. Branch `codex/fix-audit-findings`; isolated worktree `gearhub-excel-followup`. PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/350.
 - Files in this continuation: package manifests, index/SW, tenant-install + Excel upload/network asset tests, mailbox/log. Resolved only release/asset/log conflicts; runtime fixes from the original entry below are unchanged. UI markup matches main apart from release/asset versions; no layout/API/schema changes.

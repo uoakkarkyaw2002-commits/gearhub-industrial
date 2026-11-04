@@ -378,8 +378,14 @@ app.get("/api/storage", async (_req, res) => {
    out.r2 = r2 ? { usedBytes: r2.bytes, files: r2.files, shopFileBytes: r2.fileBytes, freeBytes: 10 * 1024 ** 3 } : null;
    out.drive = gdrive ? { usedBytes: gdrive.bytes, files: gdrive.files, limitBytes: drive.limit } : null;
    // 1.1.284 owner: every seller shop's files together (from the file records, wherever the file is kept).
-   const shops = db.prepare("SELECT s.name, COALESCE(SUM(f.bytes),0) AS bytes FROM platform_shops s LEFT JOIN platform_files f ON f.shop_id=s.id AND f.ready=1 WHERE s.legacy=0 GROUP BY s.id ORDER BY bytes DESC").all();
-   out.shops = { usedBytes: shops.reduce((t, s) => t + Number(s.bytes || 0), 0), count: shops.length, top: shops.slice(0, 5).map(s => ({ name: s.name, usedBytes: Number(s.bytes || 0) })) };
+   // (1.1.286: guarded, a store without the shop platform has no platform tables.)
+   try {
+    const shops = db.prepare("SELECT s.name, COALESCE(SUM(f.bytes),0) AS bytes FROM platform_shops s LEFT JOIN platform_files f ON f.shop_id=s.id AND f.ready=1 WHERE s.legacy=0 GROUP BY s.id ORDER BY bytes DESC").all();
+    out.shops = { usedBytes: shops.reduce((t, s) => t + Number(s.bytes || 0), 0), count: shops.length, top: shops.slice(0, 5).map(s => ({ name: s.name, usedBytes: Number(s.bytes || 0) })) };
+   } catch { out.shops = null; }
+   // 1.1.286 owner: the backup buttons of the GearHub admin are also under the storage lines in Settings.
+   const b = backupService.status();
+   out.backup = { lastSuccess: b.last_success || null, lastFailure: b.last_failure || null, lastOffsite: b.last_offsite_success || null, running: Boolean(b.running), offsite: Boolean(b.offsiteConfigured) };
   }
   res.json(out);
  } catch (err) {
@@ -410,8 +416,14 @@ function adminOnly(req, res, next) {
  if (!user || user.auth_version !== req.session.admin.authVersion) return req.session.destroy(() => res.status(401).json({error:"Session expired. Sign in again."}));
  next();
 }
+// 1.1.286: backups may also be run and downloaded from Settings with the GearHub owner's Google account.
+function ownerOnly(req, res, next) {
+ if (req.session.admin) return adminOnly(req, res, next);
+ if (!isGearHubOwner(req)) return res.status(401).json({ error: "Admin login required" });
+ next();
+}
 
-app.get("/api/admin/backup", rateLimit({ windowMs: 60 * 1000, limit: 2, standardHeaders: true, legacyHeaders: false }), adminOnly, async (req, res) => {
+app.get("/api/admin/backup", rateLimit({ windowMs: 60 * 1000, limit: 2, standardHeaders: true, legacyHeaders: false }), ownerOnly, async (req, res) => {
  let tempRoot;
 
  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
@@ -1093,7 +1105,7 @@ const backupService=createBackupService({db,dataDir,uploadDir,receiptDir,notific
 // The first backup goes to Drive right after the owner connects it.
 drive?.whenConnected(()=>backupService.run().catch(()=>{}));
 app.get("/api/admin/operations", adminOnly, (_req,res)=>res.json({...backupService.status(),notifications:notifications.status()}));
-app.post("/api/admin/backup/run", rateLimit({windowMs:60000,limit:2,standardHeaders:true,legacyHeaders:false}), adminOnly, async (_req,res,next)=>{try{res.json(await backupService.run())}catch(error){next(error)}});
+app.post("/api/admin/backup/run", rateLimit({windowMs:60000,limit:2,standardHeaders:true,legacyHeaders:false}), ownerOnly, async (_req,res,next)=>{try{res.json(await backupService.run())}catch(error){next(error)}});
 app.get("/api/health", (_req,res)=>{
  res.set("Cache-Control","no-store");
  try {

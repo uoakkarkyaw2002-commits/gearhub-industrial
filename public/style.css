@@ -1361,8 +1361,28 @@ body.alerts-history-open{overflow:hidden}
 .photo-scan-right:disabled{opacity:.75;cursor:default}
 :root[data-theme="dark"] .photo-scan-right{background:#1d3325;border-color:#2f5a3e;color:#9fe0b4}
 /* 1.1.283 owner: Settings → Storage lists Render, Cloudflare R2 and Google Drive for the GearHub owner. */
-.storage-more{display:grid;gap:4px;margin-top:10px;padding-top:8px;border-top:1px solid #edf2ee}
+/* 1.1.286 owner: Settings → Server storage for the GearHub owner — one card per place and the backup buttons, the full width of the row. */
+.settings-row:has(>.storage-more:not([hidden])){flex-wrap:wrap}
+#profile-view .settings-row>.storage-more{grid-column:1/-1!important;grid-row:2!important;flex:1 0 100%}
+.storage-more{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;width:100%;min-width:0;margin-top:4px;padding-top:12px;border-top:1px solid #edf2ee}
 .storage-more[hidden]{display:none}
-.storage-more p{margin:4px 0 0;font-size:12px;line-height:1.45;color:var(--muted,#66756b)}
-.storage-more b{color:var(--ink,#192820);font-weight:700}
-.storage-more .storage-shop{margin:0;padding-left:22px;font-size:11.5px}
+.storage-card{display:flex;gap:11px;min-width:0;padding:12px;border:1px solid #e3ebe1;border-radius:16px;background:#f7faf5}
+.storage-card-icon{display:grid;flex:0 0 34px;width:34px;height:34px;place-items:center;border-radius:11px;background:#fff;box-shadow:0 1px 4px #0b3a1a14;font-size:18px}
+.storage-card-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:3px}
+.storage-card-title{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 8px;margin:0;font-size:13.5px;line-height:1.35}
+.storage-card-title b{color:var(--ink,#192820);font-weight:800;white-space:nowrap}
+.storage-card-title span{color:#1f7a37;font-weight:800;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.storage-card-note{margin:0;color:var(--muted,#66756b);font-size:12px;line-height:1.4}
+.storage-card .storage-meter{width:100%;margin-top:5px}
+.storage-drive .storage-meter i{background:#2f6fd6}.storage-r2 .storage-meter i{background:#e8812a}
+.storage-shops{display:grid;gap:3px;margin:6px 0 0;padding:0;list-style:none}
+.storage-shops li{display:flex;justify-content:space-between;gap:8px;min-width:0;font-size:12px;line-height:1.45;color:var(--muted,#66756b)}
+.storage-shops li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.storage-shops li b{flex:none;color:var(--ink,#192820);font-weight:700;font-variant-numeric:tabular-nums}
+.storage-backup{grid-column:1/-1;background:linear-gradient(135deg,#f1f9ec,#e7f4e3);border-color:#cfe6c8}
+.storage-backup-state{margin:2px 0 0;color:#1f7a37;font-size:12px;font-weight:700}
+.storage-backup-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-top:9px}
+.storage-backup-actions>*{display:flex;min-height:42px;align-items:center;justify-content:center;gap:6px;padding:0 14px;border-radius:12px;font:inherit;font-size:13px;font-weight:800;text-decoration:none;cursor:pointer}
+.storage-backup-run{border:0;background:#26833c;color:#fff;box-shadow:0 4px 12px #26833c40}.storage-backup-run:disabled{opacity:.6;cursor:progress}
+.storage-backup-download{border:1px solid #26833c;background:#fff;color:#1f6f33}
+.storage-backup-actions>*:focus-visible{outline:3px solid #98d94d;outline-offset:2px}
+:root[data-theme="dark"] .storage-more{border-color:#2b3b30}:root[data-theme="dark"] .storage-card{background:#1d2c22;border-color:#2b3b30}:root[data-theme="dark"] .storage-card-icon{background:#253b2b}:root[data-theme="dark"] .storage-card-title span,:root[data-theme="dark"] .storage-backup-state{color:#b7f36b}:root[data-theme="dark"] .storage-backup-download{background:#17251c;color:#b7f36b;border-color:#3f7d4d}
