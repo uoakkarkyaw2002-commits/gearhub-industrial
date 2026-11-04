@@ -6,11 +6,11 @@
  const standalone=matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: window-controls-overlay)').matches||navigator.standalone===true;
  if(!standalone)return;
  const here=(location.pathname.match(/^\/shops\/[^/]+\//)||['/'])[0];
- let home='',homeName='';
- try{home=sessionStorage.getItem('gh-app-home-path')||'';homeName=sessionStorage.getItem('gh-app-home-name')||'';if(!home){home=here;sessionStorage.setItem('gh-app-home-path',home);}}catch{return;}
+ let home='',homeName='',homeLogo='';
+ try{home=sessionStorage.getItem('gh-app-home-path')||'';homeName=sessionStorage.getItem('gh-app-home-name')||'';homeLogo=sessionStorage.getItem('gh-app-home-logo')||'';if(!home){home=here;sessionStorage.setItem('gh-app-home-path',home);}}catch{return;}
  if(here===home){
-  // Remember the app's own shop name for the exit button's label.
-  const save=()=>{const n=document.querySelector('[data-site-brand-name]')?.textContent?.trim();if(n)try{sessionStorage.setItem('gh-app-home-name',n)}catch{}};
+  // Remember the app's own shop name and logo for the exit button (1.1.298 owner: the logo, not a red sign).
+  const save=()=>{const n=document.querySelector('[data-site-brand-name]')?.textContent?.trim(),l=[...document.querySelectorAll('img[data-site-logo]')].map(i=>{try{const u=new URL(i.getAttribute('src')||'',location.href);return i.getAttribute('src')&&u.origin===location.origin?u.pathname+u.search:''}catch{return ''}}).find(Boolean);try{if(n)sessionStorage.setItem('gh-app-home-name',n);if(l)sessionStorage.setItem('gh-app-home-logo',l)}catch{}};
   addEventListener('gearhub:data-ready',save);setTimeout(save,3000);return;
  }
  document.body.classList.add('visiting-shop');
@@ -20,7 +20,9 @@
   const nav=document.querySelector(navSel);if(!nav)continue;
   nav.querySelectorAll('[data-store-view="shops"],[data-store-view="profile"]').forEach(el=>{el.hidden=true;});
   const exit=document.createElement('a');exit.href=home;exit.className=cls+' visit-exit';exit.setAttribute('aria-label',label);
-  exit.innerHTML=cls==='bottom-nav-item'?'<span aria-hidden="true">'+icon+'</span><small>ပြန်ထွက်</small>':icon+'<span>ပြန်ထွက်</span>';
+  const logo=/^\/(?!\/)/.test(homeLogo)?'<img class="visit-exit-logo" src="'+homeLogo.replace(/"/g,'&quot;')+'" alt="">':'',name=(homeName||'ပြန်ထွက်').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  if(logo)exit.classList.add('has-logo');
+  exit.innerHTML=cls==='bottom-nav-item'?'<span aria-hidden="true">'+(logo||icon)+'</span><small>'+(logo?name:'ပြန်ထွက်')+'</small>':(logo||icon)+'<span>'+(logo?name:'ပြန်ထွက်')+'</span>';
   nav.append(exit);
  }
 })();

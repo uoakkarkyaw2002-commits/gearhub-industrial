@@ -1407,3 +1407,8 @@ body.visiting-shop.no-promotions .mobile-bottom-nav{grid-template-columns:repeat
 .mobile-bottom-nav .visit-exit>small{color:#c2412d}
 .desktop-top-nav .visit-exit,.desktop-top-nav .visit-exit span{color:#c2412d!important}
 .desktop-top-nav .visit-exit svg{color:#c2412d}
+/* 1.1.298: the exit shows the app's own shop logo and name instead of the red sign. */
+.visit-exit-logo{display:block;width:34px;height:34px;border-radius:50%;object-fit:cover;background:#fff;border:2px solid #fff;box-shadow:0 1px 6px #10201833}
+.mobile-bottom-nav .visit-exit.has-logo>small,.desktop-top-nav .visit-exit.has-logo,.desktop-top-nav .visit-exit.has-logo span{color:#243b2b!important}
+.mobile-bottom-nav .visit-exit.has-logo>small{max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.desktop-top-nav .visit-exit-logo{width:24px;height:24px;border-width:1px}

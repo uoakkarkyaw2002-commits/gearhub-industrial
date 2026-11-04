@@ -5,9 +5,9 @@
   const dialog = document.getElementById('shops-photo-dialog'), photo = document.getElementById('shops-photo-image');
   const words = {
     en:{product:'Product',kicker:'FROM EVERY SHOP',intro:'A little discovery. A new favourite. Products from every shop, together.',loading:'Finding products…',more:'Load more',retry:'Try again',empty:'A fresh start. Products will appear here when shops add them.',failed:'Products could not load. Please try again.',done:'You’re all caught up.',visit:'Visit shop',read:'See more',less:'See less',noPhoto:'No photo yet',soldOut:'Out of stock',photos:'View photos',close:'Close photos',prev:'Previous photo',next:'Next photo',
-      verified:'Verified shop',menu:'More options',like:'Like',comment:'Comments',buy:'Buy Now',save:'Save',saved:'Saved',quantity:'Quantity',addCart:'Add to Cart',added:'Added to cart',notEnough:'Not enough stock',closeSheet:'Close',write:'Write a comment…',send:'Send',signIn:'Sign in with Google to like and comment',signInButton:'Continue with Google',noComments:'No comments yet. Be the first.',remove:'Delete',savedKicker:'ON THIS PHONE',savedTitle:'Saved',savedIntro:'Posts you saved. They stay on this phone.',savedEmpty:'Nothing saved yet. Tap the bookmark on a post to keep it here.',backToShops:'← Shops',savedRow:'Posts you saved',error:'Something went wrong. Please try again.'},
+      verified:'Verified shop',menu:'More options',like:'Like',comment:'Comments',buy:'Buy Now',save:'Save',saved:'Saved',quantity:'Quantity',addCart:'Add to Cart',added:'Added to cart',notEnough:'Not enough stock',closeSheet:'Close',write:'Write a comment…',send:'Send',signIn:'Sign in with Google to like and comment',signInButton:'Continue with Google',noComments:'No comments yet. Be the first.',remove:'Delete',savedKicker:'ON THIS PHONE',savedTitle:'Saved',savedIntro:'Posts you saved. They stay on this phone.',savedEmpty:'Nothing saved yet. Tap the bookmark on a post to keep it here.',backToShops:'← Shops',savedRow:'Posts you saved',error:'Something went wrong. Please try again.',search:'Shop name and product',tabFeed:'Feed',tabFollowing:'Following',tabTrending:'Trending',tabNew:'New Arrivals',followEmpty:'Follow shops from the ••• menu on a post to see them here.',trendingEmpty:'No liked or commented posts yet.',noResults:'Nothing found. Try another word.',follow:'Follow',unfollow:'Following ✓',bell:'Notifications',account:'Settings'},
     my:{product:'ပစ္စည်း',kicker:'ဆိုင်အသီးသီးမှ ပစ္စည်းများ',intro:'ဆိုင်အသီးသီးက ပစ္စည်းတွေကို တစ်နေရာတည်းမှာ ကြည့်ရှုပါ။',loading:'ပစ္စည်းများ ရှာဖွေနေပါသည်…',more:'ထပ်ကြည့်ရန်',retry:'ပြန်စမ်းရန်',empty:'ဆိုင်တွေ ပစ္စည်းတင်တဲ့အခါ ဒီနေရာမှာ ပြပေးပါမယ်။',failed:'ပစ္စည်းများ မရနိုင်သေးပါ။ ပြန်စမ်းကြည့်ပါ။',done:'ပစ္စည်းအားလုံး ကြည့်ပြီးပါပြီ။',visit:'ဆိုင်သို့သွားရန်',read:'ဆက်ဖတ်ရန်',less:'လျှော့ပြရန်',noPhoto:'ဓာတ်ပုံ မတင်ရသေးပါ',soldOut:'ပစ္စည်းကုန်နေပါသည်',photos:'ဓာတ်ပုံများ ကြည့်ရန်',close:'ဓာတ်ပုံ ပိတ်ရန်',prev:'ရှေ့ပုံ',next:'နောက်ပုံ',
-      verified:'အတည်ပြုထားသော ဆိုင်',menu:'နောက်ထပ်',like:'Like',comment:'မှတ်ချက်များ',buy:'ဝယ်မယ်',save:'သိမ်းမယ်',saved:'သိမ်းထားပြီး',quantity:'အရေအတွက်',addCart:'ခြင်းထဲထည့်',added:'ခြင်းထဲ ထည့်ပြီးပါပြီ',notEnough:'လက်ကျန် မလုံလောက်ပါ',closeSheet:'ပိတ်ရန်',write:'မှတ်ချက် ရေးပါ…',send:'ပို့မယ်',signIn:'Like နဲ့ မှတ်ချက်ရေးဖို့ Google နဲ့ ဝင်ပါ',signInButton:'Google နဲ့ ဝင်မယ်',noComments:'မှတ်ချက် မရှိသေးပါ။ ပထမဆုံး ရေးလိုက်ပါ။',remove:'ဖျက်မယ်',savedKicker:'ဒီဖုန်းထဲမှာ',savedTitle:'သိမ်းထားသည်များ',savedIntro:'သိမ်းထားတဲ့ post များ။ ဒီဖုန်းထဲမှာပဲ ရှိပါတယ်။',savedEmpty:'သိမ်းထားတာ မရှိသေးပါ။ Post ပေါ်က 🔖 ကို နှိပ်ပြီး သိမ်းပါ။',backToShops:'← Shops',savedRow:'သိမ်းထားတဲ့ post များ',error:'မအောင်မြင်ပါ။ ပြန်စမ်းကြည့်ပါ။'}
+      verified:'အတည်ပြုထားသော ဆိုင်',menu:'နောက်ထပ်',like:'Like',comment:'မှတ်ချက်များ',buy:'ဝယ်မယ်',save:'သိမ်းမယ်',saved:'သိမ်းထားပြီး',quantity:'အရေအတွက်',addCart:'ခြင်းထဲထည့်',added:'ခြင်းထဲ ထည့်ပြီးပါပြီ',notEnough:'လက်ကျန် မလုံလောက်ပါ',closeSheet:'ပိတ်ရန်',write:'မှတ်ချက် ရေးပါ…',send:'ပို့မယ်',signIn:'Like နဲ့ မှတ်ချက်ရေးဖို့ Google နဲ့ ဝင်ပါ',signInButton:'Google နဲ့ ဝင်မယ်',noComments:'မှတ်ချက် မရှိသေးပါ။ ပထမဆုံး ရေးလိုက်ပါ။',remove:'ဖျက်မယ်',savedKicker:'ဒီဖုန်းထဲမှာ',savedTitle:'သိမ်းထားသည်များ',savedIntro:'သိမ်းထားတဲ့ post များ။ ဒီဖုန်းထဲမှာပဲ ရှိပါတယ်။',savedEmpty:'သိမ်းထားတာ မရှိသေးပါ။ Post ပေါ်က 🔖 ကို နှိပ်ပြီး သိမ်းပါ။',backToShops:'← Shops',savedRow:'သိမ်းထားတဲ့ post များ',error:'မအောင်မြင်ပါ။ ပြန်စမ်းကြည့်ပါ။',search:'ဆိုင်နာမည်နဲ့ ပစ္စည်း ရှာရန်',tabFeed:'Feed',tabFollowing:'Following',tabTrending:'Trending',tabNew:'New Arrivals',followEmpty:'Post ပေါ်က ••• ထဲမှာ Follow နှိပ်ထားတဲ့ ဆိုင်တွေ ဒီမှာ ပေါ်ပါမယ်။',trendingEmpty:'Like / မှတ်ချက် ရထားတဲ့ post မရှိသေးပါ။',noResults:'မတွေ့ပါ။ တခြားစကားလုံးနဲ့ ရှာကြည့်ပါ။',follow:'Follow',unfollow:'Following ✓',bell:'အသိပေးချက်များ',account:'Settings'}
   };
   const t = key => words[document.documentElement.lang === 'my' ? 'my' : 'en'][key];
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -24,7 +24,13 @@
     bookmark:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-4.6-6.5 4.6v-16a1 1 0 0 1 1-1z"/></svg>',
     layers:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 4.8-9 4.8-9-4.8z"/><path d="m3 12 9 4.8 9-4.8M3 16.2 12 21l9-4.8"/></svg>',
     bolt:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2 4.5 13.5h6.5L10 22l9-11.5h-6.5z"/></svg>',
-    close:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>'
+    close:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+    search:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg>',
+    bell:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 10a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>',
+    user:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="4"/><path d="M4.5 20.5c1.2-4 4-6 7.5-6s6.3 2 7.5 6z"/></svg>',
+    home:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7"/><path d="M6 9.5V20h12V9.5M10 20v-5h4v5"/></svg>',
+    people:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.3-5.5 6.5-5.5s5.7 1.9 6.5 5.5z"/><path d="M15 4.8a3.3 3.3 0 0 1 0 6.4M17.5 14.6c2 .7 3.4 2.6 4 5.4"/></svg>',
+    photos:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="14" height="14" rx="2.5"/><path d="M17 21H5.5A2.5 2.5 0 0 1 3 18.5V7"/></svg>'
   };
   let active = false, loading = false, initialized = false, nextBefore = null, items = [], lastLoaded = 0, failed = false, savedMode = false;
   let gallery = null, photoIndex = 0;
@@ -38,19 +44,24 @@
     try { localStorage.setItem(SAVED, JSON.stringify(list.slice(0, 200))); } catch {}
     return at < 0;
   }
+  // Following: the shops this phone follows (kept on the phone, like Saved).
+  const FOLLOW = 'gh-followed-shops';
+  const slugOf = item => item.shop.slug || item.shop.url.split('/')[2];
+  const followed = () => { try { const v = JSON.parse(localStorage.getItem(FOLLOW) || '[]'); return Array.isArray(v) ? v.filter(x => typeof x === 'string') : []; } catch { return []; } };
+  let tab = 'feed', query = '';
   const find = id => items.find(item => item.id === id) || savedList().find(item => item.id === id);
   function post(item) {
     const images = item.images || [], text = item.description || '', long = text.length > 110 || text.split('\n').length > 2;
     const initials = [...item.shop.name.trim()].slice(0, 1).join('') || 'S';
     const avatar = item.shop.logo ? '<img src="' + esc(item.shop.logo) + '" alt="" loading="lazy" decoding="async">' : esc(initials);
-    const pictures = images.length ? '<div class="shops-post-media"><div class="shops-post-track" data-feed-track="' + item.id + '">' + images.map((url, index) =>
-      '<button type="button" data-feed-photo="' + item.id + '" data-photo-index="' + index + '" aria-label="' + esc(t('photos') + ' · ' + (index + 1) + ' / ' + images.length) + '"><img src="' + esc(url) + '" alt="' + esc(title(item)) + '" loading="lazy" decoding="async"></button>').join('') + '</div>' +
-      (images.length > 1 ? '<div class="shops-post-dots" aria-hidden="true">' + images.slice(0, 10).map((_, index) => '<i' + (index ? '' : ' class="on"') + '></i>').join('') + '</div>' : '') + '</div>' :
+    // 1.1.298 owner: one photo per post, in the middle; more photos open with a tap (the count is on the photo).
+    const pictures = images.length ? '<div class="shops-post-media"><button type="button" data-feed-photo="' + item.id + '" data-photo-index="0" aria-label="' + esc(t('photos') + ' · ' + images.length) + '"><img src="' + esc(images[0]) + '" alt="' + esc(title(item)) + '" loading="lazy" decoding="async">' +
+      (images.length > 1 ? '<span class="shops-photo-count">' + icon.photos + images.length + '</span>' : '') + '</button></div>' :
       '<div class="shops-post-no-photo"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="10" width="32" height="28" rx="5"/><circle cx="18" cy="20" r="3"/><path d="m10 34 9-8 7 6 6-5 7 7"/></svg><span>' + esc(t('noPhoto')) + '</span></div>';
     const saved = isSaved(item.id);
     return '<article class="shops-post" data-feed-id="' + item.id + '" aria-labelledby="shops-post-title-' + item.id + '">' +
       '<header class="shops-post-header"><a class="shops-post-avatar" href="' + esc(item.shop.url) + '" tabindex="-1" aria-hidden="true">' + avatar + '</a><div><span class="shops-post-name"><a class="shops-post-shop" href="' + esc(item.shop.url) + '">' + esc(item.shop.name) + '</a><span title="' + esc(t('verified')) + '">' + icon.verified + '</span></span><span class="shops-post-subtitle">' + esc(item.category || t('product')) + ' · ' + icon.globe + '</span></div>' +
-      '<div class="shops-post-menu"><button type="button" class="shops-post-more" data-feed-menu="' + item.id + '" aria-haspopup="true" aria-expanded="false" aria-label="' + esc(t('menu')) + '">' + icon.dots + '</button><div class="shops-post-menu-list" hidden><a href="' + esc(item.shop.url) + '">' + esc(t('visit')) + ' ↗</a></div></div></header>' +
+      '<div class="shops-post-menu"><button type="button" class="shops-post-more" data-feed-menu="' + item.id + '" aria-haspopup="true" aria-expanded="false" aria-label="' + esc(t('menu')) + '">' + icon.dots + '</button><div class="shops-post-menu-list" hidden><a href="' + esc(item.shop.url) + '">' + esc(t('visit')) + ' ↗</a><button type="button" data-feed-follow="' + esc(slugOf(item)) + '">' + esc(t(followed().includes(slugOf(item)) ? 'unfollow' : 'follow')) + '</button></div></div></header>' +
       '<div class="shops-post-caption"><h2 id="shops-post-title-' + item.id + '">' + esc(title(item)) + '</h2>' +
       (text ? '<p class="shops-post-description' + (long ? ' is-clamped' : '') + '" id="shops-description-' + item.id + '">' + esc(text) + '</p>' + (long ? '<button type="button" class="shops-read-more" data-feed-expand="' + item.id + '" aria-controls="shops-description-' + item.id + '" aria-expanded="false">' + esc(t('read')) + '</button>' : '') : '') +
       (item.price === null && item.stock !== 0 ? '' : '<div class="shops-post-price">' + (item.price === null ? '' : '<span>' + money(item.price) + '</span>' + (item.originalPrice !== null ? '<del>' + money(item.originalPrice) + '</del>' : '')) + (item.stock === 0 ? '<small>' + esc(t('soldOut')) + '</small>' : '') + '</div>') + '</div>' + pictures +
@@ -65,6 +76,10 @@
     document.getElementById('shops-heading').textContent = savedMode ? t('savedTitle') : 'Shops';
     document.getElementById('shops-feed-intro').textContent = t(savedMode ? 'savedIntro' : 'intro');
     back.hidden = !savedMode; back.textContent = t('backToShops');
+    heading.hidden = !savedMode; top.hidden = savedMode;
+    top.querySelector('input').placeholder = t('search');
+    top.querySelectorAll('[data-feed-tab]').forEach(button => { const on = button.dataset.feedTab === tab; button.classList.toggle('on', on); button.setAttribute('aria-pressed', String(on)); button.querySelector('span').textContent = t({feed:'tabFeed',following:'tabFollowing',trending:'tabTrending',new:'tabNew'}[button.dataset.feedTab]); });
+    top.querySelector('.shops-top-bell').setAttribute('aria-label', t('bell')); top.querySelector('.shops-top-me').setAttribute('aria-label', t('account'));
     const row = document.querySelector('#saved-posts-action strong'), sub = document.getElementById('saved-posts-count');
     if (row) row.textContent = t('savedTitle');
     if (sub) { const n = savedList().length; sub.textContent = t('savedRow') + (n ? ' · ' + n : ''); }
@@ -72,37 +87,91 @@
     more.disabled = loading;
     more.hidden = savedMode || (loading ? !items.length : !failed && nextBefore === null);
     list.setAttribute('aria-busy', String(loading && !savedMode));
-    status.textContent = savedMode ? (savedList().length ? '' : t('savedEmpty')) : failed ? t('failed') : loading ? t('loading') : initialized ? t(items.length ? 'done' : 'empty') : '';
+    status.textContent = savedMode ? (savedList().length ? '' : t('savedEmpty')) : failed ? t('failed') : loading ? t('loading') : initialized ? t(items.length ? 'done' : query ? 'noResults' : tab === 'following' ? 'followEmpty' : tab === 'trending' ? 'trendingEmpty' : 'empty') : '';
     if (!savedMode && items.length && nextBefore !== null && !loading && !failed) status.textContent = '';
     for (const [id, key] of [['shops-photo-close','close'],['shops-photo-prev','prev'],['shops-photo-next','next']]) document.getElementById(id).setAttribute('aria-label',t(key));
   }
   const back = document.createElement('button');
   back.type = 'button'; back.className = 'shops-saved-back'; back.hidden = true;
-  document.querySelector('.shops-feed-heading').prepend(back);
+  const heading = document.querySelector('.shops-feed-heading');
+  heading.prepend(back);
+  // 1.1.298 owner's picture: brand, search, bell, profile, then Feed / Following / Trending / New Arrivals.
+  const top = document.createElement('div');
+  top.className = 'shops-top';
+  top.innerHTML = '<div class="shops-top-bar"><span class="shops-top-brand"><span class="shops-top-logo"></span><span><b></b><small></small></span></span>' +
+    '<label class="shops-top-search">' + icon.search + '<input type="search" enterkeyhint="search" autocomplete="off" maxlength="80"></label>' +
+    '<button type="button" class="shops-top-bell" hidden>' + icon.bell + '<i hidden></i></button><button type="button" class="shops-top-me">' + icon.user + '</button></div>' +
+    '<nav class="shops-tabs" aria-label="Shops">' + [['feed','home'],['following','people'],['trending',''],['new','']].map(([key, ic]) => '<button type="button" data-feed-tab="' + key + '">' + (ic ? icon[ic] : '<b aria-hidden="true">' + (key === 'trending' ? '🔥' : '✨') + '</b>') + '<span></span></button>').join('') + '</nav>';
+  heading.before(top);
+  function brand() {
+    const name = document.querySelector('[data-site-brand-name]')?.textContent?.trim() || document.title, tagline = document.querySelector('[data-site-brand-tagline]')?.textContent?.trim() || '';
+    const logo = [...document.querySelectorAll('img[data-site-logo]')].map(img => img.getAttribute('src')).find(Boolean);
+    top.querySelector('.shops-top-brand b').textContent = name; top.querySelector('.shops-top-brand small').textContent = tagline;
+    top.querySelector('.shops-top-logo').innerHTML = logo ? '<img src="' + esc(logo) + '" alt="">' : esc([...name][0] || 'S');
+  }
+  // The bell is the Notifications list of Settings (shop owner / GearHub owner); the red dot is its new-alerts count.
+  function bell() {
+    const row = document.querySelector('.settings-alerts-row'), count = row?.querySelector('.alerts-count'), button = top.querySelector('.shops-top-bell');
+    const off = !row || row.hidden, dot = button.querySelector('i'), noDot = !count || count.hidden;
+    if (button.hidden !== off) button.hidden = off; if (dot.hidden !== noDot) dot.hidden = noDot;
+  }
+  let meLoaded = false;
+  async function account() {
+    if (meLoaded) return; meLoaded = true;
+    try { const me = await (await fetch('/api/platform/me', {cache:'no-store',credentials:'same-origin'})).json(); csrf = me.csrfToken || csrf;
+      if (me.user?.name) { const b = top.querySelector('.shops-top-me'); b.classList.add('signed-in'); b.textContent = [...me.user.name.trim()][0] || '?'; } } catch {}
+  }
+  top.querySelector('.shops-top-bell').addEventListener('click', () => document.querySelector('.settings-alerts-row')?.click());
+  top.querySelector('.shops-top-me').addEventListener('click', () => window.showStoreView?.('profile'));
+  top.addEventListener('click', event => { const button = event.target.closest('[data-feed-tab]'); if (!button || button.dataset.feedTab === tab) return; tab = button.dataset.feedTab; load(true); });
+  let typing = 0;
+  top.querySelector('input').addEventListener('input', event => { clearTimeout(typing); typing = setTimeout(() => { const next = event.target.value.trim().slice(0, 80); if (next !== query) { query = next; load(true); } }, 350); });
+  top.querySelector('form, label').addEventListener('submit', event => event.preventDefault());
+  top.querySelector('input').addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); event.target.blur(); } });
+  addEventListener('gearhub:data-ready', brand); setTimeout(brand, 0);
+  new MutationObserver(bell).observe(document.getElementById('profile-view') || document.body, {subtree:true, attributes:true, attributeFilter:['hidden'], childList:true});
   back.addEventListener('click', () => { savedMode = false; render(); if (!initialized) load(true); });
   function render() { list.innerHTML = (savedMode ? savedList() : items).map(post).join(''); labels(); }
+  let current = null;
+  // Feed mixes the shops (one post from each in turn); New Arrivals keeps the newest first.
+  function mix(list2) {
+    const groups = new Map(); for (const item of list2) { const k = slugOf(item); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(item); }
+    const out = []; while (out.length < list2.length) for (const group of groups.values()) if (group.length) out.push(group.shift());
+    return out;
+  }
   async function load(reset = false) {
-    if (savedMode || loading || (!reset && initialized && nextBefore === null)) return;
+    if (savedMode || (!reset && (loading || (initialized && nextBefore === null)))) return;
+    if (reset) { current?.abort(); initialized = false; nextBefore = null; items = []; }
     loading = true; failed = false;
+    const shops = followed();
+    if (tab === 'following' && !shops.length) { list.innerHTML = ''; loading = false; initialized = true; labels(); return; }
     if (!initialized) list.innerHTML = '<div class="shops-feed-skeleton" aria-hidden="true"><i></i><b></b><span></span></div><div class="shops-feed-skeleton" aria-hidden="true"><i></i><b></b><span></span></div>';
     labels();
-    const stop = new AbortController(), timer = setTimeout(() => stop.abort(), 12000);
+    const stop = current = new AbortController(), timer = setTimeout(() => stop.abort(), 12000);
+    const params = new URLSearchParams();
+    if (!reset && nextBefore) params.set('before', nextBefore);
+    if (query) params.set('q', query);
+    if (tab === 'trending') params.set('mode', 'trending');
+    if (tab === 'following') params.set('shops', shops.join(','));
     try {
-      const response = await fetch('/api/platform/feed' + (!reset && nextBefore ? '?before=' + encodeURIComponent(nextBefore) : ''), {cache:'no-store',credentials:'same-origin',signal:stop.signal});
+      const response = await fetch('/api/platform/feed' + (params.toString() ? '?' + params : ''), {cache:'no-store',credentials:'same-origin',signal:stop.signal});
       if (!response.ok) throw Error('Feed unavailable');
       const result = await response.json();
       const incoming = Array.isArray(result.items) ? result.items : [];
       if (reset || !initialized) { items = []; list.innerHTML = ''; }
       const seen = new Set(items.map(item => item.id));
-      const fresh = incoming.filter(item => !seen.has(item.id));
+      if (stop !== current) return;
+      let fresh = incoming.filter(item => !seen.has(item.id));
+      if (tab === 'feed') fresh = mix(fresh);
       items.push(...fresh);
       if (!savedMode) list.insertAdjacentHTML('beforeend', fresh.map(post).join(''));
       nextBefore = result.nextBefore || null;
       initialized = true; lastLoaded = Date.now();
     } catch {
+      if (stop !== current) return;
       failed = true;
       if (!initialized && !savedMode) list.innerHTML = '';
-    } finally { clearTimeout(timer); loading = false; labels(); }
+    } finally { clearTimeout(timer); if (stop === current) { loading = false; labels(); } }
   }
   function showPhoto() {
     photo.src = gallery.images[photoIndex]; photo.alt = title(gallery);
@@ -244,6 +313,15 @@
     }
     const menu = event.target.closest('[data-feed-menu]');
     if (menu) { const pop = menu.nextElementSibling, open = pop.hidden; closeMenus(pop); pop.hidden = !open; menu.setAttribute('aria-expanded', String(open)); return; }
+    const follow = event.target.closest('[data-feed-follow]');
+    if (follow) {
+      const slug = follow.dataset.feedFollow, list2 = followed(), on = !list2.includes(slug);
+      try { localStorage.setItem(FOLLOW, JSON.stringify(on ? [...list2, slug].slice(-100) : list2.filter(x => x !== slug))); } catch {}
+      list.querySelectorAll('[data-feed-follow="' + CSS.escape(slug) + '"]').forEach(b => { b.textContent = t(on ? 'unfollow' : 'follow'); });
+      closeMenus(); window.toast?.(t(on ? 'unfollow' : 'follow'));
+      if (tab === 'following') load(true);
+      return;
+    }
     const like = event.target.closest('[data-feed-like]');
     if (like) {
       const item = find(Number(like.dataset.feedLike)); if (!item || like.disabled) return;
@@ -275,19 +353,12 @@
     photoIndex = Number(button.dataset.photoIndex) || 0; showPhoto();
     dialog.classList.add('open'); dialog.showModal();
   });
-  // The photo frame takes the shape of the first photo (between tall 4:5 and wide 2:1).
+  // The photo frame takes the shape of the photo (between tall 4:5 and wide 2.5:1).
   list.addEventListener('load', event => {
     const image = event.target;
-    if (image.tagName !== 'IMG' || image.closest('button')?.dataset.photoIndex !== '0' || !image.naturalHeight) return;
-    image.closest('[data-feed-track]').style.setProperty('--feed-ratio', String(Math.min(2, Math.max(4 / 5, image.naturalWidth / image.naturalHeight))));
+    if (image.tagName !== 'IMG' || !image.closest('.shops-post-media') || !image.naturalHeight) return;
+    image.closest('.shops-post-media').style.setProperty('--feed-ratio', String(Math.min(2.5, Math.max(4 / 5, image.naturalWidth / image.naturalHeight))));
   }, true);
-  // The dots follow the photo that is in view.
-  list.addEventListener('scroll', event => {
-    const track = event.target;
-    if (!track.matches?.('[data-feed-track]')) return;
-    const index = Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
-    track.parentElement.querySelectorAll('.shops-post-dots i').forEach((dot, i) => dot.classList.toggle('on', i === index));
-  }, {capture:true, passive:true});
   document.getElementById('shops-photo-close').addEventListener('click', () => dialog.close());
   dialog.addEventListener('close', () => { dialog.classList.remove('open'); photo.removeAttribute('src'); window.GearHubBackNav?.record(); });
   function move(delta) { if (gallery && photoIndex + delta >= 0 && photoIndex + delta < gallery.images.length) { photoIndex += delta; showPhoto(); } }
@@ -304,7 +375,7 @@
     if (typeof window.showStoreView === 'function') window.showStoreView('shops'); else render();
     render(); scrollTo(0, 0); window.GearHubBackNav?.record();
   });
-  window.GearHubShops = {setActive(value) { active = value; if (active && savedMode) render(); else if (active && (!initialized || Date.now() - lastLoaded > 60000)) load(true); }};
+  window.GearHubShops = {setActive(value) { active = value; if (active) { brand(); bell(); account(); } if (active && savedMode) render(); else if (active && (!initialized || Date.now() - lastLoaded > 60000)) load(true); }};
   // Back from Google sign-in (?view=shops) or a Buy Now from another shop (?cart=1).
   const params = new URLSearchParams(location.search);
   if (params.has('view') || params.has('cart')) {

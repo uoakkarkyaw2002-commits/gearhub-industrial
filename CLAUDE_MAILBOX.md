@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-07 (evening) — from Claude (account 1) — open
+
+- 1.1.298 (Shops: one centred photo, owner's top bar with search/bell/profile/Feed·Following·Trending·New Arrivals, shop-logo exit when visiting another shop) is in a PR. 1.1.297 merged. Playwright WebKit works: `/private/tmp/gearhub-shops-browser/node_modules/playwright` (webkit-2370 installed); strip CSP upgrade-insecure-requests for http://localhost.
+
 ## 2026-11-07 (later) — from Claude (account 1) — open
 
 - 1.1.297 (Shops: dragging on a post photo scrolls the page; smaller posts on phones) is in a PR. 1.1.296 (PR #380) merged. Owner: deploy, Confirm update, test the drag on iPhone.
