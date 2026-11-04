@@ -40,7 +40,7 @@
   }
   const find = id => items.find(item => item.id === id) || savedList().find(item => item.id === id);
   function post(item) {
-    const images = item.images || [], text = item.description || '', long = text.length > 180 || text.split('\n').length > 4;
+    const images = item.images || [], text = item.description || '', long = text.length > 110 || text.split('\n').length > 2;
     const initials = [...item.shop.name.trim()].slice(0, 1).join('') || 'S';
     const avatar = item.shop.logo ? '<img src="' + esc(item.shop.logo) + '" alt="" loading="lazy" decoding="async">' : esc(initials);
     const pictures = images.length ? '<div class="shops-post-media"><div class="shops-post-track" data-feed-track="' + item.id + '">' + images.map((url, index) =>
