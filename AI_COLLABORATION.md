@@ -35,6 +35,12 @@ _None._
 - PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/371. No runtime changes in this continuation; files changed: mailbox/log only. Code head `d03f8bd` has Node22 check + tests 459/459 and green Production readiness/node22 (run 41778088940). Preparing for review with actual 375/1280 browser/physical-device verification still explicitly unverified. No merge/deploy or production confirmation.
 - Owner merges/deploys, checks GearHub Settings and seller versions, then presses Confirm update when satisfied. The feature controls seller frontend version changes; SQLite/disk-backed backend restarts remain possible during Render deploys.
 
+### 1.1.295: "Add this shop's app" ask — not when installed; at most once (Claude)
+- Owner: inside an app, visiting POLESTAR asked to add the POLESTAR app although it is already on the Home Screen.
+- Bug from 1.1.294: `visit-shop.js` and `app-switch.js` both used `sessionStorage gh-app-home` (path vs slug); visit-shop runs first, so app-switch could think even the app's own shop was "another shop". visit-shop now uses `gh-app-home-path`.
+- `app-switch.js`: Android/PC check `navigator.getInstalledRelatedApps()` (each shop manifest lists itself) and skip + remember when installed. iPhone cannot know which web apps are installed, so the automatic ask now comes at most once per shop per app (`localStorage gh-app-asked:<shop>`, was per session). Settings "Create <shop> app" still works by hand.
+- Checks: Node 22 check + 466/466 (app-switch and visit-shop tests updated on purpose). Browser: simulated app session on its own shop shows neither the ask nor the exit. Not tested on a phone.
+
 ### 1.1.294: Visiting another shop inside a shop app — 4 tabs + exit (Claude)
 - Owner: 1.1.293 works (POLESTAR opens inside the Kaizen Beauty app after re-adding it). When in another shop, show only Home, Category, Promotion, Cart so it is clear; the exit goes in the Settings place.
 - `public/visit-shop.js` (installed app only — display-mode standalone / navigator.standalone): the first shop page of the app session is saved as home (`sessionStorage gh-app-home` + name). On any other shop (or GearHub `/`), `body.visiting-shop`, Shops + Settings hidden on the phone bar and the PC bar, and a red "ပြန်ထွက်" link back to home ("Back to <name>"). Browser tabs never change.

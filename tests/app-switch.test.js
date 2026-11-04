@@ -7,7 +7,7 @@ test('app-switch runs only inside an installed app and remembers the app\'s own 
  assert.match(js,/if\(!standalone\)return;/);
  assert.match(js,/let home=get\(sessionStorage,'gh-app-home'\);if\(home===null\)\{set\(sessionStorage,'gh-app-home',here\);home=here\}/);
  assert.match(js,/if\(!here\|\|home===here\)return;/,'its own shop and GearHub pages never ask');
- assert.match(js,/const auto=!get\(localStorage,'gh-app-own:'\+here\)&&!get\(sessionStorage,'gh-app-asked:'\+here\);/,'"I have it" stops the automatic ask (1.1.253: the Settings row stays)');
+ assert.match(js,/const installed=async\(\)=>\{try\{return typeof navigator\.getInstalledRelatedApps==='function'/,'1.1.295: Android\/PC skip the ask when that shop app is installed');assert.match(js,/const auto=!get\(localStorage,'gh-app-own:'\+here\)&&!get\(localStorage,'gh-app-asked:'\+here\);/,'"I have it" stops the automatic ask (1.1.253: the Settings row stays)');
  assert.match(js,/x-safari-https:\/\//,'iPhone opens Safari to add the app');
  assert.match(js,/const path=gearhub\?'\/index\.html':'\/shops\/'\+encodeURIComponent\(here\)\+'\/\?install=1'/,'1.1.213: the app is added from the shop Home page (name + logo, opens on Home)');
 });
