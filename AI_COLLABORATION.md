@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.310: Home — no "Shop by department", Promotion banner, up to 5 hero pictures; bigger bottom-bar icons (Claude)
+- Owner's picture: `.popular-categories` hidden; the Promotion tab left the phone bottom bar (hidden by CSS, markup kept for the PC bar and tests) and became a green banner under the hero (`public/hero-slides.js` → button `data-store-view="promotion"`, opens the Promotion page; hidden with body.no-promotions and while searching).
+- Hero: up to 5 pictures (Hero + Hero picture 2–5 in admin Site settings; `heroImageUrl2..5` in lib/tenant-admin.js appearance keys and server.js site settings). store.js sends `gearhub:hero`; hero-slides.js cross-fades every 4.5 s, dots under it, swipe to change, pauses when the page is hidden. Note: `.hero.hero-image-only>*{display:none!important}` and other hero rules needed strong overrides for the slide layer (home-hero.css).
+- Owner mid-task: bottom-bar icons back to their old 41px (fb-nav.css), taller bar.
+- Tests: tests/home-hero.test.js; free-ai smart-search tag updated on purpose. 484/484. WebKit iPhone 13: 3 slides change (dot 1→2), banner opens Promotion, no department row, 5 visible tabs. Locally the hero pictures needed https (checkedImageUrl), so slides were fed with the event; real https site not checked.
+
 ### 1.1.309: Facebook-like bottom bar; tap Home / Discover again to reload (Claude)
 - Owner's screen recording (frames read with a small AVFoundation script in the scratchpad — ffmpeg is not on this Mac): our bar slid a big round bubble/notch and a tap left a dark grey square; Facebook switches at once with a light pill on the open tab.
 - New `public/fb-nav.css` (≤850px, loaded after the other styles): plain white bar, no notch/bubble (liquid-nav.js still sets `.active`), active icon in a light green pill, no labels, `-webkit-tap-highlight-color:transparent`, small press scale. Dark theme kept.

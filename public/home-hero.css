@@ -1,0 +1,25 @@
+/* 1.1.310 owner's picture: no "Shop by department" on Home; Promotion is a green banner under the hero (not a
+   bottom-bar tab); the hero shows up to 5 pictures that change by themselves, with dots. */
+.popular-categories{display:none!important}
+.mobile-bottom-nav [data-store-view="promotion"]{display:none!important}
+html .mobile-bottom-nav.liquid{grid-template-columns:none!important;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}
+.hero.hero-slides-on{position:relative;overflow:hidden;isolation:isolate}
+/* The hero-only picture mode hides every child of .hero; the slides must still show (above its ::before picture). */
+body .hero.hero-image-only>.hero-slides,body .hero>.hero-slides{display:block!important;position:absolute!important;top:0!important;left:0!important;right:0!important;bottom:0!important;z-index:0!important;width:auto!important;height:100%!important;max-width:none!important;margin:0!important;padding:0!important}
+.hero.hero-slides-on>:not(.hero-slides){position:relative;z-index:1}
+.hero-slides{position:absolute;inset:0;z-index:0;border-radius:inherit;pointer-events:none}
+.hero-slides i{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity .9s ease}
+.hero-slides i.on{opacity:1}
+.hero-dots{display:flex;justify-content:center;gap:8px;margin:10px auto 0}
+.hero-dots button{width:9px;height:9px;padding:0;border:0;border-radius:50%;background:#c9d3cb;cursor:pointer;transition:width .25s,background .25s}
+.hero-dots button.on{width:22px;border-radius:9px;background:#1a7a2e}
+.home-promo{position:relative;display:flex;align-items:center;gap:14px;width:calc(100% - 32px);max-width:1180px;min-height:86px;margin:14px auto 18px;padding:12px 18px;overflow:hidden;border:0;border-radius:20px;background:linear-gradient(110deg,#156f2a 0%,#1f8a37 55%,#2a9a3f 100%);color:#fff;text-align:left;font:inherit;box-shadow:0 6px 18px #156f2a33;cursor:pointer}
+.home-promo-tag{display:grid;place-items:center;flex:0 0 52px;width:52px;height:52px;border-radius:16px;background:linear-gradient(145deg,#ffe36b,#f5b913);color:#b45309;font-size:28px;font-weight:900;transform:rotate(-14deg);box-shadow:0 4px 10px #0003}
+.home-promo-copy{display:grid;gap:2px;flex:1;min-width:0}
+.home-promo-copy b{font-size:24px;font-weight:800;letter-spacing:-.01em;line-height:1.15}
+.home-promo-copy small{color:#e3f6e1;font-size:13px}
+.home-promo-go{flex:0 0 auto;padding:8px 14px;border-radius:999px;background:#fff;color:#14532d;font-size:14px;font-weight:800;white-space:nowrap}
+.home-promo-gift{flex:0 0 auto;font-size:40px;filter:drop-shadow(0 4px 6px #0003)}
+.home-promo:active{transform:scale(.985)}
+body.no-promotions .home-promo{display:none}
+@media(max-width:420px){.home-promo{gap:8px;padding:12px 10px;min-height:78px}.home-promo-tag{flex-basis:44px;width:44px;height:44px;font-size:24px}.home-promo-copy b{font-size:20px}.home-promo-copy small{font-size:12px}.home-promo-go{padding:7px 10px;font-size:12.5px}.home-promo-gift{font-size:28px;margin-left:-4px}}
