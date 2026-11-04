@@ -7,7 +7,7 @@
 - `public/shops-feed.js`: Feed and Following request mixed mode; removed redundant client-only shuffling. New Arrivals and Trending retain their existing ordering. No CSS/layout, database-schema, social/cart or approval-gate changes. Release/JS asset tags use 1.1.300; seller frontends still require the GearHub owner's Confirm update. Do not confirm, merge or deploy on the owner's behalf.
 - Tests: Node22 `npm run check && npm test` **473/473**, zero failures/skips; focused 7/7; touched browser JS syntax + diff checks pass. New HTTP regressions: unequal batch uploads (15/9/45), page-boundary turns, no duplicates/missing posts after an intervening upload, >20 shops, single-shop behavior, search/Following, malformed/filter-mismatched cursors and suspended shops. Final log `/private/tmp/gearhub-feed-rotation-final.log`.
 - Actual local IAB seller-shop UI at 375×812 and 1280×900: clicked Shops/Feed, scrolled through page 2 (20→40 cards, correct turn), Followed two fixture shops and confirmed alternation in Following, checked New Arrivals stays newest-first, Home and Category still work. Normal console errors/warnings empty; no horizontal overflow; screenshots visually inspected. Synthetic local products only; no real login, production data change or physical iPhone verification. Evidence `/Users/oakkar/Documents/Codex/outputs/qa-feed-rotation-1.1.300/phone-feed.jpg` and `desktop-feed.jpg`. Temporary browser tab closed, viewport reset and fixture server stopped.
-- PR link will be recorded after creation. No merge/deploy.
+- PR #384: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/384. No merge/deploy.
 
 ## 2026-11-07 (night) — from Claude (account 1) — open
 
