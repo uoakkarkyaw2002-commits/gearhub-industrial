@@ -380,7 +380,7 @@
       ${splashEditor(v.splash)}
       ${sceneEditor(v.scene)}
       ${driveEditor(v.drive)}
-      <details class="owner-settings"><summary>In-app update announcement</summary><form id="release">${field("version", "Deployed version", v.release.version).replace("<input ", "<input readonly ")}${field("notes", "Update notes", v.release.notes)}<p class="muted">Updates install automatically when no checkout or file upload is in progress.</p><button>Publish</button></form></details>
+      <details class="owner-settings"><summary>Shop update confirmation</summary><form id="release">${field("version", "Deployed version", v.release.version).replace("<input ", "<input readonly ")}${field("notes", "Update notes", v.release.notes)}<p class="muted">GearHub ${esc(v.rollout?.deployedVersion || v.release.version)} · Shops ${esc(v.rollout?.sellerVersion || v.release.version)}. Seller shops keep their confirmed build until you confirm here or in GearHub Settings.</p><button>Confirm update</button></form></details>
     </section>`;
 
     const applyView = () => {

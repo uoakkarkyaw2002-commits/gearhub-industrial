@@ -1,0 +1,6 @@
+#shop-release-control[hidden]{display:none}
+#shop-release-control .settings-copy{min-width:0}
+#shop-release-detail,#shop-release-feedback{overflow-wrap:anywhere}
+#shop-release-feedback{display:block;margin-top:5px}
+#shop-release-confirm{max-width:100%;white-space:normal;flex-shrink:0}
+@media(max-width:650px){#shop-release-control{display:grid;grid-template-columns:36px minmax(0,1fr)}#shop-release-confirm{grid-column:2;justify-self:start}}

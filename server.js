@@ -263,6 +263,13 @@ class SQLiteSessionStore extends session.Store {
 const policies = require("./lib/policies");
 app.get("/policies.html", (_req, res) => { res.set("Cache-Control", "no-cache"); res.type("html").send(policies.render(policies.load(db))); });
 // Static files never need a session, so serve them before session handling.
+let shopReleases;
+if (process.env.PLATFORM_ENABLED === 'true') {
+ require('./lib/platform-model').migrate(db);
+ shopReleases = require('./lib/shop-releases').createShopReleases({db, dataDir, publicDir:path.join(__dirname,'public')});
+ app.use('/app-builds', shopReleases.assets);
+ app.get('/sw.js', (_req,res) => res.set('Cache-Control','no-cache').type('js').send(shopReleases.worker()));
+}
 // GearHub's own store opens with the same opening screen (picture, sound, seconds) as every seller shop.
 {
  const storeHtml=fs.readFileSync(path.join(__dirname,"public","index.html"),"utf8"),{withSplash}=require("./lib/tenant-install"),splashSettings=require("./lib/splash");
@@ -319,14 +326,15 @@ if(process.env.PLATFORM_ENABLED==='true'){
  drive=require('./lib/drive-backup').createDrive({db,ensure:files.ensureLocal,clientId:process.env.GOOGLE_CLIENT_ID,clientSecret:process.env.GOOGLE_CLIENT_SECRET,media:path.join(dataDir,'platform-media'),log:(event,detail)=>console.error(JSON.stringify({event,detail}))});
  const shopAlias=require('./lib/shop-alias');app.use(shopAlias.aliasMiddleware(db));
  const {createPlatform}=require('./lib/platform');
- app.use('/api/platform',createPlatform({db,dataDir,publicOrigin,orderPush,drive,files,notifyApplication:details=>notifications.application(details)}));
+ app.use('/api/platform',createPlatform({db,dataDir,publicOrigin,orderPush,drive,files,releases:shopReleases,notifyApplication:details=>notifications.application(details)}));
  shopAlias.syncAll(db);
- require('./lib/tenant-install').installTenantApps(app,{db,dataDir,publicDir:path.join(__dirname,'public'),publicOrigin,files});
+ require('./lib/tenant-install').installTenantApps(app,{db,dataDir,publicDir:path.join(__dirname,'public'),publicOrigin,files,releases:shopReleases});
 }
-app.get('/api/app-release', (_req,res)=>{
+app.get('/api/app-release', (req,res)=>{
  res.set('Cache-Control','no-store');
  const enabled=process.env.PLATFORM_ENABLED==='true';
- res.json({... (enabled?require('./lib/platform-model').release(db):require('./lib/app-release').effectiveRelease(null)),platformEnabled:enabled});
+ const release = shopReleases && req.query.preview !== 'gearhub' ? shopReleases.published() : enabled ? require('./lib/platform-model').release(db) : require('./lib/app-release').effectiveRelease(null);
+ res.json({...release,platformEnabled:enabled});
 });
 // Periodically prune expired sessions without requiring an external service.
 setInterval(() => {
@@ -422,6 +430,18 @@ function ownerOnly(req, res, next) {
  if (!isGearHubOwner(req)) return res.status(401).json({ error: "Admin login required" });
  next();
 }
+
+app.get('/api/admin/app-release', ownerOnly, (_req,res) => {
+ if (!shopReleases) return res.status(409).json({error:'Shop platform is not enabled.'});
+ res.json(shopReleases.status());
+});
+app.post('/api/admin/app-release', ownerOnly, (req,res,next) => {
+ try {
+  if (!shopReleases) return res.status(409).json({error:'Shop platform is not enabled.'});
+  shopReleases.publish(req.body.version, req.body.notes);
+  res.json(shopReleases.status());
+ } catch (error) { if(error.status===409)return res.status(409).json({error:error.message});next(error); }
+});
 
 app.get("/api/admin/backup", rateLimit({ windowMs: 60 * 1000, limit: 2, standardHeaders: true, legacyHeaders: false }), ownerOnly, async (req, res) => {
  let tempRoot;
