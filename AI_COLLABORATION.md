@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.283: Settings → Storage shows Render, Cloudflare R2 and Google Drive (Claude)
+- Owner: show the three storages (Render, Cloudflare, Google Drive — only what GearHub keeps there). After 1.1.282 + Render env `FILES_S3_BUCKET=gearhub-backups` and `FILES_CACHE_MB=50`, live /api/storage was 103 MB (was 855 MB).
+- `/api/storage` adds `r2` (whole bucket via ListObjectsV2: bytes, files, shop-file bytes, 10 GB free tier) and `drive` (all non-folder files the app made, drive.file scope) only for the GearHub owner (`isGearHubOwner`: GearHub admin session or owner Google account). Both cached 10 min. `settings.js` shows "🖥️ Render · …" plus the R2 line with a meter and the Drive line (`#storage-more`); customers see the Render line as before.
+- Local static page with a mocked /api/storage at 1280 and 375: lines shown, no overflow. Not verified with real R2/Drive numbers (owner-only). Node 22 check + 445/445.
+
 ### 1.1.282: Shop files kept in Cloudflare R2; Render disk keeps a cache (Claude)
 - Owner: everything shops upload lands on the fixed-size Render disk; move it all ("အကုန်ရွှေ့ထား"), shops upload at any time.
 - New `lib/file-store.js` (off until Render env `FILES_S3_BUCKET` is set; endpoint/keys default to BACKUP_S3_*; `FILES_S3_PREFIX` default `files/`, `FILES_CACHE_MB` default 400). Every 10 min (first at +1 min) each `platform-media/<shop>/<file>` older than 10 min is PutObject to R2 and recorded in the new additive table `file_store(key,bytes,stored_at,used_at)`. While the local copy is over the cache size, the least recently used files that R2 has (and `.opt.webp` variants) leave the disk. `ensureLocal(path)` fetches a file back from R2 before it is read. Hidden learning folders (.photo-looks, .scan-examples) and scene/splash stay local.

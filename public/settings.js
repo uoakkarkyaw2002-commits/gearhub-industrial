@@ -79,6 +79,15 @@
     label.textContent = words(quota ? "storageQuotaLabel" : "storageUsageLabel").replace("{used}", used).replace("{available}", available).replace("{capacity}", capacity);
     meter.style.width = `${capacityBytes ? Math.min(100, Math.max(2, usedBytes / capacityBytes * 100)) : 0}%`;
     meter.parentElement.setAttribute("aria-label", label.textContent);
+    // 1.1.283 owner: the GearHub owner also sees where the rest is kept — Cloudflare R2 and Google Drive.
+    const more = byId("storage-more"), { r2, drive } = storageData;
+    if (!more) return;
+    const lines = [];
+    if (r2) lines.push(`<p><b>☁️ Cloudflare R2</b> ${formatBytes(r2.usedBytes)} / ${formatBytes(r2.freeBytes)} free · ${r2.files} files</p><span class="storage-meter"><i style="width:${Math.min(100, Math.max(2, r2.usedBytes / r2.freeBytes * 100))}%"></i></span>`);
+    if (drive) lines.push(`<p><b>📁 Google Drive</b> ${formatBytes(drive.usedBytes)} · ${drive.files} files (GearHub only)</p>`);
+    more.innerHTML = lines.join("");
+    more.hidden = !lines.length;
+    if (lines.length) label.textContent = "🖥️ Render · " + label.textContent;
   }
   async function updateStorageUsage() {
     try {

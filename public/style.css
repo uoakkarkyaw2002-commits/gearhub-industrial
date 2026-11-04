@@ -1360,3 +1360,8 @@ body.alerts-history-open{overflow:hidden}
 .photo-scan-right[hidden]{display:none}
 .photo-scan-right:disabled{opacity:.75;cursor:default}
 :root[data-theme="dark"] .photo-scan-right{background:#1d3325;border-color:#2f5a3e;color:#9fe0b4}
+/* 1.1.283 owner: Settings → Storage lists Render, Cloudflare R2 and Google Drive for the GearHub owner. */
+.storage-more{display:grid;gap:4px;margin-top:10px;padding-top:8px;border-top:1px solid #edf2ee}
+.storage-more[hidden]{display:none}
+.storage-more p{margin:4px 0 0;font-size:12px;line-height:1.45;color:var(--muted,#66756b)}
+.storage-more b{color:var(--ink,#192820);font-weight:700}

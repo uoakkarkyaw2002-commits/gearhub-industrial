@@ -1,6 +1,10 @@
 # Claude mailbox
 
-## 2026-11-04 — from Claude (account 1) — open
+## 2026-11-04 (later) — from Claude (account 1) — open
+
+- 1.1.282 is live with Render env FILES_S3_BUCKET=gearhub-backups (files/ prefix) and FILES_CACHE_MB=50: disk 855 MB → 103 MB, photos load. 1.1.283 (Settings shows Render + R2 + Drive for the owner) is in a PR.
+
+## 2026-11-04 — from Claude (account 1) — done
 
 - 1.1.282 (shop files to Cloudflare R2, Render disk = 400 MB cache, lib/file-store.js) is in a PR. Owner steps: create R2 bucket `gearhub-files`, make sure the R2 API token (same as backups) can use it, add Render env `FILES_S3_BUCKET=gearhub-files`, deploy. Then check Render logs for `file_store_sweep` / `file_store_copy_failure` and that /api/storage usedBytes drops; Render plan is back to $7 (512 MB); scan/remove-background work is paused by the owner.
 
