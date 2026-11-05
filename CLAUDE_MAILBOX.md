@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-11 — from Claude (account 1) — open
+
+- 1.1.313 (Server Storage list opens on tap; Auto update time for shops, Myanmar time, 12-hour AM/PM) is in a PR. 1.1.312 (PR #396) merged.
+
 ## 2026-11-10 (later) — from Claude (account 1) — open
 
 - 1.1.312 (profile edited in place incl. logo; no logo field in the shop admin; photo viewer without arrows) is in a PR. 1.1.311 (PR #395) merged.

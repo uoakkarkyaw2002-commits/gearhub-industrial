@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.313: Server Storage list opens on tap; Auto update time for shops (Claude)
+- Settings → Server Storage: the R2 / Drive / All shops / Backup cards stay closed until the row is tapped (› beside the title turns down); tapping again closes it. settings.js + release-control.css.
+- Shop updates (GearHub owner only): "Auto update" switch with a 12-hour time (hour, 5-minute steps, AM/PM). Saved in existing `platform_meta` key `shop-release-auto` {time:"HH:MM", doneDay} — no schema change — via new owner-only PUT `/api/admin/app-release/auto` (CSRF like the other admin routes). server.js checks every minute: when shops are behind GearHub and Myanmar time (UTC+6:30) is within 15 minutes after the set time and it has not run today, it publishes the deployed version (notes "Auto update HH:MM", log `shop_release_auto`). GET app-release returns `autoTime`.
+- Verified on the local server: auto time set to the current Myanmar minute → shops moved 1.1.312 → 1.1.313 within 75 s, doneDay recorded. WebKit iPhone 13 (local test admin login): list closed/opened, switch + 9:00 PM saved as 21:00. Tests: shop-releases.test.js (stand-in createElement for the VM test; new auto test). 485/485. Real phone not tested.
+
 ### 1.1.312: Profile edited in place; no logo field in the shop admin; cleaner photo viewer (Claude)
 - Owner: pencils opened the admin; they now open an "Edit profile" sheet on the profile: logo photo (made a 512 × 512 square, uploaded with /shops/:id/files), shop name, caption, address, phone, email, birthday, work → PATCH /shops/:id. A new logo also sets appearance.logoUrl + appIconUrl; a new description also updates the Site settings tagline (caption). A new name moves to the new link and reopens Profile.
 - The shop admin hides its Logo image field (`.appearance-logo`, tenant-admin.js); GearHub's own admin keeps it.

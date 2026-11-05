@@ -432,15 +432,41 @@ function ownerOnly(req, res, next) {
  next();
 }
 
+// 1.1.313 owner: shops can also update by themselves at a set time (Myanmar time), kept in platform_meta.
+const AUTO_KEY = 'shop-release-auto';
+const autoRelease = () => { try { const v = JSON.parse(db.prepare('SELECT value FROM platform_meta WHERE key=?').get(AUTO_KEY)?.value || 'null'); return v && /^([01]\d|2[0-3]):[0-5]\d$/.test(v.time) ? v : null; } catch { return null; } };
+const releaseStatus = () => ({...shopReleases.status(), autoTime: autoRelease()?.time || ''});
+const yangonNow = () => { const d = new Date(Date.now() + 6.5 * 3600e3); return {day: d.toISOString().slice(0, 10), minute: d.getUTCHours() * 60 + d.getUTCMinutes()}; };
+function autoReleaseTick() {
+ try {
+  const auto = autoRelease(); if (!shopReleases || !auto) return;
+  const status = shopReleases.status(); if (!status.pending) return;
+  const now = yangonNow(), [h, m] = auto.time.split(':').map(Number), at = h * 60 + m;
+  // Within 15 minutes after the set time, once a day (a restart at that moment still catches it).
+  if (now.minute < at || now.minute >= at + 15 || auto.doneDay === now.day) return;
+  shopReleases.publish(status.deployedVersion, 'Auto update ' + auto.time);
+  db.prepare('UPDATE platform_meta SET value=? WHERE key=?').run(JSON.stringify({...auto, doneDay: now.day}), AUTO_KEY);
+  console.log(JSON.stringify({event: 'shop_release_auto', version: status.deployedVersion, time: auto.time}));
+ } catch (error) { console.error(JSON.stringify({event: 'shop_release_auto_failure', message: error.message})); }
+}
+if (shopReleases) setInterval(autoReleaseTick, 60 * 1000).unref?.();
 app.get('/api/admin/app-release', ownerOnly, (_req,res) => {
  if (!shopReleases) return res.status(409).json({error:'Shop platform is not enabled.'});
- res.json(shopReleases.status());
+ res.json(releaseStatus());
+});
+app.put('/api/admin/app-release/auto', ownerOnly, (req,res) => {
+ if (!shopReleases) return res.status(409).json({error:'Shop platform is not enabled.'});
+ const time = String(req.body?.time || '');
+ if (time && !/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) return res.status(400).json({error:'Choose a valid time.'});
+ if (time) db.prepare("INSERT INTO platform_meta(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").run(AUTO_KEY, JSON.stringify({time}));
+ else db.prepare('DELETE FROM platform_meta WHERE key=?').run(AUTO_KEY);
+ res.json(releaseStatus());
 });
 app.post('/api/admin/app-release', ownerOnly, (req,res,next) => {
  try {
   if (!shopReleases) return res.status(409).json({error:'Shop platform is not enabled.'});
   shopReleases.publish(req.body.version, req.body.notes);
-  res.json(shopReleases.status());
+  res.json(releaseStatus());
  } catch (error) { if(error.status===409)return res.status(409).json({error:error.message});next(error); }
 });
 
