@@ -1577,3 +1577,10 @@ _None._
 - Task: a device with notification permission that the server no longer knows (for example, after the domain change) is re-subscribed silently, unless alerts were turned off on purpose.
 - Files: `public/admin-extras.js`, `tests/order-push.test.js`.
 - PR: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/143
+
+## 2026-11-05 — Claude (account 1) — 1.1.329 bottom-bar press-and-drag back
+
+- Owner: "Button navigation can no longer be pressed and dragged like before." Cause: fb-nav.css (1.1.309) hid the liquid bubble and froze the tab icons, so a drag had no visible feedback; style.css also gave the bar touch-action:manipulation, letting the browser take a sideways finger move.
+- Fix (CSS only, public/fb-nav.css): bar touch-action:none; while .liquid-dragging the old bubble is drawn as the light green pill under the finger (no lag), the hovered icon grows a little; release opens that tab (existing liquid-nav.js logic, unchanged). Tap unchanged. PC unaffected (rules are inside max-width:850px).
+- Files: public/fb-nav.css, public/index.html + public/sw.js (fb-nav tag, cache), package.json/lock, tests/tenant-install.test.js, new tests/nav-drag.test.js, mailbox.
+- Verified: Node22 npm run check + npm test 495/495. WebKit iPhone 13 (390px) on local /shops/polestar/ (build 1.1.329): drag Home → Profile, pill centred on the finger mid-drag (x195 over Category), release opened Profile, plain tap still opens Home, no page errors. Real iPhone touch not verified.

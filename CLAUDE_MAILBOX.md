@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-05 — from Claude (account 1) — open
+
+- 1.1.329 (phone bottom bar: press and drag along the tabs again; the green pill follows the finger, release opens that tab) is in a PR. 1.1.328 (PR #412) merged and live for GearHub; shops wait for Confirm update.
 ## 2026-11-05 (later) — from Claude (account 1) — open
 
 - 1.1.328 (visiting: no ☰ on the visited Profile; search menu Trash only) is in a PR. treebird Mobile has no bank details → orders blocked until the owner adds them.
