@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.317: Blue Message inbox matching the owner's reference (Codex — review pending)
+- Task: Message button → pale blue inbox with bubble title, rounded search/filter, conversation list/time/unread dots and Chats / Active Now / Followers footer. Full screen on phones, centered panel on desktop. Base main `b2d732d`; branch `codex/message-inbox-design`. PR link pending creation.
+- Files: public/noti-chat.js/css (inbox rendering, name/preview search, unread toggle, tabs, real existing threads and blue styling), index/SW/cache/package release tags, tenant-install pin, mailbox/log. No backend, database, API, unrelated page or production release changes. Existing buyer↔shop sending/polling/Google entry and notifications retained.
+- Limits: existing API has no contact photos, online presence or follower identities. Use real names with initials fallback; Active Now explains unavailable; Followers links to the current shop Profile/counts. Buyer has this shop's thread, owner has its customer list; no cross-shop aggregation or invented data.
+- Validation: Node22 check + **488/488** tests, touched JS syntax/diff checks. Actual local WebKit seller shop at 375×812, 589×1280 and 1280×900: message/search/unread/tabs/thread/back, real owner/buyer send, notification isolation, guest login entry. No captured JS errors, panel fits. Visually checked screenshots in `/Users/oakkar/Documents/Codex/outputs/qa-message-design-1.1.317/`; fixture/browser stopped. Physical iPhone/live unverified. Owner merges/deploys/Confirms; no agent merge/deploy/Confirm.
+
 ### 1.1.316: Comment replies with curved lines + ❤ per comment; one pencil on Profile; full-screen photo viewer (Claude)
 - Owner (TikTok / YouTube pictures): comments show avatar, name, text, time · Reply, ❤ count on the right; replies sit under their comment joined by a curved line ("Replying to …" bar above the box). Owner approved: new column `platform_post_comments.parent_id` (added with ALTER, existing comments untouched) and table `platform_comment_likes(shop_id,comment_id,user_id)`. A reply to a reply stays in the first comment's thread; deleting a comment deletes its replies and likes; shop delete removes comment likes. New route POST `/feed/:slug/:id/comments/:comment/like`.
 - Owner mid-task: only the top pencil edits the Profile (caption and details pencils removed).
