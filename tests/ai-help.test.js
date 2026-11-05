@@ -18,9 +18,12 @@ test('the AI helper answers app questions and refuses everything else',()=>{
   'ဆိုင်ဘယ်လိုဖွင့်ရမလဲ':'createshop','Excel ဘယ်လိုတင်ရမလဲ':'excel','category အသစ်ထည့်ချင်တယ်':'editcategory','Profile ပုံ ဘယ်လိုပြောင်းရမလဲ':'profile','ဆိုင်ကို စာပို့ချင်တယ်':'chat',
   'ဖုန်းထဲ app ဘယ်လိုထည့်ရမလဲ':'install','comment ဘယ်လိုဖျက်ရမလဲ':'comment','ဒီ app က ဘာတွေလုပ်လို့ရလဲ':'help','how to change my logo':'profile','where are my orders':'myorder',
   'Product ဘယ်လိုဖျက်ရမလဲ':'editproduct','stock ဘယ်လိုပြင်ရမလဲ':'editproduct','ဆိုင်ကို ဖော်လိုလုပ်နည်း':'follow'};
+ // 1.1.334 owner's iPhone: its keyboard typed ထည့် with the marks in the other order; a topic beats "how to use".
+ Object.assign(cases,{'Category အသုံးပြုနည်းပြောပြ':'category','Excel အသုံးပြုနည်း':'excel','help me':'help'});
+ assert.equal(id('Product ဘယ်လိုထ\u100a\u103a\u1037လဲ'),'addproduct','iPhone mark order');
  for(const [q,want] of Object.entries(cases))assert.equal(id(q),want,q);
  for(const q of ['ထမင်းဘယ်လိုချက်ရမလဲ','What is bitcoin price','ကမ္ဘာ့အမြင့်ဆုံးတောင်က ဘာလဲ','ဘောလုံးပွဲ ဘယ်သူနိုင်လဲ'])assert.equal(id(q),null,q);
  for(const q of ['What is the capital of France?','Write me a poem','မနက်ဖြန် မိုးရွာမလား','2+2','Tell me a joke about cats'])assert.equal(id(q),null,q);
  const html=read('index.html'),sw=read('sw.js');
- for(const tag of ['/ai-help.js?v=1.1.333','/ai-help.css?v=1.1.333'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
+ for(const tag of ['/ai-help.js?v=1.1.334','/ai-help.css?v=1.1.333'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
 });

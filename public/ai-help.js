@@ -96,10 +96,15 @@
  const has=(text,word)=>isMy(word)||word.length>3?text.includes(word):new RegExp('(^|[^a-z])'+word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'([^a-z]|$)').test(text);
  // The best entry: each keyword whose words are all in the question counts their length.
  function answer(q){
-  const text=' '+q.toLowerCase().replace(/[?!.,،။၊]/g,' ').replace(/\s+/g,' ')+' ';
-  let best=null,score=0;
-  for(const e of K){let s=0;for(const k of e[1]){const words=k.toLowerCase().trim().split(/\s+/);if(words.every(w=>has(text,w)))s+=words.join('').length}if(s>score){score=s;best=e}}
-  return score>=2?best:null;
+  // 1.1.334 owner's iPhone: its keyboard types some Myanmar marks in another order (ထည့် as ည + ် + ့);
+  // NFC puts them in one order, so the same word always matches.
+  const text=' '+q.normalize('NFC').toLowerCase().replace(/[?!.,،။၊]/g,' ').replace(/\s+/g,' ')+' ';
+  let best=null,score=0,general=0;
+  for(const e of K){let s=0;for(const k of e[1]){const words=k.normalize('NFC').toLowerCase().trim().split(/\s+/);if(words.every(w=>has(text,w)))s+=words.join('').length}
+   // "How to use" words alone only give the general help; a topic in the same question wins ("Category အသုံးပြုနည်း").
+   if(e[0]==='help'){general=s;continue}if(s>score){score=s;best=e}}
+  if(score>=2)return best;
+  return general>=2?K.find(e=>e[0]==='help'):null;
  }
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const robot='/images/product-ai-robot.png?v=1.1.193';

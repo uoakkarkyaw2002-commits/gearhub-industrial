@@ -1610,3 +1610,9 @@ _None._
 - Owner's iPhone screenshots: "Product ဘယ်လိုထည့်ရလဲ" and "App အသုံးပြုနည်း ပြောပြပါ" were refused; with the keyboard up, the page showed under the typing box.
 - ai-help.js: keywords with spaces match when all their words are in the question in any order (mixed Myanmar/English). About 120 more phrasings (MORE map), plus new entries: editproduct (price/stock/edit/delete → Dashboard → Products, swipe to Recycle Bin) and myorder (order status → 🔔, 💬). While the keyboard is up (visualViewport), the dialog is set to the visible area (top/height), the chips hide, and there is no bottom safe-area padding.
 - tests/ai-help.test.js: 18 more real questions + 4 more off-topic refusals. Node22 check + test 497/497. WebKit iPhone 13: both owner questions answered; keyboard emulated via innerHeight → dialog 0–664 = visual viewport, form ends at the keyboard top; restored after. A real iPhone keyboard is not verified.
+
+## 2026-11-05 — Claude (account 1) — 1.1.334 AI helper: iPhone Myanmar mark order
+
+- Owner's live iPhone (GearHub 1.1.333): "Product ဘယ်လိုထည့်လဲ" was still refused, and "Category အသုံးပြုနည်းပြောပြ" gave the general help list.
+- Cause: the iPhone keyboard typed ထည့် as ထ ည ် ့ (103A before 1037), while the keywords use the canonical order (1037 103A). ai-help.js now NFC-normalizes the question and the keywords. The general "help" entry only answers when no topic matched.
+- tests/ai-help.test.js: iPhone mark order, Category/Excel + "အသုံးပြုနည်း", "help me". Node22 check + test 497/497. Not checked on a real iPhone. Live check: skyshopmm.com/api/app-release = 1.1.329 (shops), preview=gearhub = 1.1.333.
