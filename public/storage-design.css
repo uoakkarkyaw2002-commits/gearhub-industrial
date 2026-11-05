@@ -1,0 +1,59 @@
+/* 1.1.315 owner's picture: Server Storage card. All sizes are the picture's own pixels (card = 960 wide) times --u,
+   so the card looks the same at every width. Pictures (header, logos, buttons) are cut from the owner's picture. */
+.settings-row.ss-mode{display:block!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+.settings-row.ss-mode>:not(#storage-more){display:none!important}
+.settings-row.ss-mode>#storage-more{display:block!important;margin:0!important;padding:0!important;grid-column:1/-1}
+.ss-wrap{container-type:inline-size;width:100%}
+.ss-card{--u:calc(100cqw / 960);position:relative;overflow:hidden;border-radius:calc(38 * var(--u));font-family:Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+.ss-card.is-open{border:calc(2 * var(--u)) solid #8fcf98;background:linear-gradient(180deg,#ffffff 30%,#eef8ea 70%,#dff2da 100%);padding-bottom:calc(16 * var(--u))}
+.ss-head{display:block;width:100%;padding:0;border:0;background:transparent;cursor:pointer}
+.ss-head img{display:block;width:100%;height:auto}
+.ss-card:not(.is-open) .ss-head img{border-radius:calc(38 * var(--u))}
+.ss-body{display:grid;gap:calc(15 * var(--u));padding:0 calc(14 * var(--u));margin-top:calc(2 * var(--u))}
+.ss-box{position:relative;border:calc(1.5 * var(--u)) solid #e2e9e4;border-radius:calc(30 * var(--u));background:#fff;box-shadow:0 calc(6 * var(--u)) calc(18 * var(--u)) #1d4a2a26,0 calc(1 * var(--u)) calc(3 * var(--u)) #1d4a2a14}
+.ss-title{position:absolute;left:calc(160 * var(--u));top:calc(11 * var(--u));color:#101a14;font-size:calc(33 * var(--u));font-weight:800;line-height:1.2;letter-spacing:-.01em;white-space:nowrap}
+.ss-sub{position:absolute;left:calc(162 * var(--u));top:calc(55 * var(--u));color:#1d3a6e;font-size:calc(25 * var(--u));line-height:1.2;white-space:nowrap}
+.ss-bar{position:absolute;left:calc(163 * var(--u));right:calc(30 * var(--u));top:calc(99 * var(--u));height:calc(19 * var(--u));border-radius:999px;background:#d4dee9;overflow:hidden}
+.ss-bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#0f9a2c,#2fc040)}
+.ss-tile{position:absolute;left:calc(20 * var(--u));top:calc(7 * var(--u));width:calc(125 * var(--u));height:calc(120 * var(--u))}
+.ss-pill{position:absolute;right:calc(18 * var(--u));top:calc(17 * var(--u));display:flex;align-items:center;gap:calc(14 * var(--u));height:calc(60 * var(--u));padding:0 calc(22 * var(--u)) 0 calc(19 * var(--u));border-radius:999px;background:#ddf1da}
+.ss-pill img{width:calc(44 * var(--u));height:calc(44 * var(--u))}
+.ss-pill b{color:#1b6e2d;font-size:calc(29 * var(--u));font-weight:800;white-space:nowrap}
+.ss-render{height:calc(150 * var(--u))}
+.ss-render .ss-title{left:calc(175 * var(--u));top:calc(13 * var(--u))}
+.ss-render .ss-sub{left:calc(175 * var(--u));top:calc(60 * var(--u))}
+.ss-render .ss-bar{left:calc(175 * var(--u));top:calc(108 * var(--u))}
+.ss-ring{position:absolute;left:calc(28 * var(--u));top:calc(15 * var(--u));display:grid;place-items:center;width:calc(124 * var(--u));height:calc(124 * var(--u));border-radius:50%;background:conic-gradient(from 6deg,#45d82c 0,#17b52f calc(var(--p) * 1.2%),#3aa883 calc(var(--p) * 1.2%),#5ab597 29%,#9fd0c1 29%,#a9d5c8 41%,#c2cede 41%,#c9d2e0 57%,#2f9068 57%,#2a8461 67%,#0f5039 67%,#0b4732 100%)}
+.ss-ring::before{content:"";position:absolute;inset:calc(16 * var(--u));border-radius:50%;background:#fff}
+.ss-ring b{position:relative;color:#101a14;font-size:calc(31 * var(--u));font-weight:800}
+.ss-r2,.ss-drive{height:calc(135 * var(--u))}
+.ss-shops{padding:calc(108 * var(--u)) calc(30 * var(--u)) calc(18 * var(--u)) calc(40 * var(--u))}
+.ss-shops .ss-tile{top:calc(8 * var(--u));height:calc(105 * var(--u))}
+.ss-shops .ss-title{left:calc(166 * var(--u))}
+.ss-shops .ss-sub{left:calc(166 * var(--u));top:calc(54 * var(--u))}
+.ss-shops .ss-pill{right:calc(100 * var(--u));top:calc(22 * var(--u))}
+.ss-chev{position:absolute;right:calc(18 * var(--u));top:calc(18 * var(--u));width:calc(70 * var(--u));height:calc(70 * var(--u));padding:0;border:0;background:transparent;cursor:pointer;transition:transform .2s}
+.ss-chev img{width:100%;height:100%}
+.ss-shops:not(.is-open){height:calc(108 * var(--u));padding:0}
+.ss-shops:not(.is-open) .ss-rows{display:none}
+.ss-shops:not(.is-open) .ss-chev{transform:rotate(-90deg)}
+.ss-rows{display:grid;gap:calc(6 * var(--u));margin:0;padding:0;list-style:none}
+.ss-rows li{display:flex;align-items:center;height:calc(47 * var(--u));padding:0 calc(24 * var(--u)) 0 calc(26 * var(--u));border-radius:calc(10 * var(--u));background:#eef1f4}
+.ss-rows img{width:calc(54 * var(--u));height:calc(44 * var(--u));object-fit:contain}
+.ss-rows span{flex:1;min-width:0;margin-left:calc(36 * var(--u));overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#101a14;font-size:calc(25 * var(--u))}
+.ss-rows b{color:#101a14;font-size:calc(25 * var(--u));font-weight:800;white-space:nowrap}
+.ss-backup{height:calc(295 * var(--u))}
+.ss-backup .ss-tile{top:calc(7 * var(--u));width:calc(115 * var(--u));height:calc(102 * var(--u))}
+.ss-backup .ss-title{left:calc(163 * var(--u));top:calc(13 * var(--u))}
+.ss-backup .ss-sub{left:calc(160 * var(--u));top:calc(56 * var(--u))}
+.ss-backup .ss-pill{top:calc(19 * var(--u))}
+.ss-state{position:absolute;left:calc(160 * var(--u));top:calc(86 * var(--u));color:#b45309;font-size:calc(20 * var(--u))}
+.ss-run,.ss-download{position:absolute;left:calc(82 * var(--u));width:calc(792 * var(--u));height:calc(82 * var(--u));padding:0;border:0;background:transparent;cursor:pointer}
+.ss-run{top:calc(109 * var(--u))}
+.ss-download{top:calc(199 * var(--u))}
+.ss-run img,.ss-download img{display:block;width:100%;height:100%}
+.ss-run:disabled{opacity:.55;cursor:default}
+.ss-run:active,.ss-download:active,.ss-head:active{transform:scale(.99)}
+/* Backup: white at the top fading into the green card, the buttons sit on the fade (as in the picture). */
+.ss-backup{background:linear-gradient(180deg,#fff 0,#fff 34%,#ffffff00 78%)!important;border-bottom-color:transparent!important;box-shadow:0 calc(-2 * var(--u)) calc(10 * var(--u)) #1d4a2a0f!important}
+.ss-card.is-open{background:linear-gradient(180deg,#ffffff 30%,#f1f9ee 64%,#dff2da 100%),radial-gradient(ellipse at 10% 100%,#cdeec6,transparent 60%)}

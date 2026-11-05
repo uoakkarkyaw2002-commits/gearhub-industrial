@@ -64,7 +64,7 @@
   window.addEventListener("gearhub:auto-download", event => renderOffline(event.detail?.state, event.detail?.percent));
   renderOffline(localStorage.getItem("gh-offline-downloaded-at") ? "ready" : "idle");
 
-  let storageData = null, serviceData = null, storageOpen = false;
+  let storageData = null, serviceData = null, storageOpen = false, shopsOpen = true;
   function renderStorageUsage() {
     const label = byId("storage-usage"), meter = byId("storage-meter-fill");
     if (!label || !meter) return;
@@ -95,6 +95,27 @@
       lines.push(`<div class="storage-card storage-backup"><span class="storage-card-icon" aria-hidden="true">🛟</span><div class="storage-card-copy"><p class="storage-card-title"><b>Backup</b><span>${esc(when(backup.lastSuccess))}</span></p><p class="storage-card-note">Off-site: ${backup.offsite ? esc(when(backup.lastOffsite)) : "Not configured"}</p>${state ? `<p class="storage-backup-state">${esc(state)}</p>` : ""}<div class="storage-backup-actions"><button type="button" id="storage-backup-run" class="storage-backup-run"${backupRunning || backup.running ? " disabled" : ""}>⟳ Run backup now</button><a id="storage-backup-download" class="storage-backup-download" href="/api/admin/backup" download>⬇ Download full backup</a></div></div></div>`);
     }
     more.innerHTML = lines.join("");
+    // 1.1.315 owner's picture: the GearHub owner's Server Storage is one green card — a header that opens and
+    // closes it, then Render, Cloudflare R2, Google Drive, All shops and Backup. Pictures are cut from the picture.
+    if (lines.length) {
+      const img = n => '/images/storage/' + n + '?v=1', pct = (u, t) => t ? Math.min(100, Math.max(0, u / t * 100)) : 0;
+      const bar = p => `<span class="ss-bar"><i style="width:${Math.max(2, p)}%"></i></span>`;
+      const pill = (icon, text) => `<span class="ss-pill"><img src="${img(icon)}" alt=""><b>${esc(text)}</b></span>`;
+      const diskPct = capacityBytes ? Math.round(usedBytes / capacityBytes * 100) : 0;
+      const parts = [`<div class="ss-box ss-render"><span class="ss-ring" style="--p:${diskPct}"><b>${diskPct}%</b></span><b class="ss-title">Render Server</b><span class="ss-sub">App data ${esc(formatBytes(storageData.appBytes ?? usedBytes))} &nbsp;/&nbsp; Total ${esc(capacity)}</span>${bar(diskPct)}</div>`];
+      if (r2) parts.push(`<div class="ss-box ss-r2"><img class="ss-tile" src="${img("r2.png")}" alt=""><b class="ss-title">Cloudflare R2</b><span class="ss-sub">${esc(formatBytes(r2.freeBytes))} free · ${r2.files} files</span>${pill("db.png", formatBytes(r2.usedBytes) + " / " + formatBytes(r2.freeBytes).replace(".0 ", " "))}${bar(pct(r2.usedBytes, r2.freeBytes))}</div>`);
+      if (drive) parts.push(`<div class="ss-box ss-drive"><img class="ss-tile" src="${img("drive.png")}" alt=""><b class="ss-title">Google Drive</b><span class="ss-sub">${drive.files} files · GearHub only</span>${pill("db.png", formatBytes(drive.usedBytes) + " / " + formatBytes(drive.limitBytes || 1024 ** 4))}${bar(pct(drive.usedBytes, drive.limitBytes || 1024 ** 4))}</div>`);
+      if (shops) parts.push(`<div class="ss-box ss-shops${shopsOpen ? " is-open" : ""}"><img class="ss-tile" src="${img("shops.png")}" alt=""><b class="ss-title">All shops</b><span class="ss-sub">${shops.count} shops</span>${pill("db.png", formatBytes(shops.usedBytes))}<button type="button" class="ss-chev" data-ss="shops" aria-label="Shops" aria-expanded="${shopsOpen}"><img src="${img("chev.png")}" alt=""></button><ul class="ss-rows">${(shops.top || []).map(x => `<li><img src="${img("store.png")}" alt=""><span>${esc(x.name)}</span><b>${esc(formatBytes(x.usedBytes))}</b></li>`).join("")}</ul></div>`);
+      if (backup) {
+        const when = v => v ? new Date(v).toLocaleString("en-GB", { timeZone: "Asia/Yangon", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).replace(",", " at") : "None yet";
+        const running = backupRunning || backup.running, state = running ? "Backup running… / Backup လုပ်နေပါတယ်" : backup.lastFailure && (!backup.lastSuccess || backup.lastFailure > backup.lastSuccess) ? "Last backup failed / Backup မအောင်မြင်ပါ" : backupMessage;
+        parts.push(`<div class="ss-box ss-backup"><img class="ss-tile" src="${img("buoy.png")}" alt=""><b class="ss-title">Backup</b><span class="ss-sub">Off-site: ${backup.offsite ? esc(when(backup.lastOffsite)) : "Not configured"}</span>${pill("cal.png", when(backup.lastSuccess))}${state ? `<span class="ss-state">${esc(state)}</span>` : ""}<button type="button" id="storage-backup-run" class="ss-run"${running ? " disabled" : ""} aria-label="Run backup now"><img src="${img("run.jpg")}" alt=""></button><a id="storage-backup-download" class="ss-download" href="/api/admin/backup" download aria-label="Download full backup"><img src="${img("dl.jpg")}" alt=""></a></div>`);
+      }
+      more.innerHTML = `<div class="ss-wrap"><div class="ss-card${storageOpen ? " is-open" : ""}"><button type="button" class="ss-head" data-ss="toggle" aria-expanded="${storageOpen}" aria-label="Server Storage · Server resources & usage"><img src="${img(storageOpen ? "head-open.jpg" : "head-closed.jpg")}" alt=""></button>${storageOpen ? `<div class="ss-body">${parts.join("")}</div>` : ""}</div></div>`;
+      more.hidden = false;
+      const row = more.closest(".settings-row");if (row) row.classList.add("ss-mode");
+      return;
+    }
     // 1.1.313 owner: the R2 / Drive / shops / backup list opens only when Server Storage is tapped.
     more.hidden = !lines.length || !storageOpen;
     const row = more.closest(".settings-row");
@@ -106,6 +127,11 @@
     if (lines.length) label.textContent = "🖥️ Render · " + label.textContent;
   }
   let backupRunning = false, backupMessage = "";
+  document.addEventListener("click", event => {
+    const b = event.target.closest?.("[data-ss]");if (!b) return;
+    if (b.dataset.ss === "toggle") storageOpen = !storageOpen; else shopsOpen = !shopsOpen;
+    renderStorageUsage();
+  });
   document.addEventListener("click", async event => {
     const button = event.target.closest?.("#storage-backup-run");
     if (!button || backupRunning) return;
