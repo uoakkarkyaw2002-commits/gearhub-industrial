@@ -60,6 +60,22 @@
   ['check',['error','errors','problem','issue','wrong','not working','check my','check my account','account check','health','အမှား','ပြဿနာ','အဆင်မပြေ','ဘာဖြစ်နေ','အကောင့် error','account error','account စစ်','အကောင့် စစ်','စစ်ပေး'],'',''],
   ['whoami',['my account','who am i','which account','signed in as','logged in','ငါ့ အကောင့်','ကျွန်တော့် အကောင့်','ကျွန်မ အကောင့်','ဘယ် အကောင့်','ဝင်ထား'],'',''],
   ['version',['version','app version','latest version','ဗားရှင်း','update ရှိ'],'',''],
+  // 1.1.338 owner: "make the free assistant as good as it can be" — more answers about the whole app.
+  ['hero',['hero image','hero picture','banner image','homepage banner','home banner','cover image','change banner','home picture','ဘန်နာ','hero ပုံ','hero image','ပင်မပုံ','ပင်မ ပုံ','အပေါ်ဆုံး ပုံ','home ပုံ','banner ပုံ','banner ပြောင်း','hero ပြောင်း'],'Shop owner: the Home banner (Hero) is set in Dashboard → Frontend Appearance & Content → Hero / Homepage Banner. Upload up to 5 pictures — they change by themselves — then Save.','ဆိုင်ပိုင်ရှင်: Home ပေါ်က banner (Hero) ကို Dashboard → Frontend Appearance & Content → Hero / Homepage Banner မှာ ပြောင်းပါတယ်။ ပုံ ၅ ပုံအထိ တင်လို့ရပြီး အလိုလို ပြောင်းပြီး ပြပါတယ်။ ပြီးရင် Save နှိပ်ပါ။',{view:'profile',en:'Open Profile',my:'Profile ဖွင့်မယ်'}],
+  ['usershow',['ဈေး ဖျောက်','ဈေး ဖျောက်ချင်','ဈေး ဝှက်','stock ဝှက်','user show','visitors see','what customers see','hide price','hide stock','hide sku','show price','ဈေး မပြ','ဈေးဖျောက်','stock မပြ','stock ဖျောက်','ဝယ်သူ မြင်','ဝယ်သူတွေ မြင်','user show'],'Shop owner: Dashboard → User show. Choose what visitors see on each product: SKU, Part No, Price, Stock, Description and how many photos.','ဆိုင်ပိုင်ရှင်: Dashboard → User show။ ဝယ်သူတွေ ပစ္စည်းမှာ ဘာမြင်ရမလဲ ရွေးပါ: SKU၊ Part No၊ ဈေး၊ လက်ကျန်၊ အကြောင်းအရာ၊ ပုံအရေအတွက်။',{view:'profile',en:'Open Profile',my:'Profile ဖွင့်မယ်'}],
+  ['lowstock',['low stock','out of stock','stock alert','running out','sold out','stock နည်း','ပစ္စည်းကုန်','ပစ္စည်း ကုန်','လက်ကျန်နည်း','လက်ကျန် နည်း','ကုန်တော့','stock alert'],'Shop owner: Dashboard → Low stock alerts lists the products that are running out. Change the stock of a product in Dashboard → Products.','ဆိုင်ပိုင်ရှင်: Dashboard → Low stock alerts မှာ ကုန်တော့မယ့် ပစ္စည်းတွေ ပေါ်ပါတယ်။ လက်ကျန် ပြင်ချင်ရင် Dashboard → Products မှာ ပြင်ပါ။'],
+  ['confirmorder',['order confirm','confirm လုပ်','အော်ဒါ confirm','confirm order','approve order','confirm payment','approve payment','accept order','verify payment','အော်ဒါ အတည်ပြု','ငွေ အတည်ပြု','order အတည်ပြု','ငွေလွှဲ စစ်','order လက်ခံ','အော်ဒါ လက်ခံ','ပြေစာ စစ်'],'Shop owner: Dashboard → Orders & payment. Open the order, look at the receipt photo and the transaction reference, then confirm the payment. The customer gets the update in 🔔.','ဆိုင်ပိုင်ရှင်: Dashboard → Orders & payment။ အော်ဒါကို ဖွင့်ပြီး ပြေစာ ဓာတ်ပုံနဲ့ transaction reference ကို ကြည့်၊ ငွေလွှဲ မှန်ရင် အတည်ပြုပါ။ ဝယ်သူက 🔔 မှာ သိရပါမယ်။',{view:'profile',en:'Open Profile',my:'Profile ဖွင့်မယ်'}],
+  ['cancelorder',['cancel order','cancel my order','delete order','deleted orders','cancelled order','အော်ဒါ ဖျက်','order ဖျက်','order cancel','အော်ဒါ cancel','အော်ဒါ ပယ်ဖျက်','မှာတာ ပယ်'],'To cancel an order, write to the shop with 💬 before it is confirmed. Shop owner: cancelled and deleted orders are kept in Dashboard → Deleted orders.','အော်ဒါ ပယ်ချင်ရင် မအတည်ပြုခင် 💬 နဲ့ ဆိုင်ကို ပြောပါ။ ဆိုင်ပိုင်ရှင်: ပယ်ဖျက်/ဖျက်ထားတဲ့ အော်ဒါတွေကို Dashboard → Deleted orders မှာ သိမ်းထားပါတယ်။'],
+  ['recycle',['ဖျက်ထားတဲ့ ပစ္စည်း','ဖျက်လိုက်တဲ့ ပစ္စည်း','ဖျက်မိ','ပြန်ယူချင်','recycle bin','recycle','restore product','deleted product','bring back','undelete','ပြန်ယူ','ဖျက်ထားတာ ပြန်','ပြန်ထည့်','ပြန်ရ','recycle bin'],'Shop owner: deleted products go to the Recycle Bin (Dashboard → Recycle Bin). Open it and restore a product to bring it back.','ဆိုင်ပိုင်ရှင်: ဖျက်လိုက်တဲ့ ပစ္စည်းတွေက Recycle Bin (Dashboard → Recycle Bin) ထဲ ရောက်ပါတယ်။ အဲဒီမှာ restore နှိပ်ရင် ပြန်ရပါတယ်။'],
+  ['contactus',['contact us','customer service','support','phone number','call us','hotline','helpdesk','ဆက်သွယ်ရန်','ဖုန်းနံပါတ်','ဖုန်း နံပါတ်','ဖုန်းခေါ်','ကူညီမယ့်သူ','အကူအညီ ဖုန်း','support ဖုန်း'],'Settings → Contact us shows the support phone number: 09-766472432. For questions about a product or an order, write to that shop with 💬.','Settings → Contact us မှာ support ဖုန်းနံပါတ် 09-766472432 ပေါ်ပါတယ်။ ပစ္စည်း ဒါမှမဟုတ် အော်ဒါအကြောင်း မေးချင်ရင် အဲဒီဆိုင်ကို 💬 နဲ့ စာရေးပါ။'],
+  ['aboutapp',['what is skyshopmm','what is gearhub','about this app','about app','what is this app','what does this app do','skyshopmm ဆိုတာ','gearhub ဆိုတာ','app ဆိုတာ ဘာ','ဒီ app ဆိုတာ'],'SkyShopMM (GearHub) is an app where every shop has its own page: customers search products, order and pay by transfer, follow shops, comment and chat; shop owners manage products, orders, Excel files and their profile.','SkyShopMM (GearHub) ဆိုတာ ဆိုင်တိုင်းမှာ ကိုယ်ပိုင်စာမျက်နှာရှိတဲ့ app ပါ: ဝယ်သူက ပစ္စည်းရှာ၊ မှာ၊ ငွေလွှဲပေးချေ၊ ဆိုင်ကို follow၊ comment၊ chat လုပ်နိုင်ပြီး ဆိုင်ပိုင်ရှင်က ပစ္စည်း၊ အော်ဒါ၊ Excel file နဲ့ Profile ကို စီမံပါတယ်။'],
+  ['sku',['what is sku','what is part no','sku meaning','part number','sku ဆိုတာ','sku ဘာလဲ','part no ဆိုတာ','part no ဘာလဲ'],'SKU is the shop\'s own product code; Part No is the maker\'s part number. You can search with either one in the search bar.','SKU ဆိုတာ ဆိုင်ရဲ့ ကိုယ်ပိုင် ပစ္စည်းကုဒ်၊ Part No ဆိုတာ ထုတ်လုပ်သူရဲ့ ပစ္စည်းနံပါတ်ပါ။ ရှာတဲ့အခါ တစ်ခုခုနဲ့ ရှာလို့ရပါတယ်။'],
+  ['backup',['backup','back up','restore data','data safe','lost data','အရန်သိမ်း','backup ကူး','data ပျောက်','data ပြန်'],'The server backs up the data automatically every day. The GearHub owner can also press Run backup now in Settings → Server Storage.','Server က data ကို နေ့တိုင်း အလိုအလျောက် backup လုပ်ပါတယ်။ GearHub ပိုင်ရှင်က Settings → Server Storage မှာ Run backup now ကိုလည်း နှိပ်လို့ရပါတယ်။'],
+  ['pc',['on pc','on computer','desktop','laptop','computer version','web version','pc version','ကွန်ပျူတာ','pc မှာ','laptop မှာ','ဝက်ဘ်'],'On a computer the same app opens in the browser (skyshopmm.com) with a top menu: Home, Discover, Category, Promotion, Cart and Profile. You can install it as an app from the browser, too.','ကွန်ပျူတာမှာ browser (skyshopmm.com) ထဲက အတူတူ app ပါပဲ၊ အပေါ်မှာ menu ရှိပါတယ်: Home၊ Discover၊ Category၊ Promotion၊ Cart၊ Profile။ Browser ကနေ app အဖြစ် install လုပ်လို့လည်း ရပါတယ်။'],
+  ['fee',['price of app','app price','how much does it cost','is it free','free to use','subscription','monthly fee','plan price','အခမဲ့လား','အခမဲ့','ဈေးဘယ်လောက်ကျ','လစဉ်ကြေး','ကုန်ကျစရိတ်','ကျသင့်ငွေ'],'I do not have price or plan details. For plans and fees, call 09-766472432 (Settings → Contact us).','Plan နဲ့ ကျသင့်ငွေ အချက်အလက် ကျွန်မမှာ မရှိပါဘူး။ ဖုန်း 09-766472432 (Settings → Contact us) ကို ဆက်သွယ်ပါ။'],
+  ['feedback',['report a bug','bug','feedback','suggestion','complain','complaint','report problem','တိုင်ကြား','အကြံပြု','အကြံဉာဏ်','bug တွေ့','ပြဿနာ တိုင်'],'To report a problem or send an idea, call 09-766472432 (Settings → Contact us). For a problem with an order or a product, write to the shop with 💬.','ပြဿနာ တိုင်ကြားချင်ရင် ဒါမှမဟုတ် အကြံပေးချင်ရင် 09-766472432 (Settings → Contact us) ကို ဆက်သွယ်ပါ။ အော်ဒါ ဒါမှမဟုတ် ပစ္စည်းပြဿနာဆိုရင် ဆိုင်ကို 💬 နဲ့ စာရေးပါ။'],
+  ['safety',['is it safe','is it secure','privacy','my data','safe to use','trust','လုံခြုံ','လုံခြုံလား','privacy','ကိုယ်ရေးအချက်အလက်','data လုံခြုံ'],'You sign in with your Google account (the app never sees your Google password). Shop photos and files stay in the shop\'s own storage, and you can delete your account at skyshopmm.com/delete-account.html.','Google account နဲ့ ဝင်တာပါ (သင့် Google password ကို app က မမြင်ရပါ)။ ဆိုင်ရဲ့ ပုံနဲ့ file တွေက ဆိုင်ရဲ့ ကိုယ်ပိုင် storage ထဲမှာ ရှိပြီး skyshopmm.com/delete-account.html မှာ account ကို ဖျက်လို့ရပါတယ်။'],
+  ['sendimage',['screenshot','send photo','send picture','send image','upload screenshot','look at my screen','see my screen','ပုံပို့','ပုံ ပို့','ပုံပြပြီး','screenshot ပို့','ပုံကြည့်ပြီး','ပုံ ဖတ်'],'I cannot read pictures yet. Please type what you see (for example the words on the screen), or send the screenshot to the shop with 💬.','ကျွန်မက ပုံကို မဖတ်နိုင်သေးပါဘူး။ မြင်ရတာကို စာနဲ့ ရိုက်ပြပါ (ဥပမာ screen ပေါ်က စာလုံးတွေ)၊ ဒါမှမဟုတ် screenshot ကို 💬 နဲ့ ဆိုင်ကို ပို့ပါ။'],
   ['help',['help','how to use','what can','guide','အကူအညီ','ဘယ်လိုသုံး','သုံးနည်း','လမ်းညွှန်'],'I can help with: searching and scanning, Excel, categories, cart and ordering, payment, Discover, comments, following, Profile, adding products, chat, notifications and Settings. What would you like to do?','ရှာနည်း/scan၊ Excel၊ အမျိုးအစား၊ Cart နဲ့ မှာနည်း၊ ငွေပေးချေမှု၊ Discover၊ comment၊ follow၊ Profile၊ ပစ္စည်းထည့်နည်း၊ chat၊ အသိပေးချက်နဲ့ Settings တွေ ကူညီပေးနိုင်ပါတယ်။ ဘာလုပ်ချင်ပါသလဲ?']
  ];
  const chips={en:['How do I order?','How to search?','Add to Home Screen','How to follow a shop?','Add a product'],my:['ဘယ်လိုမှာရမလဲ?','ဘယ်လိုရှာရမလဲ?','ဖုန်းထဲ app ထည့်နည်း','ဆိုင်ကို follow လုပ်နည်း','ပစ္စည်းထည့်နည်း']};
@@ -99,9 +115,30 @@
   save:['post သိမ်း','save လုပ်'],
   theme:['dark mode','အရောင် ပြောင်း'],
   category:['category ကြည့်','အမျိုးအစား ကြည့်']};
+ Object.assign(MORE,{
+  whoami:(MORE.whoami||[]).concat(['ငါက ဘယ်သူ','ငါ ဘယ်သူ','ကျွန်တော် ဘယ်သူ','ကျွန်မ ဘယ်သူ','ကျွန်တော်က ဘယ်သူ','ကျွန်မက ဘယ်သူ','ငါ့ နာမည်','ကျွန်တော့် နာမည်','ကျွန်မ နာမည်','ငါဘာလဲ','ဘယ် email','ဘယ် gmail']),
+  countfollowers:(MORE.countfollowers||[]).concat(['user ဘယ်လောက်','user ဘယ်နှစ်','users ဘယ်','customer ဘယ်နှစ်','customers ဘယ်','ဝယ်သူ ဘယ်နှစ်','ဝယ်သူ ဘယ်လောက်','လူ ဘယ်နှစ်','how many user','how many customer','how many people','ဖောလိုဝါ ဘယ်']),
+  countproducts:(MORE.countproducts||[]).concat(['ပစ္စည်း ဘယ်နှစ်မျိုး','ပစ္စည်းစုစုပေါင်း','စုစုပေါင်း ပစ္စည်း','total product','total item']),
+  profile:(MORE.profile||[]).concat(['change shop name','rename shop','shop name ပြင်','ဆိုင်နာမည် ပြင်','ဆိုင်နာမည် ပြောင်း','shop name ပြောင်း','ဆိုင် logo','ဆိုင် ပုံ ပြောင်း','ကိုယ်ပုံ ပြောင်း','profile photo ပြောင်း','cover photo']),
+  signin:(MORE.signin||[]).concat(['password','forgot password','password မေ့','စကားဝှက်','စကား ဝှက်']),
+  install:(MORE.install||[]).concat(['icon ထည့်','shortcut','app ပြန်ထည့်','app ပျောက်','phone မှာ app']),
+  cart:(MORE.cart||[]).concat(['cart ထဲက ဖယ်','ခြင်းထဲက ဖယ်','ပစ္စည်း ဖယ်','အရေအတွက် ပြင်','quantity']),
+  payment:(MORE.payment||[]).concat(['bank account','bank details','account number','transfer မရ','ငွေလွှဲ မရ','ဘဏ် နံပါတ်','payment details','bank နံပါတ်','kbz pay','wave money']),
+  dashboard:(MORE.dashboard||[]).concat(['sales','total sales','income','revenue','ရောင်းရငွေ','ရောင်းအား','ဝင်ငွေ','အော်ဒါ ဘယ်နှစ်ခု','order ဘယ်နှစ်'])
+ });
  for(const e of K)if(MORE[e[0]])e[1]=e[1].concat(MORE[e[0]]);
  const has=(text,word)=>isMy(word)||word.length>3?text.includes(word):new RegExp('(^|[^a-z])'+word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'([^a-z]|$)').test(text);
  // The best entry: each keyword whose words are all in the question counts their length.
+ // When nothing matches exactly, find the topics that share the most words with the question ("did you mean").
+ const LABELS={order:['How do I order?','ဘယ်လိုမှာရမလဲ?'],search:['How to search?','ဘယ်လိုရှာရမလဲ?'],scan:['Scan with the camera','ကင်မရာနဲ့ scan လုပ်နည်း'],excel:['Excel files','Excel ရှာနည်း'],category:['Categories','အမျိုးအစား'],promotion:['Promotion','Promotion'],cart:['Cart','Cart'],payment:['Payment','ငွေပေးချေနည်း'],discover:['Discover','Discover'],comment:['Comments','Comment'],follow:['Follow a shop','ဆိုင် follow နည်း'],profile:['Change profile / logo / name','Profile / logo / နာမည် ပြင်နည်း'],post:['Write a post','Post တင်နည်း'],addproduct:['Add a product','ပစ္စည်းထည့်နည်း'],editproduct:['Edit or delete a product','ပစ္စည်း ပြင်/ဖျက်နည်း'],editcategory:['Add a category','Category ထည့်နည်း'],dashboard:['Dashboard','Dashboard'],hero:['Change the Home banner (Hero)','Home banner (Hero) ပြောင်းနည်း'],usershow:['What visitors see (User show)','User show'],confirmorder:['Confirm an order','အော်ဒါ အတည်ပြုနည်း'],recycle:['Recycle Bin','Recycle Bin'],chat:['Chat with a shop','ဆိုင်ကို chat လုပ်နည်း'],noti:['Notifications','အသိပေးချက်'],install:['Add to Home Screen','ဖုန်းထဲ app ထည့်နည်း'],language:['Change language','ဘာသာပြောင်းနည်း'],theme:['Dark / Light','Dark / Light'],share:['Share my store (QR)','QR ဝေမျှနည်း'],createshop:['Open my own shop','ဆိုင်ဖွင့်နည်း'],speed:['App speed','App speed'],contactus:['Contact us','ဆက်သွယ်ရန်'],check:['Check my account','အကောင့် စစ်ပေးပါ'],signin:['Sign in','Google နဲ့ ဝင်နည်း']};
+ const STOP=new Set(['ဘယ်လို','ရမလဲ','ပါသလဲ','လို့ရ','လို့ရလား','ချင်တယ်','ချင်','နည်း','ဘာလဲ','ရှိလဲ','ကို','မှာ','တွေ','တာ','how','what','where','the','this','that','with','from','your','have','does','can','not','app']);
+ function near(q){
+  const text=' '+q.normalize('NFC').toLowerCase()+' ',out=[];
+  for(const e of K){if(!LABELS[e[0]])continue;let n=0;const seen=new Set();
+   for(const k of e[1])for(const w of k.normalize('NFC').toLowerCase().split(/\s+/)){if(seen.has(w)||STOP.has(w))continue;const len=[...w].length;if(len<(isMy(w)?3:4))continue;if(text.includes(w)){seen.add(w);n+=len}}
+   if(n)out.push([n,e[0]])}
+  return out.filter(x=>x[0]>=5).sort((a,b)=>b[0]-a[0]).slice(0,3).map(x=>x[1]);
+ }
  function answer(q){
   // 1.1.334 owner's iPhone: its keyboard types some Myanmar marks in another order (ထည့် as ည + ် + ့);
   // NFC puts them in one order, so the same word always matches.
@@ -163,6 +200,11 @@
   save:[openP,menu,s('#saved-posts-action','Tap Saved.','Saved ကို နှိပ်ပါ။')],
   offline:[openP,menu,s('#offline-status','This shows if the shop is saved for offline use.','ဒါက ဆိုင်ကို offline အတွက် သိမ်းပြီးလား ပြပါတယ်။')],
   refresh:[s(H,'Tap Home again to reload (or pull the page down).','ပြန် load ဖို့ Home ကို ထပ်နှိပ်ပါ (ဒါမှမဟုတ် စာမျက်နှာကို အောက်ဆွဲပါ)။')],
+  hero:[openP,s('.profile-dashboard','Tap Dashboard, then follow the steps in my answer.','Dashboard ကို နှိပ်ပါ၊ ပြီးရင် အဖြေထဲက အဆင့်တွေအတိုင်း လုပ်ပါ။')],
+  usershow:[openP,s('.profile-dashboard','Tap Dashboard, then follow the steps in my answer.','Dashboard ကို နှိပ်ပါ၊ ပြီးရင် အဖြေထဲက အဆင့်တွေအတိုင်း လုပ်ပါ။')],
+  lowstock:[openP,s('.profile-dashboard','Tap Dashboard, then follow the steps in my answer.','Dashboard ကို နှိပ်ပါ၊ ပြီးရင် အဖြေထဲက အဆင့်တွေအတိုင်း လုပ်ပါ။')],
+  confirmorder:[openP,s('.profile-dashboard','Tap Dashboard, then follow the steps in my answer.','Dashboard ကို နှိပ်ပါ၊ ပြီးရင် အဖြေထဲက အဆင့်တွေအတိုင်း လုပ်ပါ။')],
+  recycle:[openP,s('.profile-dashboard','Tap Dashboard, then follow the steps in my answer.','Dashboard ကို နှိပ်ပါ၊ ပြီးရင် အဖြေထဲက အဆင့်တွေအတိုင်း လုပ်ပါ။')],
   nav:[s('.mobile-bottom-nav','Press on the bar, slide your finger and let go on the tab you want.','Bar ပေါ် ဖိ၊ လက်ကို ရွှေ့ပြီး လိုချင်တဲ့ tab ပေါ်မှာ လွှတ်ပါ။')]
  };
  const tour={steps:null,i:0,el:null,my:false};
@@ -253,7 +295,13 @@
   const my=isMy(q)||(!/[a-z]/i.test(q)&&pageMy()),hit=answer(q);
   if(hit&&LIVE[hit[0]]){const wait=document.createElement('div');wait.className='ai-help-msg bot';wait.innerHTML='<img src="'+robot+'" alt=""><p>…</p>';log.append(wait);log.scrollTop=log.scrollHeight;
    LIVE[hit[0]](my).catch(()=>my?'အခု မစစ်နိုင်ပါ။':'I cannot check right now.').then(text=>{wait.remove();say('bot',text,null,my,hit[0])});return}
-  setTimeout(()=>{if(hit)say('bot',my?hit[3]:hit[2],hit[4],my,hit[0]);else say('bot',ui[my?'my':'en'].only)},250);
+  setTimeout(()=>{if(hit)return say('bot',my?hit[3]:hit[2],hit[4],my,hit[0]);
+   const guess=near(q);
+   if(!guess.length)return say('bot',ui[my?'my':'en'].only);
+   say('bot',my?'ကျွန်မ သေချာ မနားလည်ပါဘူး။ ဒါတွေထဲက တစ်ခုလား?':'I am not sure I understood. Did you mean one of these?');
+   const box=document.createElement('div');box.className='ai-help-suggest';box.innerHTML=guess.map(id=>'<button type="button" data-q="'+esc(LABELS[id][my?1:0])+'">'+esc(LABELS[id][my?1:0])+'</button>').join('');
+   log.append(box);log.scrollTop=log.scrollHeight;
+   box.onclick=e=>{const b=e.target.closest('button');if(b){box.remove();ask(b.dataset.q)}}},250);
  }
  box.querySelector('.ai-help-form').addEventListener('submit',e=>{e.preventDefault();ask(input.value);input.value=''});
  chipBox.addEventListener('click',e=>{const b=e.target.closest('button');if(b)ask(b.textContent)});
@@ -275,5 +323,5 @@
  if(vv){vv.addEventListener('resize',fit);vv.addEventListener('scroll',fit)}
  input.addEventListener('focus',()=>setTimeout(fit,50));input.addEventListener('blur',()=>setTimeout(fit,50));
  box.addEventListener('close',()=>{box.classList.remove('ai-help-kb');box.style.top=box.style.height=box.style.bottom=''});
- window.GearHubAiHelp={answer,tours:TOURS,startTour,ids:K.map(e=>e[0])};
+ window.GearHubAiHelp={answer,near,labels:LABELS,tours:TOURS,startTour,ids:K.map(e=>e[0])};
 })();

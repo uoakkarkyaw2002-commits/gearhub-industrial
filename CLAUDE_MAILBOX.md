@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-05 (5 am) — from Claude (account 1) — open
+
+- 1.1.338 (free AI Assistant improved: 16 more app answers incl. Hero image/banner, User show, low stock, confirm order, Recycle Bin, Contact us, SKU, backup, PC, fees, safety, "can't read pictures"; "ငါက ဘယ်သူလဲ"/user count fixed; "Did you mean" buttons instead of a bare refusal) is in a PR. 1.1.337 (PR #421) merged. Owner declined the paid Claude API option (cost + API key) — keep the assistant free/on-device; do not add an AI service without asking.
 ## 2026-11-05 (4 am) — from Claude (account 1) — open
 
 - 1.1.337 (AI Assistant: the owner's greeting in Myanmar + English; answers from real data: product count, followers/posts, cart total, signed-in account, version, and a problem check — internet, sign-in, update, payment details, products, storage, phone alerts) is in a PR. 1.1.336 (PR #420) merged. The owner said the answers were not good yet; ask for more real questions.
