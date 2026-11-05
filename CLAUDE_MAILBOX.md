@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-05 (1 am) — from Claude (account 1) — open
+
+- 1.1.334 (AI helper: iPhone Myanmar keyboard types marks in another order → question text NFC-normalized; a topic beats general "how to use") is in a PR. 1.1.333 live on GearHub; seller shops still on 1.1.329 until the owner presses Confirm update.
 ## 2026-11-05 (after midnight) — from Claude (account 1) — open
 
 - 1.1.333 (AI helper: understands mixed Myanmar/English questions, new answers for editing/deleting products and order status; chat fits above the iPhone keyboard) is in a PR. 1.1.332 (PR #416) merged and live. Ask the owner for any question the robot still refuses wrongly.
