@@ -5,9 +5,9 @@
   const dialog = document.getElementById('shops-photo-dialog'), photo = document.getElementById('shops-photo-image');
   const words = {
     en:{timeUnknown:'Time unavailable',posted:'Posted',myanmarTime:'Myanmar time',product:'Product',kicker:'FROM EVERY SHOP',intro:'A little discovery. A new favourite. Products from every shop, together.',loading:'Finding products…',more:'Load more',retry:'Try again',empty:'A fresh start. Products will appear here when shops add them.',failed:'Products could not load. Please try again.',done:'You’re all caught up.',visit:'Visit shop',read:'See more',less:'See less',noPhoto:'No photo yet',soldOut:'Out of stock',photos:'View photos',close:'Close photos',prev:'Previous photo',next:'Next photo',
-      verified:'Verified shop',menu:'More options',like:'Like',comment:'Comments',buy:'Buy Now',save:'Save',saved:'Saved',quantity:'Quantity',addCart:'Add to Cart',added:'Added to cart',notEnough:'Not enough stock',closeSheet:'Close',write:'Write a comment…',send:'Send',signIn:'Sign in with Google to like, comment and follow',signInButton:'Continue with Google',noComments:'No comments yet. Be the first.',remove:'Delete',savedKicker:'ON THIS PHONE',savedTitle:'Saved',savedIntro:'Posts you saved. They stay on this phone.',savedEmpty:'Nothing saved yet. Tap the bookmark on a post to keep it here.',backToShops:'← Discover',savedRow:'Posts you saved',error:'Something went wrong. Please try again.',search:'Shop name and product',tabFeed:'Feed',tabFollowing:'Following',tabTrending:'Trending',tabNew:'New Arrivals',followEmpty:'Follow shops from the ••• menu on a post to see them here.',trendingEmpty:'No liked or commented posts yet.',noResults:'Nothing found. Try another word.',follow:'Follow',unfollow:'Following ✓',bell:'Notifications',account:'Settings',edit:'Edit',cancel:'Cancel',saveEdit:'Save'},
+      verified:'Verified shop',menu:'More options',like:'Like',comment:'Comments',buy:'Buy Now',save:'Save',saved:'Saved',quantity:'Quantity',addCart:'Add to Cart',added:'Added to cart',notEnough:'Not enough stock',closeSheet:'Close',write:'Write a comment…',send:'Send',signIn:'Sign in with Google to like, comment and follow',signInButton:'Continue with Google',noComments:'No comments yet. Be the first.',remove:'Delete',savedKicker:'ON THIS PHONE',savedTitle:'Saved',savedIntro:'Posts you saved. They stay on this phone.',savedEmpty:'Nothing saved yet. Tap the bookmark on a post to keep it here.',backToShops:'← Discover',savedRow:'Posts you saved',error:'Something went wrong. Please try again.',search:'Shop name and product',tabFeed:'Feed',tabFollowing:'Following',tabTrending:'Trending',tabNew:'New Arrivals',followEmpty:'Follow shops from the ••• menu on a post to see them here.',trendingEmpty:'No liked or commented posts yet.',noResults:'Nothing found. Try another word.',follow:'Follow',unfollow:'Following ✓',bell:'Notifications',account:'Settings',edit:'Edit',cancel:'Cancel',saveEdit:'Save',reply:'Reply',replyingTo:'Replying to',writeReply:'Write a reply…',comments:'comments',oneComment:'comment'},
     my:{timeUnknown:'အချိန်မှတ်တမ်းမရှိ',posted:'တင်ထားသောအချိန်',myanmarTime:'မြန်မာစံတော်ချိန်',product:'ပစ္စည်း',kicker:'ဆိုင်အသီးသီးမှ ပစ္စည်းများ',intro:'ဆိုင်အသီးသီးက ပစ္စည်းတွေကို တစ်နေရာတည်းမှာ ကြည့်ရှုပါ။',loading:'ပစ္စည်းများ ရှာဖွေနေပါသည်…',more:'ထပ်ကြည့်ရန်',retry:'ပြန်စမ်းရန်',empty:'ဆိုင်တွေ ပစ္စည်းတင်တဲ့အခါ ဒီနေရာမှာ ပြပေးပါမယ်။',failed:'ပစ္စည်းများ မရနိုင်သေးပါ။ ပြန်စမ်းကြည့်ပါ။',done:'ပစ္စည်းအားလုံး ကြည့်ပြီးပါပြီ။',visit:'ဆိုင်သို့သွားရန်',read:'ဆက်ဖတ်ရန်',less:'လျှော့ပြရန်',noPhoto:'ဓာတ်ပုံ မတင်ရသေးပါ',soldOut:'ပစ္စည်းကုန်နေပါသည်',photos:'ဓာတ်ပုံများ ကြည့်ရန်',close:'ဓာတ်ပုံ ပိတ်ရန်',prev:'ရှေ့ပုံ',next:'နောက်ပုံ',
-      verified:'အတည်ပြုထားသော ဆိုင်',menu:'နောက်ထပ်',like:'Like',comment:'မှတ်ချက်များ',buy:'ဝယ်မယ်',save:'သိမ်းမယ်',saved:'သိမ်းထားပြီး',quantity:'အရေအတွက်',addCart:'ခြင်းထဲထည့်',added:'ခြင်းထဲ ထည့်ပြီးပါပြီ',notEnough:'လက်ကျန် မလုံလောက်ပါ',closeSheet:'ပိတ်ရန်',write:'မှတ်ချက် ရေးပါ…',send:'ပို့မယ်',signIn:'Like၊ မှတ်ချက်ရေး၊ Follow လုပ်ဖို့ Google နဲ့ ဝင်ပါ',signInButton:'Google နဲ့ ဝင်မယ်',noComments:'မှတ်ချက် မရှိသေးပါ။ ပထမဆုံး ရေးလိုက်ပါ။',remove:'ဖျက်မယ်',savedKicker:'ဒီဖုန်းထဲမှာ',savedTitle:'သိမ်းထားသည်များ',savedIntro:'သိမ်းထားတဲ့ post များ။ ဒီဖုန်းထဲမှာပဲ ရှိပါတယ်။',savedEmpty:'သိမ်းထားတာ မရှိသေးပါ။ Post ပေါ်က 🔖 ကို နှိပ်ပြီး သိမ်းပါ။',backToShops:'← Discover',savedRow:'သိမ်းထားတဲ့ post များ',error:'မအောင်မြင်ပါ။ ပြန်စမ်းကြည့်ပါ။',search:'ဆိုင်နာမည်နဲ့ ပစ္စည်း ရှာရန်',tabFeed:'Feed',tabFollowing:'Following',tabTrending:'Trending',tabNew:'New Arrivals',followEmpty:'Post ပေါ်က ••• ထဲမှာ Follow နှိပ်ထားတဲ့ ဆိုင်တွေ ဒီမှာ ပေါ်ပါမယ်။',trendingEmpty:'Like / မှတ်ချက် ရထားတဲ့ post မရှိသေးပါ။',noResults:'မတွေ့ပါ။ တခြားစကားလုံးနဲ့ ရှာကြည့်ပါ။',follow:'Follow',unfollow:'Following ✓',bell:'အသိပေးချက်များ',account:'Settings',edit:'ပြင်မယ်',cancel:'မလုပ်တော့ဘူး',saveEdit:'သိမ်းမယ်'}
+      verified:'အတည်ပြုထားသော ဆိုင်',menu:'နောက်ထပ်',like:'Like',comment:'မှတ်ချက်များ',buy:'ဝယ်မယ်',save:'သိမ်းမယ်',saved:'သိမ်းထားပြီး',quantity:'အရေအတွက်',addCart:'ခြင်းထဲထည့်',added:'ခြင်းထဲ ထည့်ပြီးပါပြီ',notEnough:'လက်ကျန် မလုံလောက်ပါ',closeSheet:'ပိတ်ရန်',write:'မှတ်ချက် ရေးပါ…',send:'ပို့မယ်',signIn:'Like၊ မှတ်ချက်ရေး၊ Follow လုပ်ဖို့ Google နဲ့ ဝင်ပါ',signInButton:'Google နဲ့ ဝင်မယ်',noComments:'မှတ်ချက် မရှိသေးပါ။ ပထမဆုံး ရေးလိုက်ပါ။',remove:'ဖျက်မယ်',savedKicker:'ဒီဖုန်းထဲမှာ',savedTitle:'သိမ်းထားသည်များ',savedIntro:'သိမ်းထားတဲ့ post များ။ ဒီဖုန်းထဲမှာပဲ ရှိပါတယ်။',savedEmpty:'သိမ်းထားတာ မရှိသေးပါ။ Post ပေါ်က 🔖 ကို နှိပ်ပြီး သိမ်းပါ။',backToShops:'← Discover',savedRow:'သိမ်းထားတဲ့ post များ',error:'မအောင်မြင်ပါ။ ပြန်စမ်းကြည့်ပါ။',search:'ဆိုင်နာမည်နဲ့ ပစ္စည်း ရှာရန်',tabFeed:'Feed',tabFollowing:'Following',tabTrending:'Trending',tabNew:'New Arrivals',followEmpty:'Post ပေါ်က ••• ထဲမှာ Follow နှိပ်ထားတဲ့ ဆိုင်တွေ ဒီမှာ ပေါ်ပါမယ်။',trendingEmpty:'Like / မှတ်ချက် ရထားတဲ့ post မရှိသေးပါ။',noResults:'မတွေ့ပါ။ တခြားစကားလုံးနဲ့ ရှာကြည့်ပါ။',follow:'Follow',unfollow:'Following ✓',bell:'အသိပေးချက်များ',account:'Settings',edit:'ပြင်မယ်',cancel:'မလုပ်တော့ဘူး',saveEdit:'သိမ်းမယ်',reply:'Reply',replyingTo:'ပြန်ဖြေနေတာ',writeReply:'ပြန်ဖြေမယ်…',comments:'comments',oneComment:'comment'}
   };
   const t = key => words[document.documentElement.lang === 'my' ? 'my' : 'en'][key];
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -291,22 +291,37 @@
   const ago = iso => { const s = (Date.parse(iso) - Date.now()) / 1000, f = new Intl.RelativeTimeFormat(document.documentElement.lang === 'my' ? 'my' : 'en', {numeric:'auto'});
     for (const [unit, size] of [['year',31536e3],['month',2592e3],['day',86400],['hour',3600],['minute',60]]) if (Math.abs(s) >= size) return f.format(Math.round(s / size), unit);
     return document.documentElement.lang === 'my' ? 'ခုနကပဲ' : 'Just now'; };
+  // 1.1.316 owner (TikTok / YouTube picture): avatar, name, text, time · Reply, ❤ count on the right; replies sit
+  // under their comment, joined to it by a curved line.
+  let replyTo = null;
+  function commentRow(c, reply) {
+    const tools = (c.canEdit ? '<button type="button" class="shops-comment-tool" data-sheet="edit" data-comment="' + c.id + '" aria-label="' + esc(t('edit')) + '">' + icon.pencil + '</button>' : '') + (c.canDelete ? '<button type="button" class="shops-comment-tool is-bin" data-sheet="delete" data-comment="' + c.id + '" aria-label="' + esc(t('remove')) + '">' + icon.bin + '</button>' : '');
+    return '<li class="shops-c' + (reply ? ' is-reply' : '') + '" data-c="' + c.id + '"><span class="shops-comment-avatar" aria-hidden="true">' + esc([...c.name.trim()][0] || '?') + '</span><div class="shops-c-main"><b class="shops-c-name">' + esc(c.name) + '</b><p class="shops-c-body">' + esc(c.body) + '</p>' +
+      '<small class="shops-c-meta"><span>' + esc(ago(c.at)) + '</span><button type="button" class="shops-c-reply" data-sheet="reply" data-comment="' + c.id + '">' + esc(t('reply')) + '</button>' + tools + '</small></div>' +
+      '<button type="button" class="shops-c-like' + (c.liked ? ' is-on' : '') + '" data-sheet="clike" data-comment="' + c.id + '" aria-pressed="' + Boolean(c.liked) + '" aria-label="' + esc(t('like')) + '">' + icon.heart + '<span>' + (c.likes ? count(c.likes) : '') + '</span></button></li>';
+  }
   function commentsHtml(data) {
-    const rows = data.comments.length ? data.comments.map(c => '<li><span class="shops-comment-avatar" aria-hidden="true">' + esc([...c.name.trim()][0] || '?') + '</span><div><p><b>' + esc(c.name) + '</b>' + esc(c.body) + '</p><small>' + esc(ago(c.at)) + (c.canEdit ? '<button type="button" class="shops-comment-tool" data-sheet="edit" data-comment="' + c.id + '" aria-label="' + esc(t('edit')) + '">' + icon.pencil + '</button>' : '') + (c.canDelete ? '<button type="button" class="shops-comment-tool is-bin" data-sheet="delete" data-comment="' + c.id + '" aria-label="' + esc(t('remove')) + '">' + icon.bin + '</button>' : '') + '</small></div></li>').join('') : '<li class="shops-comments-empty">' + esc(t('noComments')) + '</li>';
+    const tops = data.comments.filter(c => !c.parentId), kids = id => data.comments.filter(c => c.parentId === id);
+    const rows = tops.length ? tops.map(c => { const r = kids(c.id); return commentRow(c) + (r.length ? '<li class="shops-c-thread"><ul>' + r.map(x => commentRow(x, true)).join('') + '</ul></li>' : ''); }).join('') : '<li class="shops-comments-empty">' + esc(t('noComments')) + '</li>';
+    const to = replyTo && data.comments.find(c => c.id === replyTo);
     return '<ul class="shops-comments-list">' + rows + '</ul>' + (data.signedIn ?
-      '<form class="shops-comment-form" data-sheet-form="comment"><textarea name="body" rows="1" maxlength="1000" placeholder="' + esc(t('write')) + '" aria-label="' + esc(t('write')) + '" required></textarea><button type="submit" class="shops-sheet-primary">' + esc(t('send')) + '</button></form>' :
+      (to ? '<div class="shops-c-replying"><span>' + esc(t('replyingTo')) + ' <b>' + esc(to.name) + '</b></span><button type="button" data-sheet="reply-cancel" aria-label="' + esc(t('cancel')) + '">✕</button></div>' : '') +
+      '<form class="shops-comment-form" data-sheet-form="comment"><textarea name="body" rows="1" maxlength="1000" placeholder="' + esc(t(to ? 'writeReply' : 'write')) + '" aria-label="' + esc(t('write')) + '" required></textarea><button type="submit" class="shops-sheet-primary">' + esc(t('send')) + '</button></form>' :
       '<div class="shops-comment-signin"><p>' + esc(t('signIn')) + '</p><button type="button" class="shops-sheet-primary" data-sheet="signin">' + esc(t('signInButton')) + '</button></div>');
   }
   let sheetComments = [];
   function showComments(item, data) {
     sheetComments = data.comments || [];
     item.comments = data.count; refreshCard(item);
-    const heading = icon.bubble + '<span>' + esc(t('comment')) + (data.count ? ' · ' + data.count : '') + '</span>';
+    const heading = '<span class="shops-c-count">' + (data.count ? data.count + ' ' : '') + esc(t(data.count === 1 ? 'oneComment' : 'comments')) + '</span>';
     if (sheetKind === 'comments' && sheetItem === item) { sheet.querySelector('#shops-sheet-title').innerHTML = heading; sheetBody.innerHTML = commentsHtml(data); }
     else openSheet('comments', item, heading, commentsHtml(data));
-    const listEl = sheetBody.querySelector('.shops-comments-list'); if (listEl) listEl.scrollTop = listEl.scrollHeight;
+    const listEl = sheetBody.querySelector('.shops-comments-list'), at = replyTo && listEl?.querySelector('[data-c="' + replyTo + '"]');
+    if (at) at.scrollIntoView({block:'nearest'}); else if (listEl && data.scrollEnd) listEl.scrollTop = listEl.scrollHeight;
+    if (replyTo) sheetBody.querySelector('.shops-comment-form textarea')?.focus();
   }
   async function openComments(item) {
+    replyTo = null;
     openSheet('comments', item, icon.bubble + '<span>' + esc(t('comment')) + '</span>', '<p class="shops-signin-text">' + esc(t('loading')) + '</p>');
     try { showComments(item, await call(postUrl(item) + '/comments')); } catch (error) { say(error.message); }
   }
@@ -336,6 +351,14 @@
       if (here(item)) { sheet.close(); openCart(); } else location.href = item.shop.url + '?cart=1';
       return;
     }
+    if (kind === 'reply') { replyTo = Number(button.dataset.comment); showComments(item, {signedIn:true, count:item.comments, comments:sheetComments}); return; }
+    if (kind === 'reply-cancel') { replyTo = null; showComments(item, {signedIn:true, count:item.comments, comments:sheetComments}); return; }
+    if (kind === 'clike') {
+      button.disabled = true;
+      try { showComments(item, await call(postUrl(item) + '/comments/' + Number(button.dataset.comment) + '/like', 'POST', {})); }
+      catch (error) { button.disabled = false; if (error.status === 401) openComments(item); else say(error.message); }
+      return;
+    }
     if (kind === 'edit') {
       const row = button.closest('li'), text = sheetComments.find(c => c.id === Number(button.dataset.comment))?.body || '';
       row.querySelector('div').innerHTML = '<form class="shops-comment-edit" data-sheet-form="edit" data-comment="' + Number(button.dataset.comment) + '"><textarea name="body" rows="2" maxlength="1000">' + esc(text) + '</textarea><span><button type="button" data-sheet="edit-cancel">' + esc(t('cancel')) + '</button><button type="submit" class="shops-sheet-primary">' + esc(t('saveEdit')) + '</button></span></form>';
@@ -362,7 +385,7 @@
     const text = form.elements.body.value.trim(), send = form.querySelector('button');
     if (!text) return;
     send.disabled = true; say('');
-    try { showComments(item, await call(postUrl(item) + '/comments', 'POST', {body:text})); }
+    try { const parentId = replyTo; const d = await call(postUrl(item) + '/comments', 'POST', parentId ? {body:text, parentId} : {body:text}); replyTo = null; showComments(item, {...d, scrollEnd:!parentId}); }
     catch (error) { send.disabled = false; if (error.status === 401) openComments(item); else say(error.message); }
   });
   sheet.addEventListener('input', event => { if (event.target.matches('.shops-comment-form textarea')) { event.target.style.height = 'auto'; event.target.style.height = Math.min(120, event.target.scrollHeight) + 'px'; } });

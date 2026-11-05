@@ -39,6 +39,20 @@ test('likes and comments: signed-in only, CSRF checked, per shop, removable by w
   assert.doesNotMatch(JSON.stringify(posted),/@example\.test/,'never shows e-mail addresses');
   assert.equal((await buyer('/feed/shop-a/'+a+'/comments','POST',{body:'again'})).status,429,'a short wait between comments');
   const id=posted.comments[0].id;
+  // 1.1.316: replies hang under the first comment of a thread; each comment has its own likes.
+  await new Promise(r=>setTimeout(r,3100));
+  let th=await(await ownerA('/feed/shop-a/'+a+'/comments','POST',{body:'Yes, 2 left',parentId:id})).json();
+  const reply=th.comments.find(c=>c.body==='Yes, 2 left');assert.equal(reply.parentId,id);
+  await new Promise(r=>setTimeout(r,3100));
+  th=await(await buyer('/feed/shop-a/'+a+'/comments','POST',{body:'Thanks',parentId:reply.id})).json();
+  assert.equal(th.comments.find(c=>c.body==='Thanks').parentId,id,'a reply to a reply stays in the thread');
+  assert.equal((await ownerB('/feed/shop-a/'+a+'/comments','POST',{body:'x',parentId:999999})).status,404);
+  th=await(await ownerB('/feed/shop-a/'+a+'/comments/'+id+'/like','POST',{})).json();assert.deepEqual([th.comments[0].likes,th.comments[0].liked],[1,true]);
+  th=await(await ownerB('/feed/shop-a/'+a+'/comments/'+id+'/like','POST',{})).json();assert.equal(th.comments[0].likes,0,'tap again takes it back');
+  await ownerB('/feed/shop-a/'+a+'/comments/'+reply.id+'/like','POST',{});
+  assert.equal((await guest('/feed/shop-a/'+a+'/comments/'+id+'/like','POST',{})).status,401);
+  for(const c of th.comments.filter(c=>c.parentId))await ownerA('/feed/shop-a/'+a+'/comments/'+c.id,'DELETE');
+
   const seen=await(await guest('/feed/shop-a/'+a+'/comments')).json();assert.deepEqual([seen.signedIn,seen.count,seen.comments[0].canDelete],[false,1,false]);
   assert.equal((await ownerB('/feed/shop-a/'+a+'/comments/'+id,'DELETE')).status,403,'another shop cannot remove it');
   assert.equal((await buyer('/feed/shop-b/'+b+'/comments/'+id,'DELETE')).status,404);

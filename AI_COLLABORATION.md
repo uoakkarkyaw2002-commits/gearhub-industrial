@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.316: Comment replies with curved lines + ❤ per comment; one pencil on Profile; full-screen photo viewer (Claude)
+- Owner (TikTok / YouTube pictures): comments show avatar, name, text, time · Reply, ❤ count on the right; replies sit under their comment joined by a curved line ("Replying to …" bar above the box). Owner approved: new column `platform_post_comments.parent_id` (added with ALTER, existing comments untouched) and table `platform_comment_likes(shop_id,comment_id,user_id)`. A reply to a reply stays in the first comment's thread; deleting a comment deletes its replies and likes; shop delete removes comment likes. New route POST `/feed/:slug/:id/comments/:comment/like`.
+- Owner mid-task: only the top pencil edits the Profile (caption and details pencils removed).
+- Owner mid-task: Discover photo viewer on iPhone showed the page blurred at the top (dialog was 100svh and centred over a half-clear backdrop). Now it fills the whole screen on phones, solid backdrop, header below the status bar.
+- Tests: shop-posts.test.js (replies, comment likes). 488/488. WebKit iPhone 13: thread with two replies + like, one pencil, viewer top 0 → bottom = screen. The real iPhone status bar area is not testable here.
+
 ### 1.1.315: Server Storage card in the owner's new design (Claude)
 - Owner's picture (open + closed). For the GearHub owner (when R2/Drive/shops/backup data exists) the Server Storage row becomes one green card (public/storage-design.css, settings.js): the header (closed = header only; tap opens/closes), Render Server ring + bar, Cloudflare R2, Google Drive, All shops (pill + chevron folds the shop rows), Backup with Run / Download.
 - To look exactly like the picture, the header (open + closed versions, with its texts and chevron), the logo tiles, the small icons and the two backup buttons are cut from the owner's picture (public/images/storage/*). Every size/position is the picture's pixel value × --u (card width / 960 via container query units), so it scales with the screen. Buttons keep ids storage-backup-run / storage-backup-download, so the existing backup actions work; "Backup running…" shows under the title and the Run picture dims.

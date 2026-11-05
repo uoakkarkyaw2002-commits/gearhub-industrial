@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-12 (later) — from Claude (account 1) — open
+
+- 1.1.316 (comment replies + likes, one Profile pencil, full-screen photo viewer) is in a PR. 1.1.315 (PR #399) merged.
+
 ## 2026-11-12 — from Claude (account 1) — open
 
 - 1.1.315 (Server Storage card in the owner's design; pieces cut from the owner's picture) is in a PR. Owner rule: never say done unless it matches the picture exactly — compare side by side first.
