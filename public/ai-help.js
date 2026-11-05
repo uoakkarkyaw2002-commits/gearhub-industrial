@@ -51,15 +51,54 @@
   ['storage',['storage','server storage','space','mb','gb','သိုလှောင်','နေရာ'],'Shop owner: Settings → Server Storage shows how much of the shop\'s space is used and free.','ဆိုင်ပိုင်ရှင်: Settings → Server Storage မှာ ဆိုင်ရဲ့ နေရာ ဘယ်လောက်သုံးပြီး ဘယ်လောက်ကျန်လဲ ပြပါတယ်။'],
   ['photo',['photo','picture','image','gallery','zoom','download photo','ဓာတ်ပုံ','ပုံကြီး','ပုံသိမ်း'],'Tap a product photo to see it big; swipe for the next one. The download button saves the photos to your phone.','ပစ္စည်းပုံကို နှိပ်ရင် ပုံကြီး ကြည့်လို့ရပါတယ်။ ဘေးဆွဲရင် နောက်ပုံ။ Download ခလုတ်နဲ့ ဖုန်းထဲ သိမ်းလို့ရပါတယ်။'],
   ['delete',['delete account','remove account','close account','အကောင့်ဖျက်'],'To delete your account, open skyshopmm.com/delete-account.html and follow the steps there.','Account ဖျက်ချင်ရင် skyshopmm.com/delete-account.html ကို ဖွင့်ပြီး အဆင့်တွေ လုပ်ပါ။'],
+  ['editproduct',['edit product','change price','change stock','delete product','remove product','ဈေးပြင်','ဈေးနှုန်းပြင်','product ပြင်','product ဖျက်','ပစ္စည်း ပြင်','ပစ္စည်း ဖျက်','stock ပြင်','ဈေး ပြင်','လက်ကျန် ပြင်','price ပြင်'],'Shop owner: Profile → Dashboard → Products. Tap the product, change the price, stock, photos or text and Save. To delete one, swipe it left into the Recycle Bin (you can bring it back from there).','ဆိုင်ပိုင်ရှင်: Profile → Dashboard → Products။ ပစ္စည်းကို နှိပ်ပြီး ဈေး၊ လက်ကျန်၊ ပုံ၊ စာ ပြင်ပြီး Save နှိပ်ပါ။ ဖျက်ချင်ရင် ဘယ်ဘက်ကို ဆွဲပြီး Recycle Bin ထဲ ထည့်ပါ (အဲဒီကနေ ပြန်ယူလို့ရပါတယ်)။',{view:'profile',en:'Open Profile',my:'Profile ဖွင့်မယ်'}],
+  ['myorder',['my order','my orders','order status','where is my order','order arrive','delivery','အော်ဒါ ရောက်','order ရောက်','ပစ္စည်း ရောက်','ပို့ပေး','delivery ဘယ်တော့'],'After you order, the shop checks your payment and confirms the order. Updates come in 🔔 at the top of Home. For delivery questions, write to the shop with 💬.','မှာပြီးရင် ဆိုင်က ငွေလွှဲ စစ်ပြီး အော်ဒါကို အတည်ပြုပါတယ်။ အသိပေးချက်တွေ Home အပေါ်က 🔔 မှာ ရောက်လာပါတယ်။ ပို့ဆောင်ရေး မေးချင်ရင် 💬 နဲ့ ဆိုင်ကို စာရေးပါ။'],
   ['help',['help','how to use','what can','guide','အကူအညီ','ဘယ်လိုသုံး','သုံးနည်း','လမ်းညွှန်'],'I can help with: searching and scanning, Excel, categories, cart and ordering, payment, Discover, comments, following, Profile, adding products, chat, notifications and Settings. What would you like to do?','ရှာနည်း/scan၊ Excel၊ အမျိုးအစား၊ Cart နဲ့ မှာနည်း၊ ငွေပေးချေမှု၊ Discover၊ comment၊ follow၊ Profile၊ ပစ္စည်းထည့်နည်း၊ chat၊ အသိပေးချက်နဲ့ Settings တွေ ကူညီပေးနိုင်ပါတယ်။ ဘာလုပ်ချင်ပါသလဲ?']
  ];
  const chips={en:['How do I order?','How to search?','Add to Home Screen','How to follow a shop?','Add a product'],my:['ဘယ်လိုမှာရမလဲ?','ဘယ်လိုရှာရမလဲ?','ဖုန်းထဲ app ထည့်နည်း','ဆိုင်ကို follow လုပ်နည်း','ပစ္စည်းထည့်နည်း']};
  const isMy=s=>/[က-႟]/.test(s);
  // The best entry: every keyword found in the question counts its length; short English words must be whole words.
+ // 1.1.333 owner's iPhone test: more ways people ask (Myanmar and English mixed). A keyword with spaces counts
+ // when all its words are in the question, in any order and with other words between ("Product ဘယ်လိုထည့်ရလဲ").
+ const MORE={addproduct:['product ထည့်','product တင်','product add','item ထည့်','ပစ္စည်း ထည့်','ပစ္စည်း တင်','ပစ္စည်းအသစ်','product အသစ်','ရောင်းချင်'],
+  help:['အသုံးပြုနည်း','အသုံးပြု','ဘယ်လိုသုံး','သုံးရ','ဘာတွေလုပ်လို့ရ','ဘာလုပ်လို့ရ','app ပြောပြ','what can i do','features','how does this app'],
+  order:['order တင်','order လုပ်','order ဘယ်လို','အော်ဒါ တင်','ဘယ်လို ဝယ်','မှာ ယူ','ဝယ် ချင်'],
+  search:['ဘယ်လို ရှာ','ပစ္စည်း ရှာ','product ရှာ','search လုပ်','ရှာ မတွေ့'],
+  cart:['ခြင်း ထည့်','cart ထည့်','cart ထဲ','cart ဖျက်'],
+  post:['post ထည့်','post တင်','post ရေး','ပို့စ် တင်','ပုံ တင်'],
+  editcategory:['category ထည့်','category အသစ်','category ပြင်','အမျိုးအစား ထည့်','အမျိုးအစား အသစ်','အမျိုးအစား ပြင်'],
+  follow:['ဖော်လို လုပ်','follow လုပ်','follow ဘယ်လို','ဖော်လို ဘယ်လို'],
+  install:['app ထည့်','home screen ထည့်','ဖုန်း app','app install','app download','app အဖြစ်','app သွင်း'],
+  chat:['ဆိုင် စာ','ဆိုင် စကား','message ပို့','chat လုပ်','ဆိုင်ကို မေး'],
+  payment:['ငွေ လွှဲ','ပိုက်ဆံ ပေး','ငွေ ချေ','kpay','k pay','wave pay'],
+  createshop:['ဆိုင် ဖွင့်','ဆိုင် အသစ်','ဆိုင်လုပ်ချင်','shop ဖွင့်','shop create','shop လုပ်'],
+  excel:['excel ရှာ','excel တင်','excel upload','excel ထည့်'],
+  scan:['ပုံ ရှာ','ဓာတ်ပုံ ရှာ','scan ဖတ်'],
+  discover:['post ကြည့်','post တွေ','ဆိုင်တွေ post'],
+  profile:['change logo','change name','edit profile','change photo','profile picture','profile ပြင်','ပရိုဖိုင် ပြင်','နာမည် ပြင်','logo ပြင်','logo ပြောင်း','profile ပုံ','caption'],
+  signin:['google ဝင်','login ဝင်','account ဝင်','ဝင် မရ'],
+  language:['မြန်မာ ပြောင်း','english ပြောင်း','ဘာသာ ပြောင်း','language ပြောင်း'],
+  noti:['noti','အသိပေး ချက်'],
+  dashboard:['order စာရင်း','အော်ဒါ ကြည့်','admin ဝင်','order ကြည့်'],
+  share:['link ပို့','qr ထုတ်','ဆိုင် link','share လုပ်'],
+  delete:['account ဖျက်','အကောင့် ဖျက်'],
+  speed:['app လေး','app နှေး','speed ကြည့်'],
+  offline:['internet မရှိ','အင်တာနက် မရှိ','line မရှိ'],
+  promotion:['ဈေးလျှော့','promotion ထည့်'],
+  refresh:['update မဖြစ်','refresh လုပ်','ပြန် load'],
+  photo:['ပုံ ကြည့်','ပုံ download','ပုံ သိမ်း','photo ကြည့်'],
+  comment:['comment ဖျက်','comment ပြင်','comment ရေး','မန့် ဖျက်'],
+  like:['like လုပ်','like ပေး'],
+  save:['post သိမ်း','save လုပ်'],
+  theme:['dark mode','အရောင် ပြောင်း'],
+  category:['category ကြည့်','အမျိုးအစား ကြည့်']};
+ for(const e of K)if(MORE[e[0]])e[1]=e[1].concat(MORE[e[0]]);
+ const has=(text,word)=>isMy(word)||word.length>3?text.includes(word):new RegExp('(^|[^a-z])'+word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'([^a-z]|$)').test(text);
+ // The best entry: each keyword whose words are all in the question counts their length.
  function answer(q){
   const text=' '+q.toLowerCase().replace(/[?!.,،။၊]/g,' ').replace(/\s+/g,' ')+' ';
   let best=null,score=0;
-  for(const e of K){let s=0;for(const k of e[1]){const key=k.toLowerCase();const hit=isMy(key)?text.includes(key.trim()):(key.trim().length<=3?new RegExp('(^|[^a-z])'+key.trim().replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'([^a-z]|$)').test(text):text.includes(key.trim()));if(hit)s+=key.trim().length}if(s>score){score=s;best=e}}
+  for(const e of K){let s=0;for(const k of e[1]){const words=k.toLowerCase().trim().split(/\s+/);if(words.every(w=>has(text,w)))s+=words.join('').length}if(s>score){score=s;best=e}}
   return score>=2?best:null;
  }
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -88,5 +127,18 @@
  box.querySelector('.ai-help-x').onclick=()=>box.close();
  box.addEventListener('click',e=>{if(e.target===box)box.close()});
  button.addEventListener('click',()=>{if(!log.children.length)say('bot',ui[pageMy()?'my':'en'].hello);box.showModal();if(matchMedia('(pointer:fine)').matches)input.focus()});
+ // 1.1.333 owner's iPhone: while the keyboard is up the chat fits exactly in the space above it (no gap
+ // with the page showing under the typing box, header kept on screen).
+ const vv=window.visualViewport;
+ function fit(){
+  if(!vv||!box.open)return;
+  const keyboard=innerHeight-vv.height>120;
+  box.classList.toggle('ai-help-kb',keyboard);
+  if(keyboard){box.style.top=Math.round(vv.offsetTop)+'px';box.style.height=Math.round(vv.height)+'px';box.style.bottom='auto'}
+  else box.style.top=box.style.height=box.style.bottom='';
+ }
+ if(vv){vv.addEventListener('resize',fit);vv.addEventListener('scroll',fit)}
+ input.addEventListener('focus',()=>setTimeout(fit,50));input.addEventListener('blur',()=>setTimeout(fit,50));
+ box.addEventListener('close',()=>{box.classList.remove('ai-help-kb');box.style.top=box.style.height=box.style.bottom=''});
  window.GearHubAiHelp={answer};
 })();

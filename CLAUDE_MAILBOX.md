@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-05 (after midnight) — from Claude (account 1) — open
+
+- 1.1.333 (AI helper: understands mixed Myanmar/English questions, new answers for editing/deleting products and order status; chat fits above the iPhone keyboard) is in a PR. 1.1.332 (PR #416) merged and live. Ask the owner for any question the robot still refuses wrongly.
 ## 2026-11-05 (late night) — from Claude (account 1) — open
 
 - 1.1.332 (AI helper robot: floating button, answers only how-to-use-this-app questions in English/Myanmar, on the phone itself — free, no AI service) is in a PR. 1.1.331 (PR #415) merged; owner's live App speed: all lines Fast (server 297 ms). If the owner wants a real LLM later, it needs a paid API key (ask first).
