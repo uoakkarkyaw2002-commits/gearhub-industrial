@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-05 (2 am) — from Claude (account 1) — open
+
+- 1.1.335 (AI helper "Go ▶": step-by-step guide on the real screen — the button glows, a finger points, a card says what to do; 30 guides) is in a PR. 1.1.334 (PR #418) is live on GearHub (checked: live ai-help.js matches the iPhone mark order).
 ## 2026-11-05 (1 am) — from Claude (account 1) — open
 
 - 1.1.334 (AI helper: iPhone Myanmar keyboard types marks in another order → question text NFC-normalized; a topic beats general "how to use") is in a PR. 1.1.333 live on GearHub; seller shops still on 1.1.329 until the owner presses Confirm update.

@@ -3,8 +3,8 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const read=f=>fs.readFileSync(path.join(__dirname,'..','public',f),'utf8');
 function load(){
  const el=()=>new Proxy(function(){},{get:(t,k)=>k==='children'?[]:k==='style'?{}:typeof k==='symbol'?undefined:el(),set:()=>true,apply:()=>el()});
- const window={};const context={window,document:{documentElement:{lang:'en'},querySelector:()=>({}),createElement:()=>el(),body:el()},MutationObserver:function(){return {observe(){}}},matchMedia:()=>({matches:false}),setTimeout};
- vm.runInNewContext(read('ai-help.js'),context);return window.GearHubAiHelp.answer;
+ const window={};const context={window,document:{documentElement:{lang:'en'},querySelector:()=>({}),createElement:()=>el(),body:el(),addEventListener(){}},addEventListener(){},MutationObserver:function(){return {observe(){}}},matchMedia:()=>({matches:false}),setTimeout};
+ vm.runInNewContext(read('ai-help.js'),context);const h=window.GearHubAiHelp;load.last={tours:h.tours,ids:h.ids};return h.answer;
 }
 test('the AI helper answers app questions and refuses everything else',()=>{
  const answer=load(),id=q=>answer(q)?.[0]||null;
@@ -24,6 +24,9 @@ test('the AI helper answers app questions and refuses everything else',()=>{
  for(const [q,want] of Object.entries(cases))assert.equal(id(q),want,q);
  for(const q of ['ထမင်းဘယ်လိုချက်ရမလဲ','What is bitcoin price','ကမ္ဘာ့အမြင့်ဆုံးတောင်က ဘာလဲ','ဘောလုံးပွဲ ဘယ်သူနိုင်လဲ'])assert.equal(id(q),null,q);
  for(const q of ['What is the capital of France?','Write me a poem','မနက်ဖြန် မိုးရွာမလား','2+2','Tell me a joke about cats'])assert.equal(id(q),null,q);
+ // 1.1.335 owner: Go shows each step on the real screen; every guide belongs to an answer.
+ {const w=load.last;const ids=new Set(w.ids);for(const k of Object.keys(w.tours))assert.ok(ids.has(k),'guide without answer: '+k);
+  assert.ok(['addproduct','order','install','excel','profile'].every(k=>w.tours[k]?.length>=2));}
  const html=read('index.html'),sw=read('sw.js');
- for(const tag of ['/ai-help.js?v=1.1.334','/ai-help.css?v=1.1.333'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
+ for(const tag of ['/ai-help.js?v=1.1.335','/ai-help.css?v=1.1.335'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
 });

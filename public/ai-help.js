@@ -116,16 +116,86 @@
  const log=box.querySelector('.ai-help-log'),input=box.querySelector('input'),chipBox=box.querySelector('.ai-help-chips');
  function paint(){const u=ui[pageMy()?'my':'en'];button.setAttribute('aria-label',u.open);box.querySelector('header b').textContent=u.title;box.querySelector('header small').textContent=u.sub;box.querySelector('.ai-help-x').setAttribute('aria-label',u.close);input.placeholder=u.placeholder;box.querySelector('.ai-help-form button').setAttribute('aria-label',u.send);chipBox.innerHTML=chips[pageMy()?'my':'en'].map(c=>'<button type="button">'+esc(c)+'</button>').join('')}
  paint();new MutationObserver(paint).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
- function say(who,text,action,my){
-  const m=document.createElement('div');m.className='ai-help-msg '+who;
-  m.innerHTML=(who==='bot'?'<img src="'+robot+'" alt="">':'')+'<p>'+esc(text).replace(/\n/g,'<br>')+(action?'<button type="button" class="ai-help-go">'+esc(my?action.my:action.en)+' →</button>':'')+'</p>';
-  if(action)m.querySelector('.ai-help-go').onclick=()=>{box.close();if(action.view)window.showStoreView?.(action.view);else document.querySelector(action.click)?.click()};
+ function say(who,text,action,my,id){
+  const m=document.createElement('div');m.className='ai-help-msg '+who;const guide=id&&TOURS[id];
+  m.innerHTML=(who==='bot'?'<img src="'+robot+'" alt="">':'')+'<p>'+esc(text).replace(/\n/g,'<br>')+(guide?'<button type="button" class="ai-help-go ai-help-tour">Go ▶</button>':action?'<button type="button" class="ai-help-go">'+esc(my?action.my:action.en)+' →</button>':'')+'</p>';
+  if(guide)m.querySelector('.ai-help-go').onclick=()=>{box.close();startTour(guide,my)};
+  else if(action)m.querySelector('.ai-help-go').onclick=()=>{box.close();if(action.view)window.showStoreView?.(action.view);else document.querySelector(action.click)?.click()};
   log.append(m);log.scrollTop=log.scrollHeight;
  }
+ // 1.1.335 owner: "Go" under an answer shows on the real screen, one step at a time, what to press: the button
+ // glows, a finger points at it, a card says what to do. Tapping the glowing button (or Next) goes on.
+ const H='[data-store-view="home"]',D='[data-store-view="shops"]',C='[data-store-view="category"]',P='[data-store-view="profile"]',CART='.mobile-bottom-nav .bottom-nav-cart,#cart-open',MENU='#profile-menu-open';
+ const s=(sel,en,my)=>[sel,en,my],openP=s(P,'Tap Profile.','Profile ကို နှိပ်ပါ။'),menu=s(MENU,'Tap ☰ to open Settings.','Settings ဖွင့်ဖို့ ☰ ကို နှိပ်ပါ။'),add=s('.profile-add','Tap + Add.','+ Add ကို နှိပ်ပါ။');
+ const TOURS={
+  addproduct:[openP,add,s('.profile-choice[data-pm="work"]','Tap Business.','Business ကို နှိပ်ပါ။'),s(null,'Fill in SKU, Part No, name, price, stock and photos, then tap Save.','SKU၊ Part No၊ နာမည်၊ ဈေး၊ လက်ကျန်၊ ဓာတ်ပုံ ဖြည့်ပြီး Save နှိပ်ပါ။')],
+  post:[openP,add,s('.profile-choice[data-pm="personal"]','Tap Personal.','Personal ကို နှိပ်ပါ။'),s(null,'Write your text, add photos and tap Post.','စာရေး၊ ဓာတ်ပုံထည့်ပြီး တင်မယ် နှိပ်ပါ။')],
+  editcategory:[openP,add,s('.profile-choice[data-pm="category"]','Tap Category.','Category ကို နှိပ်ပါ။'),s(null,'Add or rename main and sub categories, then save.','Main / Sub အမျိုးအစား ထည့်၊ ပြင်ပြီး သိမ်းပါ။')],
+  profile:[openP,s('.profile-edit','Tap the pencil.','ခဲတံကို နှိပ်ပါ။'),s(null,'Change the photo, name, caption or details and tap Save.','ပုံ၊ နာမည်၊ caption၊ အချက်အလက် ပြင်ပြီး Save နှိပ်ပါ။')],
+  dashboard:[openP,s('.profile-dashboard','Tap Dashboard.','Dashboard ကို နှိပ်ပါ။')],
+  editproduct:[openP,s('.profile-dashboard','Tap Dashboard.','Dashboard ကို နှိပ်ပါ။'),s(null,'Open Products, tap the product, change it and Save. Swipe left to move it to the Recycle Bin.','Products ဖွင့်၊ ပစ္စည်းကို နှိပ်၊ ပြင်ပြီး Save နှိပ်ပါ။ ဘယ်ဘက်ဆွဲရင် Recycle Bin ထဲ ရောက်ပါတယ်။')],
+  follow:[openP,s('.profile-home-counts [data-list="followers"]','Tap Followers to see who follows.','Followers ကို နှိပ်ရင် follow ထားသူတွေ ကြည့်လို့ရပါတယ်။'),s(null,'To follow another shop, open its Profile and tap Follow.','တခြားဆိုင်ကို follow ချင်ရင် အဲဒီဆိုင်ရဲ့ Profile ဖွင့်ပြီး Follow နှိပ်ပါ။')],
+  search:[s(H,'Tap Home.','Home ကို နှိပ်ပါ။'),s('#search','Tap the search bar and type the name, SKU or Part No.','Search bar ကို နှိပ်ပြီး နာမည်၊ SKU ဒါမှမဟုတ် Part No ရိုက်ပါ။')],
+  scan:[s(H,'Tap Home.','Home ကို နှိပ်ပါ။'),s('.photo-scan-button','Tap the scan button.','Scan ခလုတ်ကို နှိပ်ပါ။'),s(null,'Allow the camera and point it at the part.','ကင်မရာ ခွင့်ပြုပြီး ပစ္စည်းကို ချိန်ပြပါ။')],
+  excel:[s(H,'Tap Home.','Home ကို နှိပ်ပါ။'),s('.search-filter-button','Tap the green filter button.','အစိမ်း filter ခလုတ်ကို နှိပ်ပါ။'),s('.search-filter-menu [data-scope="excel"]','Choose Excel.','Excel ကို ရွေးပါ။'),s('#search','Type what you look for; ˄ ˅ move between matches.','ရှာချင်တာ ရိုက်ပါ။ ˄ ˅ နဲ့ တစ်ခုပြီးတစ်ခု ကြည့်ပါ။')],
+  clear:[s('.search-filter-button','Tap the green filter button.','အစိမ်း filter ခလုတ်ကို နှိပ်ပါ။'),s('.search-filter-menu [data-scope="trash"]','Choose Trash.','Trash ကို ရွေးပါ။')],
+  category:[s(C,'Tap Category.','Category ကို နှိပ်ပါ။'),s(null,'Tap a category to see its products.','အမျိုးအစား တစ်ခု နှိပ်ရင် ပစ္စည်းတွေ ပေါ်ပါမယ်။')],
+  promotion:[s(H,'Tap Home.','Home ကို နှိပ်ပါ။'),s('.home-promo','Tap the Promotion banner.','Promotion banner ကို နှိပ်ပါ။')],
+  cart:[s(H,'Tap Home.','Home ကို နှိပ်ပါ။'),s('#products [data-store-action="add-cart"]','Tap Add to cart on a product.','ပစ္စည်းတစ်ခုရဲ့ Add to cart ကို နှိပ်ပါ။'),s(CART,'Tap the cart.','ခြင်းတောင်းကို နှိပ်ပါ။'),s(null,'Here you change amounts or remove items.','ဒီမှာ အရေအတွက် ပြင်၊ ဖယ်လို့ရပါတယ်။')],
+  order:[s(CART,'Tap the cart.','ခြင်းတောင်းကို နှိပ်ပါ။'),s('#go-checkout','Tap Checkout. (Empty cart? Add a product first.)','အော်ဒါတင်ရန် ကို နှိပ်ပါ။ (ခြင်းထဲ ဘာမှမရှိရင် ပစ္စည်း အရင်ထည့်ပါ။)'),s(null,'Fill in name, phone and address, transfer the money, type the reference, add the receipt photo and tap Place order.','အမည်၊ ဖုန်း၊ လိပ်စာ ဖြည့်၊ ငွေလွှဲ၊ reference ရိုက်၊ ပြေစာ ဓာတ်ပုံ ထည့်ပြီး အော်ဒါတင်မည် နှိပ်ပါ။')],
+  discover:[s(D,'Tap Discover.','Discover ကို နှိပ်ပါ။'),s(null,'Scroll the posts: ❤ like, 💬 comment, bookmark to save, Buy Now to order.','Post တွေ ဆွဲကြည့်ပါ: ❤ like၊ 💬 comment၊ bookmark နဲ့ သိမ်း၊ Buy Now နဲ့ မှာ။')],
+  othershop:[s(D,'Tap Discover.','Discover ကို နှိပ်ပါ။'),s(null,'Tap a shop\'s name or logo on a post to visit it.','Post ပေါ်က ဆိုင်နာမည် ဒါမှမဟုတ် logo ကို နှိပ်ရင် အဲဒီဆိုင် ရောက်ပါတယ်။')],
+  chat:[s('.nc-button[data-nc="chat"]','Tap 💬.','💬 ကို နှိပ်ပါ။'),s(null,'Sign in with Google if asked, then write to the shop.','မေးရင် Google နဲ့ ဝင်ပြီး ဆိုင်ကို စာရေးပါ။')],
+  noti:[s('.nc-button[data-nc="noti"]','Tap 🔔.','🔔 ကို နှိပ်ပါ။')],
+  install:[openP,menu,s('#home-screen-action','Tap Add to Home Screen.','Add to Home Screen ကို နှိပ်ပါ။')],
+  language:[openP,menu,s('[data-language-choice="my"]','Choose English or မြန်မာ here.','ဒီမှာ English ဒါမှမဟုတ် မြန်မာ ရွေးပါ။')],
+  theme:[openP,menu,s('[data-theme-choice="dark"]','Choose Light or Dark here.','ဒီမှာ Light ဒါမှမဟုတ် Dark ရွေးပါ။')],
+  share:[openP,menu,s('#share-store-action','Tap Share My Store.','Share My Store ကို နှိပ်ပါ။')],
+  speed:[openP,menu,s('#app-speed-action','Tap App speed.','App speed ကို နှိပ်ပါ။')],
+  save:[openP,menu,s('#saved-posts-action','Tap Saved.','Saved ကို နှိပ်ပါ။')],
+  offline:[openP,menu,s('#offline-status','This shows if the shop is saved for offline use.','ဒါက ဆိုင်ကို offline အတွက် သိမ်းပြီးလား ပြပါတယ်။')],
+  refresh:[s(H,'Tap Home again to reload (or pull the page down).','ပြန် load ဖို့ Home ကို ထပ်နှိပ်ပါ (ဒါမှမဟုတ် စာမျက်နှာကို အောက်ဆွဲပါ)။')],
+  nav:[s('.mobile-bottom-nav','Press on the bar, slide your finger and let go on the tab you want.','Bar ပေါ် ဖိ၊ လက်ကို ရွှေ့ပြီး လိုချင်တဲ့ tab ပေါ်မှာ လွှတ်ပါ။')]
+ };
+ const tour={steps:null,i:0,el:null,my:false};
+ const card=document.createElement('div');card.className='ai-tour-card';card.setAttribute('role','dialog');
+ const finger=document.createElement('div');finger.className='ai-tour-finger';finger.setAttribute('aria-hidden','true');
+ const shown=el=>{const r=el.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(el).visibility!=='hidden'};
+ const find=sel=>[...document.querySelectorAll(sel)].find(shown)||null;
+ const wait=ms=>new Promise(r=>setTimeout(r,ms));
+ function endTour(){document.body.classList.remove('ai-touring');tour.steps=null;tour.el?.classList.remove('ai-tour-target');tour.el=null;card.remove();finger.remove();removeEventListener('scroll',place,true);removeEventListener('resize',place)}
+ function startTour(steps,my){endTour();document.body.classList.add('ai-touring');tour.steps=steps;tour.my=my;addEventListener('scroll',place,true);addEventListener('resize',place);go(0)}
+ // The card and finger live in an open dialog when there is one (only it can be touched then).
+ function place(){
+  if(!tour.steps)return;const host=document.querySelector('dialog[open]:not(.ai-help)')||document.body;
+  if(card.parentNode!==host){host.append(card);host.append(finger)}
+  const probe=document.createElement('i');probe.style.cssText='position:fixed;left:0;top:0;width:0;height:0';host.append(probe);const o=probe.getBoundingClientRect();probe.remove();
+  const vh=innerHeight,vw=innerWidth,cw=Math.min(vw-24,360);card.style.width=cw+'px';
+  const el=tour.el&&tour.el.isConnected&&shown(tour.el)?tour.el:null;finger.hidden=!el;
+  if(!el){card.style.left=Math.round((vw-cw)/2-o.left)+'px';card.style.top=Math.round(vh/2-card.offsetHeight/2-o.top)+'px';return}
+  const r=el.getBoundingClientRect(),low=r.top+r.height/2>vh*.55,ch=card.offsetHeight;
+  finger.textContent=low?'👇':'👆';
+  finger.style.left=Math.round(r.left+r.width/2-17-o.left)+'px';finger.style.top=Math.round((low?r.top-44:r.bottom+6)-o.top)+'px';
+  const top=low?Math.max(8,r.top-52-ch):Math.min(vh-ch-8,r.bottom+52);
+  card.style.left=Math.round(Math.min(vw-cw-12,Math.max(12,r.left+r.width/2-cw/2))-o.left)+'px';card.style.top=Math.round(top-o.top)+'px';
+ }
+ async function go(i){
+  if(!tour.steps)return;tour.el?.classList.remove('ai-tour-target');tour.el=null;tour.i=i;
+  const steps=tour.steps,my=tour.my;if(i>=steps.length)return endTour();
+  const [sel,en,mm]=steps[i];let el=null;
+  if(sel){for(let k=0;k<25&&!(el=find(sel));k++)await wait(100);if(!tour.steps||tour.i!==i)return}
+  const last=i===steps.length-1;
+  card.innerHTML='<small>'+(my?'အဆင့် ':'Step ')+(i+1)+' / '+steps.length+'</small><p>'+esc(my?mm:en)+(sel&&!el?'<em>'+esc(my?'ဒီခလုတ်ကို ဒီစာမျက်နှာမှာ မတွေ့ပါ (ဆိုင်ပိုင်ရှင်အတွက်ပဲ ဖြစ်နိုင်ပါတယ်)။':'This button is not on this screen (it may be for the shop owner only).')+'</em>':'')+'</p><div><button type="button" data-tour="end">'+(my?'ပိတ်မယ်':'Close')+'</button><button type="button" data-tour="next">'+(last&&!el?(my?'ပြီးပြီ ✓':'Done ✓'):(my?'ရှေ့ဆက် ▶':'Next ▶'))+'</button></div>';
+  if(el){tour.el=el;el.classList.add('ai-tour-target');el.scrollIntoView({block:'center',behavior:'smooth'})}
+  place();setTimeout(place,350);setTimeout(place,800);
+ }
+ card.addEventListener('click',e=>{const b=e.target.closest('[data-tour]');if(!b)return;e.stopPropagation();if(b.dataset.tour==='end')return endTour();if(tour.el)tour.el.click();else go(tour.i+1)});
+ // Tapping the glowing button itself goes to the next step once the app has reacted.
+ document.addEventListener('click',e=>{if(!tour.steps||!tour.el||card.contains(e.target)||!tour.el.contains(e.target))return;const i=tour.i;setTimeout(()=>{if(tour.steps&&tour.i===i)go(i+1)},450)},true);
  function ask(q){
   q=q.trim().slice(0,200);if(!q)return;say('me',q);
   const my=isMy(q)||(!/[a-z]/i.test(q)&&pageMy()),hit=answer(q);
-  setTimeout(()=>{if(hit)say('bot',my?hit[3]:hit[2],hit[4],my);else say('bot',ui[my?'my':'en'].only)},250);
+  setTimeout(()=>{if(hit)say('bot',my?hit[3]:hit[2],hit[4],my,hit[0]);else say('bot',ui[my?'my':'en'].only)},250);
  }
  box.querySelector('.ai-help-form').addEventListener('submit',e=>{e.preventDefault();ask(input.value);input.value=''});
  chipBox.addEventListener('click',e=>{const b=e.target.closest('button');if(b)ask(b.textContent)});
@@ -145,5 +215,5 @@
  if(vv){vv.addEventListener('resize',fit);vv.addEventListener('scroll',fit)}
  input.addEventListener('focus',()=>setTimeout(fit,50));input.addEventListener('blur',()=>setTimeout(fit,50));
  box.addEventListener('close',()=>{box.classList.remove('ai-help-kb');box.style.top=box.style.height=box.style.bottom=''});
- window.GearHubAiHelp={answer};
+ window.GearHubAiHelp={answer,tours:TOURS,startTour,ids:K.map(e=>e[0])};
 })();
