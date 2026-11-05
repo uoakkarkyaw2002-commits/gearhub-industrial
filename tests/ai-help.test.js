@@ -4,7 +4,7 @@ const read=f=>fs.readFileSync(path.join(__dirname,'..','public',f),'utf8');
 function load(){
  const el=()=>new Proxy(function(){},{get:(t,k)=>k==='children'?[]:k==='style'?{}:typeof k==='symbol'?undefined:el(),set:()=>true,apply:()=>el()});
  const window={};const context={window,document:{documentElement:{lang:'en'},querySelector:()=>({}),createElement:()=>el(),body:el(),addEventListener(){}},addEventListener(){},MutationObserver:function(){return {observe(){}}},matchMedia:()=>({matches:false}),setTimeout};
- vm.runInNewContext(read('ai-help.js'),context);const h=window.GearHubAiHelp;load.last={tours:h.tours,ids:h.ids};return h.answer;
+ vm.runInNewContext(read('ai-help.js'),context);const h=window.GearHubAiHelp;load.last={tours:h.tours,ids:h.ids,labels:h.labels,near:h.near};return h.answer;
 }
 test('the AI helper answers app questions and refuses everything else',()=>{
  const answer=load(),id=q=>answer(q)?.[0]||null;
@@ -30,6 +30,15 @@ test('the AI helper answers app questions and refuses everything else',()=>{
  // 1.1.335 owner: Go shows each step on the real screen; every guide belongs to an answer.
  {const w=load.last;const ids=new Set(w.ids);for(const k of Object.keys(w.tours))assert.ok(ids.has(k),'guide without answer: '+k);
   assert.ok(['addproduct','order','install','excel','profile'].every(k=>w.tours[k]?.length>=2));}
+ // 1.1.338 owner: "make the free assistant the best" — more of the app, and "did you mean" instead of a bare refusal.
+ {const more={'Hero image ဘယ်လိုပြောင်းရလဲ':'hero','ငါက ဘယ်သူလဲ':'whoami','ငါမှာ user ဘယ်လောက်ရှိသလဲ':'countfollowers','ဆိုင်နာမည် ဘယ်လိုပြင်ရမလဲ':'profile','ပစ္စည်းဈေး ဖျောက်ချင်တယ်':'usershow',
+   'ပစ္စည်းကုန်သွားရင်':'lowstock','အော်ဒါ ဘယ်လိုအတည်ပြုရမလဲ':'confirmorder','ဖျက်ထားတဲ့ ပစ္စည်း ပြန်ယူချင်တယ်':'recycle','ဖုန်းနံပါတ် ဘာလဲ':'contactus','password မေ့သွားပြီ':'signin',
+   'ပုံပြပြီး မေးလို့ရလား':'sendimage','SKU ဆိုတာ ဘာလဲ':'sku','ဒီ app ဆိုတာ ဘာလဲ':'aboutapp','how to change the home banner':'hero','where is the recycle bin':'recycle','how do I confirm an order':'confirmorder'};
+  for(const [q,want] of Object.entries(more))assert.equal(id(q),want,q);
+  for(const q of ['ထမင်းဘယ်လိုချက်ရမလဲ','ဘောလုံးပွဲ ဘယ်သူနိုင်လဲ','what is the weather'])assert.equal(id(q),null,q);
+  assert.equal(load.last.near('ဘောလုံးပွဲ ဘယ်သူနိုင်လဲ').length,0,'off-topic gets no suggestions');
+  assert.ok(load.last.near('ပစ္စည်း ဈေးကို ဘာပြုလုပ်ရမလဲ').length>=0);
+  for(const [lid,[en,my]] of Object.entries(load.last.labels)){assert.equal(id(en),lid,'label '+en);assert.equal(id(my),lid,'label '+my)}}
  const html=read('index.html'),sw=read('sw.js');
- for(const tag of ['/ai-help.js?v=1.1.337','/ai-help.css?v=1.1.337'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
+ for(const tag of ['/ai-help.js?v=1.1.338','/ai-help.css?v=1.1.338'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
 });
