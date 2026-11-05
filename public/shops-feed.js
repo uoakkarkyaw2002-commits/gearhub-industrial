@@ -551,7 +551,11 @@
     if (typeof window.showStoreView === 'function') window.showStoreView('shops'); else render();
     render(); scrollTo(0, 0); window.GearHubBackNav?.record();
   });
-  window.GearHubShops = {refresh() { if (savedMode) { render(); return Promise.resolve(); } return load(true); }, setActive(value) { active = value; if (active) { brand(); bell(); account(); } if (active && savedMode) render(); else if (active && (!initialized || Date.now() - lastLoaded > 60000)) load(true); }};
+  window.GearHubShops = {refresh() { if (savedMode) { render(); return Promise.resolve(); } return load(true); }, setActive(value) { active = value; if (active) { brand(); bell(); account(); } if (active && savedMode) render(); else if (active && (!initialized || Date.now() - lastLoaded > 300000)) load(true); },
+    // 1.1.331 owner: Discover is loaded quietly in the background, so it opens at once (refreshed after 5 minutes).
+    warm() { if (savedMode || initialized || loading) return Promise.resolve(items); const t0 = performance.now(); return load(true).then(() => { warmedMs = Math.round(performance.now() - t0); return items; }); },
+    warmedMs: () => warmedMs};
+  let warmedMs = 0;
   // Back from Google sign-in (?view=shops) or a Buy Now from another shop (?cart=1).
   const params = new URLSearchParams(location.search);
   if (params.has('view') || params.has('cart')) {

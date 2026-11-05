@@ -162,6 +162,8 @@
   if(kind==='follow'){el.disabled=true;try{const d=await call('/api/platform/profile/'+encodeURIComponent(slug)+'/follow','POST',{});info.followed=d.followed;info.followers=d.followers;drawInfo();window.dispatchEvent(new Event('gearhub:follows-changed'))}catch(e){el.disabled=false;if(e.status===401)signIn();else window.toast?.(e.message)}return}
   if(kind==='delete'){if(!confirm(t('removeAsk')))return;try{await call('/api/platform/profile/'+encodeURIComponent(slug)+'/posts/'+Number(el.dataset.post),'DELETE');posts=posts.filter(p=>p.postId!==Number(el.dataset.post));info.posts=Math.max(0,info.posts-1);drawInfo();drawPosts()}catch(e){window.toast?.(e.message)}}
  }
+ // 1.1.331 owner: the Profile is loaded quietly in the background, so it opens at once.
+ window.GearHubProfileWarm=()=>Promise.all([loadInfo(),loadPosts()]).then(()=>posts);
  for(const root of [home,sheet])root.addEventListener('click',e=>{const b=e.target.closest('[data-pm]');if(b)act(b.dataset.pm,b)});
  home.addEventListener('keydown',e=>{const b=(e.key==='Enter'||e.key===' ')&&e.target.closest('span[data-pm="people"]');if(b){e.preventDefault();act('people',b)}});
  sheet.addEventListener('submit',e=>{const f=e.target.closest('[data-pm-form="post"]');if(f){e.preventDefault();submitPost(f)}const pf=e.target.closest('[data-pm-form="profile"]');if(pf){e.preventDefault();saveProfile(pf)}});

@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-05 (night) — from Claude (account 1) — open
+
+- 1.1.331 (background preload of Discover, Profile and first photos; Settings → App speed list: fastest vs now) is in a PR. 1.1.330 (PR #414) merged. Owner said the app feels slow; local numbers are fast, so ask for a screenshot of App speed on the live iPhone after deploy to see which line is slow.
 ## 2026-11-05 (evening) — from Claude (account 1) — open
 
 - 1.1.330 (tap Followers / Following on Profile → list of people; Message → Followers shows the same list; new read-only GET /api/platform/profile/:slug/people, no schema change) is in a PR. 1.1.329 (PR #413) merged.

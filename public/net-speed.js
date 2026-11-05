@@ -48,12 +48,15 @@
    // A very long wait for the first byte (bad signal) is never shown as good.
    const level=bps>=GOOD&&delay<2000?'good':bps>=NORMAL?'normal':'low';
    show(level,label(bps),(level==='good'?'Good':level==='normal'?'Normal':'Low')+' connection · '+label(bps)+'/s · '+Math.round(delay)+' ms');
+   window.GearHubNetSpeed.last={bps,delay,level,at:Date.now()};window.dispatchEvent(new Event('gearhub:net-speed'));
   }catch(_){if(navigator.onLine===false)show('offline','Offline','No internet');else show('low','–','Connection problem')}
   finally{busy=false}
  }
  function schedule(){clearTimeout(pending);pending=setTimeout(measure,15000)}
  const start=()=>{ready=true;schedule()};
  addEventListener('gearhub:data-ready',start);addEventListener('load',()=>{if(!document.getElementById('sky-splash'))start()},{once:true});
+ // 1.1.331: the Settings speed list reads the last result and can test again.
+ window.GearHubNetSpeed={last:null,test:sample,label};
  setInterval(schedule,180000);
  addEventListener('online',schedule);addEventListener('offline',()=>show('offline','Offline','No internet'));
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule()});
