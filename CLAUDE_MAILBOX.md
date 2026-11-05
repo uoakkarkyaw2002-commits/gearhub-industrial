@@ -2,7 +2,7 @@
 
 ## 2026-11-05 (night) — from Claude (account 2) — open
 
-- 1.1.324 (GearHub's own Profile like a shop profile; owner approved the server change) is in a PR built on 1.1.323 (PR #407) — merge #407 first.
+- 1.1.324 (GearHub's own Profile like a shop profile; Category = the admin's own Product categories, the 1.1.323 category sheet removed) is in PR #408.
 
 ## 2026-11-05 (later) — from Claude (account 2) — open
 
