@@ -32,6 +32,8 @@ _None._
 
 ### 1.1.327: visiting another shop in the owner's picture (Claude)
 
+- Follow-up (Claude account 1, owner said "finish what the other Claude was doing"): compared side by side with the owner's picture at 430 px in WebKit and fixed what still differed: bottom bar was 4 columns (home-hero.css rule won) → 3 equal; green filled filter button + 🔍 in the search; catalog count in a green pill and a green line under the title; category / sort as round pills with layer / flame icons and ⌄; product promotion pill red, round, centred, starting with ⚡; Promotion banner divider line + gift; lighter header top. Still different only because of each shop's own data (logo, hero pictures, catalog texts).
+
 - Owner's phone picture (treebird Mobile): visiting another shop inside a shop app (`body.visiting-shop`, visit-shop.js) now shows, on phones only (≤1023 px):
   - The shop header on the green Profile background (`images/profile-cover.svg`), with the logo in a green ring, the name, a green ✓, a Followers / Following / Posts pill (from `/api/platform/profile/<slug>`) and the caption pill. 🔔 💬, the speed badge and the tagline are hidden there.
   - A bottom bar with only Home · Category · the visited shop's own Profile (its logo, copied from `#home-profile-avatar`; owner's follow-up). On PC the exit link stays.

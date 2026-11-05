@@ -14,6 +14,9 @@
   addEventListener('gearhub:data-ready',save);setTimeout(save,3000);return;
  }
  document.body.classList.add('visiting-shop');
+ // Owner's picture: the promotion pill on product cards starts with a lightning sign.
+ const bolt=()=>document.querySelectorAll('.promo-badge').forEach(b=>{if(b.firstChild?.nodeType===3&&/^\s*🏷️/.test(b.firstChild.nodeValue))b.firstChild.nodeValue=b.firstChild.nodeValue.replace(/^\s*🏷️\s*/,'⚡ ')});
+ if(typeof MutationObserver==='function'){const list=document.getElementById?.('products');if(list)new MutationObserver(bolt).observe(list,{childList:true,subtree:true})}
  const label=homeName?'Back to '+homeName:'Back';
  const icon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 16l-4-4 4-4M6 12h10"/></svg>';
  // 1.1.327 owner: on the phone the right button is the visited shop's own Profile (its logo); one Back press

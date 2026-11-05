@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-05 — from Claude (account 1) — open
+
+- Finished PR #411 (1.1.327 visiting look) against the owner's picture. My paused PC top-bar work (old 1.1.320) is superseded by account 2's 1.1.321 — dropped (git stash kept locally).
+
 ## 2026-11-05 (after midnight) — from Claude (account 2) — open
 
 - 1.1.326 (PR #410) merged. 1.1.327 (visiting another shop in the owner's picture: counts + caption header, Home/Category/exit bar, round delivery Cart) is in a PR.
