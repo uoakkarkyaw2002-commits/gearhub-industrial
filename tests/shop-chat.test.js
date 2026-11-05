@@ -40,6 +40,6 @@ test('Settings Notifications row is only the switch; the top 🔔 / 💬 buttons
  const read=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
  const alerts=read('public/settings-alerts.js'),html=read('public/index.html'),sw=read('public/sw.js');
  assert.doesNotMatch(alerts,/return;if\(slug&&!shopId\)return;openHistory\(\)/);assert.match(alerts,/function showCount\(items\)\{return;/);
- for(const tag of html.match(/\/noti-chat\.(?:js|css)\?v=[0-9.]+/g))assert.ok(sw.includes('"'+tag+'"'),tag);
+ for(const tag of html.match(/\/noti-chat\.(?:js|css)\?v=[^"]+/g))assert.ok(sw.includes('"'+tag+'"'),tag);
  assert.match(read('public/noti-chat.js'),/banner\.append\(box\)/);
 });
