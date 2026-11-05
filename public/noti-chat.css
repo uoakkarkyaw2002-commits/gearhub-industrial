@@ -1,0 +1,45 @@
+/* 1.1.314 owner's picture: glass 🔔 and 💬 buttons at the top right of the shop banner, and their sheet. */
+.home-profile-banner{position:relative}
+.nc-buttons{position:absolute;top:50%;right:max(14px,env(safe-area-inset-right));z-index:3;display:flex;gap:10px;transform:translateY(-50%);pointer-events:auto}
+.nc-button{position:relative;display:grid;place-items:center;width:54px;height:54px;padding:0;border:1.5px solid #9fe0ff;border-radius:16px;background:linear-gradient(160deg,#2a8df0cc,#0b4fb0e6);box-shadow:0 0 0 2px #ffffff26 inset,0 4px 14px #0a3a8a59,0 0 12px #5fd0ff59;cursor:pointer;-webkit-tap-highlight-color:transparent;pointer-events:auto}
+.nc-button svg{width:34px;height:34px}
+.nc-button:active{transform:scale(.94)}
+.nc-dot{position:absolute;top:6px;right:6px;width:12px;height:12px;border-radius:50%;background:#ff2d2d;box-shadow:0 0 0 2px #fff}
+.nc-dot[hidden]{display:none}
+.nc-sheet{position:fixed;inset:auto 0 0 0;display:none;flex-direction:column;width:min(100%,560px);max-width:100vw;height:min(82svh,760px);margin:0 auto;padding:10px 16px calc(14px + env(safe-area-inset-bottom));border:0;border-radius:26px 26px 0 0;background:#fff;color:#1b2a20;box-shadow:0 -10px 40px #1020182e}
+.nc-sheet[open]{display:flex}
+.nc-sheet::backdrop{background:#10201866}
+.nc-grip{width:46px;height:5px;margin:0 auto 10px;border-radius:9px;background:#d5d9d6}
+.nc-sheet>header{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid #e8ece9}
+.nc-sheet h2{display:flex;align-items:center;gap:10px;flex:1;min-width:0;margin:0;font-size:21px;font-weight:800}
+.nc-sheet h2 svg{flex:0 0 30px;width:30px;height:30px;padding:3px;border-radius:9px;background:#1d64d6}
+.nc-sheet h2 span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#nc-close{display:grid;place-items:center;width:40px;height:40px;padding:0;border:0;border-radius:50%;background:#f0f3f1;color:#1d2a21;font-size:18px;cursor:pointer}
+.nc-body{display:flex;flex-direction:column;flex:1;min-height:0;padding-top:10px}
+.nc-list{flex:1;min-height:0;margin:0;padding:0;overflow:auto;list-style:none}
+.nc-item{display:grid;gap:3px;width:100%;padding:12px 10px;border:0;border-bottom:1px solid #eef1ef;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.nc-item.is-new{background:#eef6ff;border-radius:12px}
+.nc-item span{font-size:15px;line-height:1.5;overflow-wrap:anywhere}
+.nc-item b{font-size:15px}
+.nc-item b i{display:inline-grid;place-items:center;min-width:20px;height:20px;margin-left:6px;padding:0 5px;border-radius:999px;background:#ff2d2d;color:#fff;font-size:12px;font-style:normal}
+.nc-item small{color:#6e7a72;font-size:12px}
+.nc-empty{margin:18px 0;color:#6e7a72;font-size:15px;line-height:1.6;text-align:center}
+.nc-primary{min-height:46px;padding:0 20px;border:0;border-radius:14px;background:#1a7a2e;color:#fff;font:inherit;font-size:16px;font-weight:800;cursor:pointer}
+.nc-primary:disabled{opacity:.6}
+.nc-body>.nc-primary{align-self:stretch}
+.nc-messages{display:flex;flex-direction:column;gap:8px;flex:1;min-height:0;overflow:auto;padding:4px 2px 10px}
+.nc-msg{display:grid;gap:2px;max-width:80%;margin:0;padding:9px 12px;border-radius:18px 18px 18px 6px;background:#f0f2f1;align-self:flex-start}
+.nc-msg.mine{border-radius:18px 18px 6px 18px;background:#1d64d6;color:#fff;align-self:flex-end}
+.nc-msg span{font-size:15px;line-height:1.5;white-space:pre-line;overflow-wrap:anywhere}
+.nc-msg small{font-size:11px;opacity:.7}
+.nc-form{display:flex;gap:8px;align-items:flex-end;padding-top:10px;border-top:1px solid #e8ece9}
+.nc-form textarea{flex:1;min-height:46px;max-height:120px;padding:12px 14px;border:1px solid #d5dbd7;border-radius:14px;font:inherit;font-size:16px;resize:none}
+.nc-back{flex:0 0 auto;padding:6px 10px;border:0;border-radius:10px;background:#eef2ef;color:#1d2a21;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.nc-note{margin:6px 0 0;color:#b42318;font-size:13px;text-align:center}
+.nc-note:empty{display:none}
+body:has(#nc-sheet[open]){overflow:hidden}
+@media(max-width:420px){.nc-buttons{gap:8px}.nc-button{width:48px;height:48px;border-radius:14px}.nc-button svg{width:30px;height:30px}}
+@media(min-width:851px){.nc-buttons{right:24px}}
+/* The shop name and tagline end before the two buttons (never under them). */
+.home-profile-banner:has(.nc-buttons) .settings-profile-copy{padding-right:132px;min-width:0}
+@media(max-width:420px){.home-profile-banner:has(.nc-buttons) .settings-profile-copy{padding-right:112px}}

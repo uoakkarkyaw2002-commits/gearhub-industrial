@@ -44,7 +44,7 @@
  // 1.1.251 owner: the Notifications row shows how many alerts came in since the list was last opened.
  const seenKey="gh-alerts-seen:"+(slug||"main"),historyUrl=()=>slug?"/api/platform/shops/"+shopId+"/push/history":"/api/platform/owner/push/history";
  const seenAt=()=>{try{return localStorage.getItem(seenKey)||""}catch{return ""}};
- function showCount(items){const n=items.filter(x=>String(x.at)>seenAt()).length,el=row.querySelector(".alerts-count");el.textContent=n>99?"99+":String(n);el.hidden=!n;row.setAttribute("aria-label","Notifications history"+(n?", "+n+" new":""))}
+ function showCount(items){return;const n=items.filter(x=>String(x.at)>seenAt()).length,el=row.querySelector(".alerts-count");el.textContent=n>99?"99+":String(n);el.hidden=!n;row.setAttribute("aria-label","Notifications history"+(n?", "+n+" new":""))}
  async function loadCount(){try{const r=await fetch(historyUrl(),{cache:"no-store",credentials:"same-origin"});if(r.ok)showCount((await r.json()).items||[])}catch{}}
  async function openHistory(){
   if(!sheet){sheet=document.createElement("div");sheet.className="alerts-history";sheet.hidden=true;sheet.setAttribute("role","dialog");sheet.setAttribute("aria-modal","true");
@@ -60,8 +60,9 @@
  }
  function close(){if(sheet){sheet.hidden=true;document.body.classList.remove("alerts-history-open")}}
  row.classList.add("settings-row-button");row.tabIndex=0;row.setAttribute("aria-label","Notifications history");
- row.addEventListener("click",e=>{if(e.target.closest(".settings-toggle"))return;if(slug&&!shopId)return;openHistory()});
- row.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target===row){e.preventDefault();openHistory()}});
+ // 1.1.314 owner: this row is only the on/off switch; the 🔔 at the top of the shop shows everything.
+ row.addEventListener("click",e=>{if(e.target.closest(".settings-toggle"))return;const sw=row.querySelector("#settings-alerts-switch");if(sw&&!sw.disabled&&e.target!==sw)sw.click()});
+ 
  addEventListener("keydown",e=>{if(e.key==="Escape")close()});
  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&!row.hidden&&(!slug||shopId))loadCount()});
  input.addEventListener("change",async()=>{

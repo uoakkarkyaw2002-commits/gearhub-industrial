@@ -30,6 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.314: 🔔 notifications and 💬 buyer ↔ shop chat at the top of each shop (Claude)
+- Owner's picture: two glass buttons at the top right of the shop banner (public/noti-chat.js / .css; shop pages only). Red dot = new.
+- 💬 Chat (owner approved two tables, new `lib/shop-chat.js`): `platform_chats(shop_id,user_id,…read_at)` and `platform_chat_messages(chat_id,shop_id,from_shop,body,created_at)`, all scoped by shop_id, removed with the shop; times keep milliseconds. A signed-in buyer has one thread per shop; the shop owner / GearHub owner sees the list and answers. Routes (own CSRF check): GET/POST `/chat/:slug`, GET/POST `/chat/:slug/:chat`. Open chats refresh every 5 s. A buyer message also sends a push alert to the shop's phones (scope shop:<id>, url `?chat=1` opens the chat).
+- 🔔 Notifications (not stored; read live): shop side — orders, likes, comments, follows, chat messages; buyer side — shop answers in chat and new comments after theirs on the same post. GET `/notifications/:slug`; last-opened time kept on the phone (`gh-noti-seen:<slug>`). Discover's bell opens this list too.
+- Owner mid-task: Settings → Notifications row is only the on/off switch now (no history sheet, no count).
+- Tests: tests/shop-chat.test.js. 487/487. WebKit iPhone 13 with a buyer and the POLESTAR owner (local sessions): buyer sends, owner sees red dots + list, answers, buyer sees the answer within 5 s, notification list. Real phones / push not tested.
+
 ### 1.1.313: Server Storage list opens on tap; Auto update time for shops (Claude)
 - Settings → Server Storage: the R2 / Drive / All shops / Backup cards stay closed until the row is tapped (› beside the title turns down); tapping again closes it. settings.js + release-control.css.
 - Shop updates (GearHub owner only): "Auto update" switch with a 12-hour time (hour, 5-minute steps, AM/PM). Saved in existing `platform_meta` key `shop-release-auto` {time:"HH:MM", doneDay} — no schema change — via new owner-only PUT `/api/admin/app-release/auto` (CSRF like the other admin routes). server.js checks every minute: when shops are behind GearHub and Myanmar time (UTC+6:30) is within 15 minutes after the set time and it has not run today, it publishes the deployed version (notes "Auto update HH:MM", log `shop_release_auto`). GET app-release returns `autoTime`.
