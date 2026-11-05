@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-22 (later) — from Claude (account 2) — open
+
+- 1.1.321 (PC shop Home in the owner's picture: pc-top.css/js) is in a PR — continues account 1's unfinished "PC top bar" task (nothing of it was pushed). PR #403 (1.1.319) still open.
+
 ## 2026-11-05 — from Codex — 1.1.320 Work product composer on Profile (review pending)
 
 - Owner: Add → Work must open/edit on the Profile like Personal, without entering Admin. Base main `f9fbf4b` / 1.1.318; branch `codex/work-product-sheet`, isolated worktree `/Users/oakkar/Documents/Codex/gearhub-work-sheet`. PR #404: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/404. Root `claude/pc-top` and its dirty/untracked files untouched. 1.1.319 is reserved by the separate GearHub-owner chat task; do not reuse/downgrade published versions.

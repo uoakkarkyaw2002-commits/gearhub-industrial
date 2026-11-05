@@ -1,0 +1,54 @@
+/* 1.1.321 owner's PC picture (shop Home on a computer). Only from 1024 px wide; phones keep their layout. */
+.pc-cart-badge,.pc-chevron,.pc-search-glass,.pc-hero-arrow,.pc-promo-machines{display:none}
+@media (min-width:1024px){
+ /* Top bar: shop logo + name left, menu in the middle, divider + glass 🔔 💬 at the right end. */
+ header.home-navigation{display:flex;align-items:center;gap:20px;background:#fff;box-shadow:0 1px 0 #e5ece7,0 6px 18px #10201808}
+ header.home-navigation .desktop-top-nav{gap:6px;flex:0 0 auto}
+ header.home-navigation>.home-profile-banner{flex:0 1 auto;min-width:0;max-width:260px}
+ header.home-navigation .desktop-nav-item{position:relative;gap:8px;padding:10px 16px;border-radius:14px;font-weight:700;color:#1f2a24}
+ header.home-navigation .desktop-nav-item.active{background:#e7f5e9;color:#166534}
+ header.home-navigation .desktop-nav-item:not(.active):hover{background:#f3f7f4}
+ .pc-cart-badge{position:absolute;top:2px;left:26px;display:grid;min-width:18px;height:18px;place-items:center;padding:0 5px;border:2px solid #fff;border-radius:999px;background:#ef4444;color:#fff;font:800 10.5px/1 system-ui,sans-serif}
+ .pc-cart-badge[hidden]{display:none}
+ .pc-chevron{display:inline-block;width:16px;height:16px;margin-left:-2px;opacity:.8}
+ header.home-navigation>.nc-buttons{position:static;transform:none;display:flex;align-items:center;gap:10px;margin-left:4px}
+ header.home-navigation>.nc-buttons .nc-button{width:52px;height:52px;border-radius:16px;box-shadow:0 6px 16px #2563eb38,inset 0 1px 0 #ffffff80}
+ header.home-navigation .settings-profile-copy{padding-right:0!important}
+
+ /* Search: solid green filter button, magnifier in the box, solid green scan button. */
+ .mobile-search .search-filter-button{width:56px;height:56px;border:0;border-radius:16px;background:linear-gradient(180deg,#22a046,#15803d);color:#fff;box-shadow:0 6px 14px #16a34a40}
+ .mobile-search .search-filter-button svg{stroke:#fff}
+ .mobile-search .search-pill{position:relative;align-items:center;gap:10px;min-height:56px;padding-left:18px;border:2px solid #22a046;border-radius:16px;background:#fff;box-shadow:0 0 0 4px #e9f6ec}
+ .pc-search-glass{display:block;flex:0 0 22px;width:22px;height:22px;color:#1f2a24}
+ .mobile-search .photo-scan-button{width:44px;height:44px;margin-right:4px;border-radius:12px;background:linear-gradient(180deg,#22a046,#15803d);color:#fff;box-shadow:0 4px 10px #16a34a40}
+ .mobile-search .photo-scan-button svg{stroke:#fff}
+
+ /* Hero: ‹ › round white buttons and the dots on the picture. */
+ .hero.hero-slides-on{border-radius:26px}
+ .hero.hero-slides-on .pc-hero-arrow{position:absolute;top:50%;z-index:3;display:grid!important;width:46px;height:46px;place-items:center;padding:0;border:0;border-radius:50%;background:#fff;color:#1f2a24;box-shadow:0 6px 18px #0003;cursor:pointer;transform:translateY(-50%)}
+ .hero.hero-slides-on .pc-hero-arrow svg{width:22px;height:22px}
+ .hero.hero-slides-on .pc-hero-arrow.prev{left:16px}
+ .hero.hero-slides-on .pc-hero-arrow.next{right:16px}
+ .hero.hero-slides-on .pc-hero-arrow:hover{background:#f1f6f2}
+ .hero.hero-slides-on+.hero-dots{position:relative;z-index:4;width:max-content;margin:-76px auto 40px;padding:6px 10px;border-radius:999px;background:#ffffffd9;box-shadow:0 2px 8px #0002}
+
+ /* Promotion banner: wide, green, % tile, text, machines, white Shop Now pill. */
+ .home-promo{width:calc(100% - 2*var(--desktop-gutter,32px));max-width:calc(var(--desktop-width,1280px) - 2*var(--desktop-gutter,32px));min-height:96px;margin:18px auto 22px;padding:12px 28px;border-radius:22px;background:linear-gradient(100deg,#0f6b2b 0%,#1a8a3a 55%,#38b04a 100%);box-shadow:0 10px 24px #14532d2e}
+ .home-promo-tag{flex-basis:60px;width:60px;height:60px;font-size:32px}
+ .home-promo-copy b{font-size:28px}
+ .home-promo-copy small{font-size:15px}
+ .home-promo-gift{display:none}
+ .pc-promo-machines{display:block;flex:0 0 min(400px,34vw);height:84px;background:url("/images/promo-machines.png?v=1.1.321") center/contain no-repeat;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent 0,#000 12%,#000 88%,transparent)}
+ .home-promo-go{order:9;padding:12px 22px;font-size:16px;box-shadow:0 4px 12px #0002}
+}
+/* Narrower computers (1024–1399 px): a tighter menu so Profile and 🔔 💬 never overlap. */
+@media (min-width:1024px) and (max-width:1399px){
+ header.home-navigation{gap:10px}
+ header.home-navigation .desktop-top-nav{gap:2px}
+ header.home-navigation .desktop-nav-item{gap:6px;padding:8px 9px;font-size:14px}
+ header.home-navigation .desktop-nav-item svg:not(.pc-chevron){width:20px;height:20px}
+ header.home-navigation>.nc-buttons{gap:6px}
+ header.home-navigation>.nc-buttons .nc-button{width:44px;height:44px;border-radius:13px}
+ header.home-navigation .settings-profile-copy small{display:none}
+}
+
