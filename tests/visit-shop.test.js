@@ -3,7 +3,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),fs=requir
 const read=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
 function run({standalone=true,path:p,home,logo}){
  const store=new Map(home?[['gh-app-home',home.split('/')[2]],['gh-app-home-path',home],['gh-app-home-name','Kaizen Beauty'],...(logo?[['gh-app-home-logo',logo]]:[])]:[]),appended=[],hidden=[],body=new Set();
- const nav={querySelectorAll:()=>[{set hidden(v){hidden.push(v)}},{set hidden(v){hidden.push(v)}}],append:e=>appended.push(e)};
+ const nav={querySelector:()=>null,querySelectorAll:()=>[{set hidden(v){hidden.push(v)}},{set hidden(v){hidden.push(v)}}],append:e=>appended.push(e)};
  const win={location:{pathname:p},navigator:{},matchMedia:q=>({matches:standalone&&/standalone/.test(q)}),sessionStorage:{getItem:k=>store.get(k)??null,setItem:(k,v)=>store.set(k,v)},addEventListener(){},setTimeout(){},
   document:{body:{classList:{add:c=>body.add(c)}},querySelector:s=>/^\.[a-z-]*nav$/.test(s)?nav:null,createElement:()=>({classes:new Set(),get classList(){return {add:c=>this.classes.add(c)}},setAttribute(k,v){this[k]=v}})}};
  vm.runInNewContext(read('public/visit-shop.js'),win);return {store,appended,hidden,body};
@@ -11,7 +11,7 @@ function run({standalone=true,path:p,home,logo}){
 test('the first shop of the app session is home; another shop gets the exit button, a browser tab never does',()=>{
  let r=run({path:'/shops/kaizen-beauty/'});assert.equal(r.store.get('gh-app-home-path'),'/shops/kaizen-beauty/');
  r=run({path:'/shops/kaizen-beauty/',home:'/shops/kaizen-beauty/'});assert.equal(r.appended.length,0,'1.1.295: app-switch\'s slug in gh-app-home never makes the home shop look visited');assert.equal(r.appended.length,0);
- r=run({path:'/shops/polestar/',home:'/shops/kaizen-beauty/'});assert.ok(r.body.has('visiting-shop'));assert.equal(r.appended.length,2,'phone bar and PC bar');
+ r=run({path:'/shops/polestar/',home:'/shops/kaizen-beauty/'});assert.ok(r.body.has('visiting-shop'));assert.equal(r.appended.length,1,'1.1.327: PC bar only (the phone bar shows the visited shop\'s Profile; Back leaves)');
  assert.equal(r.appended[0].href,'/shops/kaizen-beauty/');assert.equal(r.appended[0]['aria-label'],'Back to Kaizen Beauty');assert.deepEqual(r.hidden,[true,true,true,true],'Shops and Settings hidden on both bars');
  r=run({standalone:false,path:'/shops/polestar/',home:'/shops/kaizen-beauty/'});assert.equal(r.appended.length,0);
  const index=read('public/index.html'),sw=read('public/sw.js'),css=read('public/style.css');
@@ -21,6 +21,6 @@ test('the first shop of the app session is home; another shop gets the exit butt
 
 test('1.1.298: the exit shows the app shop logo and name instead of the red sign',()=>{
  let r=run({path:'/shops/polestar/',home:'/shops/kaizen-beauty/',logo:'/api/platform/images/logo-1'});
- assert.match(r.appended[0].innerHTML,/<img class="visit-exit-logo" src="\/api\/platform\/images\/logo-1" alt="">/);assert.match(r.appended[0].innerHTML,/<small>Kaizen Beauty<\/small>/);assert.ok(r.appended[0].classes.has('has-logo'));
+ assert.match(r.appended[0].innerHTML,/<img class="visit-exit-logo" src="\/api\/platform\/images\/logo-1" alt="">/);assert.match(r.appended[0].innerHTML,/<span>Kaizen Beauty<\/span>/);assert.ok(r.appended[0].classes.has('has-logo'));
  r=run({path:'/shops/polestar/',home:'/shops/kaizen-beauty/',logo:'//evil.example/x.png'});assert.doesNotMatch(r.appended[0].innerHTML,/evil/,'only this site\'s own pictures');assert.match(r.appended[0].innerHTML,/ပြန်ထွက်/);
 });

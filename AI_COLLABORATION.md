@@ -34,7 +34,8 @@ _None._
 
 - Owner's phone picture (treebird Mobile): visiting another shop inside a shop app (`body.visiting-shop`, visit-shop.js) now shows, on phones only (≤1023 px):
   - The shop header on the green Profile background (`images/profile-cover.svg`), with the logo in a green ring, the name, a green ✓, a Followers / Following / Posts pill (from `/api/platform/profile/<slug>`) and the caption pill. 🔔 💬, the speed badge and the tagline are hidden there.
-  - A bottom bar with only Home · Category · the round logo back to the app's own shop.
+  - A bottom bar with only Home · Category · the visited shop's own Profile (its logo, copied from `#home-profile-avatar`; owner's follow-up). On PC the exit link stays.
+  - Back at the start of the visited shop leaves at once (popstate ghStep 0, handled before back-nav.js: `history.back()`, else `location.replace(home)`), with no "press again to exit". From its Profile, the first Back returns to its Home.
   - Cart as a round delivery button (`images/cart-scooter.png`, cut from the owner's picture) above the bar, with the live count from `#bottom-cart-count`; tapping it opens the existing Cart.
 - New `public/visit-shop.css`. On PC nothing new shows. The app's own shop is unchanged.
 - The ✓ uses its own class (`visit-verified`), because tenant-store.js removes every `.settings-verified` in seller shops.

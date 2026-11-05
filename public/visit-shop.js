@@ -16,7 +16,19 @@
  document.body.classList.add('visiting-shop');
  const label=homeName?'Back to '+homeName:'Back';
  const icon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 16l-4-4 4-4M6 12h10"/></svg>';
- for(const [navSel,cls] of [['.mobile-bottom-nav','bottom-nav-item'],['.desktop-top-nav','desktop-nav-item']]){
+ // 1.1.327 owner: on the phone the right button is the visited shop's own Profile (its logo); one Back press
+ // takes you home (below). The PC bar keeps its exit link.
+ const phoneNav=document.querySelector('.mobile-bottom-nav');
+ if(phoneNav){
+  phoneNav.querySelectorAll('[data-store-view="shops"]').forEach(el=>{el.hidden=true;});
+  const prof=phoneNav.querySelector('[data-store-view="profile"]'),avatar=document.querySelector('#home-profile-avatar');
+  if(prof&&avatar&&prof.classList){
+   prof.classList.add('visit-profile');
+   const paint=()=>{const src=avatar.getAttribute('src');if(!src)return;const icon=prof.querySelector('span');if(!icon)return;let img=icon.querySelector('img');if(!img){icon.innerHTML='';img=document.createElement('img');img.alt='';img.className='visit-profile-logo';icon.append(img)}if(img.getAttribute('src')!==src)img.src=src};
+   paint();new MutationObserver(paint).observe(avatar,{attributes:true,attributeFilter:['src']});
+  }
+ }
+ for(const [navSel,cls] of [['.desktop-top-nav','desktop-nav-item']]){
   const nav=document.querySelector(navSel);if(!nav)continue;
   nav.querySelectorAll('[data-store-view="shops"],[data-store-view="profile"]').forEach(el=>{el.hidden=true;});
   const exit=document.createElement('a');exit.href=home;exit.className=cls+' visit-exit';exit.setAttribute('aria-label',label);
@@ -45,6 +57,13 @@
    const c=d.about?.caption||'';if(c){cap.innerHTML=quote+'<span>'+esc(c)+'</span>';cap.hidden=false}
   }).catch(()=>{});
  }
+ // Back at the start of the visited shop leaves at once (no "press again to exit"): to the page before it,
+ // or straight to the app's own shop when there is none. Runs before back-nav.js's own handler.
+ addEventListener('popstate',event=>{
+  if(Number(event.state?.ghStep)!==0)return;
+  event.stopImmediatePropagation();
+  history.back();setTimeout(()=>{if(location.pathname.startsWith(here))location.replace(home)},500);
+ });
  const navCart=document.querySelector('.mobile-bottom-nav [data-store-action="open-cart"]'),navCount=document.querySelector('#bottom-cart-count');
  if(navCart){
   const fab=document.createElement('button');fab.type='button';fab.className='visit-cart';fab.setAttribute('aria-label',navCart.getAttribute('aria-label')||'Cart');
