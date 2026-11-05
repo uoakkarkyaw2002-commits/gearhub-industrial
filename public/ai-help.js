@@ -78,6 +78,14 @@
   ['sendimage',['screenshot','send photo','send picture','send image','upload screenshot','look at my screen','see my screen','ပုံပို့','ပုံ ပို့','ပုံပြပြီး','screenshot ပို့','ပုံကြည့်ပြီး','ပုံ ဖတ်'],'I cannot read pictures yet. Please type what you see (for example the words on the screen), or send the screenshot to the shop with 💬.','ကျွန်မက ပုံကို မဖတ်နိုင်သေးပါဘူး။ မြင်ရတာကို စာနဲ့ ရိုက်ပြပါ (ဥပမာ screen ပေါ်က စာလုံးတွေ)၊ ဒါမှမဟုတ် screenshot ကို 💬 နဲ့ ဆိုင်ကို ပို့ပါ။'],
   // 1.1.339 owner: "release the update" — the assistant shows the real state and points at the button; only the owner's own tap releases it.
   ['releaseupdate',['confirm update','release update','update release','update ကို release','release လုပ်','release လိုက်','shop updates','shop update','update နှိပ်','update တင်','ဆိုင်အားလုံး update','ဆိုင်တွေ update','update ပေး','new version release','version အသစ် release','ဆိုင်အားလုံး ပြောင်း'],'',''],
+  // 1.1.340 owner: remember the owner's to-dos and remind them; check whether a "something is wrong" claim is true.
+  ['todolist',['my to-do','my todo','to-do list','todo list','task list','my tasks','what should i do','what to do today','reminders','လုပ်စရာ','လုပ်ရမယ့် အလုပ်','ဒီနေ့ ဘာလုပ်ရ','သတိပေးချက်','သတိပေးထားတာ'],'',''],
+  ['todoadd',['remind me','add to-do','add todo','add task','new task','remember to','to-do:','todo:','မှတ်ထား','မှတ်ပေး','အမှတ်ရအောင်','မမေ့အောင်','သတိပေးပါ','သတိပေးပေး'],'',''],
+  ['claim_add',['product ထည့်လို့ မရ','ပစ္စည်း ထည့်လို့ မရ','product မထည့်','ပစ္စည်း မထည့်','ပစ္စည်း မတင်','ထည့်လို့မရ','တင်လို့ မရ','add product မရ','cannot add product','cannot add a product','can\'t add product','cant add product','unable to add product','product ထည့်မရ','add မရ','save မရ','save လို့ မရ','သိမ်းလို့ မရ'],'',''],
+  ['claim_missing',['ပစ္စည်း မပေါ်','product မပေါ်','ပစ္စည်း မမြင်','product မမြင်','products not showing','items not showing','nothing shows','no products showing','ပစ္စည်း ပျောက်','ပစ္စည်း မတွေ့'],'',''],
+  ['claim_photo',['ပုံတင်လို့ မရ','ပုံ တင်လို့ မရ','ပုံ မတက်','ဓာတ်ပုံ မတက်','ပုံ upload မရ','photo upload fail','photo not uploading','cannot upload photo','upload မရ','ပုံ မတင်'],'',''],
+  ['claim_alert',['noti မလာ','alert မလာ','notification မလာ','notifications not coming','no alert','no notification','အသိပေး မလာ','အော်ဒါ alert မလာ','phone alert မလာ'],'',''],
+  ['claim_login',['login မရ','ဝင်လို့မရ','ဝင်လို့ မရ','sign in မရ','cannot sign in','cannot log in','can\'t log in','can\'t sign in','google ဝင်မရ','ဝင်မရ'],'',''],
   ['help',['help','how to use','what can','guide','အကူအညီ','ဘယ်လိုသုံး','သုံးနည်း','လမ်းညွှန်'],'I can help with: searching and scanning, Excel, categories, cart and ordering, payment, Discover, comments, following, Profile, adding products, chat, notifications and Settings. What would you like to do?','ရှာနည်း/scan၊ Excel၊ အမျိုးအစား၊ Cart နဲ့ မှာနည်း၊ ငွေပေးချေမှု၊ Discover၊ comment၊ follow၊ Profile၊ ပစ္စည်းထည့်နည်း၊ chat၊ အသိပေးချက်နဲ့ Settings တွေ ကူညီပေးနိုင်ပါတယ်။ ဘာလုပ်ချင်ပါသလဲ?']
  ];
  const chips={en:['How do I order?','How to search?','Add to Home Screen','How to follow a shop?','Add a product'],my:['ဘယ်လိုမှာရမလဲ?','ဘယ်လိုရှာရမလဲ?','ဖုန်းထဲ app ထည့်နည်း','ဆိုင်ကို follow လုပ်နည်း','ပစ္စည်းထည့်နည်း']};
@@ -118,6 +126,7 @@
   theme:['dark mode','အရောင် ပြောင်း'],
   category:['category ကြည့်','အမျိုးအစား ကြည့်']};
  Object.assign(MORE,{
+  cantorder:['order မရ','အော်ဒါ မရ','အော်ဒါ မတင်','မှာလို့ မရ','place order မရ','နှိပ်လို့ မရ','အော်ဒါတင်လို့ မရ','checkout မရ','order တင်လို့ မရ','order မတင်'],
   whoami:(MORE.whoami||[]).concat(['ငါက ဘယ်သူ','ငါ ဘယ်သူ','ကျွန်တော် ဘယ်သူ','ကျွန်မ ဘယ်သူ','ကျွန်တော်က ဘယ်သူ','ကျွန်မက ဘယ်သူ','ငါ့ နာမည်','ကျွန်တော့် နာမည်','ကျွန်မ နာမည်','ငါဘာလဲ','ဘယ် email','ဘယ် gmail']),
   countfollowers:(MORE.countfollowers||[]).concat(['user ဘယ်လောက်','user ဘယ်နှစ်','users ဘယ်','customer ဘယ်နှစ်','customers ဘယ်','ဝယ်သူ ဘယ်နှစ်','ဝယ်သူ ဘယ်လောက်','လူ ဘယ်နှစ်','how many user','how many customer','how many people','ဖောလိုဝါ ဘယ်']),
   countproducts:(MORE.countproducts||[]).concat(['ပစ္စည်း ဘယ်နှစ်မျိုး','ပစ္စည်းစုစုပေါင်း','စုစုပေါင်း ပစ္စည်း','total product','total item']),
@@ -132,7 +141,7 @@
  const has=(text,word)=>isMy(word)||word.length>3?text.includes(word):new RegExp('(^|[^a-z])'+word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'([^a-z]|$)').test(text);
  // The best entry: each keyword whose words are all in the question counts their length.
  // When nothing matches exactly, find the topics that share the most words with the question ("did you mean").
- const LABELS={order:['How do I order?','ဘယ်လိုမှာရမလဲ?'],search:['How to search?','ဘယ်လိုရှာရမလဲ?'],scan:['Scan with the camera','ကင်မရာနဲ့ scan လုပ်နည်း'],excel:['Excel files','Excel ရှာနည်း'],category:['Categories','အမျိုးအစား'],promotion:['Promotion','Promotion'],cart:['Cart','Cart'],payment:['Payment','ငွေပေးချေနည်း'],discover:['Discover','Discover'],comment:['Comments','Comment'],follow:['Follow a shop','ဆိုင် follow နည်း'],profile:['Change profile / logo / name','Profile / logo / နာမည် ပြင်နည်း'],post:['Write a post','Post တင်နည်း'],addproduct:['Add a product','ပစ္စည်းထည့်နည်း'],editproduct:['Edit or delete a product','ပစ္စည်း ပြင်/ဖျက်နည်း'],editcategory:['Add a category','Category ထည့်နည်း'],dashboard:['Dashboard','Dashboard'],hero:['Change the Home banner (Hero)','Home banner (Hero) ပြောင်းနည်း'],usershow:['What visitors see (User show)','User show'],confirmorder:['Confirm an order','အော်ဒါ အတည်ပြုနည်း'],recycle:['Recycle Bin','Recycle Bin'],chat:['Chat with a shop','ဆိုင်ကို chat လုပ်နည်း'],noti:['Notifications','အသိပေးချက်'],install:['Add to Home Screen','ဖုန်းထဲ app ထည့်နည်း'],language:['Change language','ဘာသာပြောင်းနည်း'],theme:['Dark / Light','Dark / Light'],share:['Share my store (QR)','QR ဝေမျှနည်း'],createshop:['Open my own shop','ဆိုင်ဖွင့်နည်း'],speed:['App speed','App speed'],contactus:['Contact us','ဆက်သွယ်ရန်'],check:['Check my account','အကောင့် စစ်ပေးပါ'],releaseupdate:['Release the update to all shops','Update ကို ဆိုင်အားလုံးကို release လုပ်နည်း'],signin:['Sign in','Google နဲ့ ဝင်နည်း']};
+ const LABELS={order:['How do I order?','ဘယ်လိုမှာရမလဲ?'],search:['How to search?','ဘယ်လိုရှာရမလဲ?'],scan:['Scan with the camera','ကင်မရာနဲ့ scan လုပ်နည်း'],excel:['Excel files','Excel ရှာနည်း'],category:['Categories','အမျိုးအစား'],promotion:['Promotion','Promotion'],cart:['Cart','Cart'],payment:['Payment','ငွေပေးချေနည်း'],discover:['Discover','Discover'],comment:['Comments','Comment'],follow:['Follow a shop','ဆိုင် follow နည်း'],profile:['Change profile / logo / name','Profile / logo / နာမည် ပြင်နည်း'],post:['Write a post','Post တင်နည်း'],addproduct:['Add a product','ပစ္စည်းထည့်နည်း'],editproduct:['Edit or delete a product','ပစ္စည်း ပြင်/ဖျက်နည်း'],editcategory:['Add a category','Category ထည့်နည်း'],dashboard:['Dashboard','Dashboard'],hero:['Change the Home banner (Hero)','Home banner (Hero) ပြောင်းနည်း'],usershow:['What visitors see (User show)','User show'],confirmorder:['Confirm an order','အော်ဒါ အတည်ပြုနည်း'],recycle:['Recycle Bin','Recycle Bin'],chat:['Chat with a shop','ဆိုင်ကို chat လုပ်နည်း'],noti:['Notifications','အသိပေးချက်'],install:['Add to Home Screen','ဖုန်းထဲ app ထည့်နည်း'],language:['Change language','ဘာသာပြောင်းနည်း'],theme:['Dark / Light','Dark / Light'],share:['Share my store (QR)','QR ဝေမျှနည်း'],createshop:['Open my own shop','ဆိုင်ဖွင့်နည်း'],speed:['App speed','App speed'],contactus:['Contact us','ဆက်သွယ်ရန်'],check:['Check my account','အကောင့် စစ်ပေးပါ'],todolist:['My to-do list','လုပ်စရာ စာရင်း'],releaseupdate:['Release the update to all shops','Update ကို ဆိုင်အားလုံးကို release လုပ်နည်း'],signin:['Sign in','Google နဲ့ ဝင်နည်း']};
  const STOP=new Set(['ဘယ်လို','ရမလဲ','ပါသလဲ','လို့ရ','လို့ရလား','ချင်တယ်','ချင်','နည်း','ဘာလဲ','ရှိလဲ','ကို','မှာ','တွေ','တာ','how','what','where','the','this','that','with','from','your','have','does','can','not','app']);
  function near(q){
   const text=' '+q.normalize('NFC').toLowerCase()+' ',out=[];
@@ -145,9 +154,11 @@
   // 1.1.334 owner's iPhone: its keyboard types some Myanmar marks in another order (ထည့် as ည + ် + ့);
   // NFC puts them in one order, so the same word always matches.
   const text=' '+q.normalize('NFC').toLowerCase().replace(/[?!.,،။၊]/g,' ').replace(/\s+/g,' ')+' ';
+  if(parseTodo(q)?.type==='add')return K.find(e=>e[0]==='todoadd');
   let best=null,score=0,general=0;
   for(const e of K){let s=0;for(const k of e[1]){const words=k.normalize('NFC').toLowerCase().trim().split(/\s+/);if(words.every(w=>has(text,w)))s+=words.join('').length}
    // "How to use" words alone only give the general help; a topic in the same question wins ("Category အသုံးပြုနည်း").
+   if(s&&e[0].startsWith('claim_'))s+=8;
    if(e[0]==='help'){general=s;continue}if(s>score){score=s;best=e}}
   if(score>=2)return best;
   return general>=2?K.find(e=>e[0]==='help'):null;
@@ -161,7 +172,8 @@
  const box=document.createElement('dialog');box.className='ai-help';document.body.append(box);
  box.innerHTML='<header><img src="'+robot+'" alt=""><span><b></b><small></small></span><button type="button" class="ai-help-x">×</button></header><div class="ai-help-log" role="log" aria-live="polite" tabindex="-1" autofocus></div><div class="ai-help-chips"></div><form class="ai-help-form"><input type="text" autocomplete="off" maxlength="200" enterkeyhint="send"><button type="submit" aria-label=""><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.5 20 4l-5.5 16-3-6.5z"/><path d="m11.5 13.5 4-4"/></svg></button></form>';
  const log=box.querySelector('.ai-help-log'),input=box.querySelector('input'),chipBox=box.querySelector('.ai-help-chips');
- function paint(){const u=ui[pageMy()?'my':'en'];button.setAttribute('aria-label',u.open);box.querySelector('header b').textContent=u.title;box.querySelector('header small').textContent=u.sub;box.querySelector('.ai-help-x').setAttribute('aria-label',u.close);input.placeholder=u.placeholder;box.querySelector('.ai-help-form button').setAttribute('aria-label',u.send);chipBox.innerHTML=chips[pageMy()?'my':'en'].map(c=>'<button type="button">'+esc(c)+'</button>').join('')}
+ let todoCount=0,autoCache=[],autoAt=0;
+ function paint(){const u=ui[pageMy()?'my':'en'];button.setAttribute('aria-label',u.open);box.querySelector('header b').textContent=u.title;box.querySelector('header small').textContent=u.sub;box.querySelector('.ai-help-x').setAttribute('aria-label',u.close);input.placeholder=u.placeholder;box.querySelector('.ai-help-form button').setAttribute('aria-label',u.send);chipBox.innerHTML=(todoCount?'<button type="button" class="ai-help-todochip">📝 '+(pageMy()?'လုပ်စရာ ':'To-do ')+todoCount+'</button>':'')+chips[pageMy()?'my':'en'].map(c=>'<button type="button">'+esc(c)+'</button>').join('')}
  paint();new MutationObserver(paint).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
  function say(who,text,action,my,id){
   const m=document.createElement('div');m.className='ai-help-msg '+who;const guide=id&&TOURS[id];
@@ -256,7 +268,118 @@
  const shopName=()=>document.querySelector('#settings-profile-hero [data-site-brand-name]')?.textContent?.trim()||document.querySelector('.home-profile-banner [data-site-brand-name]')?.textContent?.trim()||'';
  const num=n=>Number(n||0).toLocaleString('en-US');
  async function me(){try{return await getJSON('/api/platform/me')}catch{return null}}
+ // ----- 1.1.340: to-dos (this phone) and claim checks -----
+ const TKEY=()=>'gh-ai-todos:'+slugNow();
+ const loadT=()=>{try{const v=JSON.parse(localStorage.getItem(TKEY())||'[]');return Array.isArray(v)?v:[]}catch{return []}};
+ const saveT=v=>{try{localStorage.setItem(TKEY(),JSON.stringify(v.slice(-60)))}catch{}};
+ // "remind me to add the Hero picture" / "မှတ်ထား: ပစ္စည်းသစ် တင်ရန်" -> add; "done 2" / "ပြီးပြီ 2" -> done; "delete task 2" -> delete.
+ function parseTodo(q){
+  const t=q.normalize('NFC').trim(),low=t.toLowerCase(),n=(low.match(/(\d{1,3})/)||[])[1];
+  if(n&&/(done|finished|completed|ပြီးပြီ|ပြီးသွားပြီ|လုပ်ပြီး)/.test(low)&&!/(to-?do|task).*(add|new)/.test(low))return {type:'done',n:Number(n)};
+  if(n&&/(delete|remove|ဖျက်)/.test(low)&&/(to-?do|task|လုပ်စရာ|မှတ်)/.test(low))return {type:'del',n:Number(n)};
+  if(/(remind me|add (a )?(to-?do|task)|new task|remember to|to-?do:|မှတ်ထား|မှတ်ပေး|အမှတ်ရအောင်|မမေ့အောင်|သတိပေး(ပါ|ပေး))/.test(low)){
+   const text=t.replace(/remind me( to)?|add (a )?(to-?do|task)( to| for)?|new task|remember to|to-?do\s*[:：]|မှတ်ထား(ပေး)?(ပါ)?|မှတ်ပေး(ပါ)?|အမှတ်ရအောင်|မမေ့အောင်|သတိပေး(ပါ|ပေး)?/gi,' ').replace(/^[\s:：,.၊။\-–]+|[\s:：,.၊။\-–]+$/g,'').replace(/\s+/g,' ');
+   return {type:'add',text:text.slice(0,140)}}
+  return null;
+ }
+
+ // Real things that need the owner's attention (owner of this shop, or the GearHub owner on GearHub).
+ async function autoTodos(force){
+  if(!force&&Date.now()-autoAt<20000)return autoCache;
+  const out=[],add=(en,my,fixEn,fixMy)=>out.push({en,my,fixEn,fixMy});
+  try{
+   const d=await me();if(!d?.user){autoCache=[];autoAt=Date.now();return autoCache}
+   const slug=slugNow(),manager=d.isOwner||(d.shop&&d.shop.slug===slug);
+   if(manager){
+    if(!payReady())add('Add your payment details (bank / mobile account)','ငွေလွှဲ အချက်အလက် (ဘဏ်/မိုဘိုင်း account) ထည့်ရန်','Dashboard → Shop contact & payment','Dashboard → Shop contact & payment');
+    if(!list().length&&typeof products!=='undefined')add('Add your first product','ပထမဆုံး ပစ္စည်း ထည့်ရန်','Profile → + Add → Business','Profile → + Add → Business');
+    try{const st=await (typeof storefrontFetch==='function'?storefrontFetch('/api/storage'):fetch('/api/storage')).then(r=>r.ok?r.json():null);if(st&&st.capacityBytes&&st.usedBytes/st.capacityBytes>=.9)add('Storage is almost full','Storage နီးပါး ပြည့်နေပြီ','Delete photos or files you do not need','မလိုတဲ့ ပုံ/file ဖျက်ပါ')}catch{}
+    if('Notification' in window&&Notification.permission!=='granted')add('Turn on phone alerts for new orders','အော်ဒါအသစ် သိဖို့ ဖုန်း alert ဖွင့်ရန်','Settings → Notifications','Settings → Notifications');
+    try{const prof=await getJSON('/api/platform/profile/'+encodeURIComponent(slug));if(prof?.canPost&&!(prof.about?.caption))add('Write a caption for your store','ဆိုင်အတွက် caption ရေးရန်','Profile → pencil','Profile → ခဲတံ')}catch{}
+    if(d.isOwner){try{const r=await fetch('/api/admin/app-release',{credentials:'same-origin',cache:'no-store'});if(r.ok){const a=await r.json();if(a.pending)add('Release the update to all shops (GearHub '+a.deployedVersion+', shops '+a.sellerVersion+')','Update ကို ဆိုင်အားလုံးကို release လုပ်ရန် (GearHub '+a.deployedVersion+'၊ ဆိုင်တွေ '+a.sellerVersion+')','Settings → Shop updates → Confirm update','Settings → Shop updates → Confirm update')}}catch{}}
+   }
+  }catch{}
+  autoCache=out;autoAt=Date.now();return out;
+ }
+ async function refreshTodos(force){
+  const auto=await autoTodos(force),own=loadT().filter(x=>!x.done);
+  todoCount=auto.length+own.length;
+  if(todoCount>0)button.dataset.n=String(Math.min(todoCount,9));else delete button.dataset.n;
+  paint();return {auto,own};
+ }
+ function todoText(my,auto,all){
+  const own=all;let n=0;const L=[];
+  own.forEach((x,i)=>L.push((x.done?'✔ ':(i+1)+'. ')+(x.done?'':'')+x.text+(x.done?' ('+(my?'ပြီးပြီ':'done')+')':'')));
+  const pending=own.filter(x=>!x.done).length+auto.length;
+  if(!pending&&!own.length)return my?'လုပ်စရာ မရှိပါဘူး ✅\n\nအသစ်ထည့်ချင်ရင် "မှတ်ထား: ..." လို့ ရေးပါ (ဥပမာ "မှတ်ထား: ပစ္စည်းသစ် ၁၀ ခု တင်ရန်")။':'You have nothing to do ✅\n\nTo add a note, write "remind me to ..." (for example "remind me to add 10 new products").';
+  const head=pending?(my?'လုပ်စရာ '+pending+' ခု ရှိပါတယ်:':'You have '+pending+' thing(s) to do:'):(my?'လုပ်စရာအားလုံး ပြီးပါပြီ ✅':'Everything is done ✅');
+  const mine=own.length?'\n\n📝 '+(my?'ကိုယ်တိုင် မှတ်ထားတာ':'Your notes')+'\n'+L.join('\n'):'';
+  const sys=auto.length?'\n\n⚠️ '+(my?'App က စစ်တွေ့တာ':'Found by the app')+'\n'+auto.map(a=>'• '+(my?a.my:a.en)+' — '+(my?a.fixMy:a.fixEn)).join('\n'):'';
+  return head+mine+sys+'\n\n'+(my?'ပြီးရင် "ပြီးပြီ 1" လို့ ရေးပါ။ ဖျက်ချင်ရင် "ဖျက် task 1"။ (မှတ်ထားတာတွေ ဒီဖုန်းထဲမှာပဲ သိမ်းပါတယ်၊ ⚠️ ကတော့ ပြင်ပြီးရင် အလိုလို ပျောက်ပါတယ်။)':'When done write "done 1". To delete write "delete task 1". (Your notes are kept on this phone; ⚠️ items disappear by themselves once fixed.)');
+ }
+ // A verdict about something the user says is wrong: TRUE (the problem is real, with the reason) or FALSE (not found).
+ function verdict(my,real,why,fine,hint){
+  const head=real===null?(my?'❓ သေချာ မစစ်နိုင်ပါဘူး':'❓ I cannot be sure'):real?(my?'✅ မှန်ပါတယ် — ပြဿနာ တကယ်ရှိပါတယ်':'✅ True — the problem is real'):(my?'❌ မှားနေပါတယ် — ကျွန်မ စစ်တာ ပြဿနာ မတွေ့ပါ':'❌ Not true — I checked and found no problem');
+  const L=[head];if(why.length)L.push('',...why.map(x=>'⚠️ '+x));if(fine.length)L.push('',...fine.map(x=>'✅ '+x));if(hint)L.push('',hint);
+  return L.join('\n');
+ }
+ const storageState=async()=>{try{const st=await (typeof storefrontFetch==='function'?storefrontFetch('/api/storage'):fetch('/api/storage')).then(r=>r.ok?r.json():null);return st&&st.capacityBytes?{pc:Math.round(st.usedBytes/st.capacityBytes*100)}:null}catch{return null}};
+ const BOT=(my,a,b)=>my?b:a;
  const LIVE={
+  async todolist(my){const r=await refreshTodos(true);return todoText(my,r.auto,loadT())},
+  async todoadd(my,q){const c=parseTodo(q||'');
+   if(c?.type==='done'||c?.type==='del')return LIVE.todocmd(my,c);
+   if(!c||c.type!=='add'||c.text.length<2)return my?'ဘာကို မှတ်ထားရမလဲ ပြောပါ။ ဥပမာ: "မှတ်ထား: ပစ္စည်းသစ် ၁၀ ခု တင်ရန်"':'What should I note? For example: "remind me to add 10 new products".';
+   const t=loadT();t.push({id:Date.now(),text:c.text,done:false,at:Date.now()});saveT(t);await refreshTodos(true);
+   return (my?'မှတ်ထားပြီးပါပြီ 📝 "'+c.text+'"\nApp ဖွင့်တိုင်း ကျွန်မ ပုံပေါ်က နံပါတ်နီလေးနဲ့ သတိပေးပါမယ်။ ပြီးရင် "ပြီးပြီ '+t.length+'" လို့ ရေးပါ။':'Noted 📝 "'+c.text+'"\nI will remind you with a red number on my picture whenever you open the app. When done, write "done '+t.length+'".')},
+  async todocmd(my,c){const t=loadT(),i=c.n-1;
+   if(!t[i])return my?'နံပါတ် '+c.n+' မရှိပါဘူး။ "လုပ်စရာ" လို့ ရေးပြီး စာရင်း ကြည့်ပါ။':'There is no item '+c.n+'. Write "my to-do" to see the list.';
+   if(c.type==='del'){const g=t.splice(i,1)[0];saveT(t);await refreshTodos(true);return (my?'ဖျက်ပြီးပါပြီ: ':'Deleted: ')+g.text}
+   t[i].done=true;saveT(t);const r=await refreshTodos(true);
+   return (my?'ကောင်းပါတယ် ✅ ပြီးပြီ: ':'Good ✅ Done: ')+t[i].text+'\n'+(todoCount?(my?'ကျန်တာ '+todoCount+' ခု ရှိပါသေးတယ်။':todoCount+' left.'):(my?'လုပ်စရာ အားလုံး ပြီးပါပြီ 🎉':'Everything is done 🎉'))},
+  async claim_add(my){
+   const d=await me(),why=[],fine=[];
+   if(!d)return verdict(my,null,[],[],BOT(my,'Could not reach the server — try again in a moment.','Server ကို မရောက်ပါ — ခဏနေ ပြန်စမ်းပါ။'));
+   if(navigator.onLine===false)why.push(BOT(my,'No internet.','Internet မရှိပါ။'));
+   if(!d.user)why.push(BOT(my,'You are not signed in — only the shop owner can add products. Sign in with Google.','Google နဲ့ မဝင်ရသေးပါ — ပစ္စည်းထည့်ခွင့်က ဆိုင်ပိုင်ရှင်ပဲ ရှိပါတယ်။ Google နဲ့ ဝင်ပါ။'));
+   else{let can=null;try{const pr=await getJSON('/api/platform/profile/'+encodeURIComponent(slugNow()));can=Boolean(pr.canPost)}catch{}
+    if(can===false)why.push(BOT(my,'This account ('+(d.user.email||'')+') is not the owner of this shop, so Add is not available. Sign in with the shop owner\'s Google account.','ဒီ account ('+(d.user.email||'')+') က ဒီဆိုင်ရဲ့ ပိုင်ရှင် မဟုတ်လို့ Add မရပါဘူး။ ဆိုင်ပိုင်ရှင်ရဲ့ Google account နဲ့ ဝင်ပါ။'));
+    else if(can)fine.push(BOT(my,'You are signed in as the owner of this shop, so you may add products.','ဒီဆိုင်ရဲ့ ပိုင်ရှင်အဖြစ် ဝင်ထားလို့ ပစ္စည်းထည့်ခွင့် ရှိပါတယ်။'))}
+   const st=await storageState();if(st){if(st.pc>=100)why.push(BOT(my,'The shop storage is full (100%) — delete photos or files first.','ဆိုင်ရဲ့ storage ပြည့်နေပါပြီ (100%) — ပုံ/file တချို့ အရင် ဖျက်ပါ။'));else fine.push(BOT(my,'Storage has room ('+st.pc+'% used).','Storage နေရာ ကျန်ပါတယ် ('+st.pc+'% သုံးပြီး)။'))}
+   const real=why.length>0;
+   return verdict(my,real,why,fine,real?null:BOT(my,'Everything I can check is fine. Then check the form itself: SKU, name, price and category must be filled, and photos should be JPG/PNG/WebP. Tap Go ▶ on "How to add a product" if you want the steps.','ကျွန်မ စစ်လို့ရတာတွေ ပုံမှန်ပါ။ ဒါဆို form ကိုယ်တိုင်ကို စစ်ပါ: SKU၊ နာမည်၊ ဈေး၊ Category ဖြည့်ထားရမယ်၊ ပုံက JPG/PNG/WebP ဖြစ်ရမယ်။ အဆင့်တွေ လိုရင် "ပစ္စည်းထည့်နည်း" လို့ မေးပြီး Go ▶ နှိပ်ပါ။'))},
+  async cantorder(my){
+   const why=[],fine=[];
+   if(navigator.onLine===false)why.push(BOT(my,'No internet.','Internet မရှိပါ။'));
+   if(!payReady())why.push(BOT(my,'This shop has not added payment details (bank / mobile account), so ordering is not possible. Ask the shop with 💬.','ဒီဆိုင်က ငွေလွှဲ အချက်အလက် (ဘဏ်/မိုဘိုင်း account) မထည့်ရသေးလို့ မှာလို့ မရပါဘူး။ 💬 နဲ့ ဆိုင်ကို မေးပါ။'));else fine.push(BOT(my,'Payment details are set.','ငွေလွှဲ အချက်အလက် ရှိပါတယ်။'));
+   if(!Object.values(cartNow()).some(n=>n>0))why.push(BOT(my,'Your cart is empty — add a product first.','ခြင်းထဲ ဘာမှ မရှိသေးပါ — ပစ္စည်း အရင်ထည့်ပါ။'));else fine.push(BOT(my,'Your cart has items.','ခြင်းထဲ ပစ္စည်း ရှိပါတယ်။'));
+   const real=why.length>0;
+   return verdict(my,real,why,fine,real?null:BOT(my,'Everything I can check is fine. Fill in name, phone, address, the transaction reference and the receipt photo (required), then tap Place order.','ကျွန်မ စစ်လို့ရတာတွေ ပုံမှန်ပါ။ အမည်၊ ဖုန်း၊ လိပ်စာ၊ transaction reference နဲ့ ပြေစာ ဓာတ်ပုံ (မဖြစ်မနေ) အကုန်ဖြည့်ပြီး အော်ဒါတင်မည် နှိပ်ပါ။'))},
+  async claim_missing(my){
+   const why=[],fine=[],typed=(document.getElementById('search')?.value||'').trim(),n=list().length;
+   if(navigator.onLine===false)why.push(BOT(my,'No internet — the list may not have loaded.','Internet မရှိပါ — စာရင်း မရောက်သေးနိုင်ပါ။'));
+   if(!n)why.push(BOT(my,'No products have loaded on this screen yet (the shop may have none, or the connection is slow).','ဒီ screen မှာ ပစ္စည်း မရောက်သေးပါ (ဆိုင်မှာ မရှိသေးတာ ဒါမှမဟုတ် လိုင်းနှေးတာ ဖြစ်နိုင်ပါတယ်)။'));else fine.push(BOT(my,n+' products are loaded.','ပစ္စည်း '+n+' ခု ရောက်နေပါတယ်။'));
+   if(typed)why.push(BOT(my,'The search box still has "'+typed+'", which hides other products — clear it.','Search box ထဲမှာ "'+typed+'" ရှိနေလို့ တခြားပစ္စည်းတွေ ပျောက်နေပါတယ် — ဖျက်ပါ။'));
+   const cat=document.getElementById('category-filter')||document.querySelector('#products-section select');
+   const real=why.length>0;return verdict(my,real,why,fine,real?null:BOT(my,'Products are showing. Pull the page down to refresh if you still do not see them.','ပစ္စည်းတွေ ပေါ်နေပါတယ်။ မမြင်သေးရင် စာမျက်နှာကို အောက်ဆွဲပြီး refresh လုပ်ပါ။'))},
+  async claim_photo(my){
+   const why=[],fine=[];
+   if(navigator.onLine===false)why.push(BOT(my,'No internet.','Internet မရှိပါ။'));
+   const st=await storageState();if(st){if(st.pc>=100)why.push(BOT(my,'The shop storage is full (100%), so new photos cannot be saved.','ဆိုင်ရဲ့ storage ပြည့်နေလို့ ပုံအသစ် သိမ်းလို့ မရပါ။'));else fine.push(BOT(my,'Storage has room ('+st.pc+'% used).','Storage နေရာ ကျန်ပါတယ် ('+st.pc+'% သုံးပြီး)။'))}
+   const real=why.length>0;return verdict(my,real,why,fine,real?null:BOT(my,'No cause found on my side. Photos must be JPG, PNG or WebP; very large photos are made smaller by the app. Try one photo, and check the phone\'s own storage and camera permission.','ကျွန်မဘက်က အကြောင်းရင်း မတွေ့ပါ။ ပုံက JPG၊ PNG ဒါမှမဟုတ် WebP ဖြစ်ရမယ်၊ ပုံကြီးရင် app က သေးအောင် လုပ်ပေးပါတယ်။ တစ်ပုံချင်း စမ်းကြည့်ပါ၊ ဖုန်းရဲ့ storage နဲ့ ကင်မရာ ခွင့်ပြုချက်ကိုလည်း စစ်ပါ။'))},
+  async claim_alert(my){
+   const why=[],fine=[],ios=/iphone|ipad|ipod/i.test(navigator.userAgent||''),standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+   if(ios&&!standalone)why.push(BOT(my,'On iPhone, alerts only work in the app added to the Home Screen, not in Safari.','iPhone မှာ alert က Safari မှာ မရပါ — Home Screen ကို ထည့်ထားတဲ့ app ထဲမှာပဲ ရပါတယ်။'));
+   if('Notification' in window){const p=Notification.permission;
+    if(p==='denied')why.push(BOT(my,'Alerts are blocked in the phone settings — allow notifications for this app there.','ဖုန်း setting မှာ alert ကို ပိတ်ထားပါတယ် — အဲဒီမှာ ဒီ app အတွက် notification ကို ခွင့်ပြုပါ။'));
+    else if(p==='default')why.push(BOT(my,'Alerts are not turned on yet — switch on Settings → Notifications.','Alert မဖွင့်ရသေးပါ — Settings → Notifications ကို ဖွင့်ပါ။'));
+    else fine.push(BOT(my,'Notification permission is allowed.','Notification ခွင့်ပြုချက် ရထားပါတယ်။'))}
+   else why.push(BOT(my,'This browser does not support alerts — add the app to the Home Screen.','ဒီ browser က alert မပံ့ပိုးပါ — app ကို Home Screen ထဲ ထည့်ပါ။'));
+   const real=why.length>0;return verdict(my,real,why,fine,real?null:BOT(my,'Permission is fine. Make sure the Notifications switch in Settings is On, and the phone is not in a focus / silent mode.','ခွင့်ပြုချက် ပုံမှန်ပါ။ Settings ထဲက Notifications switch ဖွင့်ထားလား၊ ဖုန်းက Focus / silent mode မဖြစ်နေလား စစ်ပါ။'))},
+  async claim_login(my){
+   const d=await me();if(!d)return verdict(my,null,[],[],BOT(my,'Could not reach the server — try again in a moment.','Server ကို မရောက်ပါ — ခဏနေ ပြန်စမ်းပါ။'));
+   if(d.user)return verdict(my,false,[],[BOT(my,'You are already signed in as '+(d.user.name||'')+' ('+(d.user.email||'')+').',(d.user.name||'')+' ('+(d.user.email||'')+') နဲ့ ဝင်ထားပြီးသားပါ။')],BOT(my,'If a page still asks you to sign in, reload it.','Page တစ်ခုက ဝင်ဖို့ ဆက်တောင်းရင် reload လုပ်ပါ။'));
+   return verdict(my,true,[BOT(my,'You are not signed in on this screen.','ဒီ screen မှာ မဝင်ရသေးပါ။')],[],BOT(my,'Tap Continue with Google when the app asks. In the installed app the sign-in opens in the browser and returns here; if it does not return, open the app again.','App က မေးတဲ့အခါ Google နဲ့ ဝင်မယ် ကို နှိပ်ပါ။ Install ထားတဲ့ app မှာ browser ပွင့်ပြီး ပြန်လာပါမယ်၊ မပြန်လာရင် app ကို ပြန်ဖွင့်ပါ။'));},
   async countproducts(my){const n=list().length,c=cats().length,name=shopName();
    if(!n)return my?'ပစ္စည်းစာရင်း မရောက်သေးပါ (internet စစ်ပြီး ခဏနေ ပြန်မေးပါ)။':'The product list has not loaded yet (check the internet and ask again in a moment).';
    return my?(name?name+' ':'ဒီဆိုင်')+'မှာ ပစ္စည်း '+num(n)+' ခု ရှိပါတယ်'+(c?'၊ အမျိုးအစား '+num(c)+' ခုနဲ့ပါ':'')+'။':(name||'This shop')+' has '+num(n)+' products'+(c?' in '+num(c)+' categories':'')+'.'},
@@ -301,8 +424,10 @@
  function ask(q){
   q=q.trim().slice(0,200);if(!q)return;say('me',q);
   const my=isMy(q)||(!/[a-z]/i.test(q)&&pageMy()),hit=answer(q);
+  const cmd=parseTodo(q);
+  if(cmd&&(cmd.type==='done'||cmd.type==='del')&&loadT()[cmd.n-1]){const wait=document.createElement('div');wait.className='ai-help-msg bot';wait.innerHTML='<img src="'+robot+'" alt=""><p>…</p>';log.append(wait);LIVE.todocmd(my,cmd).then(text=>{wait.remove();say('bot',text,null,my,'todolist')});return}
   if(hit&&LIVE[hit[0]]){const wait=document.createElement('div');wait.className='ai-help-msg bot';wait.innerHTML='<img src="'+robot+'" alt=""><p>…</p>';log.append(wait);log.scrollTop=log.scrollHeight;
-   LIVE[hit[0]](my).catch(()=>my?'အခု မစစ်နိုင်ပါ။':'I cannot check right now.').then(text=>{wait.remove();say('bot',text,null,my,hit[0])});return}
+   LIVE[hit[0]](my,q).catch(()=>my?'အခု မစစ်နိုင်ပါ။':'I cannot check right now.').then(text=>{wait.remove();say('bot',text,null,my,hit[0])});return}
   setTimeout(()=>{if(hit)return say('bot',my?hit[3]:hit[2],hit[4],my,hit[0]);
    const guess=near(q);
    if(!guess.length)return say('bot',ui[my?'my':'en'].only);
@@ -312,12 +437,19 @@
    box.onclick=e=>{const b=e.target.closest('button');if(b){box.remove();ask(b.dataset.q)}}},250);
  }
  box.querySelector('.ai-help-form').addEventListener('submit',e=>{e.preventDefault();ask(input.value);input.value=''});
- chipBox.addEventListener('click',e=>{const b=e.target.closest('button');if(b)ask(b.textContent)});
+ chipBox.addEventListener('click',e=>{const b=e.target.closest('button');if(b)ask(b.classList.contains('ai-help-todochip')?(pageMy()?'လုပ်စရာ စာရင်း':'my to-do'):b.textContent)});
  box.querySelector('.ai-help-x').onclick=()=>box.close();
  box.addEventListener('click',e=>{if(e.target===box)box.close()});
  // 1.1.337 owner's words: the first greeting, in Myanmar with English under it.
  const GREETING='မင်္ဂလာပါ။ SkyShopMM မှ နွေးထွေးစွာ ကြိုဆိုပါတယ်။\n\nကျွန်မက သင့်ရဲ့ AI Assistant ပါ။\n\nပစ္စည်းရှာဖွေခြင်း၊ ဈေးဝယ်ခြင်း၊ ဆိုင်ဖွင့်ခြင်းနဲ့ App အသုံးပြုပုံတွေကို လွယ်ကူမြန်ဆန်စွာ ကူညီပေးဖို့ အသင့်ရှိနေပါတယ်။\n\nသိချင်တာ၊ အခက်အခဲရှိတာတွေကို အချိန်မရွေး လွတ်လပ်စွာ မေးမြန်းနိုင်ပါတယ်။\n\nဒီနေ့ ဘာများကူညီပေးရမလဲ?\n\n—\n\nHello! A warm welcome from SkyShopMM.\n\nI am your AI Assistant.\n\nI am here to help you quickly and easily with finding products, shopping, opening a shop and using the app.\n\nFeel free to ask anything you want to know, or about any problem, at any time.\n\nHow can I help you today?';
- button.addEventListener('click',()=>{if(!log.children.length)say('bot',GREETING);box.showModal();if(matchMedia('(pointer:fine)').matches)input.focus()});
+ button.addEventListener('click',()=>{if(!log.children.length)say('bot',GREETING);box.showModal();if(matchMedia('(pointer:fine)').matches)input.focus();
+  // 1.1.340 owner: remind the owner of what is waiting — once a day in the chat, and always as the red number on my picture.
+  refreshTodos(true).then(r=>{const day=new Date().toISOString().slice(0,10);let seen='';try{seen=localStorage.getItem('gh-ai-todo-day:'+slugNow())||''}catch{}
+   if(todoCount>0&&seen!==day&&box.open){try{localStorage.setItem('gh-ai-todo-day:'+slugNow(),day)}catch{}say('bot',todoText(pageMy(),r.auto,loadT()),null,pageMy(),'todolist')}})});
+ box.addEventListener('close',()=>{refreshTodos(true)});
+ addEventListener('gearhub:data-ready',()=>setTimeout(()=>refreshTodos(true),5000));
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshTodos(false)});
+ setTimeout(()=>refreshTodos(false),9000);
  // 1.1.333 owner's iPhone: while the keyboard is up the chat fits exactly in the space above it (no gap
  // with the page showing under the typing box, header kept on screen).
  const vv=window.visualViewport;
@@ -331,5 +463,5 @@
  if(vv){vv.addEventListener('resize',fit);vv.addEventListener('scroll',fit)}
  input.addEventListener('focus',()=>setTimeout(fit,50));input.addEventListener('blur',()=>setTimeout(fit,50));
  box.addEventListener('close',()=>{box.classList.remove('ai-help-kb');box.style.top=box.style.height=box.style.bottom=''});
- window.GearHubAiHelp={answer,near,labels:LABELS,tours:TOURS,startTour,ids:K.map(e=>e[0])};
+ window.GearHubAiHelp={answer,near,parseTodo,labels:LABELS,tours:TOURS,startTour,ids:K.map(e=>e[0])};
 })();
