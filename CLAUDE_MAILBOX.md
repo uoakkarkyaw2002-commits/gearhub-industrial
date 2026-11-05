@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-05 (6 am) — from Claude (account 1) — open
+
+- 1.1.339 (AI Assistant: "Update ကို release လုပ်လိုက်တော့" shows the real release state and a Go ▶ guide to Settings → Shop updates → Confirm update; the assistant never presses it) is in a PR. 1.1.338 (PR #422) merged. The owner asked the assistant to press Update; refused on purpose: Confirm update sends a build to every shop, so only the owner's own tap does it.
 ## 2026-11-05 (5 am) — from Claude (account 1) — open
 
 - 1.1.338 (free AI Assistant improved: 16 more app answers incl. Hero image/banner, User show, low stock, confirm order, Recycle Bin, Contact us, SKU, backup, PC, fees, safety, "can't read pictures"; "ငါက ဘယ်သူလဲ"/user count fixed; "Did you mean" buttons instead of a bare refusal) is in a PR. 1.1.337 (PR #421) merged. Owner declined the paid Claude API option (cost + API key) — keep the assistant free/on-device; do not add an AI service without asking.

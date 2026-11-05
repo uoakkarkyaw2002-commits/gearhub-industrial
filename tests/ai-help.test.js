@@ -39,6 +39,11 @@ test('the AI helper answers app questions and refuses everything else',()=>{
   assert.equal(load.last.near('ဘောလုံးပွဲ ဘယ်သူနိုင်လဲ').length,0,'off-topic gets no suggestions');
   assert.ok(load.last.near('ပစ္စည်း ဈေးကို ဘာပြုလုပ်ရမလဲ').length>=0);
   for(const [lid,[en,my]] of Object.entries(load.last.labels)){assert.equal(id(en),lid,'label '+en);assert.equal(id(my),lid,'label '+my)}}
+ // 1.1.339 owner: "release the update" — answered with the real state; the assistant never presses Confirm update.
+ for(const q of ['Update ကို release လုပ်လိုက်တော့','update နှိပ်ပေးပါ','ဆိုင်အားလုံး update လုပ်ပေး','Confirm update နှိပ်ခိုင်းတာ','release the update to all shops'])assert.equal(id(q),'releaseupdate',q);
+ assert.equal(id('App update ရှိလား'),'version');assert.equal(id('refresh လုပ်နည်း'),'refresh');
+ {const w=load.last,steps=w.tours.releaseupdate,last=steps[steps.length-1];assert.equal(last[0],'#shop-release-confirm');assert.equal(last[3],true,'the Confirm update step is manual: Next must not tap it');}
+ {const src=read('ai-help.js');assert.ok(src.includes('!tour.steps[tour.i][3]'),'Next only taps non-manual steps');assert.ok(!/app-release[^\n]*method\s*:\s*['"]POST/.test(src),'the assistant never POSTs a release');}
  const html=read('index.html'),sw=read('sw.js');
- for(const tag of ['/ai-help.js?v=1.1.338','/ai-help.css?v=1.1.338'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
+ for(const tag of ['/ai-help.js?v=1.1.339','/ai-help.css?v=1.1.338'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
 });
