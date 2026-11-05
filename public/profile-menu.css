@@ -3,6 +3,8 @@
 #profile-view:not(.pm-home)>.profile-home{display:none}
 .profile-menu-bar{display:none}
 #profile-view.pm-menu>.profile-menu-bar{display:flex;align-items:center;gap:8px;margin:0 0 12px}
+/* 1.1.323 owner: no logo / Admin Dashboard picture between the ☰ and Settings (seller shops: Profile has Dashboard). */
+#profile-view.pm-shop.pm-menu #settings-profile-hero{display:none!important}
 .profile-home{position:relative;display:grid;justify-items:center;align-content:start;gap:12px;min-height:calc(100svh - var(--bottom-nav-h,80px) - 40px);padding:64px 16px calc(var(--bottom-nav-h,80px) + 24px);text-align:center;box-sizing:border-box}
 .profile-menu-open,#profile-menu-close{display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:#fff;color:#1d2a21;box-shadow:0 2px 10px #173c2a1f;cursor:pointer}
 .profile-menu-open{position:absolute;top:8px;left:8px}

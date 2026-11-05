@@ -2,7 +2,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const read=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
 test('1.1.321: PC shop Home in the owner picture — 🔔 💬 at the right of the top bar, Cart badge, Profile ⌄, hero ‹ ›, machines on Promotion',()=>{
  const html=read('public/index.html'),sw=read('public/sw.js'),js=read('public/pc-top.js'),css=read('public/pc-top.css');
- for(const tag of ['/pc-top.css?v=1.1.321','/pc-top.js?v=1.1.321'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
+ for(const tag of ['/pc-top.css?v=1.1.323','/pc-top.js?v=1.1.321'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
  assert.ok(sw.includes('"/images/promo-machines.png?v=1.1.321"'));assert.ok(fs.existsSync(path.join(__dirname,'..','public','images','promo-machines.png')));
  assert.match(js,/const wide=matchMedia\('\(min-width:1024px\)'\)/);
  assert.match(js,/if\(wide\.matches\)\{if\(box\.parentElement!==header\)header\.append\(box\)\}else if\(home&&box\.parentElement!==home\)home\.append\(box\)/,'buttons go back into the banner on phones');

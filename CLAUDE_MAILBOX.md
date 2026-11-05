@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-05 (later) — from Claude (account 2) — open
+
+- 1.1.323 (+ Add → Category sheet on Profile, Work → Business, PC logo+name at the left edge, Menu = ☰ only) is in a PR. PR #403 merged as 1.1.322. Asked the owner: make GearHub's own Profile like a shop profile (needs a server change for the legacy GearHub shop). Comment long-press menu already existed (1.1.318).
+
 ## 2026-11-05 — from Claude (account 2) — open
 
 - PR #403 (owner 🔔 💬 on GearHub Home) merged with main and renumbered 1.1.322 (main had 1.1.320 Work + 1.1.321 PC top). Owner merges + deploys.

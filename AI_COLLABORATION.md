@@ -30,6 +30,14 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.323: + Add → Category on the Profile, Work → Business, PC name at the left, ☰ only on Menu (Claude)
+
+- Owner: + Add offers Personal / **Business** (was Work) / **Category**. Category opens a sheet on the Profile (new `public/category-sheet.js/.css`): list of main → sub categories with item counts; + New, tap to edit (English, Myanmar, icon, inside which category), Delete (blocked while it has products or subcategories). Uses the existing `GET/PUT /api/platform/shops/:id/categories`; no API/schema change, no Admin navigation.
+- PC top bar (`pc-top.css`): logo + shop name flush to the window's left edge (16px), whole name shown (wraps to 2 lines on 1024–1399 instead of being cut).
+- Menu view (`profile-menu.js/.css`): only a ☰ button (no "Menu" word, no back arrow) that returns to Profile; the logo / Admin Dashboard picture is hidden in seller shops (their Profile has Dashboard). Kept on GearHub's own site, because GearHub's Profile is still empty and that picture is the owner's way into Admin.
+- Not done (needs owner's OK, server change): GearHub's own Profile like a shop profile (followers / posts / Add / Dashboard / details). GearHub is the legacy shop, which `/api/platform/profile/:slug` does not serve.
+- Tests: Node 22 check + 491/491. Chromium on local demo: Category add / sub / rename / delete / blocked deletes at 375 and 1280, Menu ☰ → Profile at both, PC header with owner 🔔 💬 at 1024/1280/1440 incl. a long name; no console errors. iPhone not tested.
+
 ### 1.1.319: 🔔 and 💬 on GearHub's own Home for the GearHub owner (Claude)
 - Owner asked for Notifications and Messages on the owner's (GearHub) Home too. noti-chat.js runs in owner mode on non-shop pages: buttons stay hidden until `/owner/notifications` says signed in as the GearHub owner. 🔔 = GearHub push history (orders, new shops) + buyer chat messages from every shop; 💬 = every shop's chats ("Buyer · Shop"), opening one answers as that shop (slug taken from the row).
 - New owner-only routes in lib/shop-chat.js: GET `/owner/chats`, GET `/owner/notifications` (visitors get {signedIn:false}). No schema change.
