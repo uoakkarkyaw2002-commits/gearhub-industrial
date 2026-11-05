@@ -4,7 +4,7 @@ const read=f=>fs.readFileSync(path.join(__dirname,'..','public',f),'utf8');
 function load(){
  const el=()=>new Proxy(function(){},{get:(t,k)=>k==='children'?[]:k==='style'?{}:typeof k==='symbol'?undefined:el(),set:()=>true,apply:()=>el()});
  const window={};const context={window,document:{documentElement:{lang:'en'},querySelector:()=>({}),createElement:()=>el(),body:el(),addEventListener(){}},addEventListener(){},MutationObserver:function(){return {observe(){}}},matchMedia:()=>({matches:false}),setTimeout};
- vm.runInNewContext(read('ai-help.js'),context);const h=window.GearHubAiHelp;load.last={tours:h.tours,ids:h.ids,labels:h.labels,near:h.near,parseTodo:h.parseTodo};return h.answer;
+ vm.runInNewContext(read('ai-help.js'),context);const h=window.GearHubAiHelp;load.last={tours:h.tours,ids:h.ids,labels:h.labels,near:h.near,parseTodo:h.parseTodo,unknown:h.unknown};return h.answer;
 }
 test('the AI helper answers app questions and refuses everything else',()=>{
  const answer=load(),id=q=>answer(q)?.[0]||null;
@@ -55,6 +55,14 @@ test('the AI helper answers app questions and refuses everything else',()=>{
   assert.equal(j(pt('ပြီးပြီ 2')),j({type:'done',n:2}));assert.equal(j(pt('done 3')),j({type:'done',n:3}));
   assert.equal(j(pt('delete task 1')),j({type:'del',n:1}));assert.equal(pt('How do I order?'),null);
   const js=read('ai-help.js');assert.ok(js.includes("startsWith('claim_')"),'claims outrank how-to answers');assert.ok(js.includes('data-n'),'the red number');}
+ // 1.1.340 owner's iPhone: "ဘာရောင်းတာလဲ" got the add-product steps. Unrelated -> no answer; unsure -> polite "I do not know", never a guess.
+ {for(const [q,want] of Object.entries({'ဘာရောင်းတာလဲ':'whatsell','ဒီဆိုင်က ဘာတွေရောင်းလဲ':'whatsell','what do you sell':'whatsell','ပစ္စည်း ဘယ်လိုရောင်းရမလဲ':'addproduct','ငါဘယ်သူလဲ':'whoami','မင်္ဂလာပါ':'hello'}))assert.equal(id(q),want,q);
+  for(const q of ['မင်္ဂလာပါ ဒီနေ့ ရာသီဥတု ဘယ်လိုလဲ','ထမင်းစားပြီးလား','ဆိုင်ရဲ့ ဒီဇိုင်းအရောင်ကို ပြောင်းချင်တယ်'])assert.equal(id(q),null,q);
+  const u=load.last.unknown;
+  assert.ok(!u('ထမင်းစားပြီးလား',true).includes('09-766472432'),'off-topic: only the scope message');
+  assert.ok(u('ဆိုင်ရဲ့ ဒီဇိုင်းအရောင်ကို ပြောင်းချင်တယ်',true).includes('09-766472432'),'unsure about the app: point to a person');
+  assert.ok(/not sure/.test(u('how do I change my shop colour',false))&&/09-766472432/.test(u('how do I change my shop colour',false)));
+  assert.ok(/only answer questions about this app/.test(u('what is the weather',false)));}
  const html=read('index.html'),sw=read('sw.js');
  for(const tag of ['/ai-help.js?v=1.1.340','/ai-help.css?v=1.1.340'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
 });

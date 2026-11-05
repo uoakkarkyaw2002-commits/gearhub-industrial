@@ -32,7 +32,7 @@
   ['follow',['follow','follower','followers','following','ဖော်လို','ဖောလို'],'Open a shop\'s Profile and tap Follow. Tap the Followers or Following numbers on a Profile to see the people. Message → Followers also lists them.','ဆိုင်ရဲ့ Profile ဖွင့်ပြီး Follow နှိပ်ပါ။ Profile ပေါ်က Followers / Following ဂဏန်းကို နှိပ်ရင် လူစာရင်း ပေါ်ပါတယ်။ Message → Followers မှာလည်း ကြည့်လို့ရပါတယ်။',{view:'profile',en:'Open Profile',my:'Profile ဖွင့်မယ်'}],
   ['profile',['profile','my page','ပရိုဖိုင်','ကိုယ့်စာမျက်နှာ'],'Tap the person icon at the right of the bottom bar. ☰ at the top left opens Settings; the shop owner\'s pencil at the top right edits the photo, name, caption and details.','အောက်ခြေ bar ညာဘက်ဆုံးက လူပုံ icon ကို နှိပ်ပါ။ ဘယ်ဘက်ထိပ်က ☰ က Settings ဖွင့်ပါတယ်။ ဆိုင်ပိုင်ရှင်အတွက် ညာဘက်ထိပ်က ခဲတံနဲ့ ပုံ၊ နာမည်၊ caption၊ အချက်အလက် ပြင်ပါတယ်။',{view:'profile',en:'Open Profile',my:'Profile ဖွင့်မယ်'}],
   ['post',['personal post','write post','new post','upload photo','ပို့စ်တင်','post တင်','ဓာတ်ပုံတင်'],'Shop owner: Profile → + Add → Personal. Write text, add photos and tap Post. It shows on your Profile and in Discover.','ဆိုင်ပိုင်ရှင်: Profile → + Add → Personal။ စာရေး၊ ဓာတ်ပုံထည့်ပြီး တင်မယ် နှိပ်ပါ။ ကိုယ့် Profile နဲ့ Discover မှာ ပေါ်ပါမယ်။',{view:'profile',en:'Open Profile',my:'Profile ဖွင့်မယ်'}],
-  ['addproduct',['add product','new product','business','sell','product upload','ပစ္စည်းထည့်','ပစ္စည်းတင်','ရောင်း'],'Shop owner: Profile → + Add → Business. Fill in SKU, Part No, name, price, stock and photos, then Save. You can also use Dashboard → Add Product.','ဆိုင်ပိုင်ရှင်: Profile → + Add → Business။ SKU၊ Part No၊ နာမည်၊ ဈေး၊ လက်ကျန်နဲ့ ဓာတ်ပုံ ဖြည့်ပြီး Save နှိပ်ပါ။ Dashboard → Add Product ကနေလည်း ထည့်လို့ရပါတယ်။',{view:'profile',en:'Open Profile',my:'Profile ဖွင့်မယ်'}],
+  ['addproduct',['add product','new product','business','sell product','sell my','start selling','how to sell','product upload','ပစ္စည်းထည့်','ပစ္စည်းတင်','ပစ္စည်း ရောင်း','ရောင်းချင်','ရောင်းဖို့','ရောင်းရန်','ဘယ်လို ရောင်း'],'Shop owner: Profile → + Add → Business. Fill in SKU, Part No, name, price, stock and photos, then Save. You can also use Dashboard → Add Product.','ဆိုင်ပိုင်ရှင်: Profile → + Add → Business။ SKU၊ Part No၊ နာမည်၊ ဈေး၊ လက်ကျန်နဲ့ ဓာတ်ပုံ ဖြည့်ပြီး Save နှိပ်ပါ။ Dashboard → Add Product ကနေလည်း ထည့်လို့ရပါတယ်။',{view:'profile',en:'Open Profile',my:'Profile ဖွင့်မယ်'}],
   ['editcategory',['add category','edit category','new category','sub category','category ထည့်','အမျိုးအစားထည့်'],'Shop owner: Profile → + Add → Category to add or edit main and sub categories.','ဆိုင်ပိုင်ရှင်: Profile → + Add → Category ကနေ Main / Sub အမျိုးအစား ထည့်၊ ပြင်ပါ။'],
   ['dashboard',['dashboard','admin','manage shop','orders list','စီမံ','ဒက်ရှ်ဘုတ်','အော်ဒါစာရင်း'],'Shop owner: Profile → Dashboard (crown). There you manage products, orders, Excel files, payment details and the shop\'s settings.','ဆိုင်ပိုင်ရှင်: Profile → Dashboard (သရဖူ)။ အဲဒီမှာ ပစ္စည်း၊ အော်ဒါ၊ Excel file၊ ငွေလွှဲ အချက်အလက်နဲ့ ဆိုင် setting တွေ စီမံပါတယ်။',{view:'profile',en:'Open Profile',my:'Profile ဖွင့်မယ်'}],
   ['chat',['chat','message','contact shop','ask shop','talk','စာပို့','မက်ဆေ့','ဆက်သွယ်','စကားပြော'],'Tap 💬 at the top right of Home, sign in with Google, then write to the shop. The shop owner sees all chats there and answers.','Home ညာဘက်ထိပ်က 💬 ကို နှိပ်၊ Google နဲ့ ဝင်ပြီး ဆိုင်ကို စာရေးပါ။ ဆိုင်ပိုင်ရှင်က အဲဒီမှာ chat အားလုံး မြင်ပြီး ပြန်ဖြေပါတယ်။'],
@@ -40,7 +40,7 @@
   ['signin',['sign in','log in','login','google','account','logout','sign out','ဝင်နည်း','ဝင်လို့','ဘယ်လိုဝင်','အကောင့်','လော့ဂ်'],'Tap Continue with Google when the app asks (to like, comment, chat or order). Your Google account is used; no new password is needed.','Like၊ comment၊ chat ဒါမှမဟုတ် မှာတဲ့အခါ app က မေးရင် Google နဲ့ ဝင်မယ် ကို နှိပ်ပါ။ Google account နဲ့ပဲ ဝင်တာမို့ password အသစ် မလိုပါ။'],
   ['install',['install','home screen','add app','download app','add to home','app ထည့်','အိုင်ကွန်','ဖုန်းထဲထည့်'],'Settings → Add to Home Screen.\niPhone: in Safari tap Share, then "Add to Home Screen".\nAndroid: in Chrome tap ⋮, then "Install app".','Settings → Add to Home Screen။\niPhone: Safari မှာ Share နှိပ်ပြီး "Add to Home Screen"။\nAndroid: Chrome မှာ ⋮ နှိပ်ပြီး "Install app"။'],
   ['language',['language','myanmar','burmese','english','ဘာသာ','မြန်မာလို','အင်္ဂလိပ်'],'Settings → Language → choose English or မြန်မာ.','Settings → Language → English ဒါမှမဟုတ် မြန်မာ ရွေးပါ။'],
-  ['theme',['dark','light','theme','night mode','အမှောင်','အလင်း','အရောင်'],'Settings → Theme → Light or Dark.','Settings → Theme → Light ဒါမှမဟုတ် Dark ရွေးပါ။'],
+  ['theme',['dark','light','theme','night mode','အမှောင်','အလင်း','dark mode','light mode'],'Settings → Theme → Light or Dark.','Settings → Theme → Light ဒါမှမဟုတ် Dark ရွေးပါ။'],
   ['share',['share','qr','link','ဝေမျှ','လင့်','ကျူအာ'],'Settings → Share My Store shows the shop\'s QR code and link. Customers scan the QR with their phone camera; Save QR image keeps it in Photos.','Settings → Share My Store မှာ ဆိုင်ရဲ့ QR နဲ့ link ပါတယ်။ ဝယ်သူက ဖုန်းကင်မရာနဲ့ QR ကို scan ဖတ်ပါ။ Save QR image နဲ့ Photos ထဲ သိမ်းလို့ရပါတယ်။'],
   ['speed',['slow','speed','fast','loading','lag','နှေး','မြန်မြန်','လေးနေ','ကြာနေ'],'Settings → App speed compares the fastest speed with your speed now. The wifi badge under the logo shows your internet. The app downloads Discover, Profile and photos in the background so they open at once.','Settings → App speed မှာ အမြန်ဆုံးနဲ့ အခု speed ကို နှိုင်းယှဉ် ပြပါတယ်။ Logo အောက်က wifi badge က internet speed ပြပါတယ်။ Discover၊ Profile နဲ့ ပုံတွေကို နောက်ကွယ်မှာ ကြို download ထားလို့ ချက်ချင်း ပွင့်ပါတယ်။'],
   ['offline',['offline','no internet','without internet','internet မရှိ','အင်တာနက်မရှိ','လိုင်းမရှိ'],'The shop is saved on your phone, so products and photos you saw still open without internet (the Offline sign in Settings → Storage shows it). Ordering, chat and likes need internet.','ဆိုင်ကို ဖုန်းထဲ သိမ်းထားလို့ ကြည့်ဖူးတဲ့ ပစ္စည်းနဲ့ ပုံတွေ internet မရှိလည်း ပွင့်ပါတယ် (Settings → Storage က Offline မှာ ပြပါတယ်)။ မှာတာ၊ chat၊ like ကတော့ internet လိုပါတယ်။'],
@@ -86,6 +86,7 @@
   ['claim_photo',['ပုံတင်လို့ မရ','ပုံ တင်လို့ မရ','ပုံ မတက်','ဓာတ်ပုံ မတက်','ပုံ upload မရ','photo upload fail','photo not uploading','cannot upload photo','upload မရ','ပုံ မတင်'],'',''],
   ['claim_alert',['noti မလာ','alert မလာ','notification မလာ','notifications not coming','no alert','no notification','အသိပေး မလာ','အော်ဒါ alert မလာ','phone alert မလာ'],'',''],
   ['claim_login',['login မရ','ဝင်လို့မရ','ဝင်လို့ မရ','sign in မရ','cannot sign in','cannot log in','can\'t log in','can\'t sign in','google ဝင်မရ','ဝင်မရ'],'',''],
+  ['whatsell',['what do you sell','what does this shop sell','what does the shop sell','what do you have','what products','what are you selling','what is sold here','ဘာရောင်း','ဘာတွေရောင်း','ဘာတွေ ရောင်း','ဒီဆိုင်က ဘာ','ဆိုင်က ဘာတွေ','ဘာပစ္စည်း','ဘယ်လို ပစ္စည်းတွေ','ဘာတွေ ရှိလဲ ဆိုင်','ရောင်းတာ ဘာ'],'',''],
   ['help',['help','how to use','what can','guide','အကူအညီ','ဘယ်လိုသုံး','သုံးနည်း','လမ်းညွှန်'],'I can help with: searching and scanning, Excel, categories, cart and ordering, payment, Discover, comments, following, Profile, adding products, chat, notifications and Settings. What would you like to do?','ရှာနည်း/scan၊ Excel၊ အမျိုးအစား၊ Cart နဲ့ မှာနည်း၊ ငွေပေးချေမှု၊ Discover၊ comment၊ follow၊ Profile၊ ပစ္စည်းထည့်နည်း၊ chat၊ အသိပေးချက်နဲ့ Settings တွေ ကူညီပေးနိုင်ပါတယ်။ ဘာလုပ်ချင်ပါသလဲ?']
  ];
  const chips={en:['How do I order?','How to search?','Add to Home Screen','How to follow a shop?','Add a product'],my:['ဘယ်လိုမှာရမလဲ?','ဘယ်လိုရှာရမလဲ?','ဖုန်းထဲ app ထည့်နည်း','ဆိုင်ကို follow လုပ်နည်း','ပစ္စည်းထည့်နည်း']};
@@ -123,7 +124,7 @@
   comment:['comment ဖျက်','comment ပြင်','comment ရေး','မန့် ဖျက်'],
   like:['like လုပ်','like ပေး'],
   save:['post သိမ်း','save လုပ်'],
-  theme:['dark mode','အရောင် ပြောင်း'],
+  theme:['dark mode'],
   category:['category ကြည့်','အမျိုးအစား ကြည့်']};
  Object.assign(MORE,{
   cantorder:['order မရ','အော်ဒါ မရ','အော်ဒါ မတင်','မှာလို့ မရ','place order မရ','နှိပ်လို့ မရ','အော်ဒါတင်လို့ မရ','checkout မရ','order တင်လို့ မရ','order မတင်'],
@@ -140,6 +141,13 @@
  for(const e of K)if(MORE[e[0]])e[1]=e[1].concat(MORE[e[0]]);
  const has=(text,word)=>isMy(word)||word.length>3?text.includes(word):new RegExp('(^|[^a-z])'+word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'([^a-z]|$)').test(text);
  // The best entry: each keyword whose words are all in the question counts their length.
+ // 1.1.340 owner: unrelated -> do not answer; unsure -> say so politely and send them to a person. Never guess.
+ const APPISH=/(app|shop|store|product|item|order|cart|price|stock|account|login|sign|photo|picture|post|profile|dashboard|category|payment|bank|excel|chat|notif|alert|update|version|ဆိုင်|ပစ္စည်း|အော်ဒါ|ဈေး|အကောင့်|ပုံ|ဝင်|ငွေ|လက်ကျန်|ခြင်း|မှာ|ဝယ်|ရောင်း|အသိပေး|ဘာသာ|ဖုန်း)/i;
+ const isAppish=q=>APPISH.test(q.normalize('NFC'));
+ function unknownText(q,my){
+  if(!isAppish(q))return my?'တောင်းပန်ပါတယ်၊ ကျွန်မက ဒီ app အကြောင်းပဲ ဖြေပေးနိုင်ပါတယ်။ ဒီမေးခွန်းကိုတော့ မသိလို့ မဖြေတော့ပါဘူး 🙏 App အကြောင်း ဘာမဆို မေးပါ။':'Sorry, I can only answer questions about this app. I do not know about this one, so I will not guess 🙏 Ask me anything about the app.';
+  return my?'တောင်းပန်ပါတယ်၊ ဒါကို ကျွန်မ သေချာ မသိသေးပါဘူး။ မှားပြောမိမှာစိုးလို့ မဖြေတော့ပါဘူး 🙏 ဆိုင်ကို 💬 နဲ့ မေးကြည့်ပါ၊ ဒါမှမဟုတ် Contact us 09-766472432 ကို ဆက်သွယ်ပါ။':'Sorry, I am not sure about this one yet, and I do not want to tell you something wrong 🙏 Please ask the shop with 💬, or call Contact us 09-766472432.';
+ }
  // When nothing matches exactly, find the topics that share the most words with the question ("did you mean").
  const LABELS={order:['How do I order?','ဘယ်လိုမှာရမလဲ?'],search:['How to search?','ဘယ်လိုရှာရမလဲ?'],scan:['Scan with the camera','ကင်မရာနဲ့ scan လုပ်နည်း'],excel:['Excel files','Excel ရှာနည်း'],category:['Categories','အမျိုးအစား'],promotion:['Promotion','Promotion'],cart:['Cart','Cart'],payment:['Payment','ငွေပေးချေနည်း'],discover:['Discover','Discover'],comment:['Comments','Comment'],follow:['Follow a shop','ဆိုင် follow နည်း'],profile:['Change profile / logo / name','Profile / logo / နာမည် ပြင်နည်း'],post:['Write a post','Post တင်နည်း'],addproduct:['Add a product','ပစ္စည်းထည့်နည်း'],editproduct:['Edit or delete a product','ပစ္စည်း ပြင်/ဖျက်နည်း'],editcategory:['Add a category','Category ထည့်နည်း'],dashboard:['Dashboard','Dashboard'],hero:['Change the Home banner (Hero)','Home banner (Hero) ပြောင်းနည်း'],usershow:['What visitors see (User show)','User show'],confirmorder:['Confirm an order','အော်ဒါ အတည်ပြုနည်း'],recycle:['Recycle Bin','Recycle Bin'],chat:['Chat with a shop','ဆိုင်ကို chat လုပ်နည်း'],noti:['Notifications','အသိပေးချက်'],install:['Add to Home Screen','ဖုန်းထဲ app ထည့်နည်း'],language:['Change language','ဘာသာပြောင်းနည်း'],theme:['Dark / Light','Dark / Light'],share:['Share my store (QR)','QR ဝေမျှနည်း'],createshop:['Open my own shop','ဆိုင်ဖွင့်နည်း'],speed:['App speed','App speed'],contactus:['Contact us','ဆက်သွယ်ရန်'],check:['Check my account','အကောင့် စစ်ပေးပါ'],todolist:['My to-do list','လုပ်စရာ စာရင်း'],releaseupdate:['Release the update to all shops','Update ကို ဆိုင်အားလုံးကို release လုပ်နည်း'],signin:['Sign in','Google နဲ့ ဝင်နည်း']};
  const STOP=new Set(['ဘယ်လို','ရမလဲ','ပါသလဲ','လို့ရ','လို့ရလား','ချင်တယ်','ချင်','နည်း','ဘာလဲ','ရှိလဲ','ကို','မှာ','တွေ','တာ','how','what','where','the','this','that','with','from','your','have','does','can','not','app']);
@@ -148,20 +156,23 @@
   for(const e of K){if(!LABELS[e[0]])continue;let n=0;const seen=new Set();
    for(const k of e[1])for(const w of k.normalize('NFC').toLowerCase().split(/\s+/)){if(seen.has(w)||STOP.has(w))continue;const len=[...w].length;if(len<(isMy(w)?3:4))continue;if(text.includes(w)){seen.add(w);n+=len}}
    if(n)out.push([n,e[0]])}
-  return out.filter(x=>x[0]>=5).sort((a,b)=>b[0]-a[0]).slice(0,3).map(x=>x[1]);
+  return out.filter(x=>x[0]>=12).sort((a,b)=>b[0]-a[0]).slice(0,3).map(x=>x[1]);
  }
  function answer(q){
   // 1.1.334 owner's iPhone: its keyboard types some Myanmar marks in another order (ထည့် as ည + ် + ့);
   // NFC puts them in one order, so the same word always matches.
   const text=' '+q.normalize('NFC').toLowerCase().replace(/[?!.,،။၊]/g,' ').replace(/\s+/g,' ')+' ';
   if(parseTodo(q)?.type==='add')return K.find(e=>e[0]==='todoadd');
+  const L=[...text.replace(/[\s?!.,၊။]/g,'')].length;
   let best=null,score=0,general=0;
   for(const e of K){let s=0;for(const k of e[1]){const words=k.normalize('NFC').toLowerCase().trim().split(/\s+/);if(words.every(w=>has(text,w)))s+=words.join('').length}
    // "How to use" words alone only give the general help; a topic in the same question wins ("Category အသုံးပြုနည်း").
+   if(e[0]==='hello'&&L>16)s=0;
    if(s&&e[0].startsWith('claim_'))s+=8;
    if(e[0]==='help'){general=s;continue}if(s>score){score=s;best=e}}
-  if(score>=2)return best;
-  return general>=2?K.find(e=>e[0]==='help'):null;
+  // A long question that only shares one short word with an answer is not that answer.
+  if(best&&score>=2&&(score>=6||L<=20))return best;
+  return general>=2&&(general>=6||L<=20)?K.find(e=>e[0]==='help'):null;
  }
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const robot='/images/assistant-face.png?v=3';
@@ -326,6 +337,14 @@
  const storageState=async()=>{try{const st=await (typeof storefrontFetch==='function'?storefrontFetch('/api/storage'):fetch('/api/storage')).then(r=>r.ok?r.json():null);return st&&st.capacityBytes?{pc:Math.round(st.usedBytes/st.capacityBytes*100)}:null}catch{return null}};
  const BOT=(my,a,b)=>my?b:a;
  const LIVE={
+  async whatsell(my){
+   const ps=list(),cs=cats(),name=shopName();
+   if(!ps.length)return my?'ပစ္စည်းစာရင်း မရောက်သေးပါ (internet စစ်ပြီး ခဏနေ ပြန်မေးပါ)။':'The product list has not loaded yet (check the internet and ask again in a moment).';
+   const lab=c=>{try{return typeof categoryLabel==='function'?categoryLabel(c):(c.category_en||c.name||'')}catch{return c.category_en||c.name||''}};
+   const names=[...new Set(cs.map(lab).filter(Boolean))].slice(0,8),nm=p=>{try{return typeof productName==='function'?productName(p):(p.name_en||p.name||'')}catch{return p.name_en||p.name||''}};
+   const sample=ps.slice(0,3).map(nm).filter(Boolean);
+   return (my?(name||'ဒီဆိုင်')+' မှာ ပစ္စည်း '+num(ps.length)+' ခု ရှိပါတယ်။':(name||'This shop')+' has '+num(ps.length)+' products.')+(names.length?'\n\n'+(my?'အမျိုးအစားတွေ: ':'Categories: ')+names.join('၊ '):'')+(sample.length?'\n\n'+(my?'ဥပမာ: ':'For example: ')+sample.join(' · '):'')+'\n\n'+(my?'ရှာချင်ရင် Home ရဲ့ search bar မှာ နာမည် ဒါမှမဟုတ် SKU ရိုက်ပါ။':'To look for something, type a name or SKU in the search bar on Home.');
+  },
   async todolist(my){const r=await refreshTodos(true);return todoText(my,r.auto,loadT())},
   async todoadd(my,q){const c=parseTodo(q||'');
    if(c?.type==='done'||c?.type==='del')return LIVE.todocmd(my,c);
@@ -430,7 +449,7 @@
    LIVE[hit[0]](my,q).catch(()=>my?'အခု မစစ်နိုင်ပါ။':'I cannot check right now.').then(text=>{wait.remove();say('bot',text,null,my,hit[0])});return}
   setTimeout(()=>{if(hit)return say('bot',my?hit[3]:hit[2],hit[4],my,hit[0]);
    const guess=near(q);
-   if(!guess.length)return say('bot',ui[my?'my':'en'].only);
+   if(!guess.length||!isAppish(q))return say('bot',unknownText(q,my));
    say('bot',my?'ကျွန်မ သေချာ မနားလည်ပါဘူး။ ဒါတွေထဲက တစ်ခုလား?':'I am not sure I understood. Did you mean one of these?');
    const box=document.createElement('div');box.className='ai-help-suggest';box.innerHTML=guess.map(id=>'<button type="button" data-q="'+esc(LABELS[id][my?1:0])+'">'+esc(LABELS[id][my?1:0])+'</button>').join('');
    log.append(box);log.scrollTop=log.scrollHeight;
@@ -463,5 +482,5 @@
  if(vv){vv.addEventListener('resize',fit);vv.addEventListener('scroll',fit)}
  input.addEventListener('focus',()=>setTimeout(fit,50));input.addEventListener('blur',()=>setTimeout(fit,50));
  box.addEventListener('close',()=>{box.classList.remove('ai-help-kb');box.style.top=box.style.height=box.style.bottom=''});
- window.GearHubAiHelp={answer,near,parseTodo,labels:LABELS,tours:TOURS,startTour,ids:K.map(e=>e[0])};
+ window.GearHubAiHelp={answer,near,parseTodo,unknown:unknownText,labels:LABELS,tours:TOURS,startTour,ids:K.map(e=>e[0])};
 })();
