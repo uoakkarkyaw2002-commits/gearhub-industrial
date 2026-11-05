@@ -4,3 +4,23 @@
 #shop-release-feedback{display:block;margin-top:5px}
 #shop-release-confirm{max-width:100%;white-space:normal;flex-shrink:0}
 @media(max-width:650px){#shop-release-control{display:grid;grid-template-columns:36px minmax(0,1fr)}#shop-release-confirm{grid-column:2;justify-self:start}}
+/* 1.1.313: Auto update time (12-hour, AM / PM) beside Confirm update. */
+.release-auto{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin-top:10px}
+@media(max-width:650px){.release-auto{grid-column:2}}
+@media(min-width:651px){#shop-release-control{flex-wrap:wrap}.release-auto{flex-basis:100%;padding-left:52px}}
+.release-auto-switch{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+.release-auto-switch input{position:absolute;opacity:0;width:1px;height:1px}
+.release-auto-switch span{position:relative;width:44px;height:26px;border-radius:999px;background:#cfd6d1;transition:background .2s}
+.release-auto-switch span::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0003;transition:transform .2s}
+.release-auto-switch input:checked+span{background:#1a7a2e}
+.release-auto-switch input:checked+span::after{transform:translateX(18px)}
+.release-auto-switch input:focus-visible+span{outline:3px solid #9bd48f}
+.release-auto-switch b{font-size:14px;color:#1d2a21}
+.release-auto-time{display:inline-flex;align-items:center;gap:4px}
+.release-auto-time select{min-height:38px;padding:0 8px;border:1px solid #c9d6cb;border-radius:10px;background:#fff;color:#1d2a21;font:inherit;font-size:15px}
+.release-auto-time select:disabled{opacity:.5}
+.release-auto small{flex-basis:100%;color:#52645a;font-size:12.5px;line-height:1.5}
+/* 1.1.313: Server Storage opens its list on a tap. */
+.storage-toggle{cursor:pointer}
+.storage-chevron{display:inline-block;margin-left:8px;color:#7a857e;font-size:22px;line-height:1;transition:transform .2s}
+.storage-toggle.is-open .storage-chevron{transform:rotate(90deg)}

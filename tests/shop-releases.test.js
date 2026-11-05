@@ -112,7 +112,10 @@ test('Settings confirmation stays owner-only, sends CSRF and prevents double sub
     if(options.method==='POST'){posts++;assert.equal(options.headers['X-CSRF-Token'],'test-token');assert.equal(JSON.parse(options.body).version,current);await new Promise(resolve=>resolvePost=resolve);pending=false;}
     return {ok:allowed,json:async()=>({deployedVersion:current,sellerVersion:pending?'1.1.287':current,pending})};
   };
-  const ctx={location:{pathname:'/index.html'},document:{getElementById:id=>nodes[id],addEventListener(){}},fetch};
+  // 1.1.313: the Auto update controls are made with createElement; a small stand-in element is enough here.
+  const el=()=>{const kids={};return {style:{},dataset:{},set innerHTML(v){},querySelector:q=>kids[q]||(kids[q]={...el(),value:'',checked:false,disabled:false,addEventListener(){}}),querySelectorAll:()=>[],addEventListener(){}}};
+  nodes['shop-release-confirm'].after=()=>{};
+  const ctx={location:{pathname:'/index.html'},document:{getElementById:id=>nodes[id],addEventListener(){},createElement:el},fetch};
   vm.runInNewContext(source,ctx);await new Promise(resolve=>setImmediate(resolve));
   assert.equal(nodes['shop-release-control'].hidden,true,'visitors cannot see a release action');
   allowed=true;vm.runInNewContext(source,ctx);await new Promise(resolve=>setImmediate(resolve));
@@ -161,4 +164,12 @@ test('real server Settings endpoint requires GearHub login and CSRF, and changes
   assert.ok((await page('fixture-a')).includes('gearhub-build-version" content="'+current));
   assert.ok((await page('fixture-b')).includes('gearhub-build-version" content="'+current));
   assert.equal((await(await fetch(base+'/api/app-release')).json()).version,current);
+});
+
+test('1.1.313: Auto update time is owner-only, Myanmar time, once a day inside 15 minutes', () => {
+  const server=fs.readFileSync(path.join(__dirname,'..','server.js'),'utf8'),js=fs.readFileSync(path.join(publicDir,'release-control.js'),'utf8');
+  assert.match(server,/app\.put\('\/api\/admin\/app-release\/auto', ownerOnly,/);
+  assert.match(server,/Date\.now\(\) \+ 6\.5 \* 3600e3/,'Myanmar time');
+  assert.match(server,/now\.minute >= at \+ 15 \|\| auto\.doneDay === now\.day/);
+  assert.match(js,/<option>AM<\/option><option>PM<\/option>/,'12-hour with AM / PM');
 });

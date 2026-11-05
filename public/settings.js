@@ -64,7 +64,7 @@
   window.addEventListener("gearhub:auto-download", event => renderOffline(event.detail?.state, event.detail?.percent));
   renderOffline(localStorage.getItem("gh-offline-downloaded-at") ? "ready" : "idle");
 
-  let storageData = null, serviceData = null;
+  let storageData = null, serviceData = null, storageOpen = false;
   function renderStorageUsage() {
     const label = byId("storage-usage"), meter = byId("storage-meter-fill");
     if (!label || !meter) return;
@@ -95,7 +95,14 @@
       lines.push(`<div class="storage-card storage-backup"><span class="storage-card-icon" aria-hidden="true">🛟</span><div class="storage-card-copy"><p class="storage-card-title"><b>Backup</b><span>${esc(when(backup.lastSuccess))}</span></p><p class="storage-card-note">Off-site: ${backup.offsite ? esc(when(backup.lastOffsite)) : "Not configured"}</p>${state ? `<p class="storage-backup-state">${esc(state)}</p>` : ""}<div class="storage-backup-actions"><button type="button" id="storage-backup-run" class="storage-backup-run"${backupRunning || backup.running ? " disabled" : ""}>⟳ Run backup now</button><a id="storage-backup-download" class="storage-backup-download" href="/api/admin/backup" download>⬇ Download full backup</a></div></div></div>`);
     }
     more.innerHTML = lines.join("");
-    more.hidden = !lines.length;
+    // 1.1.313 owner: the R2 / Drive / shops / backup list opens only when Server Storage is tapped.
+    more.hidden = !lines.length || !storageOpen;
+    const row = more.closest(".settings-row");
+    if (row && lines.length && !row.dataset.storageToggle) {
+      row.dataset.storageToggle = "1"; row.classList.add("storage-toggle");
+      row.querySelector(".settings-copy strong")?.insertAdjacentHTML("beforeend", '<span class="storage-chevron" aria-hidden="true">›</span>');
+      row.addEventListener("click", e => { if (e.target.closest("#storage-more")) return; storageOpen = !storageOpen; row.classList.toggle("is-open", storageOpen); more.hidden = !storageOpen; });
+    }
     if (lines.length) label.textContent = "🖥️ Render · " + label.textContent;
   }
   let backupRunning = false, backupMessage = "";
