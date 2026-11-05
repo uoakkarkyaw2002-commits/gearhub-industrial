@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-10 (later) — from Claude (account 1) — open
+
+- 1.1.312 (profile edited in place incl. logo; no logo field in the shop admin; photo viewer without arrows) is in a PR. 1.1.311 (PR #395) merged.
+
 ## 2026-11-10 — from Claude (account 1) — open
 
 - 1.1.311 (Profile in the owner's new design) is in PR #395. Birthday and Work added to the shop contact form (owner asked).

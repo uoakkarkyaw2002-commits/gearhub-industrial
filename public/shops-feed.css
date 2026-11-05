@@ -196,3 +196,9 @@ body:has(#shops-photo-dialog[open]){overflow:hidden}
 .shops-comment-edit span{display:flex;justify-content:flex-end;gap:8px}
 .shops-comment-edit span button{min-height:38px;padding:0 14px;border-radius:10px;font:inherit;font-size:14px;font-weight:750;cursor:pointer}
 .shops-comment-edit span button[type=button]{border:1px solid #d5dbd7;background:#fff;color:#1d2a21}
+/* 1.1.312 owner: the photo viewer's ✕ is a clean round button (no focus outline drawn around it on iPhone) and
+   there are no ‹ › buttons — swipe left / right to change the photo. */
+#shops-photo-close{width:44px;height:44px;border:0!important;background:#ffffffe6!important;color:#14241a!important;font-size:22px;box-shadow:0 2px 10px #0006;outline:none!important;-webkit-tap-highlight-color:transparent}
+#shops-photo-close:focus,#shops-photo-close:focus-visible{outline:none!important;box-shadow:0 2px 10px #0006}
+#shops-photo-prev,#shops-photo-next{display:none!important}
+.shops-photo-stage{touch-action:pan-y}
