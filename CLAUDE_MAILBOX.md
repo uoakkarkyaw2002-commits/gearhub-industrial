@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-12 — from Claude (account 1) — open
+
+- 1.1.315 (Server Storage card in the owner's design; pieces cut from the owner's picture) is in a PR. Owner rule: never say done unless it matches the picture exactly — compare side by side first.
+
 ## 2026-11-11 (later) — from Claude (account 1) — open
 
 - 1.1.314 (🔔 notifications + 💬 buyer↔shop chat at the top of shops; two new chat tables, owner approved; Settings Notifications row = switch only) is in a PR. 1.1.313 (PR #397) merged.

@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.315: Server Storage card in the owner's new design (Claude)
+- Owner's picture (open + closed). For the GearHub owner (when R2/Drive/shops/backup data exists) the Server Storage row becomes one green card (public/storage-design.css, settings.js): the header (closed = header only; tap opens/closes), Render Server ring + bar, Cloudflare R2, Google Drive, All shops (pill + chevron folds the shop rows), Backup with Run / Download.
+- To look exactly like the picture, the header (open + closed versions, with its texts and chevron), the logo tiles, the small icons and the two backup buttons are cut from the owner's picture (public/images/storage/*). Every size/position is the picture's pixel value × --u (card width / 960 via container query units), so it scales with the screen. Buttons keep ids storage-backup-run / storage-backup-download, so the existing backup actions work; "Backup running…" shows under the title and the Run picture dims.
+- R2 total uses the server's 10 GB free-tier value (picture: "1.6 GB / 10 GB"). Seller shops' storage row is unchanged.
+- Compared side by side at the same width in WebKit (iPhone, fed the picture's numbers): /Users/oakkar/Documents/Codex/outputs/storage-compare.png. Remaining small difference: the ring's multi-tone colours are approximated with CSS. Tests: tests/storage-design.test.js. 488/488. Real iPhone not tested.
+
 ### 1.1.314: 🔔 notifications and 💬 buyer ↔ shop chat at the top of each shop (Claude)
 - Owner's picture: two glass buttons at the top right of the shop banner (public/noti-chat.js / .css; shop pages only). Red dot = new.
 - 💬 Chat (owner approved two tables, new `lib/shop-chat.js`): `platform_chats(shop_id,user_id,…read_at)` and `platform_chat_messages(chat_id,shop_id,from_shop,body,created_at)`, all scoped by shop_id, removed with the shop; times keep milliseconds. A signed-in buyer has one thread per shop; the shop owner / GearHub owner sees the list and answers. Routes (own CSRF check): GET/POST `/chat/:slug`, GET/POST `/chat/:slug/:chat`. Open chats refresh every 5 s. A buyer message also sends a push alert to the shop's phones (scope shop:<id>, url `?chat=1` opens the chat).
