@@ -12,7 +12,7 @@
   const t = key => words[document.documentElement.lang === 'my' ? 'my' : 'en'][key];
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const money = value => new Intl.NumberFormat('en-US').format(value) + ' Ks';
-  const title = item => document.documentElement.lang === 'my' && item.nameMy ? item.nameMy : item.name;
+  const title = item => document.documentElement.lang === 'my' && item.nameMy ? item.nameMy : item.name || String(item.body || '').split('\n')[0].slice(0, 60) || item.shop?.name || '';
   const count = n => n >= 1000 ? (Math.round(n / 100) / 10) + 'K' : String(n || 0);
   function postTime(value) {
     const valid = typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(value) && Number.isFinite(Date.parse(value));
@@ -419,7 +419,7 @@
     gallery = find(button.dataset.feedPhoto);
     if (!gallery?.images?.length) return;
     photoIndex = Number(button.dataset.photoIndex) || 0; showPhoto();
-    dialog.classList.add('open'); dialog.showModal();
+    dialog.classList.add('open'); dialog.showModal(); document.activeElement?.blur?.();
   });
   // The photo frame takes the shape of the photo (between tall 4:5 and wide 2.5:1).
   list.addEventListener('load', event => {
@@ -431,6 +431,11 @@
   dialog.addEventListener('close', () => { dialog.classList.remove('open'); photo.removeAttribute('src'); window.GearHubBackNav?.record(); });
   function move(delta) { if (gallery && photoIndex + delta >= 0 && photoIndex + delta < gallery.images.length) { photoIndex += delta; showPhoto(); } }
   document.getElementById('shops-photo-prev').addEventListener('click', () => move(-1));
+  // 1.1.312: swipe left / right on the photo instead of the ‹ › buttons.
+  let swipeX = null;
+  const stage = dialog.querySelector('.shops-photo-stage');
+  stage.addEventListener('touchstart', event => { swipeX = event.touches[0].clientX; }, {passive:true});
+  stage.addEventListener('touchend', event => { if (swipeX === null) return; const dx = event.changedTouches[0].clientX - swipeX; swipeX = null; if (Math.abs(dx) > 40) move(dx < 0 ? 1 : -1); }, {passive:true});
   document.getElementById('shops-photo-next').addEventListener('click', () => move(1));
   dialog.addEventListener('keydown', event => { if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); move(event.key === 'ArrowLeft' ? -1 : 1); } });
   more.addEventListener('click', () => load(!initialized || nextBefore === null));

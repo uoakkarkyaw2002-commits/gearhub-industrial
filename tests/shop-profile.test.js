@@ -23,6 +23,11 @@ test('profile counts, follow, personal posts and who may post or delete',async t
  assert.equal((await a('/shops/10','PATCH',{birthday:'2099-01-01'})).status,400,'no birthday in the future');
  assert.equal((await a('/shops/10','PATCH',{birthday:'2002-02-05',work:'Jewelly Seal Machinery Spare Parts'})).status,200);
  assert.deepEqual([(await json(guest('/profile/shop-a'))).about.birthday,(await json(guest('/profile/shop-a'))).about.work],['2002-02-05','Jewelly Seal Machinery Spare Parts'],'1.1.312: birthday and work');
+ // 1.1.312: the profile is edited in place — a new logo is the logo and app icon; the caption follows the description.
+ assert.equal((await a('/shops/10','PATCH',{logoId:'img-a',description:'New caption'})).status,200);
+ {const st=JSON.parse(db.prepare('SELECT settings FROM platform_shops WHERE id=10').get().settings);assert.deepEqual([st.logoId,st.appearance.logoUrl,st.appearance.appIconUrl,st.appearance.brandTagline],['img-a','/api/platform/images/img-a','/api/platform/images/img-a','New caption'])}
+ assert.equal((await b('/shops/10','PATCH',{description:'hijack'})).status,404,'another shop cannot edit it');
+ assert.equal((await json(guest('/profile/shop-a'))).about.caption,'New caption');
  let p=await json(guest('/profile/shop-a'));assert.deepEqual([p.followers,p.following,p.posts,p.followed,p.canPost,p.shopId],[0,0,1,false,false,undefined]);
  assert.equal((await guest('/profile/shop-a/follow','POST',{})).status,401,'follow needs Google sign-in');
  assert.equal((await fetch(base+'/api/platform/profile/shop-a/follow',{method:'POST'})).status,403,'CSRF checked');

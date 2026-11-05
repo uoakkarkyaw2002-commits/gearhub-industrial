@@ -47,6 +47,8 @@
   document.querySelectorAll('a[href*="/api/admin/"]').forEach(a=>a.hidden=true);
   document.querySelector('.product-drive-details')?.setAttribute('hidden','');
   const urls=document.getElementById('product-image-urls');if(urls){urls.placeholder='Uploaded shop photos';}
+  // 1.1.312 owner: the logo is changed on the shop's Profile (✏️), not here.
+  {const logo=document.querySelector('.appearance-logo');if(logo){logo.hidden=true;logo.style.display='none'}}
   const host=document.createElement('section');host.className='panel';host.id='tenant-contact-panel';
   const title=document.createElement('h2');title.textContent='Shop contact & payment / ဆိုင်အချက်အလက်';host.append(title);
   const form=document.createElement('form');form.className='product-form';form.id='tenant-contact';

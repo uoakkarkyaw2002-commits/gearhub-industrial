@@ -4,7 +4,7 @@
  const view=document.getElementById('profile-view');if(!view)return;
  const my=()=>document.documentElement.lang==='my';
  const home=document.createElement('div');home.className='profile-home';home.id='profile-home';
- home.innerHTML='<button type="button" class="profile-menu-open" id="profile-menu-open"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><a class="profile-edit" hidden aria-label="Edit profile"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg></a><div class="profile-cover" aria-hidden="true"></div><div class="profile-home-photo"><img alt="" hidden><span aria-hidden="true">⚙</span></div><div class="profile-home-title"><h2 class="profile-home-name"></h2><svg class="profile-verified" viewBox="0 0 24 24" aria-label="Verified"><path d="m12 1.8 2.5 1.9 3.1-.2.9 3 2.6 1.8-1 2.9 1 2.9-2.6 1.8-.9 3-3.1-.2L12 22.2l-2.5-1.9-3.1.2-.9-3-2.6-1.8 1-2.9-1-2.9 2.6-1.8.9-3 3.1.2z"/><path d="m7.8 12.2 2.8 2.8 5.6-5.8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><p class="profile-home-counts" hidden></p><div class="profile-caption" hidden></div><div class="profile-home-actions" hidden></div><div class="profile-details" hidden></div><div class="profile-home-posts"></div>';
+ home.innerHTML='<button type="button" class="profile-menu-open" id="profile-menu-open"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><button type="button" class="profile-edit" data-pm="edit" hidden aria-label="Edit profile"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg></button><div class="profile-cover" aria-hidden="true"></div><div class="profile-home-photo"><img alt="" hidden><span aria-hidden="true">⚙</span></div><div class="profile-home-title"><h2 class="profile-home-name"></h2><svg class="profile-verified" viewBox="0 0 24 24" aria-label="Verified"><path d="m12 1.8 2.5 1.9 3.1-.2.9 3 2.6 1.8-1 2.9 1 2.9-2.6 1.8-.9 3-3.1-.2L12 22.2l-2.5-1.9-3.1.2-.9-3-2.6-1.8 1-2.9-1-2.9 2.6-1.8.9-3 3.1.2z"/><path d="m7.8 12.2 2.8 2.8 5.6-5.8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><p class="profile-home-counts" hidden></p><div class="profile-caption" hidden></div><div class="profile-home-actions" hidden></div><div class="profile-details" hidden></div><div class="profile-home-posts"></div>';
  const bar=document.createElement('div');bar.className='profile-menu-bar';bar.id='profile-menu';
  bar.innerHTML='<button type="button" id="profile-menu-close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><b></b>';
  view.prepend(home,bar);
@@ -36,8 +36,8 @@
  const slug=(location.pathname.match(/^\/shops\/([a-z0-9-]{1,80})\//)||[])[1]||'';
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const count=n=>n>=1e6?(Math.round(n/1e5)/10)+'M':n>=1e3?(Math.round(n/100)/10)+'K':String(n||0);
- const T={en:{followers:'followers',following:'following',posts:'posts',follow:'Follow',followed:'Following ✓',add:'Add',personal:'Personal',personalHelp:'Photos and text — only on your profile and Discover',work:'Work',workHelp:'A product with SKU, Part No and price',write:'What\'s on your mind?',photos:'Photos',post:'Post',posting:'Posting…',remove:'Delete',removeAsk:'Delete this post?',signIn:'Sign in with Google to follow',signInButton:'Continue with Google',none:'No posts yet.',caption:'Write a caption about your store…',editCaption:'Edit caption',details:'Personal details',editDetails:'Edit details',noDetails:'Add your address, phone, email, birthday and work.',error:'Something went wrong. Please try again.',tooBig:'Choose up to 10 photos.',close:'Close'},
-  my:{followers:'followers',following:'following',posts:'posts',follow:'Follow',followed:'Following ✓',add:'Add',personal:'Personal',personalHelp:'ပုံနဲ့ စာ — ကိုယ့် Profile နဲ့ Discover မှာပဲ ပေါ်မယ်',work:'Work',workHelp:'SKU၊ Part No၊ ဈေးနှုန်းပါတဲ့ ပစ္စည်း',write:'ဘာတွေ ပြောချင်လဲ?',photos:'ဓာတ်ပုံ',post:'တင်မယ်',posting:'တင်နေပါတယ်…',remove:'ဖျက်မယ်',removeAsk:'ဒီ post ကို ဖျက်မလား?',signIn:'Follow လုပ်ဖို့ Google နဲ့ ဝင်ပါ',signInButton:'Google နဲ့ ဝင်မယ်',none:'Post မရှိသေးပါ။',caption:'ဆိုင်အကြောင်း စာတစ်ကြောင်း ရေးပါ…',editCaption:'ပြင်မယ်',details:'Personal details',editDetails:'ပြင်မယ်',noDetails:'လိပ်စာ၊ ဖုန်း၊ email ထည့်ပါ။',error:'မအောင်မြင်ပါ။ ပြန်စမ်းကြည့်ပါ။',tooBig:'ဓာတ်ပုံ ၁၀ ပုံအထိပဲ ရွေးပါ။',close:'ပိတ်ရန်'}};
+ const T={en:{followers:'followers',following:'following',posts:'posts',follow:'Follow',followed:'Following ✓',add:'Add',personal:'Personal',personalHelp:'Photos and text — only on your profile and Discover',work:'Work',workHelp:'A product with SKU, Part No and price',write:'What\'s on your mind?',photos:'Photos',post:'Post',posting:'Posting…',remove:'Delete',removeAsk:'Delete this post?',signIn:'Sign in with Google to follow',signInButton:'Continue with Google',none:'No posts yet.',caption:'Write a caption about your store…',editCaption:'Edit caption',details:'Personal details',editDetails:'Edit details',noDetails:'Add your address, phone, email, birthday and work.',editProfile:'Edit profile',changeLogo:'Change photo',fName:'Shop name',fCaption:'Caption',fAddress:'Address',fPhone:'Phone',fEmail:'Email',fBirthday:'Birthday',fWork:'Work',saveProfile:'Save',saving:'Saving…',error:'Something went wrong. Please try again.',tooBig:'Choose up to 10 photos.',close:'Close'},
+  my:{followers:'followers',following:'following',posts:'posts',follow:'Follow',followed:'Following ✓',add:'Add',personal:'Personal',personalHelp:'ပုံနဲ့ စာ — ကိုယ့် Profile နဲ့ Discover မှာပဲ ပေါ်မယ်',work:'Work',workHelp:'SKU၊ Part No၊ ဈေးနှုန်းပါတဲ့ ပစ္စည်း',write:'ဘာတွေ ပြောချင်လဲ?',photos:'ဓာတ်ပုံ',post:'တင်မယ်',posting:'တင်နေပါတယ်…',remove:'ဖျက်မယ်',removeAsk:'ဒီ post ကို ဖျက်မလား?',signIn:'Follow လုပ်ဖို့ Google နဲ့ ဝင်ပါ',signInButton:'Google နဲ့ ဝင်မယ်',none:'Post မရှိသေးပါ။',caption:'ဆိုင်အကြောင်း စာတစ်ကြောင်း ရေးပါ…',editCaption:'ပြင်မယ်',details:'Personal details',editDetails:'ပြင်မယ်',noDetails:'လိပ်စာ၊ ဖုန်း၊ email ထည့်ပါ။',editProfile:'Profile ပြင်မယ်',changeLogo:'ပုံပြောင်းမယ်',fName:'ဆိုင်နာမည်',fCaption:'Caption',fAddress:'လိပ်စာ',fPhone:'ဖုန်း',fEmail:'Email',fBirthday:'မွေးနေ့',fWork:'အလုပ်',saveProfile:'သိမ်းမယ်',saving:'သိမ်းနေပါတယ်…',error:'မအောင်မြင်ပါ။ ပြန်စမ်းကြည့်ပါ။',tooBig:'ဓာတ်ပုံ ၁၀ ပုံအထိပဲ ရွေးပါ။',close:'ပိတ်ရန်'}};
  const t=k=>T[my()?'my':'en'][k];
  const icon={add:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',person:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c1.2-4 4-6 7.5-6s6.3 2 7.5 6"/></svg>',work:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/></svg>',photo:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="m4 18 5.5-5.5 4 4 2.5-2.5L20 18"/></svg>',close:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>'};
  let info=null,csrf='',posts=[],postsNext=null;
@@ -61,8 +61,8 @@
   counts.hidden=false;counts.innerHTML='<span>'+ic.people+'<b>'+count(info.followers)+'</b> Followers</span><i></i><span>'+ic.people+'<b>'+count(info.following)+'</b> Following</span><i></i><span>'+ic.photos+'<b>'+count(info.posts)+'</b> Posts</span>';
   const about=info.about||{},can=info.canPost;
   caption.hidden=!about.caption&&!can;
-  caption.innerHTML=ic.quote+'<span'+(about.caption?'':' class="is-empty"')+'>'+esc(about.caption||t('caption'))+'</span>'+(can?'<a href="'+admin('#site-settings-content')+'" aria-label="'+t('editCaption')+'">'+ic.pen+'</a>':'');
-  edit.hidden=!can;if(can)edit.href=admin('#site-settings-content');
+  caption.innerHTML=ic.quote+'<span'+(about.caption?'':' class="is-empty"')+'>'+esc(about.caption||t('caption'))+'</span>'+(can?'<button type="button" class="profile-pen" data-pm="edit" aria-label="'+t('editCaption')+'">'+ic.pen+'</button>':'');
+  edit.hidden=!can;
   actions.hidden=false;
   actions.innerHTML=can?'<button type="button" class="profile-add" data-pm="add">'+icon.add+'<span>'+t('add')+'</span></button><a class="profile-dashboard" href="'+admin()+'">'+ic.crown+'<span>Dashboard</span></a>':'<button type="button" class="profile-follow'+(info.followed?' is-on':'')+'" data-pm="follow">'+t(info.followed?'followed':'follow')+'</button>';
   // The address: its last two parts in bold (e.g. "Mandalay, Myanmar"), the whole address small under it.
@@ -71,7 +71,7 @@
   const born=about.birthday?(()=>{const d=new Date(about.birthday+'T00:00:00Z'),n=new Date();let age=n.getUTCFullYear()-d.getUTCFullYear();if(n.getUTCMonth()<d.getUTCMonth()||(n.getUTCMonth()===d.getUTCMonth()&&n.getUTCDate()<d.getUTCDate()))age--;return d.toLocaleDateString(my()?'my-MM':'en-US',{year:'numeric',month:'long',day:'numeric',timeZone:'UTC'})+' ('+age+(my()?' နှစ်':' years old')+')'})():'';
   const rows=[[ic.pin,about.address],[ic.phone,about.phone,'tel:'],[ic.mail,about.email,'mailto:'],[ic.cal,born],[ic.work,about.work]].filter(r=>r[1]);
   details.hidden=!rows.length&&!can;
-  details.innerHTML='<header>'+ic.user+'<b>'+t('details')+'</b>'+(can?'<a href="'+admin('#tenant-contact-panel')+'" aria-label="'+t('editDetails')+'">'+ic.pen+'</a>':'')+'</header>'+(rows.length?rows.map(([i,v,link])=>'<p>'+i+(link?'<a href="'+link+esc(v.replace(/\s+/g,link==='tel:'?'':' '))+'">'+esc(v)+'</a>':i===ic.pin?address(v):'<span>'+esc(v)+'</span>')+'</p>').join(''):'<p class="is-empty"><span>'+t('noDetails')+'</span></p>');
+  details.innerHTML='<header>'+ic.user+'<b>'+t('details')+'</b>'+(can?'<button type="button" class="profile-pen" data-pm="edit" aria-label="'+t('editDetails')+'">'+ic.pen+'</button>':'')+'</header>'+(rows.length?rows.map(([i,v,link])=>'<p>'+i+(link?'<a href="'+link+esc(v.replace(/\s+/g,link==='tel:'?'':' '))+'">'+esc(v)+'</a>':i===ic.pin?address(v):'<span>'+esc(v)+'</span>')+'</p>').join(''):'<p class="is-empty"><span>'+t('noDetails')+'</span></p>');
  }
  const ago=iso=>{const s=(Date.parse(iso)-Date.now())/1000,f=new Intl.RelativeTimeFormat(my()?'my':'en',{numeric:'auto'});for(const [u,n] of [['year',31536e3],['month',2592e3],['day',86400],['hour',3600],['minute',60]])if(Math.abs(s)>=n)return f.format(Math.round(s/n),u);return my()?'ခုနကပဲ':'Just now'};
  function drawPosts(){
@@ -109,7 +109,35 @@
   }catch(e){button.disabled=false;button.textContent=t('post');note(e.message)}
  }
  function signIn(){openSheet('<p class="profile-sheet-text">'+t('signIn')+'</p><button type="button" class="profile-compose-post wide" data-pm="signin">'+t('signInButton')+'</button>')}
+ // 1.1.312 owner: ✏️ edits the profile right here — logo photo, name, caption and the details — no trip to the admin.
+ let newLogo=null;
+ function editSheet(){
+  const a=info.about||{},photo=home.querySelector('.profile-home-photo img'),now=photo&&!photo.hidden?photo.getAttribute('src'):'';newLogo=null;
+  const field=(key,label,value,type='text',extra='')=>'<label class="profile-edit-field"><span>'+label+'</span>'+(type==='area'?'<textarea name="'+key+'" rows="2" maxlength="1000">'+esc(value)+'</textarea>':'<input name="'+key+'" type="'+type+'" value="'+esc(value)+'"'+extra+'>')+'</label>';
+  openSheet('<h2 class="profile-edit-title">'+t('editProfile')+'</h2><form class="profile-edit-form" data-pm-form="profile"><div class="profile-edit-logo"><span class="profile-edit-photo">'+(now?'<img src="'+esc(now)+'" alt="">':'')+'</span><label class="profile-compose-photo">'+icon.photo+'<span>'+t('changeLogo')+'</span><input type="file" accept="image/*" hidden></label></div>'+
+   field('name',t('fName'),name.textContent.trim(),'text',' maxlength="100" required')+field('description',t('fCaption'),a.caption||'','area')+field('address',t('fAddress'),a.address||'')+field('phone',t('fPhone'),a.phone||'','tel')+field('email',t('fEmail'),a.email||'','email')+
+   field('birthday',t('fBirthday'),a.birthday||'','date',' max="'+new Date().toISOString().slice(0,10)+'"')+field('work',t('fWork'),a.work||'')+
+   '<button type="submit" class="profile-compose-post wide">'+t('saveProfile')+'</button></form>');
+  sheet.querySelector('.profile-edit-logo input').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;newLogo=await squareLogo(f);sheet.querySelector('.profile-edit-photo').innerHTML='<img src="'+URL.createObjectURL(newLogo)+'" alt="">'});
+ }
+ // The logo is made a 512 × 512 square (whole picture kept, white around it), like the admin's logo frame.
+ async function squareLogo(file){
+  try{const b=await createImageBitmap(file),c=document.createElement('canvas');c.width=c.height=512;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,512,512);const k=Math.min(512/b.width,512/b.height);g.drawImage(b,(512-b.width*k)/2,(512-b.height*k)/2,b.width*k,b.height*k);
+   const blob=await new Promise(r=>c.toBlob(r,'image/png'));return blob?new File([blob],'logo.png',{type:'image/png'}):file}catch{return file}
+ }
+ async function saveProfile(form){
+  const button=form.querySelector('[type=submit]');button.disabled=true;button.textContent=t('saving');note('');
+  try{
+   const body=Object.fromEntries(new FormData(form));delete body[''];
+   if(newLogo){const fd=new FormData();fd.append('file',newLogo);body.logoId=(await call('/api/platform/shops/'+info.shopId+'/files','POST',null,fd)).id}
+   const d=await call('/api/platform/shops/'+info.shopId,'PATCH',body);
+   // A new name gives the shop a new link: open the profile again there.
+   if(d.slug&&d.slug!==slug){try{sessionStorage.setItem('gh-open-profile','1')}catch{}location.replace('/shops/'+encodeURIComponent(d.slug)+'/');return}
+   sheet.close();await window.GearHubStore?.retry?.();await loadInfo();paint();
+  }catch(e){button.disabled=false;button.textContent=t('saveProfile');note(e.message)}
+ }
  async function act(kind,el){
+  if(kind==='edit'){if(info?.canPost)editSheet();return}
   if(kind==='add')return choose();
   if(kind==='personal')return composer();
   if(kind==='work'){location.href='/shops/'+encodeURIComponent(slug)+'/admin?add=1';return}
@@ -121,7 +149,8 @@
   if(kind==='delete'){if(!confirm(t('removeAsk')))return;try{await call('/api/platform/profile/'+encodeURIComponent(slug)+'/posts/'+Number(el.dataset.post),'DELETE');posts=posts.filter(p=>p.postId!==Number(el.dataset.post));info.posts=Math.max(0,info.posts-1);drawInfo();drawPosts()}catch(e){window.toast?.(e.message)}}
  }
  for(const root of [home,sheet])root.addEventListener('click',e=>{const b=e.target.closest('[data-pm]');if(b)act(b.dataset.pm,b)});
- sheet.addEventListener('submit',e=>{const f=e.target.closest('[data-pm-form="post"]');if(f){e.preventDefault();submitPost(f)}});
+ sheet.addEventListener('submit',e=>{const f=e.target.closest('[data-pm-form="post"]');if(f){e.preventDefault();submitPost(f)}const pf=e.target.closest('[data-pm-form="profile"]');if(pf){e.preventDefault();saveProfile(pf)}});
+ try{if(sessionStorage.getItem('gh-open-profile')){sessionStorage.removeItem('gh-open-profile');addEventListener('gearhub:data-ready',()=>document.querySelector('.mobile-bottom-nav [data-store-view="profile"],.desktop-top-nav [data-store-view="profile"]')?.click(),{once:true})}}catch{}
  document.addEventListener('click',e=>{if(e.target.closest('[data-store-view="profile"]'))setTimeout(()=>{loadInfo();loadPosts()},0)});
  window.GearHubProfileMenu={open:()=>{if(!view.classList.contains('pm-menu'))show(true)}};
 })();

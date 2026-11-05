@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.312: Profile edited in place; no logo field in the shop admin; cleaner photo viewer (Claude)
+- Owner: pencils opened the admin; they now open an "Edit profile" sheet on the profile: logo photo (made a 512 × 512 square, uploaded with /shops/:id/files), shop name, caption, address, phone, email, birthday, work → PATCH /shops/:id. A new logo also sets appearance.logoUrl + appIconUrl; a new description also updates the Site settings tagline (caption). A new name moves to the new link and reopens Profile.
+- The shop admin hides its Logo image field (`.appearance-logo`, tenant-admin.js); GearHub's own admin keeps it.
+- Photo viewer: the ✕ is a solid round button with no focus ring (iPhone drew a blue outline behind it), ‹ › buttons hidden, swipe left/right changes photos; personal-post titles no longer show "undefined".
+- Tests: shop-profile (in-place edit, other shop refused), profile-menu (wiring). 484/484. WebKit iPhone 13 as POLESTAR owner: sheet fields, new photo + caption saved (logoId, logoUrl, description), viewer without arrows/outline. Real iPhone not tested.
+
 ### 1.1.311: Profile in the owner's new design (Claude)
 - Owner's picture: green cover with clouds (existing /images/settings-banner.jpg, faded at the bottom, full width), round white buttons (Menu left, kept because it opens Settings; pencil edit right for the shop), big logo with a green ring, name + green check, "N Followers | N Following | N Posts" with icons, caption pill (shop tagline/description; pencil opens admin Site settings), Add + Dashboard (shop) or Follow (visitor), "Personal details" card (address, phone, email from the shop contact settings; pencil opens admin #tenant-contact-panel), Facebook-like post cards (logo, name, time, globe, ... menu with Delete).
 - Follow-up (owner said add them): shop contact settings gain `birthday` (YYYY-MM-DD, not in the future; date picker in the admin contact form) and `work` (text) in the existing settings JSON (no schema change; PATCH /shops/:id allowed keys). The details card shows "February 5, 2002 (24 years old)" and the work line.
