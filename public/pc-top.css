@@ -4,7 +4,12 @@
  /* Top bar: shop logo + name left, menu in the middle, divider + glass 🔔 💬 at the right end. */
  header.home-navigation{display:flex;align-items:center;gap:20px;background:#fff;box-shadow:0 1px 0 #e5ece7,0 6px 18px #10201808}
  header.home-navigation .desktop-top-nav{gap:6px;flex:0 0 auto}
- header.home-navigation>.home-profile-banner{flex:0 1 auto;min-width:0;max-width:260px}
+ /* 1.1.323 owner: logo + name flush to the window's left edge; the whole shop name always shows. */
+ header.home-navigation{padding-left:16px!important}
+ header.home-navigation>.home-profile-banner{flex:0 0 auto;min-width:0;max-width:300px;margin-left:0!important}
+ header.home-navigation>.home-profile-banner .settings-profile-copy{overflow:visible}
+ header.home-navigation>.home-profile-banner .settings-profile-copy strong{overflow:visible;text-overflow:clip;white-space:normal;overflow-wrap:anywhere;line-height:1.15}
+ header.home-navigation .desktop-top-nav{flex:1 1 auto;justify-content:center;min-width:0}
  header.home-navigation .desktop-nav-item{position:relative;gap:8px;padding:10px 16px;border-radius:14px;font-weight:700;color:#1f2a24}
  header.home-navigation .desktop-nav-item.active{background:#e7f5e9;color:#166534}
  header.home-navigation .desktop-nav-item:not(.active):hover{background:#f3f7f4}
@@ -44,6 +49,8 @@
 /* Narrower computers (1024–1399 px): a tighter menu so Profile and 🔔 💬 never overlap. */
 @media (min-width:1024px) and (max-width:1399px){
  header.home-navigation{gap:10px}
+ header.home-navigation>.home-profile-banner{max-width:240px}
+ header.home-navigation>.home-profile-banner .settings-profile-copy strong{font-size:16px}
  header.home-navigation .desktop-top-nav{gap:2px}
  header.home-navigation .desktop-nav-item{gap:6px;padding:8px 9px;font-size:14px}
  header.home-navigation .desktop-nav-item svg:not(.pc-chevron){width:20px;height:20px}
