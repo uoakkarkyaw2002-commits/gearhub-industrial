@@ -8,6 +8,12 @@ test('1.1.327: visiting another shop shows its counts + caption header, Home/Cat
  assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
  assert.match(js,/classList\.add\('visit-profile'\)/,'the right button is the visited shop\'s Profile');assert.match(js,/ghStep\)!==0\)return;\s*event\.stopImmediatePropagation\(\);/,'one Back press leaves');
  assert.ok(fs.existsSync('public/images/cart-scooter.png'));
- for(const tag of ['/visit-shop.css?v=1.1.327','/visit-shop.js?v=1.1.327'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
+ for(const tag of ['/visit-shop.css?v=1.1.328','/visit-shop.js?v=1.1.327'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
  assert.ok(sw.includes('"/images/cart-scooter.png?v=1.1.327"'));
+});
+
+test('1.1.328: while visiting, no ☰ on the shop Profile and the search menu offers only Trash',()=>{
+ const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict'),read=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
+ assert.match(read('public/visit-shop.css'),/body\.visiting-shop #profile-menu-open\{display:none!important\}/);
+ const js=read('public/search-filter.js');assert.match(js,/if\(visiting\(\)\)scope='product';/);assert.match(js,/\[data-scope="product"\]'\)\.hidden=visiting\(\);/);
 });

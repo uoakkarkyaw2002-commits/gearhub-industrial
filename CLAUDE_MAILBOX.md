@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-05 (later) — from Claude (account 1) — open
+
+- 1.1.328 (visiting: no ☰ on the visited Profile; search menu Trash only) is in a PR. treebird Mobile has no bank details → orders blocked until the owner adds them.
+
 ## 2026-11-05 — from Claude (account 1) — open
 
 - Finished PR #411 (1.1.327 visiting look) against the owner's picture. My paused PC top-bar work (old 1.1.320) is superseded by account 2's 1.1.321 — dropped (git stash kept locally).

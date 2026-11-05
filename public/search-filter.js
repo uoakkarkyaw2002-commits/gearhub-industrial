@@ -6,7 +6,9 @@
  const input=document.getElementById('search'),bar=input?.closest('.mobile-search'),pill=input?.closest('.search-pill');
  if(!input||!bar||!pill)return;
  const KEY='gh-search-scope';
- let scope=(()=>{try{return localStorage.getItem(KEY)==='excel'?'excel':'product'}catch{return 'product'}})();
+ // 1.1.328 owner: while shopping in another shop only Trash is offered (that shop's Excel files are not shown).
+ const visiting=()=>document.body.classList.contains('visiting-shop');
+ let scope=(()=>{try{return localStorage.getItem(KEY)==='excel'&&!visiting()?'excel':'product'}catch{return 'product'}})();
  const my=()=>document.documentElement.lang==='my';
  const hasExcel=()=>{const folder=document.getElementById('excel-library-open');return Boolean(folder&&!folder.hidden)};
  const wrap=document.createElement('div');wrap.className='search-filter';
@@ -24,7 +26,8 @@
   document.body.classList.toggle('scope-product',scope==='product');document.body.classList.toggle('scope-excel',scope==='excel');
   const label={files:my()?'Excel ဖိုင်များ':'Excel files',product:my()?'ပစ္စည်း':'Product',excel:'Excel',trash:my()?'ရှာထားတာ ဖျက်မယ်':'Trash'};
   menu.querySelectorAll('[data-scope]').forEach(b=>{b.querySelector('span').textContent=label[b.dataset.scope];if(b.getAttribute('role')==='menuitemradio'){const on=b.dataset.scope===scope;b.classList.toggle('on',on);b.setAttribute('aria-checked',String(on))}});
-  menu.querySelector('[data-scope="excel"]').hidden=!hasExcel();menu.querySelector('[data-scope="files"]').hidden=!hasExcel();
+  if(visiting())scope='product';
+  menu.querySelector('[data-scope="excel"]').hidden=!hasExcel()||visiting();menu.querySelector('[data-scope="files"]').hidden=!hasExcel()||visiting();menu.querySelector('[data-scope="product"]').hidden=visiting();
   button.setAttribute('aria-label',my()?'ရှာမယ့်နေရာ ရွေးရန်':'Search in');
  }
  const close=()=>{menu.hidden=true;button.setAttribute('aria-expanded','false')};

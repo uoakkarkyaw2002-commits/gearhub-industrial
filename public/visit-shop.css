@@ -54,4 +54,7 @@
  body.visiting-shop .home-profile-banner{background:linear-gradient(180deg,#ffffffd9 0,#ffffff00 46%),#f4faf2 url("/images/profile-cover.svg?v=2") center top/cover no-repeat!important}
  body.visiting-shop .home-promo-copy{padding-right:14px;margin-right:2px;border-right:1.5px solid #ffffff73}
  body.visiting-shop .home-promo-gift{display:block!important;font-size:46px;margin-left:-2px}
+ /* 1.1.328 owner: the visited shop's Profile has no ☰ menu; the search keeps only products (no Excel rows). */
+ body.visiting-shop #profile-menu-open{display:none!important}
+ body.visiting-shop .excel-results{display:none!important}
 }
