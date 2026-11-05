@@ -158,7 +158,7 @@
     try { const me = await (await fetch('/api/platform/me', {cache:'no-store',credentials:'same-origin'})).json(); csrf = me.csrfToken || csrf;
       if (me.user?.name) { const b = top.querySelector('.shops-top-me'); b.classList.add('signed-in'); b.textContent = [...me.user.name.trim()][0] || '?'; await syncFollows(true); } } catch {}
   }
-  top.querySelector('.shops-top-bell').addEventListener('click', () => document.querySelector('.settings-alerts-row')?.click());
+  top.querySelector('.shops-top-bell').addEventListener('click', () => window.GearHubNoti ? window.GearHubNoti.open() : document.querySelector('.settings-alerts-row')?.click());
   top.querySelector('.shops-top-me').addEventListener('click', () => window.showStoreView?.('profile'));
   top.addEventListener('click', event => { const button = event.target.closest('[data-feed-tab]'); if (!button || button.dataset.feedTab === tab) return; tab = button.dataset.feedTab; load(true); });
   let typing = 0;

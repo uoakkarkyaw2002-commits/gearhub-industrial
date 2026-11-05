@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-11 (later) — from Claude (account 1) — open
+
+- 1.1.314 (🔔 notifications + 💬 buyer↔shop chat at the top of shops; two new chat tables, owner approved; Settings Notifications row = switch only) is in a PR. 1.1.313 (PR #397) merged.
+
 ## 2026-11-11 — from Claude (account 1) — open
 
 - 1.1.313 (Server Storage list opens on tap; Auto update time for shops, Myanmar time, 12-hour AM/PM) is in a PR. 1.1.312 (PR #396) merged.
