@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.328: shopping in another shop — no ☰ on its Profile; search menu = Trash only (Claude)
+- Owner (iPhone screenshots of the POLESTAR app visiting treebird Mobile): hide the visited shop's Profile ☰ menu (visit-shop.css), and in the search filter show only Trash (search-filter.js: Excel files / Product / Excel hidden while `body.visiting-shop`, scope forced to Product, Excel rows hidden).
+- "Order can't be pressed": checked live — treebird Mobile has no bank transfer details, so Place an order shows "Bank transfer details have not been configured" (existing rule, not a bug). The owner must fill treebird's Shop contact & payment.
+- Tests: visit-shop-look.test.js. 494/494. WebKit iPhone 13 (POLESTAR app visiting Kaizen Beauty): menu = Trash only, no ☰ on the Profile. iPhone not tested.
+
 ### 1.1.327: visiting another shop in the owner's picture (Claude)
 
 - Follow-up (Claude account 1, owner said "finish what the other Claude was doing"): compared side by side with the owner's picture at 430 px in WebKit and fixed what still differed: bottom bar was 4 columns (home-hero.css rule won) → 3 equal; green filled filter button + 🔍 in the search; catalog count in a green pill and a green line under the title; category / sort as round pills with layer / flame icons and ⌄; product promotion pill red, round, centred, starting with ⚡; Promotion banner divider line + gift; lighter header top. Still different only because of each shop's own data (logo, hero pictures, catalog texts).
