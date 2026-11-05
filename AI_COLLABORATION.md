@@ -30,6 +30,11 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.319: 🔔 and 💬 on GearHub's own Home for the GearHub owner (Claude)
+- Owner asked for Notifications and Messages on the owner's (GearHub) Home too. noti-chat.js runs in owner mode on non-shop pages: buttons stay hidden until `/owner/notifications` says signed in as the GearHub owner. 🔔 = GearHub push history (orders, new shops) + buyer chat messages from every shop; 💬 = every shop's chats ("Buyer · Shop"), opening one answers as that shop (slug taken from the row).
+- New owner-only routes in lib/shop-chat.js: GET `/owner/chats`, GET `/owner/notifications` (visitors get {signedIn:false}). No schema change.
+- Tests: shop-chat.test.js (visitor, shop owner refused, owner list/answer). 489/489. WebKit iPhone 13 (local test GearHub owner): hidden for guests, shown for the owner, chat list + thread. Real iPhone not tested.
+
 ### 1.1.317: Blue Message inbox matching the owner's reference (Codex — review pending)
 - Task: Message button → pale blue inbox with bubble title, rounded search/filter, conversation list/time/unread dots and Chats / Active Now / Followers footer. Full screen on phones (card/type/footer proportions scale on wider phones), centered panel on desktop. Base main `b2d732d`; branch `codex/message-inbox-design`. PR #401: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/401.
 - Files: public/noti-chat.js/css (inbox rendering, name/preview search, unread toggle, tabs, real existing threads and blue styling), index/SW/cache/package release tags, tenant-install pin, mailbox/log. No backend, database, API, unrelated page or production release changes. Existing buyer↔shop sending/polling/Google entry and notifications retained.

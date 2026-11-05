@@ -43,3 +43,21 @@ test('Settings Notifications row is only the switch; the top 🔔 / 💬 buttons
  for(const tag of html.match(/\/noti-chat\.(?:js|css)\?v=[^"]+/g))assert.ok(sw.includes('"'+tag+'"'),tag);
  assert.match(read('public/noti-chat.js'),/banner\.append\(box\)/);
 });
+
+test('1.1.319: the GearHub owner sees GearHub alerts and every shop chat on GearHub Home',async t=>{
+ const root=fs.mkdtempSync(path.join(os.tmpdir(),'gh-ownerchat-')),db=new Database(':memory:');model.migrate(db);
+ db.exec("INSERT INTO platform_users(id,google_sub,email,name) VALUES(10,'a','a@example.test','Owner A'),(20,'c','c@example.test','Buyer'),(21,'d','boss@example.test','Boss');INSERT INTO platform_shops(id,owner_id,slug,name,plan_id,subscription_status) VALUES(10,10,'shop-a','Shop A',1,'active');INSERT OR REPLACE INTO platform_meta(key,value) VALUES('owner_sub','d')");
+ const app=express();app.use(express.json(),session({secret:'ownerchat-fixture-secret-'.repeat(3),resave:false,saveUninitialized:false}));
+ app.post('/test-login/:id',(req,res)=>{req.session.platformUser=Number(req.params.id);req.session.save(()=>res.end())});
+ app.use('/api/platform',createPlatform({db,dataDir:root,publicOrigin:'http://localhost',env:{PLATFORM_OWNER_EMAIL:'boss@example.test'}}));
+ const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));const base='http://127.0.0.1:'+server.address().port;
+ t.after(async()=>{await new Promise(r=>server.close(r));db.close();fs.rmSync(root,{recursive:true,force:true})});
+ async function as(id){let cookie='';const keep=r=>{const c=r.headers.get('set-cookie');if(c)cookie=c.split(';')[0];return r};if(id)keep(await fetch(base+'/test-login/'+id,{method:'POST'}));const token=(await keep(await fetch(base+'/api/platform/me',{headers:{cookie}})).json()).csrfToken;return (url,method='GET',body)=>fetch(base+'/api/platform'+url,{method,headers:{cookie,'Content-Type':'application/json','X-CSRF-Token':token},body:body?JSON.stringify(body):undefined})}
+ const guest=await as(0),buyer=await as(20),a=await as(10),boss=await as(21);
+ assert.deepEqual(await(await guest('/owner/notifications')).json(),{signedIn:false,items:[]},'buttons stay hidden for visitors');
+ assert.equal((await a('/owner/notifications')).status,403,'a shop owner is not the GearHub owner');assert.equal((await buyer('/owner/chats')).status,403);
+ await buyer('/chat/shop-a','POST',{body:'Price?'});
+ const n=await(await boss('/owner/notifications')).json();assert.equal(n.unreadChats,1);assert.ok(n.items.some(i=>i.chat&&i.text.includes('Shop A')));
+ const c=await(await boss('/owner/chats')).json();assert.deepEqual([c.chats[0].slug,c.chats[0].shop,c.chats[0].name,c.chats[0].unread],['shop-a','Shop A','Buyer',1]);
+ const d=await(await boss('/chat/shop-a/'+c.chats[0].id,'POST',{body:'1,000 Ks'})).json();assert.equal(d.messages[1].fromShop,true,'the owner answers as the shop');
+});

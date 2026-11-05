@@ -118,3 +118,4 @@ body:has(#nc-sheet[open]){overflow:hidden}
  .nc-message-tabs button>svg{width:calc(25 * var(--nc-u));height:calc(25 * var(--nc-u))}
  .nc-message-tabs .nc-tab-bubble,.nc-tab-bubble svg{width:calc(29 * var(--nc-u));height:calc(27 * var(--nc-u))}
 }
+.nc-buttons[hidden]{display:none!important}
