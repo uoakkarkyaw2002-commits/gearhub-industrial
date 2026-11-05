@@ -33,6 +33,7 @@ _None._
 ### 1.1.318: Sticker and photo comments; TikTok-style comment box (Claude)
 - Owner (TikTok picture): comment box = my initial + grey pill "Add comment…" with 🖼 photo, sticker and @ (names in this thread); a red send arrow shows when there is something to send.
 - Owner approved: column `platform_post_comments.media` ("photo:<file id>" / "sticker:<name>") and table `platform_comment_photos(shop_id,file_id,user_id,used)`. Photos are made ≤1600 px on the phone, uploaded with POST `/feed/:slug/:id/comment-photo` (CSRF, signed in, 20 a day) into the POST's shop storage (owner's choice), used once by one comment, deleted with the comment; shop delete removes the rows. Stickers are 20 built-in emoji (no storage).
+- Owner follow-up (TikTok picture): no pencil/bin on comment rows; press and hold (or right-click) a comment → bottom menu Delete / Edit (own comments) / Copy / Reply. The click from lifting the finger is swallowed so the menu stays open.
 - Tests: shop-posts.test.js (sticker, bad sticker, someone else's photo, upload → comment → reuse refused → delete removes the file). 488/488. WebKit iPhone 13: sticker + photo comments drawn. Real iPhone not tested.
 
 ### 1.1.317: Blue Message inbox matching the owner's reference (Codex — review pending)
