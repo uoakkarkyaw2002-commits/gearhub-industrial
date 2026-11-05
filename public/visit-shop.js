@@ -25,4 +25,32 @@
   exit.innerHTML=cls==='bottom-nav-item'?'<span aria-hidden="true">'+(logo||icon)+'</span><small>'+(logo?name:'ပြန်ထွက်')+'</small>':(logo||icon)+'<span>'+(logo?name:'ပြန်ထွက်')+'</span>';
   nav.append(exit);
  }
+ // 1.1.327 owner's picture: the visited shop's header shows its Followers / Following / Posts and caption on the
+ // green Profile background, and Cart becomes a round delivery button (with the count) above the bottom bar.
+ const slug=(here.match(/^\/shops\/([^/]+)\//)||[])[1],copy=document.querySelector('.home-profile-banner .settings-profile-copy');
+ const svg=d=>'<svg viewBox="0 0 24 24" aria-hidden="true">'+d+'</svg>',esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const people=svg('<circle cx="9" cy="8" r="3.4"/><path d="M2.8 19.5c.8-3.4 3.2-5.2 6.2-5.2s5.4 1.8 6.2 5.2"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.4c2.4.2 4 1.8 4.7 4.6"/>'),photos=svg('<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="m4 18 5.5-5.5 4 4 2.5-2.5L20 18"/>');
+ const quote=svg('<path d="M4 17V12c0-3.5 1.6-5.6 4.8-6.4l.7 1.6C7.7 8 7 9.3 7 11h3v6zM14 17V12c0-3.5 1.6-5.6 4.8-6.4l.7 1.6C17.7 8 17 9.3 17 11h3v6z"/>');
+ const count=n=>n>=1e6?(Math.round(n/1e5)/10)+'M':n>=1e3?(Math.round(n/100)/10)+'K':String(n||0);
+ // Seller shops drop the GearHub ✓, so the visit header adds the Profile's green badge after the name.
+ // (its own class: the seller-shop cleanup removes every .settings-verified).
+ const nameRow=document.querySelector('.home-profile-banner .settings-profile-copy>strong');
+ const badge=document.createElement('span');badge.className='visit-verified';badge.setAttribute('aria-label','Verified');nameRow?.append(badge);
+ badge.innerHTML=svg('<path d="m12 1.8 2.5 1.9 3.1-.2.9 3 2.6 1.8-1 2.9 1 2.9-2.6 1.8-.9 3-3.1-.2L12 22.2l-2.5-1.9-3.1.2-.9-3-2.6-1.8 1-2.9-1-2.9 2.6-1.8.9-3 3.1.2z"/><path class="visit-tick" d="m7.8 12.2 2.8 2.8 5.6-5.8"/>');
+ if(copy&&slug){
+  const stats=document.createElement('span'),cap=document.createElement('span');stats.className='visit-stats';cap.className='visit-caption';stats.hidden=cap.hidden=true;copy.append(stats,cap);
+  fetch('/api/platform/profile/'+encodeURIComponent(slug),{credentials:'same-origin',cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{
+   if(!d)return;
+   stats.innerHTML='<span>'+people+'<b>'+count(d.followers)+'</b> Followers</span><span>'+people+'<b>'+count(d.following)+'</b> Following</span><span>'+photos+'<b>'+count(d.posts)+'</b> Posts</span>';stats.hidden=false;
+   const c=d.about?.caption||'';if(c){cap.innerHTML=quote+'<span>'+esc(c)+'</span>';cap.hidden=false}
+  }).catch(()=>{});
+ }
+ const navCart=document.querySelector('.mobile-bottom-nav [data-store-action="open-cart"]'),navCount=document.querySelector('#bottom-cart-count');
+ if(navCart){
+  const fab=document.createElement('button');fab.type='button';fab.className='visit-cart';fab.setAttribute('aria-label',navCart.getAttribute('aria-label')||'Cart');
+  fab.innerHTML='<img src="/images/cart-scooter.png?v=1.1.327" alt=""><b class="visit-cart-count" hidden></b>';
+  fab.addEventListener('click',()=>navCart.click());document.body.append(fab);
+  const show=()=>{const b=fab.querySelector('b'),n=navCount&&!navCount.hidden?navCount.textContent.trim():'';b.textContent=n;b.hidden=!n||n==='0'};
+  show();if(navCount)new MutationObserver(show).observe(navCount,{childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:['hidden']});
+ }
 })();

@@ -1,0 +1,37 @@
+/* 1.1.327 owner's picture: visiting another shop inside a shop app (phones). The shop's header sits on the green
+   Profile background with its logo, name ✓, Followers / Following / Posts and caption; the bottom bar keeps Home,
+   Category and the way back; Cart is a round delivery button with the count above the bar. */
+.visit-cart,.visit-verified,.visit-stats,.visit-caption{display:none}
+@media (max-width:1023px){
+ body.visiting-shop::before{display:none}
+ body.visiting-shop .home-profile-banner{display:flex!important;align-items:center;gap:14px;min-height:0;padding:max(26px,env(safe-area-inset-top)) 14px 20px!important;background:#f4faf2 url("/images/profile-cover.svg?v=2") center top/cover no-repeat!important;border-radius:0 0 26px 26px;box-shadow:none}
+ body.visiting-shop .home-profile-banner .nc-buttons,body.visiting-shop .home-profile-banner .net-speed,body.visiting-shop .home-profile-banner [data-site-brand-tagline]{display:none!important}
+ body.visiting-shop .home-profile-banner .settings-profile-avatar{flex:0 0 78px;width:78px;height:78px;border:3px solid #1f9a3e;border-radius:50%;background:#fff;box-shadow:0 0 0 4px #ffffffcc,0 0 18px 4px #b8f3a066,0 6px 16px #14532d29;overflow:hidden}
+ body.visiting-shop .home-profile-banner .settings-profile-avatar img{width:100%;height:100%;object-fit:contain}
+ body.visiting-shop .home-profile-banner .settings-profile-copy{display:grid;justify-items:start;gap:7px;min-width:0;padding:0!important}
+ body.visiting-shop .home-profile-banner .settings-profile-copy>strong{display:flex;align-items:center;gap:7px;max-width:100%;color:#173a24!important;font-size:22px;font-weight:850;line-height:1.15;text-shadow:none!important}
+ body.visiting-shop .home-profile-banner .settings-profile-copy>strong [data-site-brand-name]{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ body.visiting-shop .home-profile-banner .settings-verified{display:none!important}
+ body.visiting-shop .home-profile-banner .visit-verified{display:inline-grid!important;flex:0 0 22px;width:22px;height:22px;padding:0!important;border:0!important;background:none!important;box-shadow:none!important}
+ body.visiting-shop .home-profile-banner .visit-verified svg{width:22px;height:22px;fill:#22a23c}
+ body.visiting-shop .home-profile-banner .visit-verified .visit-tick{fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+ .visit-stats,.visit-caption{display:flex;align-items:center;max-width:100%;border-radius:999px;background:#ffffffd9;box-shadow:0 2px 8px #14532d14;color:#1f2f25;font-size:12px;font-weight:600;line-height:1.2}
+ .visit-stats[hidden],.visit-caption[hidden]{display:none!important}
+ .visit-stats{gap:0;padding:5px 2px;font-size:11.5px}
+ .visit-stats>span{display:flex;align-items:center;gap:3px;padding:0 6px;white-space:nowrap}
+ .visit-stats>span+span{border-left:1px solid #d6e6d6}
+ .visit-stats svg{flex:0 0 15px;width:15px;height:15px;fill:none;stroke:#1b8a35;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+ .visit-stats b{font-weight:800}
+ .visit-caption{gap:8px;padding:6px 12px;font-size:12.5px}
+ .visit-caption>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .visit-caption svg{flex:0 0 16px;width:16px;height:16px;fill:#1b8a35}
+ /* Bottom bar: Home · Category · back to the app's own shop (a white round logo). */
+ body.visiting-shop .mobile-bottom-nav{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ body.visiting-shop .mobile-bottom-nav [data-store-action="open-cart"],body.visiting-shop .mobile-bottom-nav [data-store-view="promotion"]{display:none!important}
+ body.visiting-shop .mobile-bottom-nav .visit-exit.has-logo>small{display:none}
+ body.visiting-shop .mobile-bottom-nav .visit-exit-logo{width:52px;height:52px;border:0;box-shadow:0 4px 14px #10201833}
+ body.visiting-shop .visit-cart{position:fixed;z-index:8;right:14px;bottom:calc(92px + env(safe-area-inset-bottom));display:grid;place-items:center;width:56px;height:56px;padding:0;border:2.5px solid #1f9a3e;border-radius:50%;background:#fff;box-shadow:0 6px 16px #14532d33;cursor:pointer}
+ body.visiting-shop .visit-cart img{width:44px;height:44px;object-fit:contain}
+ .visit-cart-count{position:absolute;top:-7px;right:-6px;display:grid;min-width:22px;height:22px;place-items:center;padding:0 5px;border:2px solid #fff;border-radius:999px;background:#ef4444;color:#fff;font:800 12px/1 system-ui,sans-serif}
+ .visit-cart-count[hidden]{display:none}
+}
