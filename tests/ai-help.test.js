@@ -4,7 +4,7 @@ const read=f=>fs.readFileSync(path.join(__dirname,'..','public',f),'utf8');
 function load(){
  const el=()=>new Proxy(function(){},{get:(t,k)=>k==='children'?[]:k==='style'?{}:typeof k==='symbol'?undefined:el(),set:()=>true,apply:()=>el()});
  const window={};const context={window,document:{documentElement:{lang:'en'},querySelector:()=>({}),createElement:()=>el(),body:el(),addEventListener(){}},addEventListener(){},MutationObserver:function(){return {observe(){}}},matchMedia:()=>({matches:false}),setTimeout};
- vm.runInNewContext(read('ai-help.js'),context);const h=window.GearHubAiHelp;load.last={tours:h.tours,ids:h.ids,labels:h.labels,near:h.near};return h.answer;
+ vm.runInNewContext(read('ai-help.js'),context);const h=window.GearHubAiHelp;load.last={tours:h.tours,ids:h.ids,labels:h.labels,near:h.near,parseTodo:h.parseTodo,unknown:h.unknown};return h.answer;
 }
 test('the AI helper answers app questions and refuses everything else',()=>{
  const answer=load(),id=q=>answer(q)?.[0]||null;
@@ -44,6 +44,25 @@ test('the AI helper answers app questions and refuses everything else',()=>{
  assert.equal(id('App update ရှိလား'),'version');assert.equal(id('refresh လုပ်နည်း'),'refresh');
  {const w=load.last,steps=w.tours.releaseupdate,last=steps[steps.length-1];assert.equal(last[0],'#shop-release-confirm');assert.equal(last[3],true,'the Confirm update step is manual: Next must not tap it');}
  {const src=read('ai-help.js');assert.ok(src.includes('!tour.steps[tour.i][3]'),'Next only taps non-manual steps');assert.ok(!/app-release[^\n]*method\s*:\s*['"]POST/.test(src),'the assistant never POSTs a release');}
+ // 1.1.340 owner: the assistant remembers the owner's to-dos and checks "something is wrong" claims against real data.
+ {const more={'ငါ့မှာ ဘာလုပ်စရာ ရှိလဲ':'todolist','my to-do list':'todolist','remind me to add the hero picture':'todoadd','မှတ်ထား: ပစ္စည်းသစ် ၁၀ ခု တင်ရန်':'todoadd','ပစ္စည်းသစ် တင်ဖို့ မှတ်ထားပေး':'todoadd',
+   'Product ထည့်လို့မရဘူး':'claim_add','ပစ္စည်း ထည့်လို့ မရဘူး':'claim_add','order မရဘူး':'cantorder','အော်ဒါ နှိပ်လို့ မရဘူး':'cantorder','ပစ္စည်းတွေ မပေါ်ဘူး':'claim_missing','ပုံတင်လို့ မရဘူး':'claim_photo',
+   'notification မလာဘူး':'claim_alert','login မရဘူး':'claim_login','ဝင်လို့ မရဘူး':'claim_login','Product ဘယ်လိုထည့်လဲ':'addproduct','login ဘယ်လိုဝင်ရမလဲ':'signin'};
+  for(const [q,want] of Object.entries(more))assert.equal(id(q),want,q);
+  const pt=load.last.parseTodo,j=v=>JSON.stringify(v);
+  assert.equal(j(pt('remind me to add 10 new products')),j({type:'add',text:'add 10 new products'}));
+  assert.equal(j(pt('မှတ်ထား: ပစ္စည်းသစ် ၁၀ ခု တင်ရန်')),j({type:'add',text:'ပစ္စည်းသစ် ၁၀ ခု တင်ရန်'}));
+  assert.equal(j(pt('ပြီးပြီ 2')),j({type:'done',n:2}));assert.equal(j(pt('done 3')),j({type:'done',n:3}));
+  assert.equal(j(pt('delete task 1')),j({type:'del',n:1}));assert.equal(pt('How do I order?'),null);
+  const js=read('ai-help.js');assert.ok(js.includes("startsWith('claim_')"),'claims outrank how-to answers');assert.ok(js.includes('data-n'),'the red number');}
+ // 1.1.340 owner's iPhone: "ဘာရောင်းတာလဲ" got the add-product steps. Unrelated -> no answer; unsure -> polite "I do not know", never a guess.
+ {for(const [q,want] of Object.entries({'ဘာရောင်းတာလဲ':'whatsell','ဒီဆိုင်က ဘာတွေရောင်းလဲ':'whatsell','what do you sell':'whatsell','ပစ္စည်း ဘယ်လိုရောင်းရမလဲ':'addproduct','ငါဘယ်သူလဲ':'whoami','မင်္ဂလာပါ':'hello'}))assert.equal(id(q),want,q);
+  for(const q of ['မင်္ဂလာပါ ဒီနေ့ ရာသီဥတု ဘယ်လိုလဲ','ထမင်းစားပြီးလား','ဆိုင်ရဲ့ ဒီဇိုင်းအရောင်ကို ပြောင်းချင်တယ်'])assert.equal(id(q),null,q);
+  const u=load.last.unknown;
+  assert.ok(!u('ထမင်းစားပြီးလား',true).includes('09-766472432'),'off-topic: only the scope message');
+  assert.ok(u('ဆိုင်ရဲ့ ဒီဇိုင်းအရောင်ကို ပြောင်းချင်တယ်',true).includes('09-766472432'),'unsure about the app: point to a person');
+  assert.ok(/not sure/.test(u('how do I change my shop colour',false))&&/09-766472432/.test(u('how do I change my shop colour',false)));
+  assert.ok(/only answer questions about this app/.test(u('what is the weather',false)));}
  const html=read('index.html'),sw=read('sw.js');
- for(const tag of ['/ai-help.js?v=1.1.339','/ai-help.css?v=1.1.338'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
+ for(const tag of ['/ai-help.js?v=1.1.340','/ai-help.css?v=1.1.340'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
 });

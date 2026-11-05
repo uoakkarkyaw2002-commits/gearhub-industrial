@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-05 (7 am) — from Claude (account 1) — open
+
+- 1.1.340 (AI Assistant: owner to-dos remembered on the phone + a red number on the assistant + a daily reminder; "is it true?" checks — product can't be added, order can't be placed, products missing, photo upload, no alerts, login — answered ✅ true / ❌ not true from real data) is in a PR. 1.1.339 (PR #423) merged. To-do notes live only in this phone's localStorage (no server/DB change); the ⚠️ items are computed from real data each time.
 ## 2026-11-05 (6 am) — from Claude (account 1) — open
 
 - 1.1.339 (AI Assistant: "Update ကို release လုပ်လိုက်တော့" shows the real release state and a Go ▶ guide to Settings → Shop updates → Confirm update; the assistant never presses it) is in a PR. 1.1.338 (PR #422) merged. The owner asked the assistant to press Update; refused on purpose: Confirm update sends a build to every shop, so only the owner's own tap does it.
