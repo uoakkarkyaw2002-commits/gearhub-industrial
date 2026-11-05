@@ -5,9 +5,9 @@
   const dialog = document.getElementById('shops-photo-dialog'), photo = document.getElementById('shops-photo-image');
   const words = {
     en:{timeUnknown:'Time unavailable',posted:'Posted',myanmarTime:'Myanmar time',product:'Product',kicker:'FROM EVERY SHOP',intro:'A little discovery. A new favourite. Products from every shop, together.',loading:'Finding products…',more:'Load more',retry:'Try again',empty:'A fresh start. Products will appear here when shops add them.',failed:'Products could not load. Please try again.',done:'You’re all caught up.',visit:'Visit shop',read:'See more',less:'See less',noPhoto:'No photo yet',soldOut:'Out of stock',photos:'View photos',close:'Close photos',prev:'Previous photo',next:'Next photo',
-      verified:'Verified shop',menu:'More options',like:'Like',comment:'Comments',buy:'Buy Now',save:'Save',saved:'Saved',quantity:'Quantity',addCart:'Add to Cart',added:'Added to cart',notEnough:'Not enough stock',closeSheet:'Close',write:'Write a comment…',send:'Send',signIn:'Sign in with Google to like, comment and follow',signInButton:'Continue with Google',noComments:'No comments yet. Be the first.',remove:'Delete',savedKicker:'ON THIS PHONE',savedTitle:'Saved',savedIntro:'Posts you saved. They stay on this phone.',savedEmpty:'Nothing saved yet. Tap the bookmark on a post to keep it here.',backToShops:'← Discover',savedRow:'Posts you saved',error:'Something went wrong. Please try again.',search:'Shop name and product',tabFeed:'Feed',tabFollowing:'Following',tabTrending:'Trending',tabNew:'New Arrivals',followEmpty:'Follow shops from the ••• menu on a post to see them here.',trendingEmpty:'No liked or commented posts yet.',noResults:'Nothing found. Try another word.',follow:'Follow',unfollow:'Following ✓',bell:'Notifications',account:'Settings',edit:'Edit',cancel:'Cancel',saveEdit:'Save',reply:'Reply',replyingTo:'Replying to',writeReply:'Write a reply…',comments:'comments',oneComment:'comment'},
+      verified:'Verified shop',menu:'More options',like:'Like',comment:'Comments',buy:'Buy Now',save:'Save',saved:'Saved',quantity:'Quantity',addCart:'Add to Cart',added:'Added to cart',notEnough:'Not enough stock',closeSheet:'Close',write:'Write a comment…',send:'Send',signIn:'Sign in with Google to like, comment and follow',signInButton:'Continue with Google',noComments:'No comments yet. Be the first.',remove:'Delete',savedKicker:'ON THIS PHONE',savedTitle:'Saved',savedIntro:'Posts you saved. They stay on this phone.',savedEmpty:'Nothing saved yet. Tap the bookmark on a post to keep it here.',backToShops:'← Discover',savedRow:'Posts you saved',error:'Something went wrong. Please try again.',search:'Shop name and product',tabFeed:'Feed',tabFollowing:'Following',tabTrending:'Trending',tabNew:'New Arrivals',followEmpty:'Follow shops from the ••• menu on a post to see them here.',trendingEmpty:'No liked or commented posts yet.',noResults:'Nothing found. Try another word.',follow:'Follow',unfollow:'Following ✓',bell:'Notifications',account:'Settings',edit:'Edit',cancel:'Cancel',saveEdit:'Save',addComment:'Add comment…',photo:'Photo',sticker:'Sticker',sending:'Sending…',reply:'Reply',replyingTo:'Replying to',writeReply:'Write a reply…',comments:'comments',oneComment:'comment'},
     my:{timeUnknown:'အချိန်မှတ်တမ်းမရှိ',posted:'တင်ထားသောအချိန်',myanmarTime:'မြန်မာစံတော်ချိန်',product:'ပစ္စည်း',kicker:'ဆိုင်အသီးသီးမှ ပစ္စည်းများ',intro:'ဆိုင်အသီးသီးက ပစ္စည်းတွေကို တစ်နေရာတည်းမှာ ကြည့်ရှုပါ။',loading:'ပစ္စည်းများ ရှာဖွေနေပါသည်…',more:'ထပ်ကြည့်ရန်',retry:'ပြန်စမ်းရန်',empty:'ဆိုင်တွေ ပစ္စည်းတင်တဲ့အခါ ဒီနေရာမှာ ပြပေးပါမယ်။',failed:'ပစ္စည်းများ မရနိုင်သေးပါ။ ပြန်စမ်းကြည့်ပါ။',done:'ပစ္စည်းအားလုံး ကြည့်ပြီးပါပြီ။',visit:'ဆိုင်သို့သွားရန်',read:'ဆက်ဖတ်ရန်',less:'လျှော့ပြရန်',noPhoto:'ဓာတ်ပုံ မတင်ရသေးပါ',soldOut:'ပစ္စည်းကုန်နေပါသည်',photos:'ဓာတ်ပုံများ ကြည့်ရန်',close:'ဓာတ်ပုံ ပိတ်ရန်',prev:'ရှေ့ပုံ',next:'နောက်ပုံ',
-      verified:'အတည်ပြုထားသော ဆိုင်',menu:'နောက်ထပ်',like:'Like',comment:'မှတ်ချက်များ',buy:'ဝယ်မယ်',save:'သိမ်းမယ်',saved:'သိမ်းထားပြီး',quantity:'အရေအတွက်',addCart:'ခြင်းထဲထည့်',added:'ခြင်းထဲ ထည့်ပြီးပါပြီ',notEnough:'လက်ကျန် မလုံလောက်ပါ',closeSheet:'ပိတ်ရန်',write:'မှတ်ချက် ရေးပါ…',send:'ပို့မယ်',signIn:'Like၊ မှတ်ချက်ရေး၊ Follow လုပ်ဖို့ Google နဲ့ ဝင်ပါ',signInButton:'Google နဲ့ ဝင်မယ်',noComments:'မှတ်ချက် မရှိသေးပါ။ ပထမဆုံး ရေးလိုက်ပါ။',remove:'ဖျက်မယ်',savedKicker:'ဒီဖုန်းထဲမှာ',savedTitle:'သိမ်းထားသည်များ',savedIntro:'သိမ်းထားတဲ့ post များ။ ဒီဖုန်းထဲမှာပဲ ရှိပါတယ်။',savedEmpty:'သိမ်းထားတာ မရှိသေးပါ။ Post ပေါ်က 🔖 ကို နှိပ်ပြီး သိမ်းပါ။',backToShops:'← Discover',savedRow:'သိမ်းထားတဲ့ post များ',error:'မအောင်မြင်ပါ။ ပြန်စမ်းကြည့်ပါ။',search:'ဆိုင်နာမည်နဲ့ ပစ္စည်း ရှာရန်',tabFeed:'Feed',tabFollowing:'Following',tabTrending:'Trending',tabNew:'New Arrivals',followEmpty:'Post ပေါ်က ••• ထဲမှာ Follow နှိပ်ထားတဲ့ ဆိုင်တွေ ဒီမှာ ပေါ်ပါမယ်။',trendingEmpty:'Like / မှတ်ချက် ရထားတဲ့ post မရှိသေးပါ။',noResults:'မတွေ့ပါ။ တခြားစကားလုံးနဲ့ ရှာကြည့်ပါ။',follow:'Follow',unfollow:'Following ✓',bell:'အသိပေးချက်များ',account:'Settings',edit:'ပြင်မယ်',cancel:'မလုပ်တော့ဘူး',saveEdit:'သိမ်းမယ်',reply:'Reply',replyingTo:'ပြန်ဖြေနေတာ',writeReply:'ပြန်ဖြေမယ်…',comments:'comments',oneComment:'comment'}
+      verified:'အတည်ပြုထားသော ဆိုင်',menu:'နောက်ထပ်',like:'Like',comment:'မှတ်ချက်များ',buy:'ဝယ်မယ်',save:'သိမ်းမယ်',saved:'သိမ်းထားပြီး',quantity:'အရေအတွက်',addCart:'ခြင်းထဲထည့်',added:'ခြင်းထဲ ထည့်ပြီးပါပြီ',notEnough:'လက်ကျန် မလုံလောက်ပါ',closeSheet:'ပိတ်ရန်',write:'မှတ်ချက် ရေးပါ…',send:'ပို့မယ်',signIn:'Like၊ မှတ်ချက်ရေး၊ Follow လုပ်ဖို့ Google နဲ့ ဝင်ပါ',signInButton:'Google နဲ့ ဝင်မယ်',noComments:'မှတ်ချက် မရှိသေးပါ။ ပထမဆုံး ရေးလိုက်ပါ။',remove:'ဖျက်မယ်',savedKicker:'ဒီဖုန်းထဲမှာ',savedTitle:'သိမ်းထားသည်များ',savedIntro:'သိမ်းထားတဲ့ post များ။ ဒီဖုန်းထဲမှာပဲ ရှိပါတယ်။',savedEmpty:'သိမ်းထားတာ မရှိသေးပါ။ Post ပေါ်က 🔖 ကို နှိပ်ပြီး သိမ်းပါ။',backToShops:'← Discover',savedRow:'သိမ်းထားတဲ့ post များ',error:'မအောင်မြင်ပါ။ ပြန်စမ်းကြည့်ပါ။',search:'ဆိုင်နာမည်နဲ့ ပစ္စည်း ရှာရန်',tabFeed:'Feed',tabFollowing:'Following',tabTrending:'Trending',tabNew:'New Arrivals',followEmpty:'Post ပေါ်က ••• ထဲမှာ Follow နှိပ်ထားတဲ့ ဆိုင်တွေ ဒီမှာ ပေါ်ပါမယ်။',trendingEmpty:'Like / မှတ်ချက် ရထားတဲ့ post မရှိသေးပါ။',noResults:'မတွေ့ပါ။ တခြားစကားလုံးနဲ့ ရှာကြည့်ပါ။',follow:'Follow',unfollow:'Following ✓',bell:'အသိပေးချက်များ',account:'Settings',edit:'ပြင်မယ်',cancel:'မလုပ်တော့ဘူး',saveEdit:'သိမ်းမယ်',addComment:'မှတ်ချက် ရေးပါ…',photo:'ပုံ',sticker:'Sticker',sending:'ပို့နေပါတယ်…',reply:'Reply',replyingTo:'ပြန်ဖြေနေတာ',writeReply:'ပြန်ဖြေမယ်…',comments:'comments',oneComment:'comment'}
   };
   const t = key => words[document.documentElement.lang === 'my' ? 'my' : 'en'][key];
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -39,6 +39,10 @@
     people:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.3-5.5 6.5-5.5s5.7 1.9 6.5 5.5z"/><path d="M15 4.8a3.3 3.3 0 0 1 0 6.4M17.5 14.6c2 .7 3.4 2.6 4 5.4"/></svg>',
     pencil:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg>',
     bin:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v5.5M14 11v5.5"/></svg>',
+    cimage:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><circle cx="9" cy="9" r="1.8"/><path d="m4 17 5-5 3.5 3.5L15 13l5 5"/></svg>',
+    csticker:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 12A8.5 8.5 0 1 1 12 3.5"/><path d="M12.5 3.6a8.5 8.5 0 0 1 7.9 7.9 6.5 6.5 0 0 1-7.9-7.9z"/><circle cx="8.6" cy="11" r="1.1" fill="currentColor"/><circle cx="12.4" cy="13.6" r="1.1" fill="currentColor"/><path d="M8.2 15.6c1.2 1.3 3.3 1.6 4.9.7"/></svg>',
+    cat:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.6"/><path d="M15.6 12v1.6a2.4 2.4 0 0 0 4.8 0V12a8.4 8.4 0 1 0-3.3 6.7"/></svg>',
+    csend:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12 20 4l-4 16-4-7z"/><path d="m12 13 8-9"/></svg>',
     photos:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="14" height="14" rx="2.5"/><path d="M17 21H5.5A2.5 2.5 0 0 1 3 18.5V7"/></svg>'
   };
   let active = false, loading = false, initialized = false, nextBefore = null, items = [], lastLoaded = 0, failed = false, savedMode = false, postsNext, productsDone = false;
@@ -229,6 +233,16 @@
     document.getElementById('shops-photo-prev').disabled = photoIndex === 0;
     document.getElementById('shops-photo-next').disabled = photoIndex === gallery.images.length - 1;
   }
+  // Phone photos are made at most 1600 px (JPEG) so they fit the upload limit and the shop's storage.
+  async function shrinkPhoto(file) {
+    try { const b = await createImageBitmap(file), k = Math.min(1, 1600 / Math.max(b.width, b.height)), c = document.createElement('canvas'); c.width = Math.round(b.width * k); c.height = Math.round(b.height * k); c.getContext('2d').drawImage(b, 0, 0, c.width, c.height);
+      const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', .85)); return blob ? new File([blob], 'photo.jpg', {type:'image/jpeg'}) : file; } catch { return file; }
+  }
+  async function callForm(url, form) {
+    if (!csrf) csrf = (await (await fetch('/api/platform/me', {cache:'no-store', credentials:'same-origin'})).json()).csrfToken || '';
+    const r = await fetch(url, {method:'POST', credentials:'same-origin', headers:{'X-CSRF-Token':csrf}, body:form});
+    const d = await r.json().catch(() => ({})); if (!r.ok) { const e = Error(d.error || t('error')); e.status = r.status; throw e; } return d;
+  }
   // Likes and comments need Google sign-in; the token comes from /me like the rest of the platform.
   let csrf = '';
   async function call(url, method = 'GET', body) {
@@ -293,10 +307,12 @@
     return document.documentElement.lang === 'my' ? 'ခုနကပဲ' : 'Just now'; };
   // 1.1.316 owner (TikTok / YouTube picture): avatar, name, text, time · Reply, ❤ count on the right; replies sit
   // under their comment, joined to it by a curved line.
-  let replyTo = null;
+  let replyTo = null, pickedPhoto = null, myInitial = '';
+  // Stickers are built into the app (big emoji art), so they cost no storage.
+  const STICKERS = {love:'🥰', laugh:'😂', wow:'😮', sad:'😢', pray:'🙏', clap:'👏', fire:'🔥', heart:'❤️', ok:'👌', thumbs:'👍', party:'🎉', star:'🤩', cool:'😎', think:'🤔', money:'🤑', gift:'🎁', truck:'🚚', box:'📦', tools:'🛠️', thanks:'🙇'};
   function commentRow(c, reply) {
     const tools = (c.canEdit ? '<button type="button" class="shops-comment-tool" data-sheet="edit" data-comment="' + c.id + '" aria-label="' + esc(t('edit')) + '">' + icon.pencil + '</button>' : '') + (c.canDelete ? '<button type="button" class="shops-comment-tool is-bin" data-sheet="delete" data-comment="' + c.id + '" aria-label="' + esc(t('remove')) + '">' + icon.bin + '</button>' : '');
-    return '<li class="shops-c' + (reply ? ' is-reply' : '') + '" data-c="' + c.id + '"><span class="shops-comment-avatar" aria-hidden="true">' + esc([...c.name.trim()][0] || '?') + '</span><div class="shops-c-main"><b class="shops-c-name">' + esc(c.name) + '</b><p class="shops-c-body">' + esc(c.body) + '</p>' +
+    return '<li class="shops-c' + (reply ? ' is-reply' : '') + '" data-c="' + c.id + '"><span class="shops-comment-avatar" aria-hidden="true">' + esc([...c.name.trim()][0] || '?') + '</span><div class="shops-c-main"><b class="shops-c-name">' + esc(c.name) + '</b>' + (c.body ? '<p class="shops-c-body">' + esc(c.body) + '</p>' : '') + (c.sticker && STICKERS[c.sticker] ? '<span class="shops-c-sticker" role="img" aria-label="' + esc(c.sticker) + '">' + STICKERS[c.sticker] + '</span>' : '') + (c.photo ? '<button type="button" class="shops-c-photo" data-sheet="cphoto" data-src="' + esc(c.photo) + '"><img src="' + esc(c.photo) + '" alt="" loading="lazy"></button>' : '') +
       '<small class="shops-c-meta"><span>' + esc(ago(c.at)) + '</span><button type="button" class="shops-c-reply" data-sheet="reply" data-comment="' + c.id + '">' + esc(t('reply')) + '</button>' + tools + '</small></div>' +
       '<button type="button" class="shops-c-like' + (c.liked ? ' is-on' : '') + '" data-sheet="clike" data-comment="' + c.id + '" aria-pressed="' + Boolean(c.liked) + '" aria-label="' + esc(t('like')) + '">' + icon.heart + '<span>' + (c.likes ? count(c.likes) : '') + '</span></button></li>';
   }
@@ -306,7 +322,12 @@
     const to = replyTo && data.comments.find(c => c.id === replyTo);
     return '<ul class="shops-comments-list">' + rows + '</ul>' + (data.signedIn ?
       (to ? '<div class="shops-c-replying"><span>' + esc(t('replyingTo')) + ' <b>' + esc(to.name) + '</b></span><button type="button" data-sheet="reply-cancel" aria-label="' + esc(t('cancel')) + '">✕</button></div>' : '') +
-      '<form class="shops-comment-form" data-sheet-form="comment"><textarea name="body" rows="1" maxlength="1000" placeholder="' + esc(t(to ? 'writeReply' : 'write')) + '" aria-label="' + esc(t('write')) + '" required></textarea><button type="submit" class="shops-sheet-primary">' + esc(t('send')) + '</button></form>' :
+      (pickedPhoto ? '<div class="shops-c-picked"><img src="' + esc(pickedPhoto.preview) + '" alt=""><button type="button" data-sheet="unpick" aria-label="' + esc(t('remove')) + '">✕</button></div>' : '') +
+      '<div class="shops-c-stickers" hidden>' + Object.entries(STICKERS).map(([k, v]) => '<button type="button" data-sheet="sticker" data-sticker="' + k + '" aria-label="' + k + '">' + v + '</button>').join('') + '</div>' +
+      '<div class="shops-c-mentions" hidden></div>' +
+      '<form class="shops-comment-form shops-c-compose" data-sheet-form="comment"><span class="shops-c-me">' + esc(myInitial) + '</span><span class="shops-c-pill"><textarea name="body" rows="1" maxlength="1000" placeholder="' + esc(t(to ? 'writeReply' : 'addComment')) + '" aria-label="' + esc(t('write')) + '"></textarea>' +
+      '<label class="shops-c-icon" aria-label="' + esc(t('photo')) + '">' + icon.cimage + '<input type="file" accept="image/*" hidden data-sheet-file="photo"></label><button type="button" class="shops-c-icon" data-sheet="stickers" aria-label="' + esc(t('sticker')) + '">' + icon.csticker + '</button><button type="button" class="shops-c-icon" data-sheet="mention" aria-label="@">' + icon.cat + '</button></span>' +
+      '<button type="submit" class="shops-c-send" aria-label="' + esc(t('send')) + '"' + (pickedPhoto ? '' : ' hidden') + '>' + icon.csend + '</button></form>' :
       '<div class="shops-comment-signin"><p>' + esc(t('signIn')) + '</p><button type="button" class="shops-sheet-primary" data-sheet="signin">' + esc(t('signInButton')) + '</button></div>');
   }
   let sheetComments = [];
@@ -321,7 +342,8 @@
     if (replyTo) sheetBody.querySelector('.shops-comment-form textarea')?.focus();
   }
   async function openComments(item) {
-    replyTo = null;
+    replyTo = null; pickedPhoto = null;
+    if (!myInitial) try { const me = await (await fetch('/api/platform/me', {cache:'no-store', credentials:'same-origin'})).json(); myInitial = [...String(me.user?.name || '').trim()][0] || ''; } catch {}
     openSheet('comments', item, icon.bubble + '<span>' + esc(t('comment')) + '</span>', '<p class="shops-signin-text">' + esc(t('loading')) + '</p>');
     try { showComments(item, await call(postUrl(item) + '/comments')); } catch (error) { say(error.message); }
   }
@@ -349,6 +371,21 @@
       if (!addToCart(item, qty)) return;
       if (kind === 'add') { sheet.close(); if (typeof window.toast === 'function') window.toast(t('added')); if (here(item)) window.pulseCartButton?.(); return; }
       if (here(item)) { sheet.close(); openCart(); } else location.href = item.shop.url + '?cart=1';
+      return;
+    }
+    if (kind === 'stickers') { const panel = sheetBody.querySelector('.shops-c-stickers'); panel.hidden = !panel.hidden; sheetBody.querySelector('.shops-c-mentions').hidden = true; return; }
+    if (kind === 'mention') {
+      const panel = sheetBody.querySelector('.shops-c-mentions'), names = [...new Set(sheetComments.map(c => c.name))];
+      panel.innerHTML = names.length ? names.map(n => '<button type="button" data-sheet="mention-name" data-name="' + esc(n) + '">@' + esc(n) + '</button>').join('') : '<span>' + esc(t('noComments')) + '</span>';
+      panel.hidden = !panel.hidden; sheetBody.querySelector('.shops-c-stickers').hidden = true; return;
+    }
+    if (kind === 'mention-name') { const ta = sheetBody.querySelector('.shops-c-compose textarea'); ta.value = (ta.value ? ta.value.replace(/\s*$/, ' ') : '') + '@' + button.dataset.name + ' '; button.parentElement.hidden = true; ta.focus(); ta.dispatchEvent(new Event('input', {bubbles:true})); return; }
+    if (kind === 'unpick') { pickedPhoto = null; showComments(item, {signedIn:true, count:item.comments, comments:sheetComments}); return; }
+    if (kind === 'cphoto') { gallery = {images:[button.dataset.src], name:' ', shop:item.shop, body:''}; photoIndex = 0; showPhoto(); dialog.classList.add('open'); dialog.showModal(); document.activeElement?.blur?.(); return; }
+    if (kind === 'sticker') {
+      button.disabled = true; say('');
+      try { const parentId = replyTo; const d = await call(postUrl(item) + '/comments', 'POST', {sticker:button.dataset.sticker, ...(parentId ? {parentId} : {})}); replyTo = null; showComments(item, {...d, scrollEnd:!parentId}); }
+      catch (error) { button.disabled = false; if (error.status === 401) openComments(item); else say(error.message); }
       return;
     }
     if (kind === 'reply') { replyTo = Number(button.dataset.comment); showComments(item, {signedIn:true, count:item.comments, comments:sheetComments}); return; }
@@ -382,12 +419,26 @@
     const form = event.target.closest('[data-sheet-form="comment"]'), item = sheetItem;
     if (!form || !item) return;
     event.preventDefault();
-    const text = form.elements.body.value.trim(), send = form.querySelector('button');
-    if (!text) return;
-    send.disabled = true; say('');
-    try { const parentId = replyTo; const d = await call(postUrl(item) + '/comments', 'POST', parentId ? {body:text, parentId} : {body:text}); replyTo = null; showComments(item, {...d, scrollEnd:!parentId}); }
+    const text = form.elements.body.value.trim(), send = form.querySelector('.shops-c-send');
+    if (!text && !pickedPhoto) return;
+    send.disabled = true; say(pickedPhoto ? t('sending') : '');
+    try {
+      const parentId = replyTo, body = {body:text, ...(parentId ? {parentId} : {})};
+      if (pickedPhoto) { const fd = new FormData(); fd.append('file', pickedPhoto.file); body.photoId = (await callForm(postUrl(item) + '/comment-photo', fd)).photoId; }
+      const d = await call(postUrl(item) + '/comments', 'POST', body); replyTo = null; pickedPhoto = null; say(''); showComments(item, {...d, scrollEnd:!parentId});
+    }
     catch (error) { send.disabled = false; if (error.status === 401) openComments(item); else say(error.message); }
   });
+  sheet.addEventListener('change', async event => {
+    if (!event.target.matches('[data-sheet-file="photo"]') || !sheetItem) return;
+    const f = event.target.files[0]; if (!f) return;
+    const file = await shrinkPhoto(f); pickedPhoto = {file, preview:URL.createObjectURL(file)};
+    const typed = sheetBody.querySelector('.shops-c-compose textarea')?.value || '';
+    showComments(sheetItem, {signedIn:true, count:sheetItem.comments, comments:sheetComments});
+    const ta = sheetBody.querySelector('.shops-c-compose textarea'); if (ta) ta.value = typed;
+  });
+  // The send arrow shows once there is something to send.
+  sheet.addEventListener('input', event => { if (event.target.matches('.shops-c-compose textarea')) { const send = sheet.querySelector('.shops-c-send'); if (send) send.hidden = !event.target.value.trim() && !pickedPhoto; } });
   sheet.addEventListener('input', event => { if (event.target.matches('.shops-comment-form textarea')) { event.target.style.height = 'auto'; event.target.style.height = Math.min(120, event.target.scrollHeight) + 'px'; } });
   sheet.addEventListener('keydown', event => { if (event.key === 'Enter' && !event.shiftKey && event.target.matches('.shops-comment-form textarea') && matchMedia('(pointer:fine)').matches) { event.preventDefault(); event.target.form.requestSubmit(); } });
   function closeMenus(except) { list.querySelectorAll('.shops-post-menu-list:not([hidden])').forEach(menu => { if (menu !== except) { menu.hidden = true; menu.previousElementSibling.setAttribute('aria-expanded', 'false'); } }); }

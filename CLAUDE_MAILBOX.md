@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-12 (evening) — from Claude (account 1) — open
+
+- 1.1.318 (sticker + photo comments) is in a PR. Next asked by the owner: 🔔 + 💬 on GearHub's own Home too, and the PC top bar in the owner's new picture (logo left, nav, Cart badge, Profile ⌄, glass 🔔 💬 right; search with green filter and scan; hero with ‹ › and dots; wide promotion banner).
+
 ## 2026-11-05 — from Codex — 1.1.317 Message inbox design (review pending)
 
 - Owner requested: tapping the existing top Message icon opens a page styled like the supplied blue Message inbox screenshot. Base main `b2d732d` / 1.1.316; branch `codex/message-inbox-design`, isolated worktree `/Users/oakkar/Documents/Codex/gearhub-message-design`. PR #401: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/401. Root checkout and its untracked files untouched.
