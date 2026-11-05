@@ -4,17 +4,17 @@
    only help with this app". Answers can carry a button that opens the right place. */
 (()=>{
  if(!document.querySelector('.mobile-bottom-nav'))return;
- const ui={en:{title:'AI Help',sub:'Ask how to use this app',hello:'Hi! I am the app helper robot 🤖 Ask me how to use this app — searching, ordering, Discover, Profile, chat, Settings and more.',
+ const ui={en:{title:'AI Assistant',sub:'Ask how to use this app',hello:'Hi! I am the AI Assistant 👋 Ask me how to use this app — searching, ordering, Discover, Profile, chat, Settings and more.',
    placeholder:'Ask about this app…',send:'Send',close:'Close',open:'Ask the AI helper',
    only:'Sorry, I can only answer questions about using this app. Try one of these:',try:'You can ask:'},
-  my:{title:'AI အကူ',sub:'App အသုံးပြုနည်း မေးပါ',hello:'မင်္ဂလာပါ။ App အကူ robot ပါ 🤖 ဒီ app ကို ဘယ်လိုသုံးရမလဲ မေးပါ — ရှာနည်း၊ မှာနည်း၊ Discover၊ Profile၊ Chat၊ Settings စသည်ဖြင့်။',
+  my:{title:'AI Assistant',sub:'App အသုံးပြုနည်း မေးပါ',hello:'မင်္ဂလာပါ။ AI Assistant ပါ 👋 ဒီ app ကို ဘယ်လိုသုံးရမလဲ မေးပါ — ရှာနည်း၊ မှာနည်း၊ Discover၊ Profile၊ Chat၊ Settings စသည်ဖြင့်။',
    placeholder:'App အကြောင်း မေးပါ…',send:'ပို့မယ်',close:'ပိတ်မယ်',open:'AI အကူကို မေးမယ်',
    only:'တောင်းပန်ပါတယ်၊ ဒီ app အသုံးပြုနည်းကိုပဲ ဖြေပေးနိုင်ပါတယ်။ ဒါတွေ မေးကြည့်ပါ:',try:'မေးလို့ရတာတွေ:'}};
  const pageMy=()=>document.documentElement.lang==='my';
  // [id, keywords, English answer, Myanmar answer, optional button {view|click, en, my}]
  const K=[
   ['hello',['hello','hi ','hey','good morning','မင်္ဂလာ','ဟယ်လို','ဟိုင်း','နေကောင်း'],'Hello! Ask me anything about using this app.','မင်္ဂလာပါ။ App အသုံးပြုနည်း ဘာမဆို မေးပါ။'],
-  ['who',['who are you','what are you','your name','မင်းဘယ်သူ','နာမည်ဘယ်လို','ဘာလဲ မင်း','robot','ရိုဘော့','ai '],'I am the help robot of this app. I only answer questions about how to use this app.','ကျွန်တော်က ဒီ app ရဲ့ အကူ robot ပါ။ App အသုံးပြုနည်းကိုပဲ ဖြေပေးပါတယ်။'],
+  ['who',['who are you','what are you','your name','မင်းဘယ်သူ','နာမည်ဘယ်လို','ဘာလဲ မင်း','robot','ရိုဘော့','ai '],'I am the AI Assistant of this app. I only answer questions about how to use this app.','ကျွန်မက ဒီ app ရဲ့ AI Assistant ပါ။ App အသုံးပြုနည်းကိုပဲ ဖြေပေးပါတယ်။'],
   ['search',['search','find','look for','sku','part no','ရှာ','ရှာဖွေ','ရှာချင်'],'1. Type the product name, SKU or Part No in the search bar at the top of Home.\n2. Results show at once.\n3. The green filter button on the left chooses Product or Excel.','1. Home အပေါ်က search bar မှာ ပစ္စည်းနာမည်၊ SKU ဒါမှမဟုတ် Part No ရိုက်ပါ။\n2. ရလဒ်တွေ ချက်ချင်း ပေါ်လာပါမယ်။\n3. ဘယ်ဘက်က အစိမ်းရောင် filter ခလုတ်နဲ့ Product / Excel ရွေးလို့ရပါတယ်။',{view:'home',en:'Go to Home',my:'Home သွားမယ်'}],
   ['clear',['trash','clear search','bin','delete search','ရှာတာဖျက်','အမှိုက်ပုံး','ရှင်း'],'To empty the search: tap the filter button and choose Trash — the bin clears what you typed.','ရှာထားတာကို ဖျက်ချင်ရင် filter ခလုတ် နှိပ်ပြီး Trash ကို ရွေးပါ — အမှိုက်ပုံးက ရိုက်ထားတာကို ရှင်းပေးပါတယ်။'],
   ['scan',['scan','camera','photo search','picture search','ကင်မရာ','ပုံနဲ့ရှာ','ဓာတ်ပုံနဲ့','စကန်'],'1. Tap the scan icon at the right end of the search bar.\n2. Allow the camera.\n3. Point it at the part — the matching products appear.','1. Search bar ညာဘက်ထိပ်က scan icon ကို နှိပ်ပါ။\n2. ကင်မရာ ခွင့်ပြုပါ။\n3. ပစ္စည်းကို ချိန်ပြပါ — တူတဲ့ ပစ္စည်းတွေ ပေါ်လာပါမယ်။'],
@@ -107,9 +107,10 @@
   return general>=2?K.find(e=>e[0]==='help'):null;
  }
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const robot='/images/product-ai-robot.png?v=1.1.193';
+ const robot='/images/assistant-face.png?v=2';
  const button=document.createElement('button');button.type='button';button.className='ai-help-button';
- button.innerHTML='<img src="'+robot+'" alt=""><i aria-hidden="true">?</i>';
+ // 1.1.336 owner's picture: the assistant on a card, a chat bubble and the "AI Assistant" pill.
+ button.innerHTML='<span class="ai-help-card" aria-hidden="true"></span><img class="ai-help-person" src="/images/assistant.png?v=1" alt=""><span class="ai-help-bubble" aria-hidden="true"></span><span class="ai-help-pill" aria-hidden="true"><b>AI</b>Assistant</span>';
  document.body.append(button);
  const box=document.createElement('dialog');box.className='ai-help';document.body.append(box);
  box.innerHTML='<header><img src="'+robot+'" alt=""><span><b></b><small></small></span><button type="button" class="ai-help-x">×</button></header><div class="ai-help-log" role="log" aria-live="polite"></div><div class="ai-help-chips"></div><form class="ai-help-form"><input type="text" autocomplete="off" maxlength="200" enterkeyhint="send"><button type="submit" aria-label=""><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.5 20 4l-5.5 16-3-6.5z"/><path d="m11.5 13.5 4-4"/></svg></button></form>';

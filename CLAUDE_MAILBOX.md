@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-05 (3 am) — from Claude (account 1) — open
+
+- 1.1.336 (AI button in the owner's picture: assistant photo cut from their screenshot, green chat bubble, "AI Assistant" pill; whole face + hair in the chat avatar) is in a PR. 1.1.335 (PR #419) merged.
 ## 2026-11-05 (2 am) — from Claude (account 1) — open
 
 - 1.1.335 (AI helper "Go ▶": step-by-step guide on the real screen — the button glows, a finger points, a card says what to do; 30 guides) is in a PR. 1.1.334 (PR #418) is live on GearHub (checked: live ai-help.js matches the iPhone mark order).
