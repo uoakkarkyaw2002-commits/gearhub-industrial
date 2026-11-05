@@ -62,7 +62,7 @@
   if(!info){counts.hidden=actions.hidden=true;return}
   // 1.1.316 owner: only the pencil at the top edits the profile (no pencils on the caption or the details).
   // 1.1.311 owner's profile design: icons + numbers, a caption, Add + Dashboard (or Follow), a details card.
-  counts.hidden=false;counts.innerHTML='<span>'+ic.people+'<b>'+count(info.followers)+'</b> Followers</span><i></i><span>'+ic.people+'<b>'+count(info.following)+'</b> Following</span><i></i><span>'+ic.photos+'<b>'+count(info.posts)+'</b> Posts</span>';
+  counts.hidden=false;counts.innerHTML='<span data-pm="people" data-list="followers" role="button" tabindex="0">'+ic.people+'<b>'+count(info.followers)+'</b> Followers</span><i></i><span data-pm="people" data-list="following" role="button" tabindex="0">'+ic.people+'<b>'+count(info.following)+'</b> Following</span><i></i><span>'+ic.photos+'<b>'+count(info.posts)+'</b> Posts</span>';
   const about=info.about||{},can=info.canPost;
   caption.hidden=!about.caption&&!can;
   caption.innerHTML=ic.quote+'<span'+(about.caption?'':' class="is-empty"')+'>'+esc(about.caption||t('caption'))+'</span>'+'';
@@ -150,6 +150,11 @@
     // 1.1.326 owner: the admin's own Product Categories, edited right here on the Profile (GearHub's own
   // categories live behind its admin password, so GearHub opens its admin).
   if(kind==='category'){if(!info?.canPost)return;if(info.home||!window.GearHubCategoryEditor){location.href=onHome?'/admin.html?categories=1':admin('?categories=1');return}return window.GearHubCategoryEditor.open({shopId:info.shopId,sheet,openSheet,call,afterSave:async()=>{await window.GearHubStore?.retry?.()}})}
+  // 1.1.330 owner: Followers / Following open the list of people (two tabs in one sheet).
+  if(kind==='people'){const list=el.dataset.list==='following'?'following':'followers';
+   openSheet('<div class="fl-tabs" role="tablist">'+['followers','following'].map(k=>'<button type="button" role="tab" data-pm="people" data-list="'+k+'" aria-selected="'+(k===list)+'">'+(k==='followers'?'Followers':'Following')+' '+count(info?.[k])+'</button>').join('')+'</div><div class="fl-body"><p class="fl-empty">…</p></div>');
+   try{const people=await window.GearHubFollowList.load(slug,list);const body=sheet.querySelector('.fl-body');if(body&&sheet.querySelector('.fl-tabs [aria-selected="true"]')?.dataset.list===list)body.innerHTML=window.GearHubFollowList.html(people,list)}catch(e){note(e.message)}
+   return}
   if(kind==='signin'){(window.GearHubAppLogin?.start(onHome?'/':'/shops/'+slug+'/')||Promise.resolve()).catch(e=>note(e.message));return}
   if(kind==='unpick'){picked.splice(Number(el.dataset.i),1);thumbs();return}
   if(kind==='more')return loadPosts(true);
@@ -158,6 +163,7 @@
   if(kind==='delete'){if(!confirm(t('removeAsk')))return;try{await call('/api/platform/profile/'+encodeURIComponent(slug)+'/posts/'+Number(el.dataset.post),'DELETE');posts=posts.filter(p=>p.postId!==Number(el.dataset.post));info.posts=Math.max(0,info.posts-1);drawInfo();drawPosts()}catch(e){window.toast?.(e.message)}}
  }
  for(const root of [home,sheet])root.addEventListener('click',e=>{const b=e.target.closest('[data-pm]');if(b)act(b.dataset.pm,b)});
+ home.addEventListener('keydown',e=>{const b=(e.key==='Enter'||e.key===' ')&&e.target.closest('span[data-pm="people"]');if(b){e.preventDefault();act('people',b)}});
  sheet.addEventListener('submit',e=>{const f=e.target.closest('[data-pm-form="post"]');if(f){e.preventDefault();submitPost(f)}const pf=e.target.closest('[data-pm-form="profile"]');if(pf){e.preventDefault();saveProfile(pf)}});
  try{if(sessionStorage.getItem('gh-open-profile')){sessionStorage.removeItem('gh-open-profile');addEventListener('gearhub:data-ready',()=>document.querySelector('.mobile-bottom-nav [data-store-view="profile"],.desktop-top-nav [data-store-view="profile"]')?.click(),{once:true})}}catch{}
  document.addEventListener('click',e=>{if(e.target.closest('[data-store-view="profile"]'))setTimeout(()=>{loadInfo();loadPosts()},0)});

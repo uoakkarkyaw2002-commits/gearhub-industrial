@@ -37,6 +37,13 @@ test('profile counts, follow, personal posts and who may post or delete',async t
  assert.equal((await json(guest('/profile/shop-b'))).following,1,'Following = the shops the owner follows');
  assert.deepEqual((await json(buyer('/profile/following'))).slugs,['shop-a']);
  await buyer('/profile/following/import','POST',{slugs:['shop-b','nope','shop-a']});assert.deepEqual((await json(buyer('/profile/following'))).slugs.sort(),['shop-a','shop-b'],'the phone list moves to the account');
+ // 1.1.330 owner: the people behind Followers / Following (SkyShop names, no emails).
+ {const f=await json(guest('/profile/shop-a/people?list=followers'));assert.equal(f.list,'followers');
+  assert.deepEqual(f.people.map(x=>[x.name,x.slug,x.url]).sort(),[['Buyer',null,null],['Shop B','shop-b','/shops/shop-b/']]);
+  assert.ok(!JSON.stringify(f).includes('@'),'never an email');
+  assert.deepEqual((await json(guest('/profile/shop-b/people?list=following'))).people.map(x=>x.slug),['shop-a'],'Following = the shops the owner follows');
+  assert.deepEqual((await json(guest('/profile/shop-b/people'))).people.map(x=>x.name),['Buyer'],'followers is the default list');
+  assert.equal((await guest('/profile/nope/people')).status,404);}
  assert.equal((await buyer('/profile/shop-a/posts','POST',{body:'hi'})).status,403,'only the shop posts');
  assert.equal((await a('/profile/shop-a/posts','POST',{body:' '})).status,400);
  p=await json(a('/profile/shop-a'));assert.deepEqual([p.canPost,p.shopId],[true,10]);

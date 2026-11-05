@@ -80,7 +80,8 @@
   sheet.querySelectorAll('[data-nc-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.ncTab===inboxTab)));
   sheet.querySelector('.nc-search').hidden=inboxTab!=='chats';
   if(inboxTab==='active'){list.innerHTML='<p class="nc-empty">'+t('activeInfo')+'</p>';return}
-  if(inboxTab==='followers'){list.innerHTML='<div class="nc-followers-info"><p>'+t('followerInfo')+'</p><button type="button" class="nc-primary" data-nc="profile">'+t('profile')+'</button></div>';return}
+  // 1.1.330 owner: the people who follow this shop (GearHub's own followers on GearHub Home).
+  if(inboxTab==='followers'){list.innerHTML='<p class="nc-empty">…</p>';const own=ownerMode?'gearhub':slug;window.GearHubFollowList?.load(own,'followers').then(people=>{if(inboxTab==='followers'&&sheet.contains(list))list.innerHTML=window.GearHubFollowList.html(people,'followers')},e=>{if(inboxTab==='followers'&&sheet.contains(list))list.innerHTML='<p class="nc-empty">'+esc(e.message)+'</p>'});return}
   const rows=inbox.filter(c=>(!unreadOnly||c.unread)&&(!query||(c.name+' '+c.last).toLocaleLowerCase().includes(query)));
   list.innerHTML=rows.length?'<ul class="nc-conversation-list">'+rows.map(c=>{
    const initials=Array.from(c.name.trim().split(/\s+/).map(w=>Array.from(w)[0]).slice(0,2).join('')).join('').toLocaleUpperCase();

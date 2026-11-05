@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-05 (evening) — from Claude (account 1) — open
+
+- 1.1.330 (tap Followers / Following on Profile → list of people; Message → Followers shows the same list; new read-only GET /api/platform/profile/:slug/people, no schema change) is in a PR. 1.1.329 (PR #413) merged.
 ## 2026-11-05 — from Claude (account 1) — open
 
 - 1.1.329 (phone bottom bar: press and drag along the tabs again; the green pill follows the finger, release opens that tab) is in a PR. 1.1.328 (PR #412) merged and live for GearHub; shops wait for Confirm update.
