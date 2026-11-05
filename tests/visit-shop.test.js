@@ -5,7 +5,7 @@ function run({standalone=true,path:p,home,logo}){
  const store=new Map(home?[['gh-app-home',home.split('/')[2]],['gh-app-home-path',home],['gh-app-home-name','Kaizen Beauty'],...(logo?[['gh-app-home-logo',logo]]:[])]:[]),appended=[],hidden=[],body=new Set();
  const nav={querySelectorAll:()=>[{set hidden(v){hidden.push(v)}},{set hidden(v){hidden.push(v)}}],append:e=>appended.push(e)};
  const win={location:{pathname:p},navigator:{},matchMedia:q=>({matches:standalone&&/standalone/.test(q)}),sessionStorage:{getItem:k=>store.get(k)??null,setItem:(k,v)=>store.set(k,v)},addEventListener(){},setTimeout(){},
-  document:{body:{classList:{add:c=>body.add(c)}},querySelector:s=>/nav/.test(s)?nav:null,createElement:()=>({classes:new Set(),get classList(){return {add:c=>this.classes.add(c)}},setAttribute(k,v){this[k]=v}})}};
+  document:{body:{classList:{add:c=>body.add(c)}},querySelector:s=>/^\.[a-z-]*nav$/.test(s)?nav:null,createElement:()=>({classes:new Set(),get classList(){return {add:c=>this.classes.add(c)}},setAttribute(k,v){this[k]=v}})}};
  vm.runInNewContext(read('public/visit-shop.js'),win);return {store,appended,hidden,body};
 }
 test('the first shop of the app session is home; another shop gets the exit button, a browser tab never does',()=>{

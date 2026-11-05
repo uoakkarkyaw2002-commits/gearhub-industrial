@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-05 (after midnight) — from Claude (account 2) — open
+
+- 1.1.326 (PR #410) merged. 1.1.327 (visiting another shop in the owner's picture: counts + caption header, Home/Category/exit bar, round delivery Cart) is in a PR.
+
 ## 2026-11-05 (late night) — from Claude (account 2) — open
 
 - 1.1.325 (PR #409) merged. 1.1.326 (Profile Category = the admin's own Category manager edited on the Profile; category-editor.js/.css) is in a PR.

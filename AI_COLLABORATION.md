@@ -30,6 +30,17 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.327: visiting another shop in the owner's picture (Claude)
+
+- Owner's phone picture (treebird Mobile): visiting another shop inside a shop app (`body.visiting-shop`, visit-shop.js) now shows, on phones only (≤1023 px):
+  - The shop header on the green Profile background (`images/profile-cover.svg`), with the logo in a green ring, the name, a green ✓, a Followers / Following / Posts pill (from `/api/platform/profile/<slug>`) and the caption pill. 🔔 💬, the speed badge and the tagline are hidden there.
+  - A bottom bar with only Home · Category · the round logo back to the app's own shop.
+  - Cart as a round delivery button (`images/cart-scooter.png`, cut from the owner's picture) above the bar, with the live count from `#bottom-cart-count`; tapping it opens the existing Cart.
+- New `public/visit-shop.css`. On PC nothing new shows. The app's own shop is unchanged.
+- The ✓ uses its own class (`visit-verified`), because tenant-store.js removes every `.settings-verified` in seller shops.
+- `tests/visit-shop.test.js`: the fake page's querySelector now answers only whole-bar selectors (on purpose). New `tests/visit-shop-look.test.js`.
+- Tests: Node 22 check + 493/493. Chromium demo (standalone emulated, Alice's app visiting treebird Mobile) at 375/390 compared with the picture: scooter opens Cart, own shop unchanged, PC 1280 unchanged, no console errors. Demo note: a seller shop page is served from the saved release build, so restart the demo after changing index.html. iPhone not tested.
+
 ### 1.1.326: + Add → Category = the admin's own Product Categories, edited on the Profile (Claude)
 
 - Owner (screenshot of the admin page opened by 1.1.325): edit right on the Profile, but with the admin's own Category manager. New `public/category-editor.js`: admin.js's category manager (rows, plant/folder icons, product counts, expand, ✎ editor with English/Myanmar/Parent/Icon, banner, move up/down, + Subcategory, + Add Main Category, Save Categories, swipe left to delete, same messages) ported into the Profile sheet; saves through the shop's `GET/PUT /api/platform/shops/:id/categories` (banner via `/shops/:id/files`). The admin's Select Parent Category picker (`category-picker.js/.css`, now also loaded on the shop page) is moved inside the sheet because the sheet is a modal dialog.
