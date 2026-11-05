@@ -147,8 +147,9 @@
   if(kind==='personal')return composer();
   if(info?.home&&kind==='work'){location.href='/admin.html?add=1';return}
   if(kind==='work'){if(info?.canPost)return window.GearHubWorkProduct?.open({shopId:info.shopId,sheet,openSheet,call,afterSave:async()=>{await window.GearHubStore?.retry?.();await loadInfo()}});return}
-  // 1.1.324 owner: Category is the admin's own Product categories (opened straight away; ← comes back here).
-  if(kind==='category'){if(info?.canPost)location.href=onHome?'/admin.html?categories=1':admin('?categories=1');return}
+    // 1.1.326 owner: the admin's own Product Categories, edited right here on the Profile (GearHub's own
+  // categories live behind its admin password, so GearHub opens its admin).
+  if(kind==='category'){if(!info?.canPost)return;if(info.home||!window.GearHubCategoryEditor){location.href=onHome?'/admin.html?categories=1':admin('?categories=1');return}return window.GearHubCategoryEditor.open({shopId:info.shopId,sheet,openSheet,call,afterSave:async()=>{await window.GearHubStore?.retry?.()}})}
   if(kind==='signin'){(window.GearHubAppLogin?.start(onHome?'/':'/shops/'+slug+'/')||Promise.resolve()).catch(e=>note(e.message));return}
   if(kind==='unpick'){picked.splice(Number(el.dataset.i),1);thumbs();return}
   if(kind==='more')return loadPosts(true);

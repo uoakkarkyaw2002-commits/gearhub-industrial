@@ -30,6 +30,13 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.326: + Add → Category = the admin's own Product Categories, edited on the Profile (Claude)
+
+- Owner (screenshot of the admin page opened by 1.1.325): edit right on the Profile, but with the admin's own Category manager. New `public/category-editor.js`: admin.js's category manager (rows, plant/folder icons, product counts, expand, ✎ editor with English/Myanmar/Parent/Icon, banner, move up/down, + Subcategory, + Add Main Category, Save Categories, swipe left to delete, same messages) ported into the Profile sheet; saves through the shop's `GET/PUT /api/platform/shops/:id/categories` (banner via `/shops/:id/files`). The admin's Select Parent Category picker (`category-picker.js/.css`, now also loaded on the shop page) is moved inside the sheet because the sheet is a modal dialog.
+- `public/category-editor.css`: the category manager's rules copied from site-admin.css by scratchpad extract-cat-css.py, each limited to `.profile-category-sheet` so nothing reaches the shop page.
+- GearHub's own Category still opens `/admin.html?categories=1` (its categories need the GearHub admin password session).
+- Tests: Node 22 check + 492/492. Chromium demo seller at 375/1280: Profile sheet matches the admin page side by side; expand, add main, Select Parent Category picker over the sheet, Save (saved; duplicate name refused by the server), ← closes the sheet on the Profile; no console errors. iPhone not tested.
+
 ### 1.1.324: GearHub's own Profile like a shop profile (Claude)
 
 - Owner approved ("လုပ်ပေး"). GearHub Home → Profile now shows Followers / Following / Posts, caption, + Add + Dashboard (GearHub owner) or Follow (others), Personal details and its personal posts (also in Discover).
