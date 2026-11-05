@@ -30,6 +30,14 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.324: GearHub's own Profile like a shop profile (Claude)
+
+- Owner approved ("လုပ်ပေး"). GearHub Home → Profile now shows Followers / Following / Posts, caption, + Add + Dashboard (GearHub owner) or Follow (others), Personal details and its personal posts (also in Discover).
+- Server (`lib/platform.js`, `lib/shop-profile.js`): the legacy main shop (platform_shops id 1, slug `gearhub`) is served by `/profile/gearhub`; posts counts GearHub's active `products` rows; its name/logo in post cards come from site_settings (appIconUrl/logoUrl, local paths only). New owner-only `PUT /profile/gearhub/about` (caption + details into id 1 settings) and `POST /profile/gearhub/photo` (post photos). Image route allows GearHub's own (id 1) photos; every other shop still goes through `publicShop`. No schema change.
+- Front end (`profile-menu.js`): on GearHub's site the profile uses `gearhub`; ✏️ edits caption + details (name/logo stay in GearHub admin); + Add → Business opens `/admin.html?add=1`, Category `/admin.html#category-manager-content`, Dashboard `/admin.html` (GearHub's products/categories live in its own tables). The Menu picture is now hidden on GearHub too.
+- Built on 1.1.323 (PR #407): merge #407 first.
+- Tests: Node 22 check + 492/492 (new tests/gearhub-profile.test.js). Chromium demo: GearHub owner at 375/1280 — edit details, Personal post, Business → admin add page; no console errors. iPhone not tested.
+
 ### 1.1.323: + Add → Category on the Profile, Work → Business, PC name at the left, ☰ only on Menu (Claude)
 
 - Owner: + Add offers Personal / **Business** (was Work) / **Category**. Category opens a sheet on the Profile (new `public/category-sheet.js/.css`): list of main → sub categories with item counts; + New, tap to edit (English, Myanmar, icon, inside which category), Delete (blocked while it has products or subcategories). Uses the existing `GET/PUT /api/platform/shops/:id/categories`; no API/schema change, no Admin navigation.

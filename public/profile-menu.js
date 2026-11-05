@@ -33,7 +33,9 @@
  new MutationObserver(()=>{paint();drawInfo();drawPosts()}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
 
  // 1.1.303 owner: real followers / following / posts, Follow for visitors, + Add (Personal / Work) for the shop.
- const slug=(location.pathname.match(/^\/shops\/([a-z0-9-]{1,80})\//)||[])[1]||'';
+ // 1.1.324 owner: GearHub's own Home has the same profile (its legacy shop is called "gearhub").
+ const onHome=!/^\/shops\//.test(location.pathname);
+ const slug=(location.pathname.match(/^\/shops\/([a-z0-9-]{1,80})\//)||[])[1]||(onHome?'gearhub':'');
  if(slug)view.classList.add('pm-shop');
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const count=n=>n>=1e6?(Math.round(n/1e5)/10)+'M':n>=1e3?(Math.round(n/100)/10)+'K':String(n||0);
@@ -55,7 +57,7 @@
   user:svg('<circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c1.2-4 4-6 7.5-6s6.3 2 7.5 6z"/>',' class="profile-details-user"'),pin:svg('<path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>'),
   phone:svg('<path d="M5 3.5h3.5l1.6 4.4-2.2 1.4a11 11 0 0 0 6.8 6.8l1.4-2.2 4.4 1.6V19a2 2 0 0 1-2.2 2C10.4 20.4 3.6 13.6 3 5.7A2 2 0 0 1 5 3.5z"/>'),mail:svg('<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/>'),
   cal:svg('<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M7.5 13.5h2M11 13.5h2M14.5 13.5h2M7.5 17h2M11 17h2"/>'),work:svg('<rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>'),crown:svg('<path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z" fill="#f5b913" stroke="#d99a06"/>'),globe:svg('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/>'),dots:svg('<circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>',' class="profile-dots"')};
- const admin=hash=>'/shops/'+encodeURIComponent(slug)+'/admin'+(hash||'');
+ const admin=hash=>onHome?'/admin.html'+(hash||''):'/shops/'+encodeURIComponent(slug)+'/admin'+(hash||'');
  function drawInfo(){
   if(!info){counts.hidden=actions.hidden=true;return}
   // 1.1.316 owner: only the pencil at the top edits the profile (no pencils on the caption or the details).
@@ -105,7 +107,7 @@
   if(!body&&!picked.length)return;
   button.disabled=true;button.textContent=t('posting');note('');
   try{
-   const ids=[];for(const f of picked){const fd=new FormData();fd.append('file',await shrink(f));ids.push((await call('/api/platform/shops/'+info.shopId+'/files','POST',null,fd)).id)}
+   const ids=[];for(const f of picked){const fd=new FormData();fd.append('file',await shrink(f));ids.push((await call(info.home?'/api/platform/profile/gearhub/photo':'/api/platform/shops/'+info.shopId+'/files','POST',null,fd)).id)}
    const d=await call('/api/platform/profile/'+encodeURIComponent(slug)+'/posts','POST',{body,imageIds:ids});
    posts=[d.item,...posts];info.posts++;drawInfo();drawPosts();sheet.close();
   }catch(e){button.disabled=false;button.textContent=t('post');note(e.message)}
@@ -116,8 +118,8 @@
  function editSheet(){
   const a=info.about||{},photo=home.querySelector('.profile-home-photo img'),now=photo&&!photo.hidden?photo.getAttribute('src'):'';newLogo=null;
   const field=(key,label,value,type='text',extra='')=>'<label class="profile-edit-field"><span>'+label+'</span>'+(type==='area'?'<textarea name="'+key+'" rows="2" maxlength="1000">'+esc(value)+'</textarea>':'<input name="'+key+'" type="'+type+'" value="'+esc(value)+'"'+extra+'>')+'</label>';
-  openSheet('<h2 class="profile-edit-title">'+t('editProfile')+'</h2><form class="profile-edit-form" data-pm-form="profile"><div class="profile-edit-logo"><span class="profile-edit-photo">'+(now?'<img src="'+esc(now)+'" alt="">':'')+'</span><label class="profile-compose-photo">'+icon.photo+'<span>'+t('changeLogo')+'</span><input type="file" accept="image/*" hidden></label></div>'+
-   field('name',t('fName'),name.textContent.trim(),'text',' maxlength="100" required')+field('description',t('fCaption'),a.caption||'','area')+field('address',t('fAddress'),a.address||'')+field('phone',t('fPhone'),a.phone||'','tel')+field('email',t('fEmail'),a.email||'','email')+
+  openSheet('<h2 class="profile-edit-title">'+t('editProfile')+'</h2><form class="profile-edit-form" data-pm-form="profile"><div class="profile-edit-logo"'+(info.home?' hidden':'')+'><span class="profile-edit-photo">'+(now?'<img src="'+esc(now)+'" alt="">':'')+'</span><label class="profile-compose-photo">'+icon.photo+'<span>'+t('changeLogo')+'</span><input type="file" accept="image/*" hidden></label></div>'+
+   (info.home?'':field('name',t('fName'),name.textContent.trim(),'text',' maxlength="100" required'))+field('description',t('fCaption'),a.caption||'','area')+field('address',t('fAddress'),a.address||'')+field('phone',t('fPhone'),a.phone||'','tel')+field('email',t('fEmail'),a.email||'','email')+
    field('birthday',t('fBirthday'),a.birthday||'','date',' max="'+new Date().toISOString().slice(0,10)+'"')+field('work',t('fWork'),a.work||'')+
    '<button type="submit" class="profile-compose-post wide">'+t('saveProfile')+'</button></form>');
   sheet.querySelector('.profile-edit-logo input').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;newLogo=await squareLogo(f);sheet.querySelector('.profile-edit-photo').innerHTML='<img src="'+URL.createObjectURL(newLogo)+'" alt="">'});
@@ -131,6 +133,7 @@
   const button=form.querySelector('[type=submit]');button.disabled=true;button.textContent=t('saving');note('');
   try{
    const body=Object.fromEntries(new FormData(form));delete body[''];
+   if(info.home){await call('/api/platform/profile/gearhub/about','PUT',body);sheet.close();await loadInfo();return}
    if(newLogo){const fd=new FormData();fd.append('file',newLogo);body.logoId=(await call('/api/platform/shops/'+info.shopId+'/files','POST',null,fd)).id}
    const d=await call('/api/platform/shops/'+info.shopId,'PATCH',body);
    // A new name gives the shop a new link: open the profile again there.
@@ -142,9 +145,10 @@
   if(kind==='edit'){if(info?.canPost)editSheet();return}
   if(kind==='add')return choose();
   if(kind==='personal')return composer();
+  if(info?.home&&(kind==='work'||kind==='category')){location.href=kind==='work'?'/admin.html?add=1':'/admin.html#category-manager-content';return}
   if(kind==='work'){if(info?.canPost)return window.GearHubWorkProduct?.open({shopId:info.shopId,sheet,openSheet,call,afterSave:async()=>{await window.GearHubStore?.retry?.();await loadInfo()}});return}
   if(kind==='category'){if(info?.canPost)return window.GearHubCategorySheet?.open({shopId:info.shopId,sheet,openSheet,call,afterSave:async()=>{await window.GearHubStore?.retry?.()}});return}
-  if(kind==='signin'){(window.GearHubAppLogin?.start('/shops/'+slug+'/')||Promise.resolve()).catch(e=>note(e.message));return}
+  if(kind==='signin'){(window.GearHubAppLogin?.start(onHome?'/':'/shops/'+slug+'/')||Promise.resolve()).catch(e=>note(e.message));return}
   if(kind==='unpick'){picked.splice(Number(el.dataset.i),1);thumbs();return}
   if(kind==='more')return loadPosts(true);
   if(kind==='post-menu'){const pop=el.nextElementSibling;pop.hidden=!pop.hidden;return}
