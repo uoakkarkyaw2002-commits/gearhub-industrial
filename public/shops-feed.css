@@ -238,3 +238,38 @@ body:has(#shops-photo-dialog[open]){overflow:hidden}
  .shops-photo-dialog{inset:0!important;width:100%!important;max-width:none!important;height:auto!important;max-height:none!important;margin:0!important;border-radius:0!important;padding-top:calc(env(safe-area-inset-top) + 10px)!important;padding-bottom:calc(env(safe-area-inset-bottom) + 10px)!important}
 }
 .shops-photo-dialog::backdrop{background:#14251b}
+/* 1.1.318 owner (TikTok picture): comment box = my avatar + grey pill "Add comment…" with 🖼 photo, sticker and @;
+   a send arrow appears when there is something to send. Comments can carry a sticker or a photo. */
+.shops-c-compose{display:flex!important;align-items:center!important;gap:10px!important;padding-top:12px!important}
+.shops-c-me{display:grid;place-items:center;flex:0 0 46px;width:46px;height:46px;border-radius:50%;background:#e5f2e3;color:#2f6a3e;font-size:18px;font-weight:800}
+.shops-c-me:empty{display:none}
+.shops-c-pill{display:flex;align-items:center;flex:1;min-width:0;min-height:50px;padding:0 6px 0 16px;border-radius:999px;background:#f1f1f2}
+.shops-c-pill textarea{flex:1;min-width:0;min-height:0!important;max-height:110px;padding:13px 0!important;border:0!important;border-radius:0!important;background:transparent!important;outline:0;font:inherit;font-size:16px!important;line-height:1.4;resize:none}
+.shops-c-pill textarea::placeholder{color:#8a8f8c}
+.shops-c-icon{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;padding:0;border:0;border-radius:50%;background:transparent;color:#111;cursor:pointer}
+.shops-c-icon svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.shops-c-send{display:grid;place-items:center;flex:0 0 46px;width:46px;height:46px;padding:0;border:0;border-radius:50%;background:#fe2c55;color:#fff;cursor:pointer}
+.shops-c-send[hidden]{display:none}
+.shops-c-send svg{width:22px;height:22px;fill:currentColor;stroke:currentColor;stroke-width:1.2;stroke-linejoin:round}
+.shops-c-stickers{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-height:210px;overflow:auto;padding:10px;border-radius:16px;background:#f6f7f6}
+.shops-c-stickers[hidden],.shops-c-mentions[hidden]{display:none}
+.shops-c-stickers button{height:56px;border:0;border-radius:14px;background:#fff;font-size:34px;line-height:1;cursor:pointer}
+.shops-c-stickers button:active{transform:scale(.9)}
+.shops-c-mentions{display:flex;flex-wrap:wrap;gap:8px;padding:10px 4px}
+.shops-c-mentions button{min-height:36px;padding:0 14px;border:0;border-radius:999px;background:#eef2ef;color:#1d2a21;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.shops-c-picked{position:relative;width:86px;height:86px;margin-top:10px;overflow:hidden;border-radius:12px;background:#f1f1f2}
+.shops-c-picked img{width:100%;height:100%;object-fit:cover}
+.shops-c-picked button{position:absolute;top:4px;right:4px;width:26px;height:26px;padding:0;border:0;border-radius:50%;background:#000a;color:#fff;cursor:pointer}
+.shops-c-sticker{display:block;margin-top:2px;font-size:64px;line-height:1.1}
+.shops-c-photo{display:block;margin-top:6px;padding:0;border:0;background:none;cursor:zoom-in}
+.shops-c-photo img{display:block;max-width:min(220px,100%);max-height:260px;border-radius:12px;object-fit:cover}
+/* 1.1.318 owner (TikTok picture): press and hold a comment → a menu from the bottom with Delete / Edit / Copy / Reply. */
+.shops-c{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.shops-c-menu{position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;justify-content:flex-end;gap:14px;padding:14px 16px calc(18px + env(safe-area-inset-bottom));background:#0000;transition:background .2s}
+.shops-c-menu.open{background:#0000004d}
+.shops-c-menu-card{border-radius:18px;background:#fff;transform:translateY(30px);opacity:0;transition:transform .2s,opacity .2s}
+.shops-c-menu.open .shops-c-menu-card{transform:none;opacity:1}
+.shops-c-menu-card:empty{display:none}
+.shops-c-menu-card button{display:flex;align-items:center;gap:18px;width:100%;min-height:58px;padding:0 20px;border:0;background:transparent;color:#111;font:inherit;font-size:18px;text-align:left;cursor:pointer}
+.shops-c-menu-card button svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
+.shops-c-menu-card button:active{background:#f1f1f2}

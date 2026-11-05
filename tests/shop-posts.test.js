@@ -19,7 +19,8 @@ test('likes and comments: signed-in only, CSRF checked, per shop, removable by w
     let cookie='';const keep=r=>{const c=r.headers.get('set-cookie');if(c)cookie=c.split(';')[0];return r};
     if(id)keep(await fetch(base+'/test-login/'+id,{method:'POST'}));
     const token=(await keep(await fetch(base+'/api/platform/me',{headers:{cookie}})).json()).csrfToken;
-    return (url,method='GET',body)=>fetch(base+'/api/platform'+url,{method,headers:{cookie,'Content-Type':'application/json','X-CSRF-Token':token},body:body?JSON.stringify(body):undefined});
+    const f=(url,method='GET',body)=>fetch(base+'/api/platform'+url,{method,headers:{cookie,'Content-Type':'application/json','X-CSRF-Token':token},body:body?JSON.stringify(body):undefined});
+    f.form=(url,form)=>fetch(base+'/api/platform'+url,{method:'POST',headers:{cookie,'X-CSRF-Token':token},body:form});return f;
   }
   const guest=await as(0),buyer=await as(20),ownerA=await as(10),ownerB=await as(11),boss=await as(21);
   let feed=await(await guest('/feed')).json();
@@ -52,6 +53,20 @@ test('likes and comments: signed-in only, CSRF checked, per shop, removable by w
   await ownerB('/feed/shop-a/'+a+'/comments/'+reply.id+'/like','POST',{});
   assert.equal((await guest('/feed/shop-a/'+a+'/comments/'+id+'/like','POST',{})).status,401);
   for(const c of th.comments.filter(c=>c.parentId))await ownerA('/feed/shop-a/'+a+'/comments/'+c.id,'DELETE');
+  // 1.1.318: a sticker comment, and a photo comment (the photo is sent first, kept in the post's shop).
+  await new Promise(r=>setTimeout(r,3100));
+  assert.equal((await ownerB('/feed/shop-a/'+a+'/comments','POST',{sticker:'../x'})).status,400);
+  th=await(await ownerB('/feed/shop-a/'+a+'/comments','POST',{sticker:'love'})).json();assert.equal(th.comments.find(c=>c.sticker==='love').body,'');
+  assert.equal((await ownerB('/feed/shop-a/'+a+'/comments','POST',{photoId:'not-mine'})).status,400,'only a photo this person just sent');
+  const png=Buffer.from('89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c4890000000d49444154789c6360f8cf00000301010018dd8db00000000049454e44ae426082','hex');
+  const fd=new FormData();fd.append('file',new Blob([png],{type:'image/png'}),'p.png');
+  const up=await ownerB.form('/feed/shop-a/'+a+'/comment-photo',fd);assert.equal(up.status,201,'photo upload');const {photoId}=await up.json();
+  await new Promise(r=>setTimeout(r,3100));
+  th=await(await ownerB('/feed/shop-a/'+a+'/comments','POST',{photoId})).json();const pc=th.comments.find(c=>c.photo);assert.equal(pc.photo,'/api/platform/images/'+photoId);
+  assert.equal(db.prepare('SELECT shop_id FROM platform_files WHERE id=?').get(photoId).shop_id,10,'kept in the post shop storage');
+  assert.equal((await ownerB('/feed/shop-a/'+a+'/comments','POST',{photoId})).status,400,'a photo is used once');
+  await ownerB('/feed/shop-a/'+a+'/comments/'+pc.id,'DELETE');assert.equal(db.prepare('SELECT COUNT(*) n FROM platform_files WHERE id=?').get(photoId).n,0,'deleting the comment deletes the photo');
+  for(const c of (await(await ownerB('/feed/shop-a/'+a+'/comments')).json()).comments.filter(c=>c.mine))await ownerB('/feed/shop-a/'+a+'/comments/'+c.id,'DELETE');
 
   const seen=await(await guest('/feed/shop-a/'+a+'/comments')).json();assert.deepEqual([seen.signedIn,seen.count,seen.comments[0].canDelete],[false,1,false]);
   assert.equal((await ownerB('/feed/shop-a/'+a+'/comments/'+id,'DELETE')).status,403,'another shop cannot remove it');

@@ -3,6 +3,9 @@
 ## 2026-11-12 (night) — from Claude (account 1) — open
 
 - 1.1.319 (🔔 💬 on GearHub Home for the GearHub owner) is in a PR. Still asked by the owner: long-press a comment → Delete / Edit / Copy menu (instead of the pencil and bin), and the PC top bar in the owner's picture.
+## 2026-11-12 (evening) — from Claude (account 1) — open
+
+- 1.1.318 (sticker + photo comments) is in a PR. Next asked by the owner: 🔔 + 💬 on GearHub's own Home too, and the PC top bar in the owner's new picture (logo left, nav, Cart badge, Profile ⌄, glass 🔔 💬 right; search with green filter and scan; hero with ‹ › and dots; wide promotion banner).
 
 ## 2026-11-05 — from Codex — 1.1.317 Message inbox design (review pending)
 
