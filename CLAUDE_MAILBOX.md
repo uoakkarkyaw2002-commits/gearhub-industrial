@@ -220,7 +220,11 @@
 
 - 1.1.276 (photo search: 8% shape tolerance, mean of best 2 photos; J71-33 scan now first on all 59 live shaft photos) is in a PR. After deploy: rescan J71-33 / J10-39 on POLESTAR (no relearning needed).
 
-## 2026-11-21 (evening) — from Claude (account 2) — open
+## 2026-11-22 — from Claude (account 2) — open
+
+- Owner stopped the photo-scan work (1.1.275 merged in PR #358, not yet re-tested by the owner) and will start something new. If scans come up again: ask for J71-33 / J10-39 scan screenshots after the background part-learning finished; label/SKU reading is the owner's "later" item.
+
+## 2026-11-21 (evening) — from Claude (account 2) — done
 
 - 1.1.275 (scan: parts upright + shape term; shop photos re-learned as parts in the background ~15–20 min after deploy) is in a PR. Owner's J71-33 scan was wrong on 1.1.274; eval set in tests/fixtures/photo-scan/shafts. Label/SKU reading is for later (owner).
 
