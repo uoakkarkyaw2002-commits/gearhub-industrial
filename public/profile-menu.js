@@ -141,7 +141,7 @@
   if(kind==='edit'){if(info?.canPost)editSheet();return}
   if(kind==='add')return choose();
   if(kind==='personal')return composer();
-  if(kind==='work'){location.href='/shops/'+encodeURIComponent(slug)+'/admin?add=1';return}
+  if(kind==='work'){if(info?.canPost)return window.GearHubWorkProduct?.open({shopId:info.shopId,sheet,openSheet,call,afterSave:async()=>{await window.GearHubStore?.retry?.();await loadInfo()}});return}
   if(kind==='signin'){(window.GearHubAppLogin?.start('/shops/'+slug+'/')||Promise.resolve()).catch(e=>note(e.message));return}
   if(kind==='unpick'){picked.splice(Number(el.dataset.i),1);thumbs();return}
   if(kind==='more')return loadPosts(true);
