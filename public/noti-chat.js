@@ -13,7 +13,8 @@
  const bell='<svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="nc-b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#c9dcf5"/></linearGradient></defs><path d="M13 10.5a12 12 0 0 0-3 6.5M8 8a16 16 0 0 0-3.5 9M35 10.5a12 12 0 0 1 3 6.5M40 8a16 16 0 0 1 3.5 9" stroke="#e6f0ff" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M24 8c-7 0-11 5.4-11 12v7.5L9.5 33h29L35 27.5V20c0-6.6-4-12-11-12z" fill="url(#nc-b)"/><rect x="22" y="5" width="4" height="4.5" rx="2" fill="#fff"/><ellipse cx="24" cy="34" rx="15" ry="2.6" fill="#1d58b8" opacity=".6"/><circle cx="24" cy="37.5" r="4" fill="#f5a623"/></svg>';
  const bubble='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M30 18h8a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-1l1.5 6-8-6h-3a6 6 0 0 1-6-6" fill="#2f7cf0"/><path d="M9 7h20a7 7 0 0 1 7 7v9a7 7 0 0 1-7 7H17l-8 6 1.5-6H9a7 7 0 0 1-7-7v-9a7 7 0 0 1 7-7z" fill="#fff"/><circle cx="12" cy="18.5" r="2.4" fill="#1d58b8"/><circle cx="19" cy="18.5" r="2.4" fill="#1d58b8"/><circle cx="26" cy="18.5" r="2.4" fill="#1d58b8"/></svg>';
  const box=document.createElement('div');box.className='nc-buttons';
- box.innerHTML='<button type="button" class="nc-button" data-nc="noti">'+bell+'<i class="nc-dot" hidden></i></button><button type="button" class="nc-button" data-nc="chat">'+bubble+'<i class="nc-dot" hidden></i></button>';
+ // The owner's own icon pictures (the bell's red dot is drawn in the picture, so it shows only when something is new).
+ box.innerHTML='<button type="button" class="nc-button" data-nc="noti"><img src="/images/noti-bell-quiet.png?v=1" alt="" class="nc-bell"></button><button type="button" class="nc-button" data-nc="chat"><img src="/images/noti-chat.png?v=1" alt=""><i class="nc-dot" hidden></i></button>';
  banner.append(box);
  const [notiButton,chatButton]=box.querySelectorAll('button');
  const SEEN='gh-noti-seen:'+slug;
@@ -27,7 +28,7 @@
  const seen=()=>{try{return localStorage.getItem(SEEN)||''}catch{return ''}};
  function dots(){
   const fresh=(data?.items||[]).filter(i=>i.at>seen()&&!i.chat).length;
-  notiButton.querySelector('.nc-dot').hidden=!fresh;chatButton.querySelector('.nc-dot').hidden=!data?.unreadChats;
+  notiButton.querySelector('.nc-bell').src=fresh?'/images/noti-bell.png?v=1':'/images/noti-bell-quiet.png?v=1';chatButton.querySelector('.nc-dot').hidden=!data?.unreadChats;
   notiButton.setAttribute('aria-label',t('noti')+(fresh?' · '+fresh:''));chatButton.setAttribute('aria-label',t('chat')+(data?.unreadChats?' · '+data.unreadChats:''));
  }
  async function refresh(){if(document.hidden)return;try{data=await call('/api/platform/notifications/'+slug)}catch{data=null}dots()}
