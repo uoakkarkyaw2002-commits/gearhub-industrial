@@ -6,6 +6,7 @@ test('1.1.327: visiting another shop shows its counts + caption header, Home/Cat
  assert.match(js,/className='visit-verified'/,'own class: the seller cleanup removes .settings-verified');
  assert.match(css,/@media \(max-width:1023px\)/);assert.match(css,/^\.visit-cart,\.visit-verified,\.visit-stats,\.visit-caption\{display:none\}/m,'nothing new on PC');
  assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+ assert.match(js,/classList\.add\('visit-profile'\)/,'the right button is the visited shop\'s Profile');assert.match(js,/ghStep\)!==0\)return;\s*event\.stopImmediatePropagation\(\);/,'one Back press leaves');
  assert.ok(fs.existsSync('public/images/cart-scooter.png'));
  for(const tag of ['/visit-shop.css?v=1.1.327','/visit-shop.js?v=1.1.327'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
  assert.ok(sw.includes('"/images/cart-scooter.png?v=1.1.327"'));
