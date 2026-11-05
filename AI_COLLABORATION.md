@@ -1584,3 +1584,10 @@ _None._
 - Fix (CSS only, public/fb-nav.css): bar touch-action:none; while .liquid-dragging the old bubble is drawn as the light green pill under the finger (no lag), the hovered icon grows a little; release opens that tab (existing liquid-nav.js logic, unchanged). Tap unchanged. PC unaffected (rules are inside max-width:850px).
 - Files: public/fb-nav.css, public/index.html + public/sw.js (fb-nav tag, cache), package.json/lock, tests/tenant-install.test.js, new tests/nav-drag.test.js, mailbox.
 - Verified: Node22 npm run check + npm test 495/495. WebKit iPhone 13 (390px) on local /shops/polestar/ (build 1.1.329): drag Home → Profile, pill centred on the finger mid-drag (x195 over Category), release opened Profile, plain tap still opens Home, no page errors. Real iPhone touch not verified.
+
+## 2026-11-05 — Claude (account 1) — 1.1.330 Followers / Following lists
+
+- Owner (Profile + Message screenshots): "Followers / Following cannot be seen; Message has no Followers list." The Profile only showed counts and Message → Followers only had a "View profile" button (the API had no list).
+- New read-only route GET /api/platform/profile/:slug/people?list=followers|following (lib/shop-profile.js; no schema change; requested by the owner). Followers = people following the shop, named like comments (their own shop name + logo + link, SkyShopMM for the GearHub owner, else the Google name; never an email). Following = open shops the shop's owner follows. Max 500, newest first.
+- New public/follow-list.js/.css (shared list). profile-menu.js: Followers / Following counts open a sheet with two tabs. noti-chat.js: Message → Followers shows the list (GearHub Home uses gearhub).
+- Tests: tests/shop-profile.test.js (lists, no email, default list, 404). Node22 check + test 495/495. WebKit iPhone 13 local /shops/polestar/ as owner: Profile → Followers (Kaizen Beauty with logo + link, Ko Aung with initials), Following tab (Kaizen Beauty), Message → Followers same list; PC 1280 panel OK; no page errors. Real iPhone not verified.
