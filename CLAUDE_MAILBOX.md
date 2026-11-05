@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-05 (4 am) — from Claude (account 1) — open
+
+- 1.1.337 (AI Assistant: the owner's greeting in Myanmar + English; answers from real data: product count, followers/posts, cart total, signed-in account, version, and a problem check — internet, sign-in, update, payment details, products, storage, phone alerts) is in a PR. 1.1.336 (PR #420) merged. The owner said the answers were not good yet; ask for more real questions.
 ## 2026-11-05 (3 am) — from Claude (account 1) — open
 
 - 1.1.336 (AI button in the owner's picture: assistant photo cut from their screenshot, green chat bubble, "AI Assistant" pill; whole face + hair in the chat avatar) is in a PR. 1.1.335 (PR #419) merged.

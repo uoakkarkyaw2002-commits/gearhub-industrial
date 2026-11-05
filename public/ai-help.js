@@ -53,6 +53,13 @@
   ['delete',['delete account','remove account','close account','အကောင့်ဖျက်'],'To delete your account, open skyshopmm.com/delete-account.html and follow the steps there.','Account ဖျက်ချင်ရင် skyshopmm.com/delete-account.html ကို ဖွင့်ပြီး အဆင့်တွေ လုပ်ပါ။'],
   ['editproduct',['edit product','change price','change stock','delete product','remove product','ဈေးပြင်','ဈေးနှုန်းပြင်','product ပြင်','product ဖျက်','ပစ္စည်း ပြင်','ပစ္စည်း ဖျက်','stock ပြင်','ဈေး ပြင်','လက်ကျန် ပြင်','price ပြင်'],'Shop owner: Profile → Dashboard → Products. Tap the product, change the price, stock, photos or text and Save. To delete one, swipe it left into the Recycle Bin (you can bring it back from there).','ဆိုင်ပိုင်ရှင်: Profile → Dashboard → Products။ ပစ္စည်းကို နှိပ်ပြီး ဈေး၊ လက်ကျန်၊ ပုံ၊ စာ ပြင်ပြီး Save နှိပ်ပါ။ ဖျက်ချင်ရင် ဘယ်ဘက်ကို ဆွဲပြီး Recycle Bin ထဲ ထည့်ပါ (အဲဒီကနေ ပြန်ယူလို့ရပါတယ်)။',{view:'profile',en:'Open Profile',my:'Profile ဖွင့်မယ်'}],
   ['myorder',['my order','my orders','order status','where is my order','order arrive','delivery','အော်ဒါ ရောက်','order ရောက်','ပစ္စည်း ရောက်','ပို့ပေး','delivery ဘယ်တော့'],'After you order, the shop checks your payment and confirms the order. Updates come in 🔔 at the top of Home. For delivery questions, write to the shop with 💬.','မှာပြီးရင် ဆိုင်က ငွေလွှဲ စစ်ပြီး အော်ဒါကို အတည်ပြုပါတယ်။ အသိပေးချက်တွေ Home အပေါ်က 🔔 မှာ ရောက်လာပါတယ်။ ပို့ဆောင်ရေး မေးချင်ရင် 💬 နဲ့ ဆိုင်ကို စာရေးပါ။'],
+  // 1.1.337 owner: questions about this shop and this account are answered from the real data on the page.
+  ['countproducts',['how many product','how many item','number of product','product count','product ဘယ်နှစ်','ပစ္စည်း ဘယ်နှစ်','ဘယ်နှစ်ခု','ပစ္စည်း ဘယ်လောက်','product ဘယ်လောက်','item ဘယ်နှစ်'],'',''],
+  ['countfollowers',['how many follower','followers ဘယ်နှစ်','follower ဘယ်နှစ်','follower ဘယ်လောက်','followers ဘယ်လောက်','ဖော်လိုဝါ ဘယ်နှစ်','how many post','post ဘယ်နှစ်'],'',''],
+  ['cartnow',['cart ဘာရှိ','cart ထဲ ရှိ','ခြင်း ဘာရှိ','ခြင်းထဲ ရှိ','in my cart','cart ထဲ ဘာ','cart ထဲ ဘယ်နှစ်','ခြင်းထဲ ဘာ','ခြင်းထဲ ဘယ်နှစ်','what is in my cart','cart ဘယ်လောက်','total price','စုစုပေါင်း'],'',''],
+  ['check',['error','errors','problem','issue','wrong','not working','check my','check my account','account check','health','အမှား','ပြဿနာ','အဆင်မပြေ','ဘာဖြစ်နေ','အကောင့် error','account error','account စစ်','အကောင့် စစ်','စစ်ပေး'],'',''],
+  ['whoami',['my account','who am i','which account','signed in as','logged in','ငါ့ အကောင့်','ကျွန်တော့် အကောင့်','ကျွန်မ အကောင့်','ဘယ် အကောင့်','ဝင်ထား'],'',''],
+  ['version',['version','app version','latest version','ဗားရှင်း','update ရှိ'],'',''],
   ['help',['help','how to use','what can','guide','အကူအညီ','ဘယ်လိုသုံး','သုံးနည်း','လမ်းညွှန်'],'I can help with: searching and scanning, Excel, categories, cart and ordering, payment, Discover, comments, following, Profile, adding products, chat, notifications and Settings. What would you like to do?','ရှာနည်း/scan၊ Excel၊ အမျိုးအစား၊ Cart နဲ့ မှာနည်း၊ ငွေပေးချေမှု၊ Discover၊ comment၊ follow၊ Profile၊ ပစ္စည်းထည့်နည်း၊ chat၊ အသိပေးချက်နဲ့ Settings တွေ ကူညီပေးနိုင်ပါတယ်။ ဘာလုပ်ချင်ပါသလဲ?']
  ];
  const chips={en:['How do I order?','How to search?','Add to Home Screen','How to follow a shop?','Add a product'],my:['ဘယ်လိုမှာရမလဲ?','ဘယ်လိုရှာရမလဲ?','ဖုန်းထဲ app ထည့်နည်း','ဆိုင်ကို follow လုပ်နည်း','ပစ္စည်းထည့်နည်း']};
@@ -113,7 +120,7 @@
  button.innerHTML='<span class="ai-help-card" aria-hidden="true"></span><img class="ai-help-person" src="/images/assistant.png?v=2" alt=""><span class="ai-help-bubble" aria-hidden="true"></span><span class="ai-help-pill" aria-hidden="true"><b>AI</b>Assistant</span>';
  document.body.append(button);
  const box=document.createElement('dialog');box.className='ai-help';document.body.append(box);
- box.innerHTML='<header><img src="'+robot+'" alt=""><span><b></b><small></small></span><button type="button" class="ai-help-x">×</button></header><div class="ai-help-log" role="log" aria-live="polite"></div><div class="ai-help-chips"></div><form class="ai-help-form"><input type="text" autocomplete="off" maxlength="200" enterkeyhint="send"><button type="submit" aria-label=""><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.5 20 4l-5.5 16-3-6.5z"/><path d="m11.5 13.5 4-4"/></svg></button></form>';
+ box.innerHTML='<header><img src="'+robot+'" alt=""><span><b></b><small></small></span><button type="button" class="ai-help-x">×</button></header><div class="ai-help-log" role="log" aria-live="polite" tabindex="-1" autofocus></div><div class="ai-help-chips"></div><form class="ai-help-form"><input type="text" autocomplete="off" maxlength="200" enterkeyhint="send"><button type="submit" aria-label=""><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.5 20 4l-5.5 16-3-6.5z"/><path d="m11.5 13.5 4-4"/></svg></button></form>';
  const log=box.querySelector('.ai-help-log'),input=box.querySelector('input'),chipBox=box.querySelector('.ai-help-chips');
  function paint(){const u=ui[pageMy()?'my':'en'];button.setAttribute('aria-label',u.open);box.querySelector('header b').textContent=u.title;box.querySelector('header small').textContent=u.sub;box.querySelector('.ai-help-x').setAttribute('aria-label',u.close);input.placeholder=u.placeholder;box.querySelector('.ai-help-form button').setAttribute('aria-label',u.send);chipBox.innerHTML=chips[pageMy()?'my':'en'].map(c=>'<button type="button">'+esc(c)+'</button>').join('')}
  paint();new MutationObserver(paint).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
@@ -193,16 +200,68 @@
  card.addEventListener('click',e=>{const b=e.target.closest('[data-tour]');if(!b)return;e.stopPropagation();if(b.dataset.tour==='end')return endTour();if(tour.el)tour.el.click();else go(tour.i+1)});
  // Tapping the glowing button itself goes to the next step once the app has reacted.
  document.addEventListener('click',e=>{if(!tour.steps||!tour.el||card.contains(e.target)||!tour.el.contains(e.target))return;const i=tour.i;setTimeout(()=>{if(tour.steps&&tour.i===i)go(i+1)},450)},true);
+ // Real data: the shop's products / categories / cart / payment details (store.js), the signed-in account and the
+ // shop profile (existing APIs, read only). Nothing is sent anywhere new.
+ const slugNow=()=>(location.pathname.match(/^\/shops\/([a-z0-9-]{1,80})\//)||[])[1]||'gearhub';
+ const getJSON=async url=>{const r=await fetch(url,{credentials:'same-origin',cache:'no-store'});if(!r.ok)throw Error(r.status);return r.json()};
+ const list=()=>{try{return typeof products!=='undefined'&&Array.isArray(products)?products:[]}catch{return []}};
+ const cats=()=>{try{return typeof categories!=='undefined'&&Array.isArray(categories)?categories:[]}catch{return []}};
+ const cartNow=()=>{try{return typeof cart!=='undefined'&&cart?cart:{}}catch{return {}}};
+ const payReady=()=>{try{return typeof config!=='undefined'&&Boolean(config?.bankName&&config?.bankAccountNumber)}catch{return false}};
+ const shopName=()=>document.querySelector('#settings-profile-hero [data-site-brand-name]')?.textContent?.trim()||document.querySelector('.home-profile-banner [data-site-brand-name]')?.textContent?.trim()||'';
+ const num=n=>Number(n||0).toLocaleString('en-US');
+ async function me(){try{return await getJSON('/api/platform/me')}catch{return null}}
+ const LIVE={
+  async countproducts(my){const n=list().length,c=cats().length,name=shopName();
+   if(!n)return my?'ပစ္စည်းစာရင်း မရောက်သေးပါ (internet စစ်ပြီး ခဏနေ ပြန်မေးပါ)။':'The product list has not loaded yet (check the internet and ask again in a moment).';
+   return my?(name?name+' ':'ဒီဆိုင်')+'မှာ ပစ္စည်း '+num(n)+' ခု ရှိပါတယ်'+(c?'၊ အမျိုးအစား '+num(c)+' ခုနဲ့ပါ':'')+'။':(name||'This shop')+' has '+num(n)+' products'+(c?' in '+num(c)+' categories':'')+'.'},
+  async countfollowers(my){try{const d=await getJSON('/api/platform/profile/'+encodeURIComponent(slugNow()));
+   return my?'Followers '+num(d.followers)+' ယောက်၊ Following '+num(d.following)+'၊ Posts '+num(d.posts)+' ခု ရှိပါတယ်။':'Followers: '+num(d.followers)+' · Following: '+num(d.following)+' · Posts: '+num(d.posts)+'.'}
+   catch{return my?'အခု မစစ်နိုင်ပါ (internet စစ်ပါ)။':'I cannot check right now (check the internet).'}},
+  async cartnow(my){const c=cartNow(),rows=Object.entries(c).filter(([,q])=>q>0);if(!rows.length)return my?'ခြင်းထဲမှာ ဘာမှ မရှိသေးပါ။':'Your cart is empty.';
+   let total=0,count=0;for(const [id,q] of rows){const p=list().find(x=>x.id===Number(id));count+=q;if(p)total+=Number(p.price||0)*q}
+   return my?'ခြင်းထဲမှာ ပစ္စည်း '+num(count)+' ခု ('+rows.length+' မျိုး) ရှိပြီး စုစုပေါင်း '+num(total)+' Ks ပါ။':'Your cart has '+num(count)+(count===1?' item':' items')+' ('+rows.length+(rows.length===1?' kind':' kinds')+'), total '+num(total)+' Ks.'},
+  async whoami(my){const d=await me();if(!d)return my?'အခု မစစ်နိုင်ပါ (internet စစ်ပါ)။':'I cannot check right now (check the internet).';
+   if(!d.user)return my?'Google နဲ့ မဝင်ရသေးပါ။ Like၊ comment၊ chat၊ မှာဖို့ ဝင်ဖို့ လိုပါတယ်။':'You are not signed in. You need Google sign-in to like, comment, chat and order.';
+   const own=d.shop&&d.shop.slug===slugNow(),role=d.isOwner?(my?'SkyShopMM ပိုင်ရှင်':'SkyShopMM owner'):own?(my?'ဒီဆိုင်ရဲ့ ပိုင်ရှင်':'owner of this shop'):d.shop?(my?(d.shop.name||'')+' ဆိုင်ရဲ့ ပိုင်ရှင်':'owner of '+(d.shop.name||'a shop')):(my?'ဝယ်သူ':'customer');
+   return my?(d.user.name||'')+' ('+(d.user.email||'')+') နဲ့ ဝင်ထားပါတယ်။ အခန်းကဏ္ဍ: '+role+'။':'Signed in as '+(d.user.name||'')+' ('+(d.user.email||'')+'). Role: '+role+'.'},
+  async version(my){const d=await me(),now=document.querySelector('meta[name="gearhub-build-version"]')?.content||'',latest=d?.release?.version||'';
+   const fresh=!latest||latest===now;return my?'အခု version '+now+(fresh?' — နောက်ဆုံး version ပါ။':' — version အသစ် '+latest+' ရှိပါတယ်။ App ကို ပိတ်ပြီး ပြန်ဖွင့်ပါ။'):'This is version '+now+(fresh?' — the latest.':' — version '+latest+' is ready. Close and reopen the app.')},
+  // A check of the things that most often go wrong, with what to do.
+  async check(my){const L=[],ok=(en,mm)=>L.push('✅ '+(my?mm:en)),bad=(en,mm)=>L.push('⚠️ '+(my?mm:en));
+   if(navigator.onLine===false)bad('No internet — saved pages still open; ordering, chat and likes need internet.','Internet မရှိပါ — သိမ်းထားတာတွေ ပွင့်ပေမယ့် မှာ၊ chat၊ like အတွက် internet လိုပါတယ်။');else ok('Internet is on.','Internet ရှိပါတယ်။');
+   const d=await me();
+   if(!d)bad('Could not reach the server — try again in a moment.','Server ကို မရောက်ပါ — ခဏနေ ပြန်စမ်းပါ။');
+   else{
+    if(d.user)ok('Signed in as '+(d.user.name||d.user.email)+'.',(d.user.name||d.user.email)+' နဲ့ ဝင်ထားပါတယ်။');else bad('Not signed in — tap Continue with Google when you like, comment, chat or order.','Google နဲ့ မဝင်ရသေးပါ — like၊ comment၊ chat၊ မှာတဲ့အခါ Google နဲ့ ဝင်မယ် နှိပ်ပါ။');
+    const now=document.querySelector('meta[name="gearhub-build-version"]')?.content||'',latest=d.release?.version||'';
+    if(latest&&now&&latest!==now)bad('A new version ('+latest+') is ready — close and reopen the app.','Version အသစ် ('+latest+') ရှိပါတယ် — app ကို ပိတ်ပြီး ပြန်ဖွင့်ပါ။');else ok('The app is up to date ('+now+').','App က နောက်ဆုံး version ('+now+') ပါ။');
+    const manager=d.isOwner||(d.shop&&d.shop.slug===slugNow());
+    if(!payReady())bad(manager?'Payment details (bank / mobile account) are missing — customers cannot order. Add them in Dashboard → Shop contact & payment.':'This shop has not added payment details yet, so ordering is not possible — ask the shop with 💬.',manager?'ငွေလွှဲ အချက်အလက် (ဘဏ်/မိုဘိုင်း account) မထည့်ရသေးပါ — ဝယ်သူတွေ မှာလို့ မရပါ။ Dashboard → Shop contact & payment မှာ ထည့်ပါ။':'ဒီဆိုင်က ငွေလွှဲ အချက်အလက် မထည့်ရသေးလို့ မှာလို့ မရသေးပါ — 💬 နဲ့ ဆိုင်ကို မေးပါ။');else ok('Payment details are set, so orders can be placed.','ငွေလွှဲ အချက်အလက် ရှိလို့ မှာလို့ ရပါတယ်။');
+    if(!list().length)bad(manager?'The shop has no products yet — add them from Profile → + Add → Business.':'No products are showing yet.',manager?'ဆိုင်မှာ ပစ္စည်း မရှိသေးပါ — Profile → + Add → Business ကနေ ထည့်ပါ။':'ပစ္စည်း မပေါ်သေးပါ။');else ok(num(list().length)+' products are showing.','ပစ္စည်း '+num(list().length)+' ခု ပေါ်နေပါတယ်။');
+    if(manager){
+     try{const st=await (typeof storefrontFetch==='function'?storefrontFetch('/api/storage'):fetch('/api/storage')).then(r=>r.ok?r.json():null);
+      if(st&&st.capacityBytes){const pc=Math.round(st.usedBytes/st.capacityBytes*100);(pc>=90?bad:ok)('Storage '+pc+'% used.','Storage '+pc+'% သုံးပြီးပါပြီ။'+(pc>=90?' နေရာ နည်းနေပါပြီ — မလိုတဲ့ ပုံ/file ဖျက်ပါ။':''))}}catch{}
+     if('Notification' in window&&Notification.permission!=='granted')bad('Phone alerts are off — turn them on in Settings → Notifications to hear new orders.','ဖုန်း alert ပိတ်ထားပါတယ် — အော်ဒါအသစ် သိဖို့ Settings → Notifications မှာ ဖွင့်ပါ။');
+    }
+   }
+   const problems=L.filter(x=>x.startsWith('⚠️')).length;
+   return (problems?(my?'စစ်ကြည့်ပြီးပါပြီ — သတိထားရမှာ '+problems+' ခု ရှိပါတယ်:':'Checked — '+problems+' thing(s) need attention:'):(my?'စစ်ကြည့်ပြီးပါပြီ — ပြဿနာ မရှိပါ:':'Checked — no problems found:'))+'\n'+L.join('\n')}
+ };
  function ask(q){
   q=q.trim().slice(0,200);if(!q)return;say('me',q);
   const my=isMy(q)||(!/[a-z]/i.test(q)&&pageMy()),hit=answer(q);
+  if(hit&&LIVE[hit[0]]){const wait=document.createElement('div');wait.className='ai-help-msg bot';wait.innerHTML='<img src="'+robot+'" alt=""><p>…</p>';log.append(wait);log.scrollTop=log.scrollHeight;
+   LIVE[hit[0]](my).catch(()=>my?'အခု မစစ်နိုင်ပါ။':'I cannot check right now.').then(text=>{wait.remove();say('bot',text,null,my,hit[0])});return}
   setTimeout(()=>{if(hit)say('bot',my?hit[3]:hit[2],hit[4],my,hit[0]);else say('bot',ui[my?'my':'en'].only)},250);
  }
  box.querySelector('.ai-help-form').addEventListener('submit',e=>{e.preventDefault();ask(input.value);input.value=''});
  chipBox.addEventListener('click',e=>{const b=e.target.closest('button');if(b)ask(b.textContent)});
  box.querySelector('.ai-help-x').onclick=()=>box.close();
  box.addEventListener('click',e=>{if(e.target===box)box.close()});
- button.addEventListener('click',()=>{if(!log.children.length)say('bot',ui[pageMy()?'my':'en'].hello);box.showModal();if(matchMedia('(pointer:fine)').matches)input.focus()});
+ // 1.1.337 owner's words: the first greeting, in Myanmar with English under it.
+ const GREETING='မင်္ဂလာပါ။ SkyShopMM မှ နွေးထွေးစွာ ကြိုဆိုပါတယ်။\n\nကျွန်မက သင့်ရဲ့ AI Assistant ပါ။\n\nပစ္စည်းရှာဖွေခြင်း၊ ဈေးဝယ်ခြင်း၊ ဆိုင်ဖွင့်ခြင်းနဲ့ App အသုံးပြုပုံတွေကို လွယ်ကူမြန်ဆန်စွာ ကူညီပေးဖို့ အသင့်ရှိနေပါတယ်။\n\nသိချင်တာ၊ အခက်အခဲရှိတာတွေကို အချိန်မရွေး လွတ်လပ်စွာ မေးမြန်းနိုင်ပါတယ်။\n\nဒီနေ့ ဘာများကူညီပေးရမလဲ?\n\n—\n\nHello! A warm welcome from SkyShopMM.\n\nI am your AI Assistant.\n\nI am here to help you quickly and easily with finding products, shopping, opening a shop and using the app.\n\nFeel free to ask anything you want to know, or about any problem, at any time.\n\nHow can I help you today?';
+ button.addEventListener('click',()=>{if(!log.children.length)say('bot',GREETING);box.showModal();if(matchMedia('(pointer:fine)').matches)input.focus()});
  // 1.1.333 owner's iPhone: while the keyboard is up the chat fits exactly in the space above it (no gap
  // with the page showing under the typing box, header kept on screen).
  const vv=window.visualViewport;
