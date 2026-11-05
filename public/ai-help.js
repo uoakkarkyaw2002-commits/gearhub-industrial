@@ -107,10 +107,10 @@
   return general>=2?K.find(e=>e[0]==='help'):null;
  }
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const robot='/images/assistant-face.png?v=2';
+ const robot='/images/assistant-face.png?v=3';
  const button=document.createElement('button');button.type='button';button.className='ai-help-button';
  // 1.1.336 owner's picture: the assistant on a card, a chat bubble and the "AI Assistant" pill.
- button.innerHTML='<span class="ai-help-card" aria-hidden="true"></span><img class="ai-help-person" src="/images/assistant.png?v=1" alt=""><span class="ai-help-bubble" aria-hidden="true"></span><span class="ai-help-pill" aria-hidden="true"><b>AI</b>Assistant</span>';
+ button.innerHTML='<span class="ai-help-card" aria-hidden="true"></span><img class="ai-help-person" src="/images/assistant.png?v=2" alt=""><span class="ai-help-bubble" aria-hidden="true"></span><span class="ai-help-pill" aria-hidden="true"><b>AI</b>Assistant</span>';
  document.body.append(button);
  const box=document.createElement('dialog');box.className='ai-help';document.body.append(box);
  box.innerHTML='<header><img src="'+robot+'" alt=""><span><b></b><small></small></span><button type="button" class="ai-help-x">×</button></header><div class="ai-help-log" role="log" aria-live="polite"></div><div class="ai-help-chips"></div><form class="ai-help-form"><input type="text" autocomplete="off" maxlength="200" enterkeyhint="send"><button type="submit" aria-label=""><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.5 20 4l-5.5 16-3-6.5z"/><path d="m11.5 13.5 4-4"/></svg></button></form>';

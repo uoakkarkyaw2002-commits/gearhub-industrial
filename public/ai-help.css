@@ -61,6 +61,6 @@ body:has(.ai-help[open]){overflow:hidden}
 :root[data-theme="dark"] .ai-tour-card{background:#1b2a20;color:#e1f0de}
 body.ai-touring .ai-help-button{display:none}
 /* Her whole face and hair (bun too) show: rounded square, nothing cut off. */
-.ai-help header img,.ai-help-msg img{object-fit:contain;border-radius:12px;background:#e3f1e6}
+.ai-help header img,.ai-help-msg img{object-fit:contain;border-radius:12px;background:linear-gradient(160deg,#d3e9d8,#cfe2dc)}
 .ai-help header img{width:48px;height:48px}
 .ai-help-msg img{flex-basis:34px;width:34px;height:34px;border-radius:9px}
