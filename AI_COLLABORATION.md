@@ -1629,3 +1629,15 @@ _None._
 - Her photo was cut from the owner's screenshot with a scratchpad swift script: inside the card everything is kept; above it only the hair (ellipse, white removed with soft alpha). Files: public/images/assistant.png (button) and assistant-face.png (chat avatar, whole head including the bun, ?v=2). The card border/shadow, bubble and pill are CSS, sized from the picture (86x102 css px, right 13 px, bottom 84 px + safe area; PC scale 1.15). Chat avatars are rounded squares (object-fit contain) so nothing is cut. The texts say "AI Assistant".
 - Compared side by side with the owner's picture at the same scale (scratchpad ai/cmp-big.png): the same layout, card, bubble and pill. The photo is soft because it comes from a screenshot. Node22 check passes; ai-help + tenant-install tests pass (full suite 497/497 before the avatar tweak). WebKit iPhone 13 + PC 1280, no page errors. Real iPhone not verified.
 - Follow-up (same PR): owner said the hair looked broken (the ellipse cut the bun and left white patches). The cut is redone with a flood fill: the white page behind the head is removed from the edges inward; only pixels joined to the card are kept (the text behind is dropped); the edges are soft; the bubble's green is removed only where it is green (the hair under it stays); everything outside the card's rounded rectangle below its top is cleared. assistant.png?v=2, assistant-face.png?v=3 (whole head, bun included); avatar background in the card's green. Node22 check + test 497/497; WebKit phone screenshots compared with the owner's picture.
+
+## 2026-11-05 — Claude (account 1) — 1.1.337 AI Assistant greeting + real-data answers
+
+- Owner gave the opening greeting word for word in Myanmar and asked for English under it: GREETING = the Myanmar text, "—", then the English translation, shown when the chat first opens. The chat log gets autofocus (no blue ring on ✕).
+- Owner's iPhone: "ငါ့မှာ product ဘယ်နှစ်ခု ရှိလဲ" was refused and "ငါ့ အကောင့်မှာ ဘာ error ရှိလဲ" got the sign-in text ("answers are not good yet"). New live answers in ai-help.js (LIVE), using only data already on the page or existing read APIs, with nothing new sent anywhere:
+  - countproducts: products/categories from store.js.
+  - countfollowers: GET /api/platform/profile/<slug>.
+  - cartnow: cart + prices.
+  - whoami: /api/platform/me — name, email, role.
+  - version: meta vs me.release.
+  - check: internet, sign-in, new version, payment details (owner: "Dashboard → Shop contact & payment"; buyer: ordering blocked, ask with 💬), products, storage % (owner, /api/storage via storefrontFetch), phone alerts (owner).
+- tests/ai-help.test.js routes 9 more real questions. Node22 check + test 497/497. WebKit iPhone 13 local POLESTAR: owner got 42 products / 1 category, check (payment missing ⚠️, storage 9% ✅), followers 2 / following 1 / posts 43, account + role; buyer got cart 1 item 3,500,000 Ks, check (payment missing → ask the shop), version 1.1.337; no page errors. Real iPhone not verified.

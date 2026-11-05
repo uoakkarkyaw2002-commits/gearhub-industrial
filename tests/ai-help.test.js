@@ -21,6 +21,9 @@ test('the AI helper answers app questions and refuses everything else',()=>{
  // 1.1.334 owner's iPhone: its keyboard typed ထည့် with the marks in the other order; a topic beats "how to use".
  Object.assign(cases,{'Category အသုံးပြုနည်းပြောပြ':'category','Excel အသုံးပြုနည်း':'excel','help me':'help'});
  assert.equal(id('Product ဘယ်လိုထ\u100a\u103a\u1037လဲ'),'addproduct','iPhone mark order');
+ // 1.1.337 owner's iPhone: questions about this shop and account are answered from the real data.
+ Object.assign(cases,{'ငါ့မှာ product ဘယ်နှစ်ခု ရှိလဲ':'countproducts','how many products do I have':'countproducts','ငါ့ အကောင့်မှာ ဘာ error ရှိလဲ':'check','check my account':'check',
+  'ဖော်လိုဝါ ဘယ်နှစ်ယောက်ရှိလဲ':'countfollowers','cart ထဲ ဘာရှိလဲ':'cartnow','ဘယ် အကောင့်နဲ့ ဝင်ထားလဲ':'whoami','app version':'version','cart ထဲ ဘယ်လိုထည့်ရမလဲ':'cart'});
  for(const [q,want] of Object.entries(cases))assert.equal(id(q),want,q);
  for(const q of ['ထမင်းဘယ်လိုချက်ရမလဲ','What is bitcoin price','ကမ္ဘာ့အမြင့်ဆုံးတောင်က ဘာလဲ','ဘောလုံးပွဲ ဘယ်သူနိုင်လဲ'])assert.equal(id(q),null,q);
  for(const q of ['What is the capital of France?','Write me a poem','မနက်ဖြန် မိုးရွာမလား','2+2','Tell me a joke about cats'])assert.equal(id(q),null,q);
@@ -28,5 +31,5 @@ test('the AI helper answers app questions and refuses everything else',()=>{
  {const w=load.last;const ids=new Set(w.ids);for(const k of Object.keys(w.tours))assert.ok(ids.has(k),'guide without answer: '+k);
   assert.ok(['addproduct','order','install','excel','profile'].every(k=>w.tours[k]?.length>=2));}
  const html=read('index.html'),sw=read('sw.js');
- for(const tag of ['/ai-help.js?v=1.1.336','/ai-help.css?v=1.1.336'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
+ for(const tag of ['/ai-help.js?v=1.1.337','/ai-help.css?v=1.1.337'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
 });
