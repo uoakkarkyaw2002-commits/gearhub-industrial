@@ -30,6 +30,12 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.318: Sticker and photo comments; TikTok-style comment box (Claude)
+- Owner (TikTok picture): comment box = my initial + grey pill "Add comment…" with 🖼 photo, sticker and @ (names in this thread); a red send arrow shows when there is something to send.
+- Owner approved: column `platform_post_comments.media` ("photo:<file id>" / "sticker:<name>") and table `platform_comment_photos(shop_id,file_id,user_id,used)`. Photos are made ≤1600 px on the phone, uploaded with POST `/feed/:slug/:id/comment-photo` (CSRF, signed in, 20 a day) into the POST's shop storage (owner's choice), used once by one comment, deleted with the comment; shop delete removes the rows. Stickers are 20 built-in emoji (no storage).
+- Owner follow-up (TikTok picture): no pencil/bin on comment rows; press and hold (or right-click) a comment → bottom menu Delete / Edit (own comments) / Copy / Reply. The click from lifting the finger is swallowed so the menu stays open.
+- Tests: shop-posts.test.js (sticker, bad sticker, someone else's photo, upload → comment → reuse refused → delete removes the file). 488/488. WebKit iPhone 13: sticker + photo comments drawn. Real iPhone not tested.
+
 ### 1.1.317: Blue Message inbox matching the owner's reference (Codex — review pending)
 - Task: Message button → pale blue inbox with bubble title, rounded search/filter, conversation list/time/unread dots and Chats / Active Now / Followers footer. Full screen on phones (card/type/footer proportions scale on wider phones), centered panel on desktop. Base main `b2d732d`; branch `codex/message-inbox-design`. PR #401: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/401.
 - Files: public/noti-chat.js/css (inbox rendering, name/preview search, unread toggle, tabs, real existing threads and blue styling), index/SW/cache/package release tags, tenant-install pin, mailbox/log. No backend, database, API, unrelated page or production release changes. Existing buyer↔shop sending/polling/Google entry and notifications retained.
