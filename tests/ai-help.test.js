@@ -13,7 +13,14 @@ test('the AI helper answers app questions and refuses everything else',()=>{
  assert.equal(id('how do I add to home screen'),'install');assert.equal(id('ဆိုင်ကို ဖော်လိုလုပ်နည်း'),'follow');
  assert.equal(id('add product'),'addproduct');assert.equal(id('dark mode'),'theme');assert.equal(id('App က လေးနေတယ်'),'speed');
  assert.equal(id('how to create my own shop'),'createshop');assert.equal(id('chat with the shop'),'chat');
+ // 1.1.333 owner's iPhone test: mixed Myanmar / English ways of asking.
+ const cases={'Product ဘယ်လိုထည့်ရလဲ':'addproduct','App အသုံးပြုနည်း ပြောပြပါ':'help','ပစ္စည်းအသစ် ဘယ်လိုတင်ရမလဲ':'addproduct','ဘယ်လို order တင်ရမလဲ':'order','ငွေဘယ်လိုလွှဲရမလဲ':'payment',
+  'ဆိုင်ဘယ်လိုဖွင့်ရမလဲ':'createshop','Excel ဘယ်လိုတင်ရမလဲ':'excel','category အသစ်ထည့်ချင်တယ်':'editcategory','Profile ပုံ ဘယ်လိုပြောင်းရမလဲ':'profile','ဆိုင်ကို စာပို့ချင်တယ်':'chat',
+  'ဖုန်းထဲ app ဘယ်လိုထည့်ရမလဲ':'install','comment ဘယ်လိုဖျက်ရမလဲ':'comment','ဒီ app က ဘာတွေလုပ်လို့ရလဲ':'help','how to change my logo':'profile','where are my orders':'myorder',
+  'Product ဘယ်လိုဖျက်ရမလဲ':'editproduct','stock ဘယ်လိုပြင်ရမလဲ':'editproduct','ဆိုင်ကို ဖော်လိုလုပ်နည်း':'follow'};
+ for(const [q,want] of Object.entries(cases))assert.equal(id(q),want,q);
+ for(const q of ['ထမင်းဘယ်လိုချက်ရမလဲ','What is bitcoin price','ကမ္ဘာ့အမြင့်ဆုံးတောင်က ဘာလဲ','ဘောလုံးပွဲ ဘယ်သူနိုင်လဲ'])assert.equal(id(q),null,q);
  for(const q of ['What is the capital of France?','Write me a poem','မနက်ဖြန် မိုးရွာမလား','2+2','Tell me a joke about cats'])assert.equal(id(q),null,q);
  const html=read('index.html'),sw=read('sw.js');
- for(const tag of ['/ai-help.js?v=1.1.332','/ai-help.css?v=1.1.332'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
+ for(const tag of ['/ai-help.js?v=1.1.333','/ai-help.css?v=1.1.333'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
 });

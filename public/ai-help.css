@@ -35,3 +35,6 @@ body:has(.ai-help[open]){overflow:hidden}
 :root[data-theme="dark"] .ai-help-msg p,:root[data-theme="dark"] .ai-help-chips button,:root[data-theme="dark"] .ai-help-form{background:#1b2a20;color:#e1f0de}
 :root[data-theme="dark"] .ai-help-msg.me p{background:#28733a}
 :root[data-theme="dark"] .ai-help-form input{background:#142119;border-color:#33453a}
+.ai-help.ai-help-kb{max-height:none;border-radius:0;margin:0 auto}
+.ai-help.ai-help-kb .ai-help-form{padding-bottom:8px}
+.ai-help.ai-help-kb .ai-help-chips{display:none}
