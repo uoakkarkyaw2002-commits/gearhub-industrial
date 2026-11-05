@@ -1,8 +1,25 @@
 # Claude mailbox
 
+## 2026-11-05 — from Claude (account 2) — open
+
+- PR #403 (owner 🔔 💬 on GearHub Home) merged with main and renumbered 1.1.322 (main had 1.1.320 Work + 1.1.321 PC top). Owner merges + deploys.
+
 ## 2026-11-12 (night) — from Claude (account 1) — open
 
 - 1.1.319 (🔔 💬 on GearHub Home for the GearHub owner) is in a PR. Still asked by the owner: long-press a comment → Delete / Edit / Copy menu (instead of the pencil and bin), and the PC top bar in the owner's picture.
+## 2026-11-22 (later) — from Claude (account 2) — open
+
+- 1.1.321 (PC shop Home in the owner's picture: pc-top.css/js) is in a PR — continues account 1's unfinished "PC top bar" task (nothing of it was pushed). PR #403 (1.1.319) still open.
+
+## 2026-11-05 — from Codex — 1.1.320 Work product composer on Profile (review pending)
+
+- Owner: Add → Work must open/edit on the Profile like Personal, without entering Admin. Base main `f9fbf4b` / 1.1.318; branch `codex/work-product-sheet`, isolated worktree `/Users/oakkar/Documents/Codex/gearhub-work-sheet`. PR #404: https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/404. Root `claude/pc-top` and its dirty/untracked files untouched. 1.1.319 is reserved by the separate GearHub-owner chat task; do not reuse/downgrade published versions.
+- Implemented: Work opens a rounded Profile dialog, using existing shop-scoped categories, file upload and product create APIs. Fields: SKU, Part No, category (hierarchy-aware) or new category, English/Myanmar name/descriptions, icon, price/stock, promotion, photos/removal/cover. Save refreshes storefront + Profile count and keeps the same shop/Profile URL. Cancel/reopen never navigates to Admin. Validation/save errors preserve inputs; previously uploaded photos are reused when retrying; pending writes block accidental close/duplicate submit.
+- Existing photo editor now has a small mount/cleanup adapter: same editor inside the Work dialog, retaining rotate/background tools, while standalone Admin still auto-mounts as before. Escape closes the nested photo editor and leaves Work open; detach releases listeners/object URLs. No iframe/Admin navigation, backend/schema/API changes or unrelated redesign. Personal, profile editing, Dashboard and owner-controlled seller releases retained.
+- Files: new public/work-product.js/css; public/profile-menu.js wiring; public/photo-editor.js reusable mount; public/index.html + public/admin.html + public/sw.js asset pins; package.json/lock; tests/shop-profile.test.js (replace obsolete Work→Admin expectation), tests/tenant-install.test.js; mailbox/log.
+- Validation: Node22 npm run check + npm test **488/488**, zero failures/skips; all touched browser JS node --check and git diff --check pass. Actual local WebKit seller /shops/polestar/ at 375×900, reference 589×1280, PC 1280×900: Work open/close/reopen/save stays on Profile; real uploads + edit/rotate/Escape/cover; existing hierarchy + new category; bilingual descriptions/promotion; duplicate SKU 409 retains form and retry succeeds; Personal still opens; standalone Admin photo editor works; GearHub owner can open another shop's Work composer. Product API readback confirms fields/images/date. Zero captured JS errors or horizontal overflow. Synthetic local sessions/data only; CSP/HSTS headers removed and service worker blocked in HTTP-only QA harness (no production security change). Screenshots `/Users/oakkar/Documents/Codex/outputs/qa-work-sheet-1.1.320/{phone,reference-size,desktop}.jpg`. Browser/server closed; physical iPhone and live deployment unverified.
+- Open: owner reviews/merges, deploys on Render and explicitly Confirms seller frontend updates. Do not merge, deploy or production Confirm on the owner's behalf.
+
 ## 2026-11-12 (evening) — from Claude (account 1) — open
 
 - 1.1.318 (sticker + photo comments) is in a PR. Next asked by the owner: 🔔 + 💬 on GearHub's own Home too, and the PC top bar in the owner's new picture (logo left, nav, Cart badge, Profile ⌄, glass 🔔 💬 right; search with green filter and scan; hero with ‹ › and dots; wide promotion banner).

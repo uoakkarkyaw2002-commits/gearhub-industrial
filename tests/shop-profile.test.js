@@ -68,11 +68,11 @@ test('profile counts, follow, personal posts and who may post or delete',async t
  assert.equal(db.prepare('SELECT COUNT(*) n FROM platform_post_comments WHERE shop_id=10 AND product_id=?').get(-made.item.postId).n,0,'removing a post removes its comments');
 });
 
-test('the profile page, + Add sheet and Work link are wired',()=>{
+test('the profile page, + Add and Work composer stay on the storefront',()=>{
  const read=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
  const js=read('public/profile-menu.js'),feed=read('public/shops-feed.js'),admin=read('public/admin.js'),server=read('lib/platform.js');
- assert.match(js,/data-pm="personal"/);assert.match(js,/data-pm="work"/);assert.match(js,/\/admin\?add=1'/);
- assert.match(admin,/get\("add"\)!=="1"/,'Work opens the Add Product form');
+ assert.match(js,/data-pm="personal"/);assert.match(js,/data-pm="work"/);assert.doesNotMatch(js,/\/admin\?add=1/);assert.match(js,/GearHubWorkProduct\?\.open/);
+ assert.match(admin,/get\("add"\)!=="1"/,'standalone admin keeps its Add Product deep link');
  assert.match(feed,/fetch\('\/api\/platform\/posts'/,'Discover shows personal posts');
  assert.match(server,/DELETE FROM platform_posts WHERE shop_id=\?/,'deleting a shop removes its posts');
  assert.match(read('public/profile-menu.css'),/\.profile-home\{[^}]*min-height:calc\(100svh/,'the profile fills the screen');

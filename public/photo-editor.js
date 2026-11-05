@@ -3,18 +3,21 @@
    lib/bg-remove.js) and give it a new background colour. Save puts the edited photo back in its place
    (admin.js GearHubProductPhotos); it is uploaded when the product is saved. */
 (()=>{
- const form=document.getElementById('product-form'),zone=form?.querySelector('.product-upload-zone');if(!form||!zone)return;
+ const mounted=new WeakSet();
+ function mount(form=document.getElementById('product-form')){
+ const zone=form?.querySelector('.product-upload-zone');if(!form||!zone||mounted.has(form))return;mounted.add(form);
  const open=document.createElement('button');open.type='button';open.className='photo-edit-open';
  open.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg><span>Edit photo</span>';
  zone.after(open);
  const MAX=1600,COLORS=[['white','#ffffff','White'],['light','#f1f3f2','Light gray'],['black','#111111','Black'],['clear','','Clear']];
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
  const sheet=document.createElement('div');sheet.className='pe-modal';sheet.hidden=true;sheet.setAttribute('role','dialog');sheet.setAttribute('aria-modal','true');sheet.setAttribute('aria-label','Edit photo');
- document.body.append(sheet);
+ const parentDialog=form.closest('dialog');(parentDialog||document.body).append(sheet);
  let state=null,canvas=null;
  const close=()=>{sheet.hidden=true;sheet.innerHTML='';state=null;document.documentElement.classList.remove('pe-open')};
+ const cancel=e=>{if(!sheet.hidden){e.preventDefault();close()}};parentDialog?.addEventListener('cancel',cancel);
  sheet.addEventListener('click',e=>{if(e.target===sheet)close()});
- addEventListener('keydown',e=>{if(e.key==='Escape'&&!sheet.hidden)close()});
+ const escape=e=>{if(e.key==='Escape'&&!sheet.hidden){if(parentDialog)e.preventDefault();close()}};addEventListener('keydown',escape);
  open.addEventListener('click',()=>{
   const photos=window.GearHubProductPhotos?.list()||[];
   sheet.hidden=false;document.documentElement.classList.add('pe-open');
@@ -105,4 +108,7 @@
   const file=new File([blob],state.name+'-edited.'+(clear?'png':'jpg'),{type});
   window.GearHubProductPhotos.replace(state.index,file);close();
  }
+ return ()=>{close();removeEventListener('keydown',escape);parentDialog?.removeEventListener('cancel',cancel);open.remove();sheet.remove();mounted.delete(form)};
+ }
+ window.GearHubPhotoEditor={mount};mount();
 })();
