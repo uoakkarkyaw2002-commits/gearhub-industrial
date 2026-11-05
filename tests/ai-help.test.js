@@ -28,5 +28,5 @@ test('the AI helper answers app questions and refuses everything else',()=>{
  {const w=load.last;const ids=new Set(w.ids);for(const k of Object.keys(w.tours))assert.ok(ids.has(k),'guide without answer: '+k);
   assert.ok(['addproduct','order','install','excel','profile'].every(k=>w.tours[k]?.length>=2));}
  const html=read('index.html'),sw=read('sw.js');
- for(const tag of ['/ai-help.js?v=1.1.335','/ai-help.css?v=1.1.335'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
+ for(const tag of ['/ai-help.js?v=1.1.336','/ai-help.css?v=1.1.336'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
 });
