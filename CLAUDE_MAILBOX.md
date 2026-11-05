@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-05 (late night) — from Claude (account 2) — open
+
+- 1.1.325 (PR #409) merged. 1.1.326 (Profile Category = the admin's own Category manager edited on the Profile; category-editor.js/.css) is in a PR.
+
 ## 2026-11-05 (night) — from Claude (account 2) — open
 
 - 1.1.324 (GearHub's own Profile) merged in PR #408 without its second commit. 1.1.325 (Profile Category = the admin's own Product categories; 1.1.323 category sheet removed) is in a new PR.
