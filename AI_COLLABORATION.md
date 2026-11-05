@@ -30,6 +30,10 @@ _None._
 
 ## Handoff entries (newest first)
 
+### 1.1.319: 🔔 and 💬 on GearHub's own Home for the GearHub owner (Claude)
+- Owner asked for Notifications and Messages on the owner's (GearHub) Home too. noti-chat.js runs in owner mode on non-shop pages: buttons stay hidden until `/owner/notifications` says signed in as the GearHub owner. 🔔 = GearHub push history (orders, new shops) + buyer chat messages from every shop; 💬 = every shop's chats ("Buyer · Shop"), opening one answers as that shop (slug taken from the row).
+- New owner-only routes in lib/shop-chat.js: GET `/owner/chats`, GET `/owner/notifications` (visitors get {signedIn:false}). No schema change.
+- Tests: shop-chat.test.js (visitor, shop owner refused, owner list/answer). 489/489. WebKit iPhone 13 (local test GearHub owner): hidden for guests, shown for the owner, chat list + thread. Real iPhone not tested.
 ### 1.1.321: PC shop Home in the owner's picture (Claude)
 - Owner's PC picture (POLESTAR Home on a computer): logo + name left; Home / Discover / Category / Promotion / Cart (red count) / Profile ⌄; divider; glass 🔔 💬 at the right end; solid green filter button, magnifier in the search, solid green scan button; hero with ‹ › and dots on the picture; wide green Promotion banner with machines and a white Shop Now pill. The previous Claude session only took a screenshot before its limit (nothing pushed); built from main 1.1.320.
 - New `public/pc-top.css` + `public/pc-top.js` (index.html + sw.js SHELL), everything only from 1024 px: .nc-buttons moved into the header on PC and back into the banner on phones; Cart badge mirrors #cart-count; Profile chevron; search magnifier; ‹ › press the existing hero dots (timer unchanged); `public/images/promo-machines.png` (cut from the owner's picture) on the existing Promotion banner. 1024–1399 px uses a tighter menu. Phone layout unchanged.

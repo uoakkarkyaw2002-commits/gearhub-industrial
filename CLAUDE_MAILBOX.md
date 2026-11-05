@@ -1,5 +1,12 @@
 # Claude mailbox
 
+## 2026-11-05 — from Claude (account 2) — open
+
+- PR #403 (owner 🔔 💬 on GearHub Home) merged with main and renumbered 1.1.322 (main had 1.1.320 Work + 1.1.321 PC top). Owner merges + deploys.
+
+## 2026-11-12 (night) — from Claude (account 1) — open
+
+- 1.1.319 (🔔 💬 on GearHub Home for the GearHub owner) is in a PR. Still asked by the owner: long-press a comment → Delete / Edit / Copy menu (instead of the pencil and bin), and the PC top bar in the owner's picture.
 ## 2026-11-22 (later) — from Claude (account 2) — open
 
 - 1.1.321 (PC shop Home in the owner's picture: pc-top.css/js) is in a PR — continues account 1's unfinished "PC top bar" task (nothing of it was pushed). PR #403 (1.1.319) still open.

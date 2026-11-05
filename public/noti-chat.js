@@ -2,9 +2,11 @@
    that happened: orders, likes, comments, follows, chats; answers for buyers) and 💬 chat between a buyer and the
    shop (the shop sees the list of chats and answers). Google sign-in is needed for both. */
 (()=>{
- const slug=(location.pathname.match(/^\/shops\/([a-z0-9-]{1,80})\//)||[])[1];
+ // 1.1.319 owner: on GearHub's own Home the GearHub owner gets them too (GearHub alerts + every shop's chats).
+ let slug=(location.pathname.match(/^\/shops\/([a-z0-9-]{1,80})\//)||[])[1];
+ const ownerMode=!slug&&!/^\/shops\//.test(location.pathname);
  const banner=document.querySelector('.home-profile-banner');
- if(!slug||!banner)return;
+ if((!slug&&!ownerMode)||!banner)return;
  const my=()=>document.documentElement.lang==='my';
  const T={en:{noti:'Notifications',chat:'Chat',none:'Nothing new yet.',signIn:'Sign in with Google to see notifications and chat with the shop.',google:'Continue with Google',write:'Write a message…',send:'Send',noChats:'No chats yet.',back:'Chats',error:'Something went wrong. Please try again.',close:'Close',hello:'Ask the shop anything — price, stock, delivery.'},
   my:{noti:'အသိပေးချက်များ',chat:'Chat',none:'အသစ် မရှိသေးပါ။',signIn:'အသိပေးချက်ကြည့်ဖို့နဲ့ ဆိုင်ကို စာပို့ဖို့ Google နဲ့ ဝင်ပါ။',google:'Google နဲ့ ဝင်မယ်',write:'စာရေးပါ…',send:'ပို့မယ်',noChats:'Chat မရှိသေးပါ။',back:'Chats',error:'မအောင်မြင်ပါ။ ပြန်စမ်းကြည့်ပါ။',close:'ပိတ်ရန်',hello:'ဈေးနှုန်း၊ လက်ကျန်၊ ပို့ဆောင်ရေး — ဆိုင်ကို မေးလို့ရပါတယ်။'}};
@@ -18,8 +20,9 @@
  // The owner's own icon pictures (the bell's red dot is drawn in the picture, so it shows only when something is new).
  box.innerHTML='<button type="button" class="nc-button" data-nc="noti"><img src="/images/noti-bell-quiet.png?v=1" alt="" class="nc-bell"></button><button type="button" class="nc-button" data-nc="chat"><img src="/images/noti-chat.png?v=1" alt=""><i class="nc-dot" hidden></i></button>';
  banner.append(box);
+ if(ownerMode)box.hidden=true;
  const [notiButton,chatButton]=box.querySelectorAll('button');
- const SEEN='gh-noti-seen:'+slug;
+ const SEEN='gh-noti-seen:'+(slug||'gearhub');
  let csrf='',data=null,role='',openChat=null,timer=0,inbox=[],inboxTab='chats',unreadOnly=false;
  async function token(){if(!csrf)csrf=(await (await fetch('/api/platform/me',{cache:'no-store',credentials:'same-origin'})).json()).csrfToken||'';return csrf}
  async function call(url,method='GET',body){
@@ -33,7 +36,7 @@
   notiButton.querySelector('.nc-bell').src=fresh?'/images/noti-bell.png?v=1':'/images/noti-bell-quiet.png?v=1';chatButton.querySelector('.nc-dot').hidden=!data?.unreadChats;
   notiButton.setAttribute('aria-label',t('noti')+(fresh?' · '+fresh:''));chatButton.setAttribute('aria-label',t('chat')+(data?.unreadChats?' · '+data.unreadChats:''));
  }
- async function refresh(){if(document.hidden)return;try{data=await call('/api/platform/notifications/'+slug)}catch{data=null}dots()}
+ async function refresh(){if(document.hidden)return;try{data=await call(ownerMode?'/api/platform/owner/notifications':'/api/platform/notifications/'+slug)}catch{data=null}if(ownerMode)box.hidden=!data?.signedIn;dots()}
  // One sheet for both.
  const sheet=document.createElement('dialog');sheet.className='nc-sheet';sheet.id='nc-sheet';document.body.append(sheet);
  sheet.addEventListener('click',e=>{if(e.target===sheet)sheet.close()});
@@ -82,7 +85,7 @@
   list.innerHTML=rows.length?'<ul class="nc-conversation-list">'+rows.map(c=>{
    const initials=Array.from(c.name.trim().split(/\s+/).map(w=>Array.from(w)[0]).slice(0,2).join('')).join('').toLocaleUpperCase();
    const tone=Array.from(c.name).reduce((n,c)=>n+c.codePointAt(0),0)%4;
-   return '<li><button type="button" class="nc-conversation'+(c.unread?' is-unread':'')+'" data-nc="'+(role==='shop'?'thread':'buyer')+'" data-id="'+c.id+'"><span class="nc-avatar nc-tone-'+tone+'" aria-hidden="true">'+esc(initials)+'</span><span class="nc-conversation-copy"><b>'+esc(c.name)+'</b><span>'+esc(c.last||t('hello'))+'</span></span><span class="nc-conversation-meta"><time datetime="'+esc(c.at||'')+'">'+esc(chatDate(c.at))+'</time>'+(c.unread?'<i class="nc-unread-dot" aria-label="'+esc(t('unread'))+'"></i>':'')+'</span></button></li>';
+   return '<li><button type="button" class="nc-conversation'+(c.unread?' is-unread':'')+'" data-nc="'+(role==='shop'?'thread':'buyer')+'" data-id="'+c.id+'"'+(c.slug?' data-slug="'+esc(c.slug)+'"':'')+'><span class="nc-avatar nc-tone-'+tone+'" aria-hidden="true">'+esc(initials)+'</span><span class="nc-conversation-copy"><b>'+esc(c.name)+'</b><span>'+esc(c.last||t('hello'))+'</span></span><span class="nc-conversation-meta"><time datetime="'+esc(c.at||'')+'">'+esc(chatDate(c.at))+'</time>'+(c.unread?'<i class="nc-unread-dot" aria-label="'+esc(t('unread'))+'"></i>':'')+'</span></button></li>';
   }).join('')+'</ul>':'<p class="nc-empty">'+t(query||unreadOnly?'noResults':'noChats')+'</p>';
  }
  function inboxShell(content){
@@ -92,7 +95,8 @@
  async function showChat(){
   openChat=null;clearInterval(timer);inboxTab='chats';inboxShell('<p class="nc-empty">'+t('loading')+'</p>');
   try{
-   const d=await call('/api/platform/chat/'+slug);if(!sheet.open||!sheet.classList.contains('nc-inbox'))return;
+   const d=await call(ownerMode?'/api/platform/owner/chats':'/api/platform/chat/'+slug);if(!sheet.open||!sheet.classList.contains('nc-inbox'))return;
+   if(ownerMode)d.chats=d.chats.map(c=>({...c,name:c.name+' · '+c.shop}));
    role=d.role;
    const last=d.messages?.[d.messages.length-1];
    inbox=role==='shop'?d.chats:[{id:'buyer',name:d.shop,last:last?.body||'',at:last?.at||'',unread:data?.unreadChats||0}];
@@ -122,7 +126,7 @@
   const tab=e.target.closest('[data-nc-tab]');if(tab){inboxTab=tab.dataset.ncTab;renderInbox();return}
   const b=e.target.closest('[data-nc]');if(!b)return;const k=b.dataset.nc;
   if(k==='signin')return (window.GearHubAppLogin?.start('/shops/'+slug+'/')||Promise.resolve()).catch(err=>note(err.message));
-  if(k==='thread')return showThread(Number(b.dataset.id));
+  if(k==='thread'){if(b.dataset.slug)slug=b.dataset.slug;return showThread(Number(b.dataset.id))}
   if(k==='buyer')return showBuyer();
   if(k==='noti')return showNoti();
   if(k==='filter'){unreadOnly=!unreadOnly;b.setAttribute('aria-pressed',String(unreadOnly));renderInbox();return}
