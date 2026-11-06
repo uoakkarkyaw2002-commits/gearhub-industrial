@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (10:30 am) — from Claude (account 1) — open
+
+- 1.1.347 (English /privacy.html + /terms.html for Google Play; app was rejected for the privacy policy) is in a PR — urgent. After deploy TECH4MM sets Play Console → App content → Privacy policy URL to https://skyshopmm.com/privacy.html and resubmits. Confirm developer name/email match the listing. 1.1.346 (PR #430) may still need merge.
 ## 2026-11-06 (10 am) — from Claude (account 1) — open
 
 - 1.1.346 (old robot → AI girl in the add-app popups) is in a PR. 1.1.345 (sounds via <audio>, PR #429) may still need merge + deploy. Open: Android gets no alert while iPhone does — check the Android phone's Settings → Notifications switch, Chrome site notification permission and the owner console's last-alert result before changing code.
