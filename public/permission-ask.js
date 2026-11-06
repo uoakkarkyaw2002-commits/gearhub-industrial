@@ -3,9 +3,10 @@
    phone shows its own question. Permissions can only be asked from a tap, so each row has its own Allow button. */
 (()=>{
  const KEY='gh-perm-ask-v1';
- const inApp=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true||String(document.referrer).startsWith('android-app://');
- if(!inApp)return;
- try{if(localStorage.getItem(KEY))return}catch{}
+ // The Play Store app opens the first page with referrer android-app://…; remember it, later pages have another referrer.
+ try{if(String(document.referrer).startsWith('android-app://'))localStorage.setItem('gh-twa','1')}catch{}
+ const inApp=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true||String(document.referrer).startsWith('android-app://')||(()=>{try{return localStorage.getItem('gh-twa')==='1'}catch{return false}})();
+ let asked=false;try{asked=Boolean(localStorage.getItem(KEY))}catch{}
  const my=()=>document.documentElement.lang==='my';
  const T={en:{title:'Allow SkyShopMM to use…',notif:'Notifications',notifD:'New orders, chat messages and calls',cam:'Camera',camD:'Scan products and parts',mic:'Microphone',micD:'Voice messages and voice calls',allow:'Allow',on:'Allowed ✓',off:'Blocked — turn it on in the phone Settings',done:'Done',later:'Not now'},
   my:{title:'SkyShopMM ကို ခွင့်ပြုပေးပါ…',notif:'Notifications',notifD:'အော်ဒါအသစ်၊ chat စာ၊ ဖုန်းခေါ်တာ သိရန်',cam:'ကင်မရာ',camD:'ပစ္စည်း scan ဖတ်ရန်',mic:'မိုက်ခရိုဖုန်း',micD:'အသံစာ နဲ့ အသံခေါ်ဆိုမှုအတွက်',allow:'ခွင့်ပြုမယ်',on:'ခွင့်ပြုပြီး ✓',off:'ပိတ်ထားတယ် — ဖုန်း Settings မှာ ဖွင့်ပါ',done:'ပြီးပြီ',later:'နောက်မှ'}};
@@ -22,9 +23,10 @@
  };
  const ids=['notif','cam','mic'];
  const mark=()=>{try{localStorage.setItem(KEY,'1')}catch{}};
- async function open(){
+ async function open(force){
+  if(document.querySelector('.perm-ask'))return;
   const now=await Promise.all(ids.map(k=>state[k]()));
-  if(!ids.some((k,i)=>now[i]==='prompt')){mark();return}
+  if(!force&&!ids.some((k,i)=>now[i]==='prompt')){mark();return}
   const d=document.createElement('dialog');d.className='perm-ask';
   d.style.cssText='position:fixed;inset:auto 0 0 0;margin:0;width:100%;max-width:none;border:0;border-radius:24px 24px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));background:#fff;color:#1f2b24;box-shadow:0 -10px 40px #0003;font:16px/1.5 system-ui,"Noto Sans Myanmar",sans-serif';
   const rows=()=>d.querySelectorAll('[data-k]');
@@ -44,6 +46,16 @@
   document.body.append(d);await paint();d.showModal();
  }
  const go=()=>setTimeout(()=>open().catch(()=>{}),2500);
- addEventListener('gearhub:data-ready',go,{once:true});
- if(document.readyState==='complete')setTimeout(go,6000);
+ if(inApp&&!asked){addEventListener('gearhub:data-ready',go,{once:true});if(document.readyState==='complete')setTimeout(go,6000)}
+ // 1.1.354 owner (Android Play app): the sheet did not appear on its own — Settings → Permissions opens it any time, in every browser and app.
+ const share=document.getElementById('share-store-action');
+ if(share){
+  const row=document.createElement('button');row.type='button';row.className='settings-row settings-row-button';row.id='permission-ask-action';
+  row.innerHTML='<span class="settings-icon" aria-hidden="true">🔐</span><span class="settings-copy"><strong></strong><small></small></span><span class="settings-chevron" aria-hidden="true">›</span>';
+  const paint=()=>{row.querySelector('strong').textContent=my()?'ခွင့်ပြုချက်များ':'Permissions';row.querySelector('small').textContent=my()?'Notifications၊ ကင်မရာ၊ မိုက်ခရိုဖုန်း':'Notifications, camera, microphone'};
+  paint();new MutationObserver(paint).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+  row.addEventListener('click',()=>open(true).catch(()=>{}));
+  share.after(row);
+ }
+ window.GearHubPermissions={open:()=>open(true)};
 })();
