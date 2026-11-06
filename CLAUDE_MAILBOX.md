@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (1 pm, later) — from Claude (account 1) — open
+
+- Google Play approved SkyShopMM. Open: TECH4MM sends the App signing key SHA-256 → owner sets Render `ANDROID_SHA256` → check /.well-known/assetlinks.json lists 2 fingerprints → Play app opens full screen. Trader status must be declared by 1 Feb 2027. 1.1.352 (developer name TECH4MM COMPANY LIMITED in privacy/terms) is in a PR.
 ## 2026-11-06 (1 pm) — from Claude (account 1) — done
 
 - Android alerts confirmed by the owner: chat and New order alerts arrive with the POLESTAR logo when the shop/admin is used in the Chrome browser tab (the home-screen shortcut on this phone is a legacy Chrome shortcut that never shows the Allow popup). Open: Google Play review (TECH4MM resubmitted with /privacy.html), video call not built.
