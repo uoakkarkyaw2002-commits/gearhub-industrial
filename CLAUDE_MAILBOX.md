@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (later) — from Claude (account 1) — open
+
+- 1.1.342 (AI Assistant: Myanmar by default, English only when the question is typed in English) is in a PR. 1.1.341 (PR #425, chat phase 1) merged; owner deploys and tests 🎤 on iPhone.
 ## 2026-11-06 — from Claude (account 1) — open
 
 - 1.1.341 (Messenger-like chat phase 1: every shop in the Chats list, stickers, voice messages; new table platform_chat_voice + kind/voice_id columns; microphone=(self)) is in a PR. 1.1.340 (PR #424) merged. Phase 2 = voice/video calls (WebRTC signalling + TURN, needs the owner's OK on cost). Owner: after deploy test the 🎤 on the iPhone.
