@@ -36,7 +36,7 @@ public class PushService extends FirebaseMessagingService {
         String title = d.get("title") == null ? "SkyShopMM" : d.get("title");
         String body = d.get("body") == null ? "" : d.get("body");
         String url = d.get("url") == null ? "/" : d.get("url");
-        if ("call".equals(kind)) { showCall(title, body, url, "1".equals(d.get("video"))); return; }
+        if ("call".equals(kind)) { showCall(title, body, url, "1".equals(d.get("video")), d.get("callId"), d.get("key")); return; }
         showMessage(title, body, url, kind);
     }
 
@@ -55,9 +55,9 @@ public class PushService extends FirebaseMessagingService {
         try { NotificationManagerCompat.from(this).notify(id, b.build()); } catch (SecurityException ignored) { }
     }
 
-    private void showCall(String title, String body, String url, boolean video) {
+    private void showCall(String title, String body, String url, boolean video, String callId, String key) {
         Intent full = new Intent(this, CallActivity.class)
-                .putExtra("name", title).putExtra("url", url).putExtra("video", video)
+                .putExtra("name", title).putExtra("url", url).putExtra("video", video).putExtra("callId", callId).putExtra("key", key)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_USER_ACTION);
         PendingIntent fullPi = PendingIntent.getActivity(this, CALL_ID, full, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         NotificationCompat.Builder b = new NotificationCompat.Builder(this, App.CHANNEL_CALLS)
@@ -66,6 +66,10 @@ public class PushService extends FirebaseMessagingService {
                 .setOngoing(true).setAutoCancel(false).setTimeoutAfter(45000)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setFullScreenIntent(fullPi, true).setContentIntent(open(url, CALL_ID));
+        // When the phone is in use, Android shows the alert as a banner instead of the full screen: give it real Answer / Decline buttons.
+        Intent decline = new Intent(this, DeclineReceiver.class).putExtra("callId", callId).putExtra("key", key);
+        b.addAction(0, getString(R.string.answer), open(url + (url.contains("?") ? "&" : "?") + "call=accept", CALL_ID + 1));
+        b.addAction(0, getString(R.string.decline), PendingIntent.getBroadcast(this, CALL_ID + 2, decline, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
         // The ring is the notification's own sound, repeated until the call is answered/ended (FLAG_INSISTENT); the full-screen
         // call screen itself stays silent, so there is exactly one ringtone.
         android.app.Notification n = b.build();

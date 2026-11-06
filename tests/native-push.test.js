@@ -60,3 +60,11 @@ test('Settings has a Switch account row that signs out and opens the sign-in pag
  const js=require('fs').readFileSync(require('path').join(__dirname,'..','public','permission-ask.js'),'utf8');
  assert.ok(js.includes('switch-account-action')&&js.includes('/api/platform/logout')&&js.includes("platform.html?visitor"),'switch account');
 });
+
+// 1.1.366: the call alert has Answer / Decline buttons (banner when the phone is in use); Decline reaches the server by a key sent only to that phone.
+test('call alert: Answer/Decline buttons and decline by key',()=>{
+ const fs=require('fs'),path=require('path'),r=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
+ assert.ok(r('android/app/src/main/java/com/skyshopmm/app/PushService.java').includes('b.addAction(0, getString(R.string.answer)')&&r('android/app/src/main/java/com/skyshopmm/app/DeclineReceiver.java').includes('CallApi.decline'),'buttons on the alert');
+ assert.ok(r('lib/shop-chat.js').includes("'/call/:id/decline-key'")&&r('lib/shop-chat.js').includes('crypto.timingSafeEqual(Buffer.from(key), Buffer.from(c.declineKey))')&&r('lib/native-push.js').includes('callId: m.callId, key: m.key'),'server: key checked, sent only to the called phone');
+ assert.ok(r('public/voice-call.js').includes('typ srflx'),'connect sooner');
+});

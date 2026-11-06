@@ -64,7 +64,7 @@
   setTimeout(()=>{c.dialog.close();c.dialog.remove()},c.keep||0);
  }
  function finish(text,keep=1400){status(text);ringStop();sound.end();if(cur)cur.keep=keep;cleanup()}
- const gathered=pc=>new Promise(done=>{if(pc.iceGatheringState==='complete')return done();const f=()=>{if(pc.iceGatheringState==='complete'){pc.removeEventListener('icegatheringstatechange',f);done()}};pc.addEventListener('icegatheringstatechange',f);setTimeout(done,2000)});
+ const gathered=pc=>new Promise(done=>{let fin=false;const end=()=>{if(fin)return;fin=true;pc.removeEventListener('icegatheringstatechange',f);pc.removeEventListener('icecandidate',c);done()};const f=()=>{if(pc.iceGatheringState==='complete')end()};const c=e=>{if(e.candidate&&/ typ srflx /.test(e.candidate.candidate))setTimeout(end,250)};if(pc.iceGatheringState==='complete')return end();pc.addEventListener('icegatheringstatechange',f);pc.addEventListener('icecandidate',c);setTimeout(end,1800)});
  function open(name,incoming,video){
   const dialog=screen(name,incoming);cur={dialog,name,t0:0,video:Boolean(video)};dialog.classList.toggle('vc-video',Boolean(video));
   dialog.addEventListener('click',e=>{const b=e.target.closest('[data-vc]');if(!b)return;const k=b.dataset.vc;
@@ -87,9 +87,10 @@ async function speaker(on){
 // Microphone + connection: when calling, and when the person called taps Accept (a tap is needed for the microphone).
  async function media(){
   if(!navigator.mediaDevices?.getUserMedia||typeof RTCPeerConnection==='undefined')throw Error(t('nomic'));
-  const cfg=await api('/api/platform/call/config');
   const wantVideo=Boolean(cur&&cur.video);
-  let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:wantVideo?{facingMode:'user',width:{ideal:640},height:{ideal:480}}:false})}catch{throw Error(t(wantVideo?'camDenied':'mic'))}
+  const cfgP=api('/api/platform/call/config');
+  let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:wantVideo?{facingMode:'user',width:{ideal:640},height:{ideal:480}}:false})}catch{cfgP.catch(()=>{});throw Error(t(wantVideo?'camDenied':'mic'))}
+  const cfg=await cfgP;
   const c=cur;if(!c){stream.getTracks().forEach(x=>x.stop());throw Error(t('ended'))}
   const pc=new RTCPeerConnection({iceServers:cfg.iceServers});
   stream.getTracks().forEach(x=>pc.addTrack(x,stream));c.pc=pc;c.stream=stream;
@@ -116,7 +117,7 @@ async function speaker(on){
     if(d.state==='ended'){const why={declined:'declined',missed:'missed'}[d.reason];finish(t(why||'ended'))}
     else if(c.role==='caller'&&d.state==='ringing'&&Date.now()-c.created>46000)hang(t('missed'));
    }catch(e){if(e.status===404&&cur===c)finish(t('ended'))}
-  },1000);
+  },600);
  }
  async function start(slug,chat,name,video){
   if(cur)throw Error(t('busy'));

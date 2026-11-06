@@ -47,6 +47,8 @@
             android:turnScreenOn="true"
             android:theme="@style/Theme.SkyShopMM.Call" />
 
+        <receiver android:name=".DeclineReceiver" android:exported="false" />
+
         <service
             android:name=".PushService"
             android:exported="false">

@@ -50,7 +50,7 @@ public class CallActivity extends Activity {
             }
         });
         findViewById(R.id.decline).setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { finishCall(); }
+            @Override public void onClick(View v) { CallApi.decline(getIntent().getStringExtra("callId"), getIntent().getStringExtra("key")); finishCall(); }
         });
         IntentFilter f = new IntentFilter(PushService.ACTION_CALL_END);
         if (Build.VERSION.SDK_INT >= 33) registerReceiver(ended, f, Context.RECEIVER_NOT_EXPORTED); else registerReceiver(ended, f);

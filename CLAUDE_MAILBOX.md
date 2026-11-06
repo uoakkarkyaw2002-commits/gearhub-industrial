@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-07 (4 am) — from Claude (account 1) — open
+
+- Switch account ✓. 1.1.366 (call alert banner with Answer/Decline buttons; decline-by-key route; faster connect) is in a PR; new APK `SkyShopMM-app-debug-1.1.366.apk` is in the owner's Google Drive (top level). Owner re-installs and tests a video call with the phone unlocked and locked.
 ## 2026-11-07 (3 am) — from Claude (account 1) — open
 
 - 1.1.365 (Settings → Switch account) is in a PR. Open bug from the owner: video call cannot be made from the Android native app any more — ask for the call screen text and which account is signed in; check camera/microphone permission in the TWA and the owner-vs-buyer call rule (`manages`).
