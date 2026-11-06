@@ -55,7 +55,7 @@
   await refresh();if(!data||!data.signedIn)return signIn();
   const before=seen();
   open(bell+'<span>'+t('noti')+'</span>',data.items.length?'<ul class="nc-list">'+data.items.map((i,k)=>'<li><button type="button" class="nc-item'+(i.at>before?' is-new':'')+'" data-nc="item" data-k="'+k+'"><span>'+esc(i.text)+'</span><small>'+esc(ago(i.at))+'</small></button></li>').join('')+'</ul>':'<p class="nc-empty">'+t('none')+'</p>');
-  try{localStorage.setItem(SEEN,data.items[0]?.at||new Date().toISOString())}catch{}dots();
+  {const v=data.items[0]?.at||new Date().toISOString();try{localStorage.setItem(SEEN,v)}catch{}window.GearHubUserData?.put('noti-seen-'+(slug||'gearhub'),v)}dots();
  }
  const callBtn='<button type="button" class="nc-call" data-nc="call" aria-label="'+(my()?'အသံ ခေါ်မယ်':'Voice call')+'">📞</button>';
  const STICKERS=['👍','❤️','😂','😮','😢','🙏','👏','🔥','🎉','😍','😎','🤝','✅','🛒','📦','🚚'];
@@ -187,5 +187,7 @@
  window.GearHubNoti={open:showNoti,chat:showChat};
  // From a chat alert on the phone (?chat=1) the chat opens.
  if(new URLSearchParams(location.search).get('chat')==='1')addEventListener('gearhub:data-ready',()=>{showChat();history.replaceState(history.state,'',location.pathname)},{once:true});
+ // The "seen up to" mark also lives on the server, so a new phone does not show old alerts as new.
+ addEventListener('gearhub:data-ready',()=>setTimeout(async()=>{const key='noti-seen-'+(slug||'gearhub'),srv=await window.GearHubUserData?.get(key);if(typeof srv==='string'&&srv>seen()){try{localStorage.setItem(SEEN,srv)}catch{}dots()}},4000),{once:true});
  refresh();setInterval(refresh,60000);document.addEventListener('visibilitychange',refresh);
 })();

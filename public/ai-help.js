@@ -186,7 +186,18 @@
  let todoCount=0,autoCache=[],autoAt=0;
  function paint(){const u=ui[pageMy()?'my':'en'];button.setAttribute('aria-label',u.open);box.querySelector('header b').textContent=u.title;box.querySelector('header small').textContent=u.sub;box.querySelector('.ai-help-x').setAttribute('aria-label',u.close);input.placeholder=u.placeholder;box.querySelector('.ai-help-form button').setAttribute('aria-label',u.send);chipBox.innerHTML=(todoCount?'<button type="button" class="ai-help-todochip">📝 '+(pageMy()?'လုပ်စရာ ':'To-do ')+todoCount+'</button>':'')+chips[pageMy()?'my':'en'].map(c=>'<button type="button">'+esc(c)+'</button>').join('')}
  paint();new MutationObserver(paint).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+ // 1.1.344 owner: the chat with the assistant is remembered (on this phone and, when signed in, on the server).
+ const CHATKEY='gh-ai-chat';let hist=[],histT=0,restoring=false,histTimer=0;
+ try{const l=JSON.parse(localStorage.getItem(CHATKEY)||'null');if(l&&Array.isArray(l.items)){hist=l.items;histT=Number(l.t)||0}}catch{}
+ const histSave=()=>{histT=Date.now();const v={t:histT,items:hist.slice(-80)};try{localStorage.setItem(CHATKEY,JSON.stringify(v))}catch{}clearTimeout(histTimer);histTimer=setTimeout(()=>window.GearHubUserData?.put('ai-chat',v),1500)};
+ function paintHist(){restoring=true;log.innerHTML='';for(const m of hist)say(m.w,m.text,m.id?(K.find(e=>e[0]===m.id)||[])[4]||null:null,m.my,m.id);restoring=false}
+ async function syncChat(){
+  const srv=await window.GearHubUserData?.get('ai-chat');
+  if(srv&&Array.isArray(srv.items)&&srv.items.length&&(Number(srv.t)||0)>histT){hist=srv.items;histT=Number(srv.t);try{localStorage.setItem(CHATKEY,JSON.stringify(srv))}catch{}if(log.children.length)paintHist()}
+  else if(hist.length&&histT>(Number(srv?.t)||0))window.GearHubUserData?.put('ai-chat',{t:histT,items:hist.slice(-80)});
+ }
  function say(who,text,action,my,id){
+  if(!restoring){hist.push({w:who,text,id:id||'',my:Boolean(my)});histSave()}
   const m=document.createElement('div');m.className='ai-help-msg '+who;const guide=id&&TOURS[id];
   m.innerHTML=(who==='bot'?'<img src="'+robot+'" alt="">':'')+'<p>'+esc(text).replace(/\n/g,'<br>')+(guide?'<button type="button" class="ai-help-go ai-help-tour">Go ▶</button>':action?'<button type="button" class="ai-help-go">'+esc(my?action.my:action.en)+' →</button>':'')+'</p>';
   if(guide)m.querySelector('.ai-help-go').onclick=()=>{box.close();startTour(guide,my)};
@@ -282,7 +293,12 @@
  // ----- 1.1.340: to-dos (this phone) and claim checks -----
  const TKEY=()=>'gh-ai-todos:'+slugNow();
  const loadT=()=>{try{const v=JSON.parse(localStorage.getItem(TKEY())||'[]');return Array.isArray(v)?v:[]}catch{return []}};
- const saveT=v=>{try{localStorage.setItem(TKEY(),JSON.stringify(v.slice(-60)))}catch{}};
+ const saveT=v=>{const items=v.slice(-60),t=Date.now();try{localStorage.setItem(TKEY(),JSON.stringify(items));localStorage.setItem(TKEY()+':t',String(t))}catch{}window.GearHubUserData?.put('ai-todos-'+slugNow(),{t,items})};
+ async function syncTodos(){
+  const key='ai-todos-'+slugNow(),srv=await window.GearHubUserData?.get(key);let lt=0;try{lt=Number(localStorage.getItem(TKEY()+':t'))||0}catch{}
+  if(srv&&Array.isArray(srv.items)&&(Number(srv.t)||0)>lt){try{localStorage.setItem(TKEY(),JSON.stringify(srv.items));localStorage.setItem(TKEY()+':t',String(srv.t))}catch{}refreshTodos(true)}
+  else if(lt>(Number(srv?.t)||0))window.GearHubUserData?.put(key,{t:lt,items:loadT()});
+ }
  // "remind me to add the Hero picture" / "မှတ်ထား: ပစ္စည်းသစ် တင်ရန်" -> add; "done 2" / "ပြီးပြီ 2" -> done; "delete task 2" -> delete.
  function parseTodo(q){
   const t=q.normalize('NFC').trim(),low=t.toLowerCase(),n=(low.match(/(\d{1,3})/)||[])[1];
@@ -462,12 +478,12 @@
  box.addEventListener('click',e=>{if(e.target===box)box.close()});
  // 1.1.337 owner's words: the first greeting, in Myanmar with English under it.
  const GREETING='မင်္ဂလာပါ။ SkyShopMM မှ နွေးထွေးစွာ ကြိုဆိုပါတယ်။\n\nကျွန်မက သင့်ရဲ့ AI Assistant ပါ။\n\nပစ္စည်းရှာဖွေခြင်း၊ ဈေးဝယ်ခြင်း၊ ဆိုင်ဖွင့်ခြင်းနဲ့ App အသုံးပြုပုံတွေကို လွယ်ကူမြန်ဆန်စွာ ကူညီပေးဖို့ အသင့်ရှိနေပါတယ်။\n\nသိချင်တာ၊ အခက်အခဲရှိတာတွေကို အချိန်မရွေး လွတ်လပ်စွာ မေးမြန်းနိုင်ပါတယ်။\n\nဒီနေ့ ဘာများကူညီပေးရမလဲ?\n\n—\n\nHello! A warm welcome from SkyShopMM.\n\nI am your AI Assistant.\n\nI am here to help you quickly and easily with finding products, shopping, opening a shop and using the app.\n\nFeel free to ask anything you want to know, or about any problem, at any time.\n\nHow can I help you today?';
- button.addEventListener('click',()=>{if(!log.children.length)say('bot',GREETING);box.showModal();if(matchMedia('(pointer:fine)').matches)input.focus();
+ button.addEventListener('click',()=>{if(!log.children.length){if(hist.length)paintHist();else say('bot',GREETING)}box.showModal();if(matchMedia('(pointer:fine)').matches)input.focus();
   // 1.1.340 owner: remind the owner of what is waiting — once a day in the chat, and always as the red number on my picture.
   refreshTodos(true).then(r=>{const day=new Date().toISOString().slice(0,10);let seen='';try{seen=localStorage.getItem('gh-ai-todo-day:'+slugNow())||''}catch{}
    if(todoCount>0&&seen!==day&&box.open){try{localStorage.setItem('gh-ai-todo-day:'+slugNow(),day)}catch{}say('bot',todoText(true,r.auto,loadT()),null,true,'todolist')}})});
  box.addEventListener('close',()=>{refreshTodos(true)});
- addEventListener('gearhub:data-ready',()=>setTimeout(()=>refreshTodos(true),5000));
+ addEventListener('gearhub:data-ready',()=>setTimeout(()=>{syncTodos();syncChat();refreshTodos(true)},5000));
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshTodos(false)});
  setTimeout(()=>refreshTodos(false),9000);
  // 1.1.333 owner's iPhone: while the keyboard is up the chat fits exactly in the space above it (no gap
