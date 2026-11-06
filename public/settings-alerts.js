@@ -5,7 +5,7 @@
  const slug=(location.pathname.match(/^\/shops\/([a-z0-9-]+)\//)||[])[1],share=document.getElementById("share-store-action");
  // 1.1.247: GearHub's own store (no /shops/<slug>/) shows the switch to the GearHub owner (scope "main").
  if(!share||(!slug&&location.pathname.startsWith("/shops/")))return;
- const SW_URL=slug?"/shops/"+slug+"/sw.js":"/sw.js",offKey="gh-alerts-off:"+(slug?"true":"main");
+ const SW_URL=slug?"/shops/"+slug+"/sw.js":"/sw.js",offKey="gh-alerts-off:"+(slug?"true":"main"),onKey="gh-alerts-on:"+(slug||"main");
  const my=()=>document.documentElement.lang==="my";
  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent||"")||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
  const standalone=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
@@ -23,16 +23,26 @@
  async function refresh(){
   if(!("serviceWorker" in navigator)||!("PushManager" in window)||!window.Notification||!window.isSecureContext||(isIOS&&!standalone())){input.disabled=true;return show(false,isIOS?"Open the app from your Home Screen to turn on":"This browser cannot show order alerts",isIOS?"Home Screen က app ကနေ ဖွင့်ပြီးမှ ဖွင့်လို့ရပါမယ်":"ဒီ browser မှာ သတိပေးချက် မရပါ")}
   if(Notification.permission==="denied"){input.disabled=true;return show(false,"Notifications are blocked in the phone settings","ဖုန်း Settings မှာ Notifications ပိတ်ထားပါတယ်")}
-  try{const sub=await current(),s=await api(sub?"?endpoint="+encodeURIComponent(sub.endpoint):"");show(!!(sub&&s.subscribed))}catch{show(false)}
+  try{
+   const sub=await current(),s=await api(sub?"?endpoint="+encodeURIComponent(sub.endpoint):"");
+   if(sub&&s.subscribed)return show(true);
+   // 1.1.348 owner (Android): the switch was on, but after closing and reopening the app it showed off — the phone's
+   // alert address was gone or no longer on the server list. If this phone turned alerts on and never off, quietly
+   // make a fresh one (permission is already granted, so no question is asked) instead of showing off.
+   let wanted=false;try{wanted=localStorage.getItem(onKey)==="1"&&!localStorage.getItem(offKey)}catch{}
+   if(wanted&&Notification.permission==="granted"){await turnOn(true);return}
+   show(false);
+  }catch(e){show(false,"Order alerts are off ("+(e.message||"failed")+")","အော်ဒါ သတိပေးချက် ပိတ်နေပါတယ် ("+(e.message||"failed")+")")}
  }
- async function turnOn(){
-  const p=await Notification.requestPermission();if(p!=="granted"){input.disabled=p==="denied";return show(false)}
+ async function turnOn(fresh){
+  const p=fresh?Notification.permission:await Notification.requestPermission();if(p!=="granted"){input.disabled=p==="denied";return show(false)}
   const {publicKey}=await api(""),reg=await registration(),key=keyBytes(publicKey);let sub=await reg.pushManager.getSubscription();
+  if(sub&&(fresh||!sub.options?.applicationServerKey)){await sub.unsubscribe().catch(()=>{});sub=null}
   if(sub&&sub.options?.applicationServerKey){const old=new Uint8Array(sub.options.applicationServerKey);if(old.length!==key.length||old.some((v,i)=>v!==key[i])){await sub.unsubscribe();sub=null}}
   sub=sub||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:key});
-  await api("/subscribe",{subscription:sub.toJSON()});try{localStorage.removeItem(offKey)}catch{}show(true);
+  await api("/subscribe",{subscription:sub.toJSON()});try{localStorage.removeItem(offKey);localStorage.setItem(onKey,"1")}catch{}show(true);
  }
- async function turnOff(){const sub=await current();try{localStorage.setItem(offKey,"1")}catch{}if(sub){await api("/unsubscribe",{endpoint:sub.endpoint}).catch(()=>{});await sub.unsubscribe().catch(()=>{})}show(false)}
+ async function turnOff(){const sub=await current();try{localStorage.setItem(offKey,"1");localStorage.removeItem(onKey)}catch{}if(sub){await api("/unsubscribe",{endpoint:sub.endpoint}).catch(()=>{});await sub.unsubscribe().catch(()=>{})}show(false)}
  let mode="";
  // 1.1.250 owner: like Facebook — tapping Notifications shows every alert that came in, with time and text.
  const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);

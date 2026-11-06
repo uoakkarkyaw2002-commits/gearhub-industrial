@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (11 am) — from Claude (account 1) — open
+
+- 1.1.348 (alerts switch self-heals: Android showed off after reopening) is in a PR. 1.1.347 privacy pages are live; TECH4MM was sent the link to resubmit to Google Play. If Android still gets no alerts, ask for the owner console's last push result (phones/sent/failed).
 ## 2026-11-06 (10:30 am) — from Claude (account 1) — open
 
 - 1.1.347 (English /privacy.html + /terms.html for Google Play; app was rejected for the privacy policy) is in a PR — urgent. After deploy TECH4MM sets Play Console → App content → Privacy policy URL to https://skyshopmm.com/privacy.html and resubmits. Confirm developer name/email match the listing. 1.1.346 (PR #430) may still need merge.

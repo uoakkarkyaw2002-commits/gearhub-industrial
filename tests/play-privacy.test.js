@@ -7,3 +7,10 @@ test('English privacy policy and terms name the app, package, developer and cont
   assert.ok(!/<script/i.test(html),f+' has no scripts');
  }
 });
+
+// 1.1.348 owner (Android): alerts switched on, but after closing and reopening the app the switch was off.
+test('the alerts switch makes a fresh phone subscription when the old one was lost',()=>{
+ const js=fs.readFileSync(path.join(__dirname,'..','public','settings-alerts.js'),'utf8');
+ assert.ok(js.includes('gh-alerts-on:')&&js.includes('await turnOn(true)'),'self-heal when the phone had turned alerts on');
+ assert.ok(js.includes('localStorage.removeItem(onKey)'),'turning off really stays off');
+});
