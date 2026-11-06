@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-07 (2 am) — from Claude (account 1) — open
+
+- 1.1.364 (opening picture/sound only on a plain app start; calls/alerts enter directly) is in a PR; new debug APK built (cold-start flag in App.java/MainActivity.java). Owner re-installs and tests: plain open → picture+sound; Answer/alert tap → straight in; swipe app away + open → picture+sound again.
 ## 2026-11-07 (1 am) — from Claude (account 1) — open
 
 - Native app: one ringtone ✓, straight into the shop ✓. 1.1.363 (tiny `/app-start.html` start page so the sign-in scene no longer flashes before the shop) is in a PR; no new APK needed. Open question to the owner: should the shop's opening picture/sound be shorter or silent inside the app?

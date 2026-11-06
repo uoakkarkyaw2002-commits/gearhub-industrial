@@ -5,7 +5,7 @@
  // (sessionStorage: the app runs inside Chrome, so localStorage is shared with ordinary Chrome tabs), then taken off the address bar.
  try{
   const q=new URLSearchParams(location.search);
-  if(q.get('app')==='android'){sessionStorage.setItem('gh-native','1');if(q.get('fcm'))sessionStorage.setItem('gh-native-fcm',q.get('fcm'));q.delete('app');q.delete('fcm');history.replaceState(history.state,'',location.pathname+(q.toString()?'?'+q:'')+location.hash)}
+  if(q.get('app')==='android'){sessionStorage.setItem('gh-native','1');if(q.get('fcm'))sessionStorage.setItem('gh-native-fcm',q.get('fcm'));if(q.get('splash')==='1')sessionStorage.setItem('gh-open-splash','1');q.delete('app');q.delete('fcm');q.delete('splash');history.replaceState(history.state,'',location.pathname+(q.toString()?'?'+q:'')+location.hash)}
  }catch{}
  const nativeApp=()=>{try{return sessionStorage.getItem('gh-native')==='1'}catch{return false}};
  // 1.1.362 owner: inside the app, after signing in and closing it, the app asked to sign in again. The app opens the account page (which shows the
