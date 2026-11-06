@@ -29,3 +29,12 @@ test('sends a high-priority data message per token; a gone token is forgotten',a
  assert.equal(sends[0].opt.headers.Authorization,'Bearer tok');assert.deepEqual(np.tokens(7),[good]);
  assert.equal(calls.filter(c=>/oauth2/.test(c.url)).length,1,'access token reused');
 });
+
+// 1.1.361: first phone test — answering was slow and every message rang twice (native alert + the old Chrome web alert).
+test('answering a call is quick and the old web alert of the phone is removed',()=>{
+ const fs=require('fs'),path=require('path'),r=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
+ assert.ok(r('public/voice-call.js').includes('call=accept')&&r('public/voice-call.js').includes('autoAccept&&!autoDone'),'accepted without a second tap');
+ assert.ok(r('android/app/src/main/java/com/skyshopmm/app/CallActivity.java').includes('\"call=accept\"'),'native Answer asks for it');
+ assert.ok(r('android/app/src/main/java/com/skyshopmm/app/MainActivity.java').includes('known'),'no waiting for Firebase when the address is known');
+ assert.ok(r('public/user-data.js').includes('/api/platform/push/forget')&&r('lib/platform.js').includes('/push/forget')&&r('lib/order-push.js').includes('forget(endpoint)'),'the web alert of an app phone is forgotten');
+});

@@ -43,7 +43,7 @@ public class CallActivity extends Activity {
         ((TextView) findViewById(R.id.status)).setText(video ? R.string.incoming_video_call : R.string.incoming_call);
         findViewById(R.id.answer).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                Intent i = new Intent(CallActivity.this, MainActivity.class).putExtra(MainActivity.EXTRA_URL, url)
+                Intent i = new Intent(CallActivity.this, MainActivity.class).putExtra(MainActivity.EXTRA_URL, url + (url.contains("?") ? "&" : "?") + "call=accept")
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(i);
                 finishCall();

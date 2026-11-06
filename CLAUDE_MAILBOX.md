@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (11 pm) — from Claude (account 1) — open
+
+- Native app first phone test: native alerts + full-screen call work. 1.1.361 (no duplicate alerts: web alert of an app phone removed; Answer accepts at once; faster connect) is in a PR; a new debug APK was built. Owner re-installs the APK and re-tests.
 ## 2026-11-06 (10 pm) — from Claude (account 1) — open
 
 - Native app: Firebase project made, FCM_SERVICE_ACCOUNT set on Render, PR #445 (1.1.359) merged. 1.1.360 (account/admin pages also save the app's Firebase address) is in a PR. Debug APK `android/app/build/outputs/apk/debug/app-debug.apk` built with Firebase; owner to install on the Android phone. Release AAB needs the upload keystore + a Play developer account.
