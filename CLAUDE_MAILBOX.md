@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-07 (3 am) — from Claude (account 1) — open
+
+- 1.1.365 (Settings → Switch account) is in a PR. Open bug from the owner: video call cannot be made from the Android native app any more — ask for the call screen text and which account is signed in; check camera/microphone permission in the TWA and the owner-vs-buyer call rule (`manages`).
 ## 2026-11-07 (2 am) — from Claude (account 1) — open
 
 - 1.1.364 (opening picture/sound only on a plain app start; calls/alerts enter directly) is in a PR; new debug APK built (cold-start flag in App.java/MainActivity.java). Owner re-installs and tests: plain open → picture+sound; Answer/alert tap → straight in; swipe app away + open → picture+sound again.
