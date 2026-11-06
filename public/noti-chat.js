@@ -71,6 +71,7 @@
  // Voice message: tap 🎤 to record (up to 60 s), then ➤ to send or ✕ to throw away.
  let rec=null;
  const chatPath=()=>'/api/platform/chat/'+cs+(openChat==='buyer'?'':'/'+openChat);
+ const readPath=()=>chatPath()+(openChat==='buyer'?'?as=buyer':'');
  function stopRec(send){
   const r=rec;if(!r)return;rec=null;clearInterval(r.tick);
   r.mr.onstop=async()=>{
@@ -149,13 +150,13 @@
   }
  }
  async function showBuyer(){
-  try{const d=await call('/api/platform/chat/'+cs);if(!sheet.open)return;role=d.role;openChat='buyer';open('<button type="button" class="nc-back" data-nc="chats">‹ '+t('back')+'</button><span>'+esc(d.shop)+'</span>'+callBtn,messagesHtml(d.messages),'thread');scrollEnd();live()}catch(e){note(e.message)}
+  try{const d=await call('/api/platform/chat/'+cs+'?as=buyer');if(!sheet.open)return;role=d.role;openChat='buyer';open('<button type="button" class="nc-back" data-nc="chats">‹ '+t('back')+'</button><span>'+esc(d.shop)+'</span>'+callBtn,messagesHtml(d.messages),'thread');scrollEnd();live()}catch(e){note(e.message)}
  }
  async function showThread(id){
   try{const d=await call('/api/platform/chat/'+cs+'/'+id);role='shop';openChat=id;open('<button type="button" class="nc-back" data-nc="chats">‹ '+t('back')+'</button><span>'+esc(d.name)+'</span>'+callBtn,messagesHtml(d.messages),'thread');scrollEnd();live()}catch(e){note(e.message)}
  }
  // While a chat is open, new messages come in every few seconds.
- function live(){clearInterval(timer);timer=setInterval(async()=>{if(!sheet.open||document.hidden||!openChat)return;try{const d=await call('/api/platform/chat/'+cs+(openChat==='buyer'?'':'/'+openChat));const box=sheet.querySelector('.nc-messages'),typing=sheet.querySelector('.nc-form textarea')?.value;if(!box)return;const html=messagesHtml(d.messages);const tmp=document.createElement('div');tmp.innerHTML=html;if(tmp.querySelector('.nc-messages').innerHTML!==box.innerHTML){box.innerHTML=tmp.querySelector('.nc-messages').innerHTML;scrollEnd()}if(typing)sheet.querySelector('.nc-form textarea').value=typing}catch{}},5000)}
+ function live(){clearInterval(timer);timer=setInterval(async()=>{if(!sheet.open||document.hidden||!openChat)return;try{const d=await call(readPath());const box=sheet.querySelector('.nc-messages'),typing=sheet.querySelector('.nc-form textarea')?.value;if(!box)return;const html=messagesHtml(d.messages);const tmp=document.createElement('div');tmp.innerHTML=html;if(tmp.querySelector('.nc-messages').innerHTML!==box.innerHTML){box.innerHTML=tmp.querySelector('.nc-messages').innerHTML;scrollEnd()}if(typing)sheet.querySelector('.nc-form textarea').value=typing}catch{}},5000)}
  sheet.addEventListener('submit',async e=>{
   const f=e.target.closest('[data-nc-form="send"]');if(!f)return;e.preventDefault();
   const body=f.elements.body.value.trim();if(!body)return;const b=f.querySelector('button');b.disabled=true;note('');

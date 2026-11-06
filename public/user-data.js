@@ -17,5 +17,28 @@
    return r.ok;
   }catch{return false}
  }
- window.GearHubUserData={get,put};
+
+ // 1.1.355 owner: alerts for the person themself (a shop's answer, a new message, a call from a shop) — whoever they are.
+ // Once Notifications are allowed and the person is signed in, this phone is saved to the account; no tap needed.
+ const keyBytes=k=>{const raw=atob((k+'='.repeat((4-k.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(raw,c=>c.charCodeAt(0))};
+ let pushBusy=false;
+ async function enablePush(){
+  if(pushBusy||off||!('serviceWorker' in navigator)||!('PushManager' in window)||!window.Notification||Notification.permission!=='granted')return false;
+  pushBusy=true;
+  try{
+   const reg=await navigator.serviceWorker.ready;
+   const info=await fetch('/api/platform/user-push',{cache:'no-store',credentials:'same-origin'});
+   if(info.status===401){off=true;setTimeout(()=>{off=false},60000);return false}
+   const {publicKey}=await info.json();
+   let sub=await reg.pushManager.getSubscription();
+   if(sub&&sub.options?.applicationServerKey){const old=new Uint8Array(sub.options.applicationServerKey),key=keyBytes(publicKey);if(old.length!==key.length||old.some((v,i)=>v!==key[i])){await sub.unsubscribe().catch(()=>{});sub=null}}
+   sub=sub||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:keyBytes(publicKey)});
+   const send=async()=>fetch('/api/platform/user-push/subscribe',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json','X-CSRF-Token':await token()},body:JSON.stringify({subscription:sub.toJSON()})});
+   let r=await send();if(r.status===403){csrf='';r=await send()}
+   return r.ok;
+  }catch{return false}finally{pushBusy=false}
+ }
+ addEventListener('gearhub:data-ready',()=>setTimeout(enablePush,6000),{once:true});
+ addEventListener('gearhub:alerts-allowed',()=>setTimeout(enablePush,800));
+ window.GearHubUserData={get,put,enablePush};
 })();
