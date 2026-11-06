@@ -1730,3 +1730,6 @@ _None._
 
 ## 2026-11-06 — Claude (account 1) — 1.1.352 Play developer name matches the listing
 - Google Play approved SkyShopMM (submission 2, 6 Nov). The store listing shows the developer as "TECH4MM COMPANY LIMITED"; /privacy.html and /terms.html now use that exact name (was "TECH4MM"). App not yet full screen in the Play app: TECH4MM will send the Play "App signing key" SHA-256; the owner adds it as Render env `ANDROID_SHA256` (server.js adds it next to the upload key in /.well-known/assetlinks.json).
+
+## 2026-11-06 — Claude (account 1) — Play app full screen confirmed
+- Owner's Android screenshot: SkyShopMM from Play opens without the browser bar. Render env ANDROID_SHA256 holds the Google App signing key; /.well-known/assetlinks.json lists it with the upload key (server.js, unchanged). Docs only.

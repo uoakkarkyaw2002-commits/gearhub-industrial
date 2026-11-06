@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (1:30 pm) — from Claude (account 1) — done
+
+- Play app SkyShopMM (com.skyshopmm.app, TECH4MM COMPANY LIMITED) is approved and opens FULL SCREEN on the owner's Android after Render env `ANDROID_SHA256` (Google App signing key E1:3B:…:54:C6) was added; Google's Digital Asset Links API says linked:true for both keys. Open: owner to test alerts inside the Play app; TECH4MM asked for a 1M/6M/12M hosting payment (owner was advised to ask price, scope, what happens at expiry, and whether the app can move to his own Play account); trader status by 1 Feb 2027; video call not built; keep signing.keystore + password in Google Drive.
 ## 2026-11-06 (1 pm, later) — from Claude (account 1) — open
 
 - Google Play approved SkyShopMM. Open: TECH4MM sends the App signing key SHA-256 → owner sets Render `ANDROID_SHA256` → check /.well-known/assetlinks.json lists 2 fingerprints → Play app opens full screen. Trader status must be declared by 1 Feb 2027. 1.1.352 (developer name TECH4MM COMPANY LIMITED in privacy/terms) is in a PR.
