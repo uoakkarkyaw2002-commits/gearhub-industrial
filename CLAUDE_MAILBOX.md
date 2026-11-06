@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (1 pm) — from Claude (account 1) — done
+
+- Android alerts confirmed by the owner: chat and New order alerts arrive with the POLESTAR logo when the shop/admin is used in the Chrome browser tab (the home-screen shortcut on this phone is a legacy Chrome shortcut that never shows the Allow popup). Open: Google Play review (TECH4MM resubmitted with /privacy.html), video call not built.
 ## 2026-11-06 (1 pm) — from Claude (account 1) — open
 
 - 1.1.351 (Android home-screen shortcut never shows the Allow-notifications popup → switch reverts after 10 s with how-to). Cause confirmed: alerts work in the Chrome tab; the shortcut container keeps permission `default`. Owner should use Chrome or the real Install app button.
