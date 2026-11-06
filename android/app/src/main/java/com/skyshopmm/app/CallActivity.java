@@ -43,15 +43,27 @@ public class CallActivity extends Activity {
         ((TextView) findViewById(R.id.status)).setText(video ? R.string.incoming_video_call : R.string.incoming_call);
         findViewById(R.id.answer).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                Intent i = new Intent(CallActivity.this, MainActivity.class).putExtra(MainActivity.EXTRA_URL, url + (url.contains("?") ? "&" : "?") + "call=accept")
+                final Intent i = new Intent(CallActivity.this, MainActivity.class).putExtra(MainActivity.EXTRA_URL, url + (url.contains("?") ? "&" : "?") + "call=accept")
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(i);
-                finishCall();
+                try { if (ringtone != null) ringtone.stop(); if (vibrator != null) vibrator.cancel(); } catch (Throwable ignored) { }
+                KeyguardManager km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+                if (km != null && km.isKeyguardLocked() && Build.VERSION.SDK_INT >= 26) {
+                    // Locked phone: ask Android to unlock first (fingerprint / PIN), then open the call. Without this the app opens behind the lock screen.
+                    km.requestDismissKeyguard(CallActivity.this, new KeyguardManager.KeyguardDismissCallback() {
+                        @Override public void onDismissSucceeded() { startActivity(i); finishCall(); }
+                        @Override public void onDismissCancelled() { }
+                        @Override public void onDismissError() { startActivity(i); finishCall(); }
+                    });
+                } else {
+                    startActivity(i);
+                    finishCall();
+                }
             }
         });
         findViewById(R.id.decline).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { CallApi.decline(getIntent().getStringExtra("callId"), getIntent().getStringExtra("key")); finishCall(); }
         });
+        if (getIntent().getBooleanExtra("selfRing", false)) ring();
         IntentFilter f = new IntentFilter(PushService.ACTION_CALL_END);
         if (Build.VERSION.SDK_INT >= 33) registerReceiver(ended, f, Context.RECEIVER_NOT_EXPORTED); else registerReceiver(ended, f);
         handler.postDelayed(new Runnable() { @Override public void run() { finishCall(); } }, 45000);

@@ -155,7 +155,7 @@ async function speaker(on){
  async function tick(){
   if(document.hidden||signedOut)return;
   try{
-   const d=await api('/api/platform/call/incoming');
+   const d=await api('/api/platform/call/incoming'+(inNativeApp&&!document.hidden?'?fg=1':''));
    if(!cur){const inc=d.calls?.[0];if(inc&&inc.id!==shownId)incoming(inc)}
    if(unread!==null&&d.unread>unread){sound.ding();dispatchEvent(new Event('gearhub:chat-unread'))}
    else if(unread!==null&&d.unread!==unread)dispatchEvent(new Event('gearhub:chat-unread'));

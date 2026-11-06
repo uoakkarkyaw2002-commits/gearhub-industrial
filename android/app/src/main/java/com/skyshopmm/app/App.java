@@ -12,6 +12,7 @@ import android.os.Build;
 public class App extends Application {
     static final String CHANNEL_MESSAGES = "messages";
     static final String CHANNEL_CALLS = "calls";
+    static final String CHANNEL_CALLS_QUIET = "calls_quiet";
     // True from process start until the first MainActivity launch: the app was just opened (not resumed, not answered from a call or a notification).
     static boolean cold = true;
 
@@ -34,5 +35,10 @@ public class App extends Application {
         calls.setVibrationPattern(new long[]{0, 800, 400, 800, 400, 800, 400, 800});
         calls.setLockscreenVisibility(android.app.Notification.VISIBILITY_PUBLIC);
         nm.createNotificationChannel(calls);
+        // Used when the app is already open: the call screen itself rings, this entry only sits quietly in the shade (no banner, no sound).
+        NotificationChannel quiet = new NotificationChannel(CHANNEL_CALLS_QUIET, c.getString(R.string.channel_calls) + " (app open)", NotificationManager.IMPORTANCE_LOW);
+        quiet.setSound(null, null);
+        quiet.enableVibration(false);
+        nm.createNotificationChannel(quiet);
     }
 }
