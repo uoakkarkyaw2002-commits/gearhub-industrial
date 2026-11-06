@@ -8,6 +8,19 @@
 //   slow line it plays again until the shop is ready. It carries on across the reload.
 (()=>{
  const el=document.getElementById("sky-splash");if(!el)return;
+ // 1.1.368 owner: after "Answer" in the native app the shop's opening cover flashed before the call connected. Entering from a call shows no cover, only a
+ // plain call-coloured "Connecting…" page that the call screen replaces as soon as it opens.
+ if(/[?&]call=accept/.test(location.search)){
+  el.remove();
+  const bar=document.createElement("div");bar.id="sky-call-wait";
+  bar.style.cssText="position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:#0b1730;color:#fff;font:600 20px system-ui,sans-serif;text-align:center";
+  bar.textContent="ချိတ်ဆက်နေပါတယ်… / Connecting…";
+  document.documentElement.append(bar);
+  const stop=()=>bar.remove();
+  new MutationObserver((_,o)=>{if(document.querySelector(".vc-screen")){stop();o.disconnect()}}).observe(document.documentElement,{childList:true,subtree:true});
+  setTimeout(stop,15000);
+  return;
+ }
  const shop=location.pathname.match(/^\/shops\/([^/]+)/);
  const updateKey='gh-update-splash:'+(shop?'/shops/'+shop[1]+'/':'/');
  // The page before the reload stores how far the update got (1–99), so the counter continues.

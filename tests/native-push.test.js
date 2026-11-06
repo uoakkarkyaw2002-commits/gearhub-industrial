@@ -83,3 +83,9 @@ test('answering with the app open restarts the app task instead of reusing it',(
  const fs=require('fs'),path=require('path'),r=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
  assert.ok(r('android/app/src/main/java/com/skyshopmm/app/CallActivity.java').includes('FLAG_ACTIVITY_CLEAR_TASK')&&r('android/app/src/main/java/com/skyshopmm/app/PushService.java').includes('FLAG_ACTIVITY_CLEAR_TASK')&&r('android/app/src/main/java/com/skyshopmm/app/MainActivity.java').includes('onNewIntent'),'fresh task + safety net');
 });
+
+// 1.1.368: Answer with the app open flashed the shop's opening cover before connecting.
+test('entering from Answer shows no opening cover',()=>{
+ const js=require('fs').readFileSync(require('path').join(__dirname,'..','public','skyshop-splash.js'),'utf8');
+ assert.ok(js.includes('call=accept')&&js.includes('sky-call-wait')&&js.includes('el.remove()'),'plain connecting page instead of the cover');
+});

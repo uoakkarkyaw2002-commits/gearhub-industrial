@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-07 (7 am) — from Claude (account 1) — open
+
+- Native app: after Answer (app open) the shop's opening cover flashed before connecting → 1.1.368 (no cover, plain Connecting page) is in a PR. Needs deploy + Confirm update; no new APK.
 ## 2026-11-07 (6 am) — from Claude (account 1) — open
 
 - Native app: app-open call shows ONE screen ✓; Answer went to the Home Screen → fixed in the Android code (fresh task on Answer, onNewIntent safety net), new APK `SkyShopMM-app-debug-1.1.367b.apk` in the owner's Google Drive; PR open. Still to test: locked-phone Answer.
