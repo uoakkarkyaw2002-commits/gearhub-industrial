@@ -1676,3 +1676,6 @@ _None._
 - Client (`public/noti-chat.js/.css`): Chats list = every shop (logo avatars) + your own shop's buyer chats; tap any shop to chat; 😊 sticker tray; 🎤 record (≤ 60 s) → ➤ send / ✕ throw away; voice bubbles with a player. Thread slug is `cs` now (was the visited shop), so the notification refresh no longer switches shops.
 - Tests: Node22 check + test 497/497. WebKit iPhone 13 on a local server: list shows POLESTAR + Kaizen with logos; text, sticker and (stubbed recorder) voice send; voice GET 200 and Range 206; the shop owner sees and answers with a sticker; a third user gets 404 on the voice URL; no page errors. Real iPhone microphone not tried (the recorder was stubbed in the test browser).
 - Open: voice call / video call (phase 2), real microphone on iPhone, deploy + Confirm update by the owner.
+
+## 2026-11-06 — Claude (account 1) — 1.1.342 AI Assistant answers in Myanmar unless asked in English
+- Owner: "answer in Myanmar; only if I ask in English, answer in English" (the To-do chip had sent "my to-do" because the page language was English). Now: Myanmar always, except a question typed with Latin letters only. The To-do chip and the daily reminder are Myanmar. `public/ai-help.js` + version files + one test line. Node22 check + test 497/497. Not tried on a real iPhone.

@@ -442,7 +442,8 @@
  };
  function ask(q){
   q=q.trim().slice(0,200);if(!q)return;say('me',q);
-  const my=isMy(q)||(!/[a-z]/i.test(q)&&pageMy()),hit=answer(q);
+  // 1.1.342 owner: answer in Myanmar unless the question was typed in English only.
+  const my=isMy(q)||!/[a-z]/i.test(q),hit=answer(q);
   const cmd=parseTodo(q);
   if(cmd&&(cmd.type==='done'||cmd.type==='del')&&loadT()[cmd.n-1]){const wait=document.createElement('div');wait.className='ai-help-msg bot';wait.innerHTML='<img src="'+robot+'" alt=""><p>…</p>';log.append(wait);LIVE.todocmd(my,cmd).then(text=>{wait.remove();say('bot',text,null,my,'todolist')});return}
   if(hit&&LIVE[hit[0]]){const wait=document.createElement('div');wait.className='ai-help-msg bot';wait.innerHTML='<img src="'+robot+'" alt=""><p>…</p>';log.append(wait);log.scrollTop=log.scrollHeight;
@@ -456,7 +457,7 @@
    box.onclick=e=>{const b=e.target.closest('button');if(b){box.remove();ask(b.dataset.q)}}},250);
  }
  box.querySelector('.ai-help-form').addEventListener('submit',e=>{e.preventDefault();ask(input.value);input.value=''});
- chipBox.addEventListener('click',e=>{const b=e.target.closest('button');if(b)ask(b.classList.contains('ai-help-todochip')?(pageMy()?'လုပ်စရာ စာရင်း':'my to-do'):b.textContent)});
+ chipBox.addEventListener('click',e=>{const b=e.target.closest('button');if(b)ask(b.classList.contains('ai-help-todochip')?'လုပ်စရာ စာရင်း':b.textContent)});
  box.querySelector('.ai-help-x').onclick=()=>box.close();
  box.addEventListener('click',e=>{if(e.target===box)box.close()});
  // 1.1.337 owner's words: the first greeting, in Myanmar with English under it.
@@ -464,7 +465,7 @@
  button.addEventListener('click',()=>{if(!log.children.length)say('bot',GREETING);box.showModal();if(matchMedia('(pointer:fine)').matches)input.focus();
   // 1.1.340 owner: remind the owner of what is waiting — once a day in the chat, and always as the red number on my picture.
   refreshTodos(true).then(r=>{const day=new Date().toISOString().slice(0,10);let seen='';try{seen=localStorage.getItem('gh-ai-todo-day:'+slugNow())||''}catch{}
-   if(todoCount>0&&seen!==day&&box.open){try{localStorage.setItem('gh-ai-todo-day:'+slugNow(),day)}catch{}say('bot',todoText(pageMy(),r.auto,loadT()),null,pageMy(),'todolist')}})});
+   if(todoCount>0&&seen!==day&&box.open){try{localStorage.setItem('gh-ai-todo-day:'+slugNow(),day)}catch{}say('bot',todoText(true,r.auto,loadT()),null,true,'todolist')}})});
  box.addEventListener('close',()=>{refreshTodos(true)});
  addEventListener('gearhub:data-ready',()=>setTimeout(()=>refreshTodos(true),5000));
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshTodos(false)});
