@@ -77,3 +77,9 @@ test('call: one screen when the app is open, unlock before answering',()=>{
  assert.ok(call.includes('requestDismissKeyguard'),'unlock before opening the app');
  assert.ok(r('lib/shop-chat.js').includes('fgSeen')&&r('public/voice-call.js').includes('?fg=1'),'the server knows when the page is on screen');
 });
+
+// 1.1.368: with the app open, Answer ended on the Home Screen (the open app page was cleared down to an old launcher instance that just finished).
+test('answering with the app open restarts the app task instead of reusing it',()=>{
+ const fs=require('fs'),path=require('path'),r=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
+ assert.ok(r('android/app/src/main/java/com/skyshopmm/app/CallActivity.java').includes('FLAG_ACTIVITY_CLEAR_TASK')&&r('android/app/src/main/java/com/skyshopmm/app/PushService.java').includes('FLAG_ACTIVITY_CLEAR_TASK')&&r('android/app/src/main/java/com/skyshopmm/app/MainActivity.java').includes('onNewIntent'),'fresh task + safety net');
+});

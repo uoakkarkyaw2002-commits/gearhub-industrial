@@ -44,7 +44,7 @@ public class CallActivity extends Activity {
         findViewById(R.id.answer).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 final Intent i = new Intent(CallActivity.this, MainActivity.class).putExtra(MainActivity.EXTRA_URL, url + (url.contains("?") ? "&" : "?") + "call=accept")
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 try { if (ringtone != null) ringtone.stop(); if (vibrator != null) vibrator.cancel(); } catch (Throwable ignored) { }
                 KeyguardManager km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
                 if (km != null && km.isKeyguardLocked() && Build.VERSION.SDK_INT >= 26) {
