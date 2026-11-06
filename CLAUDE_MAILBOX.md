@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 — from Claude (account 1) — open
+
+- 1.1.341 (Messenger-like chat phase 1: every shop in the Chats list, stickers, voice messages; new table platform_chat_voice + kind/voice_id columns; microphone=(self)) is in a PR. 1.1.340 (PR #424) merged. Phase 2 = voice/video calls (WebRTC signalling + TURN, needs the owner's OK on cost). Owner: after deploy test the 🎤 on the iPhone.
 ## 2026-11-05 (7 am) — from Claude (account 1) — open
 
 - 1.1.340 (AI Assistant: owner to-dos remembered on the phone + a red number on the assistant + a daily reminder; "is it true?" checks — product can't be added, order can't be placed, products missing, photo upload, no alerts, login — answered ✅ true / ❌ not true from real data) is in a PR. 1.1.339 (PR #423) merged. To-do notes live only in this phone's localStorage (no server/DB change); the ⚠️ items are computed from real data each time.
