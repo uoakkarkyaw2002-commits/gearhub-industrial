@@ -68,3 +68,12 @@ test('call alert: Answer/Decline buttons and decline by key',()=>{
  assert.ok(r('lib/shop-chat.js').includes("'/call/:id/decline-key'")&&r('lib/shop-chat.js').includes('crypto.timingSafeEqual(Buffer.from(key), Buffer.from(c.declineKey))')&&r('lib/native-push.js').includes('callId: m.callId, key: m.key'),'server: key checked, sent only to the called phone');
  assert.ok(r('public/voice-call.js').includes('typ srflx'),'connect sooner');
 });
+
+// 1.1.367: app open -> only the call screen (it rings itself, the alert stays quiet); locked phone -> unlock first, then open the call.
+test('call: one screen when the app is open, unlock before answering',()=>{
+ const fs=require('fs'),path=require('path'),r=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
+ const push=r('android/app/src/main/java/com/skyshopmm/app/PushService.java'),call=r('android/app/src/main/java/com/skyshopmm/app/CallActivity.java');
+ assert.ok(push.includes('CHANNEL_CALLS_QUIET')&&push.includes('if (!appOpen) b.setFullScreenIntent')&&call.includes('selfRing'),'quiet alert, the screen rings itself');
+ assert.ok(call.includes('requestDismissKeyguard'),'unlock before opening the app');
+ assert.ok(r('lib/shop-chat.js').includes('fgSeen')&&r('public/voice-call.js').includes('?fg=1'),'the server knows when the page is on screen');
+});

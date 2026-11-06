@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-07 (5 am) — from Claude (account 1) — open
+
+- Call alert on the Android native app: banner OK when unlocked; 1.1.367 (only the call screen when the app is open; unlock-then-open on Answer when locked) is in a PR; APK 1.1.367 in the owner's Google Drive. Owner re-tests: app open, home screen, locked.
 ## 2026-11-07 (4 am) — from Claude (account 1) — open
 
 - Switch account ✓. 1.1.366 (call alert banner with Answer/Decline buttons; decline-by-key route; faster connect) is in a PR; new APK `SkyShopMM-app-debug-1.1.366.apk` is in the owner's Google Drive (top level). Owner re-installs and tests a video call with the phone unlocked and locked.
