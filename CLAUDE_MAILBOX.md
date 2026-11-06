@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (3 pm) — from Claude (account 1) — open
+
+- 1.1.354 (Settings → Permissions row opens the Notifications/Camera/Microphone sheet on demand; Play app did not show the automatic one) is in a PR. 1.1.353 is live for shops. Next: owner taps Permissions in the Play app; if the phone asks nothing, ask for the Notifications status line.
 ## 2026-11-06 (2 pm) — from Claude (account 1) — open
 
 - 1.1.353 (first-open permission sheet: Notifications / Camera / Microphone in the Play app) is in a PR. Owner will test alerts in the Play app after Confirm update. If Android still shows `permission: default` after tapping Allow, check Android Settings → Apps → SkyShopMM → Notifications and ask for the status line.
