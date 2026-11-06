@@ -70,5 +70,24 @@
   row.addEventListener('click',()=>open(true).catch(()=>{}));
   share.after(row);
  }
+ // 1.1.365 owner: the app goes straight into the last shop, so there was no way to choose another Gmail. Settings → Switch account signs out and
+ // opens the sign-in page, where Google asks which account to use.
+ if(share){
+  const sw=document.createElement('button');sw.type='button';sw.className='settings-row settings-row-button';sw.id='switch-account-action';sw.hidden=true;
+  sw.innerHTML='<span class="settings-icon" aria-hidden="true">🔁</span><span class="settings-copy"><strong></strong><small></small></span><span class="settings-chevron" aria-hidden="true">›</span>';
+  const paintSw=()=>{sw.querySelector('strong').textContent=my()?'Account ပြောင်းမယ်':'Switch account';sw.querySelector('small').textContent=my()?'ထွက်ပြီး တခြား Gmail နဲ့ ဝင်မယ်':'Sign out and choose another Gmail'};
+  paintSw();new MutationObserver(paintSw).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+  (document.getElementById('permission-ask-action')||share).after(sw);
+  fetch('/api/platform/me',{cache:'no-store',credentials:'same-origin'}).then(r=>r.json()).then(me=>{if(me&&me.user)sw.hidden=false}).catch(()=>{});
+  sw.addEventListener('click',async()=>{
+   sw.disabled=true;
+   try{
+    const me=await (await fetch('/api/platform/me',{cache:'no-store',credentials:'same-origin'})).json();
+    await fetch('/api/platform/logout',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CSRF-Token':me.csrfToken||''},body:'{}'});
+    try{localStorage.removeItem('gh-last-shop');sessionStorage.removeItem('gh-native-fcm')}catch{}
+   }catch{}
+   location.href='/platform.html?visitor';
+  });
+ }
  window.GearHubPermissions={open:()=>open(true)};
 })();

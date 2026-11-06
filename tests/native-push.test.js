@@ -54,3 +54,9 @@ test('native: opening screen only after a plain app start',()=>{
  assert.ok(r('android/app/src/main/java/com/skyshopmm/app/MainActivity.java').includes('App.cold && !fromCallOrAlert')&&r('android/app/src/main/java/com/skyshopmm/app/App.java').includes('static boolean cold = true'),'the app asks for it only on a cold plain start');
  assert.ok(r('public/skyshop-splash.js').includes('nativeQuiet')&&r('public/user-data.js').includes('gh-open-splash'),'the page shows it only when asked');
 });
+
+// 1.1.365 owner: the app went straight into the last shop and never asked which Gmail to use.
+test('Settings has a Switch account row that signs out and opens the sign-in page',()=>{
+ const js=require('fs').readFileSync(require('path').join(__dirname,'..','public','permission-ask.js'),'utf8');
+ assert.ok(js.includes('switch-account-action')&&js.includes('/api/platform/logout')&&js.includes("platform.html?visitor"),'switch account');
+});
