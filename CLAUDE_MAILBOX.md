@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-07 (9 am) — from Claude (account 1) — open
+
+- Native app: the call alert now disappears at once on Answer (Android-only change; APK `SkyShopMM-app-debug-1.1.369.apk` in the owner's Google Drive; PR open, no deploy needed). Owner re-installs and tests.
 ## 2026-11-07 (8 am) — from Claude (account 1) — done
 
 - Native Android app works on the owner's phone (alerts, full-screen call over the lock screen, Answer connects, Switch account, last shop on start). Open: own Play developer account + release AAB (same upload keystore), TURN server. See AI_COLLABORATION 2026-11-07.

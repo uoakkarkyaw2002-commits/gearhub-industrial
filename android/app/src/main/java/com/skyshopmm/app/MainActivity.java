@@ -36,12 +36,14 @@ public class MainActivity extends LauncherActivity {
     @Override protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
+        clearCallAlertIfAnswering(intent);
         launched = false;
         fetchTokenThenLaunch();
     }
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        clearCallAlertIfAnswering(getIntent());
         if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQ_NOTIFY);
         } else {
@@ -52,6 +54,18 @@ public class MainActivity extends LauncherActivity {
     @Override public void onRequestPermissionsResult(int code, String[] permissions, int[] results) {
         super.onRequestPermissionsResult(code, permissions, results);
         fetchTokenThenLaunch();
+    }
+
+    // 1.1.369 owner: after tapping Answer on the call alert, the alert stayed on screen until the call had connected (the server's "call ended" message only comes then).
+    // Answering opens the app with ?call=accept — take the alert (and the call screen) away at that moment.
+    private void clearCallAlertIfAnswering(Intent intent) {
+        try {
+            String u = intent == null ? null : intent.getStringExtra(EXTRA_URL);
+            if (u != null && u.contains("call=accept")) {
+                androidx.core.app.NotificationManagerCompat.from(this).cancel(PushService.CALL_ID);
+                sendBroadcast(new Intent(PushService.ACTION_CALL_END).setPackage(getPackageName()));
+            }
+        } catch (Throwable ignored) { }
     }
 
     private void fetchTokenThenLaunch() {
