@@ -1829,3 +1829,8 @@ _None._
 ## 2026-11-07 — Claude (account 1) — Native Android app verified on the owner's phone
 - Owner confirmed on the Vivo phone (debug APK 1.1.367b + web 1.1.368): chat/order alerts arrive once; incoming video call: full-screen call screen over the lock screen, Answer unlocks and connects, app-open case shows one screen and Answer connects without the opening cover; unlocked-in-use shows the banner with Answer/Decline; Switch account works; app opens the last shop directly.
 - Still open: own Google Play developer account ($25) → release AAB signed with the SAME upload keystore (`android/README.md`), versionCode > 2; TURN server for phone networks that cannot connect; iPhone stays a web app (web push works). PR #454 (Answer fresh task) status: check on GitHub.
+
+## 2026-11-07 — Claude (account 1) — Native app (Android only): Answer clears the call alert at once
+- Owner (photo): with the app open and the phone in use, after tapping Answer on the banner the banner stayed until long after the call had connected. Cause: the notification is removed by the server's `call-end` Firebase message, which is only sent when the callee's page has finished connecting (`POST /call/:id/answer`, after microphone/camera and ICE). Fix: `MainActivity` cancels the call notification and closes the call screen as soon as it is started with `?call=accept` (`clearCallAlertIfAnswering`, also in `onNewIntent`). No web change, no deploy.
+- APK copied to Google Drive: SkyShopMM-app-debug-1.1.369.apk (the Android versionName stays 2.0.0; the number is only the file label). Not verified on the phone.
+- Tests: Node22 test 515/515.

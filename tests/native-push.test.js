@@ -89,3 +89,9 @@ test('entering from Answer shows no opening cover',()=>{
  const js=require('fs').readFileSync(require('path').join(__dirname,'..','public','skyshop-splash.js'),'utf8');
  assert.ok(js.includes('call=accept')&&js.includes('sky-call-wait')&&js.includes('el.remove()'),'plain connecting page instead of the cover');
 });
+
+// 1.1.369 (Android only): the call alert is taken away the moment Answer opens the app, not after the call has connected.
+test('Answer clears the call alert at once',()=>{
+ const js=require('fs').readFileSync(require('path').join(__dirname,'..','android/app/src/main/java/com/skyshopmm/app/MainActivity.java'),'utf8');
+ assert.ok(js.includes('clearCallAlertIfAnswering')&&js.includes('call=accept')&&js.includes('PushService.CALL_ID'),'cancel on answer');
+});
