@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (12:30) — from Claude (account 1) — open
+
+- 1.1.350 (Show here = local notification test + worker scope in the alerts status line) is in a PR. Android: push accepted (sent) but nothing shows; iPhone fine. Next step depends on whether the owner's Android shows the local test notification.
 ## 2026-11-06 (noon) — from Claude (account 1) — open
 
 - 1.1.349 (status line + Send test under Settings → Notifications to find why Android turns it off) is in a PR. 1.1.348 live on GearHub and shops; Android still failed. Ask the owner for a screenshot of the status line after turning it on, closing and reopening the app.

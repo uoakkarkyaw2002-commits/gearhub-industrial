@@ -29,11 +29,14 @@
    const perm=window.Notification?Notification.permission:"n/a";let sub=null,s=null,err="";
    try{sub=await current()}catch(x){err=x.message}
    try{s=await api(sub?"?endpoint="+encodeURIComponent(sub.endpoint):"")}catch(x){err=x.message}
-   const last=s&&s.last;
-   diag.textContent=["permission: "+perm,"phone address: "+(sub?"yes":"no"),"server knows it: "+(s?(s.subscribed?"yes":"no"):"?"),"phones on server: "+(s?s.count:"?"),last?"last alert: "+last.sent+" sent, "+last.failed+" failed"+(last.error?" ("+last.error+")":""):"no alert sent yet",note||err].filter(Boolean).join(" · ")+" ";
+   const last=s&&s.last;let regs="";try{regs=(await navigator.serviceWorker.getRegistrations()).map(r=>new URL(r.scope).pathname+(r.active?"":"(not active)")).join(",")}catch{}
+   diag.textContent=["permission: "+perm,"phone address: "+(sub?"yes":"no"),"server knows it: "+(s?(s.subscribed?"yes":"no"):"?"),"phones on server: "+(s?s.count:"?"),last?"last alert: "+last.sent+" sent, "+last.failed+" failed"+(last.error?" ("+last.error+")":""):"no alert sent yet","worker: "+(regs||"none"),note||err].filter(Boolean).join(" · ")+" ";
    const b=document.createElement("button");b.type="button";b.textContent="Send test";b.style.cssText="margin:0;padding:2px 10px;border:1px solid currentColor;border-radius:999px;background:none;font:inherit;color:inherit";
    b.addEventListener("click",async e=>{e.stopPropagation();b.disabled=true;try{await api("/test",{});note="test sent "+new Date().toLocaleTimeString()}catch(x){note="test failed: "+x.message}setTimeout(report,1200)});
-   diag.append(b);
+   const here=b.cloneNode();here.textContent="Show here";here.style.marginLeft="6px";
+   // A notification made by this phone itself (no internet push): if it shows, the phone can display alerts and only the push delivery is the problem.
+   here.addEventListener("click",async e=>{e.stopPropagation();here.disabled=true;try{const reg=await registration();await reg.showNotification("Local test · "+document.title,{body:"If you can see this, the phone can show notifications",icon:"/app-icon.png",tag:"local-test-"+Date.now(),vibrate:[200,100,200]});note="local test shown "+new Date().toLocaleTimeString()}catch(x){note="local test failed: "+(x.message||x)}setTimeout(report,800)});
+   diag.append(b,here);
   }catch{}
  }
  function show(on,en,mm){input.checked=on;say(en||(on?"New orders alert this phone, even when locked":"Order alerts on this phone are off"),mm||(on?"ဖုန်း lock ထားလည်း အော်ဒါအသစ် သတိပေးပါမယ်":"အော်ဒါ သတိပေးချက် ပိတ်ထားပါတယ်"))}
