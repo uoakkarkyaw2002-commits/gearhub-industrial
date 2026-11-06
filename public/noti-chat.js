@@ -68,12 +68,16 @@
  const mmss=n=>Math.floor(n/60)+':'+String(n%60).padStart(2,'0');
  const oneMessage=m=>{
   const mine=(role==='shop')===m.fromShop?' mine':'';
-  if(m.kind==='call')return '<p class="nc-msg nc-callmsg"><span>'+esc(m.body)+'</span><small>'+esc(ago(m.at))+'</small></p>';
+  if(m.kind==='call'){
+   const r=m.recording,parts=r?.parts||[],kind=r?.video?'video':'audio';
+   const url=p=>'/api/platform/call-recordings/'+encodeURIComponent(r.id)+'/parts/'+p.id;
+   return '<div class="nc-msg nc-callmsg'+(parts.length?' nc-callrecord':'')+'"><span>'+esc(m.body)+'</span><small>'+esc(ago(m.at))+'</small>'+(parts.length?'<span class="nc-record-label">'+(r.state==='partial'?(my()?'တစ်စိတ်တစ်ပိုင်း မှတ်တမ်း':'Partial recording'):(my()?'သိမ်းထားသော မှတ်တမ်း':'Call recording'))+'</span><'+kind+' controls playsinline preload="none" src="'+url(parts[0])+'"></'+kind+'>'+(parts.length>1?'<label>'+(my()?'အပိုင်း':'Part')+' <select class="nc-record-part" aria-label="'+(my()?'မှတ်တမ်း အပိုင်း':'Recording part')+'">'+parts.map((p,i)=>'<option value="'+url(p)+'">'+(i+1)+' · '+mmss(p.secs)+'</option>').join('')+'</select></label>':''):r?'<span class="nc-record-label">'+(r.state==='recording'?(my()?'မှတ်တမ်း သိမ်းနေပါတယ်…':'Saving recording…'):(my()?'မှတ်တမ်း မသိမ်းနိုင်ပါ':'Recording unavailable'))+'</span>':'')+'</div>';
+  }
   if(m.kind==='sticker')return '<p class="nc-msg nc-sticker'+mine+'"><span>'+esc(m.body)+'</span><small>'+esc(ago(m.at))+'</small></p>';
   if(m.kind==='voice')return '<p class="nc-msg nc-voice'+mine+'"><audio controls preload="none" src="/api/platform/chat/'+encodeURIComponent(cs)+'/voice/'+m.voice+'"></audio><small>🎤 '+mmss(m.secs||0)+' · '+esc(ago(m.at))+'</small></p>';
   return '<p class="nc-msg'+mine+'"><span>'+esc(m.body)+'</span><small>'+esc(ago(m.at))+'</small></p>';
  };
- const messagesHtml=list=>'<div class="nc-messages">'+(list.length?list.map(oneMessage).join(''):'<p class="nc-empty">'+t('hello')+'</p>')+'</div><div class="nc-stickers" hidden>'+STICKERS.map(x=>'<button type="button" data-nc="sticker" data-s="'+x+'" aria-label="'+t('sticker')+' '+x+'">'+x+'</button>').join('')+'</div><form class="nc-form" data-nc-form="send"><button type="button" class="nc-tool" data-nc="stickers" aria-label="'+esc(t('sticker'))+'">😊</button><button type="button" class="nc-tool" data-nc="mic" aria-label="'+esc(t('record'))+'">🎤</button><textarea name="body" rows="1" maxlength="2000" placeholder="'+esc(t('write'))+'" aria-label="'+esc(t('write'))+'"></textarea><button type="submit" class="nc-primary">'+t('send')+'</button><div class="nc-rec" hidden><button type="button" data-nc="rec-cancel" aria-label="'+esc(t('cancel'))+'">✕</button><i class="nc-rec-dot"></i><b class="nc-rec-time">0:00</b><span>'+t('recording')+'</span><button type="button" class="nc-primary" data-nc="rec-send">'+t('send')+'</button></div></form>';
+ const messagesHtml=list=>'<div class="nc-messages">'+(list.length?list.map(m=>oneMessage(m).replace(/^(<\w+)/,'$1 data-nc-message="'+esc(m.id)+'"')).join(''):'<p class="nc-empty">'+t('hello')+'</p>')+'</div><div class="nc-stickers" hidden>'+STICKERS.map(x=>'<button type="button" data-nc="sticker" data-s="'+x+'" aria-label="'+t('sticker')+' '+x+'">'+x+'</button>').join('')+'</div><form class="nc-form" data-nc-form="send"><button type="button" class="nc-tool" data-nc="stickers" aria-label="'+esc(t('sticker'))+'">😊</button><button type="button" class="nc-tool" data-nc="mic" aria-label="'+esc(t('record'))+'">🎤</button><textarea name="body" rows="1" maxlength="2000" placeholder="'+esc(t('write'))+'" aria-label="'+esc(t('write'))+'"></textarea><button type="submit" class="nc-primary">'+t('send')+'</button><div class="nc-rec" hidden><button type="button" data-nc="rec-cancel" aria-label="'+esc(t('cancel'))+'">✕</button><i class="nc-rec-dot"></i><b class="nc-rec-time">0:00</b><span>'+t('recording')+'</span><button type="button" class="nc-primary" data-nc="rec-send">'+t('send')+'</button></div></form>';
  // Voice message: tap 🎤 to record (up to 60 s), then ➤ to send or ✕ to throw away.
  let rec=null;
  const chatPath=()=>'/api/platform/chat/'+cs+(openChat==='buyer'?'':'/'+openChat);
@@ -172,6 +176,13 @@
   const box=sheet.querySelector('.nc-messages');if(!box)return;
   const tmp=document.createElement('div');tmp.innerHTML=messagesHtml(d.messages);
   const html=tmp.querySelector('.nc-messages').innerHTML;
+  if([...box.querySelectorAll('audio,video')].some(p=>!p.paused)){
+   // Keep a playing media element mounted while still adding new incoming messages.
+   const fresh=tmp.querySelector('.nc-messages'),wanted=new Set([...fresh.children].map(n=>n.dataset.ncMessage));
+   for(const child of [...fresh.children]){const old=[...box.children].find(n=>n.dataset.ncMessage===child.dataset.ncMessage);if(!old)box.append(child);else if(![...old.querySelectorAll('audio,video')].some(p=>!p.paused)&&old.innerHTML!==child.innerHTML)old.replaceWith(child)}
+   for(const old of [...box.children])if(!wanted.has(old.dataset.ncMessage)&&![...old.querySelectorAll('audio,video')].some(p=>!p.paused))old.remove();
+   return;
+  }
   if(box.innerHTML!==html){box.innerHTML=html;scrollEnd()}
  }
  async function showConversation(id){
@@ -189,6 +200,8 @@
   if(!sheet.open||document.hidden||!openChat)return;const view=viewId,path=readPath();
   try{const d=await chatCache.load(path);if(view===viewId&&sheet.open&&path===readPath())updateMessages(d)}catch{}
  },5000)}
+ sheet.addEventListener('change',e=>{if(!e.target.matches('.nc-record-part'))return;const player=e.target.closest('.nc-callrecord').querySelector('audio,video');player.src=e.target.value;player.play().catch(()=>{})});
+ sheet.addEventListener('ended',e=>{const select=e.target.closest('.nc-callrecord')?.querySelector('.nc-record-part');if(select&&select.selectedIndex<select.options.length-1){select.selectedIndex++;select.dispatchEvent(new Event('change',{bubbles:true}))}},true);
  sheet.addEventListener('submit',async e=>{
   const f=e.target.closest('[data-nc-form="send"]');if(!f)return;e.preventDefault();
   const body=f.elements.body.value.trim();if(!body)return;const view=viewId,path=chatPath();const b=f.querySelector('button');b.disabled=true;note('');

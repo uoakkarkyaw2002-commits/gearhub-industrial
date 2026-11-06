@@ -42,9 +42,10 @@
  // ---- call state ----
  let pending=null,cur=null; // {id,pc,stream,poll,dialog,timer,since,name,role}
  let csrf='';
- async function api(url,method='GET',body){
+ async function api(url,method='GET',body,recordingKey){
+  const binary=body instanceof Blob;
   if(method!=='GET'&&!csrf)csrf=(await (await fetch('/api/platform/me',{cache:'no-store',credentials:'same-origin'})).json()).csrfToken||'';
-  const send=()=>fetch(url,{method,credentials:'same-origin',cache:'no-store',headers:method==='GET'?{}:{'Content-Type':'application/json','X-CSRF-Token':csrf},body:body?JSON.stringify(body):undefined});
+  const send=()=>fetch(url,{method,credentials:'same-origin',cache:'no-store',headers:method==='GET'?{}:{'Content-Type':binary?'application/octet-stream':'application/json','X-CSRF-Token':csrf,...(recordingKey?{'X-Recording-Key':recordingKey}:{})},body:binary?body:body?JSON.stringify(body):undefined});
   let r=await send();if(r.status===403&&method!=='GET'){csrf='';csrf=(await (await fetch('/api/platform/me',{cache:'no-store',credentials:'same-origin'})).json()).csrfToken||'';r=await send()}
   const d=await r.json().catch(()=>({}));if(!r.ok){const e=Error(d.error||t('failed'));e.status=r.status;throw e}return d;
  }
@@ -52,7 +53,7 @@
  const inCall=()=>'<button type="button" class="vc-btn vc-spk" data-vc="spk" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.500 3A4.500 4.500 0 0 0 14 8v8a4.500 4.500 0 0 0 2.500-4zM14 3.230v2.060a7 7 0 0 1 0 13.420v2.060a9 9 0 0 0 0-17.540z"/></svg><span>'+t('speaker')+'</span></button><button type="button" class="vc-btn vc-cam" data-vc="cam" aria-pressed="false" hidden><svg viewBox="0 0 24 24"><path d="M15 8v8H5V8h10m1-2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.500l4 4v-11l-4 4V7a1 1 0 0 0-1-1z"/></svg><span>'+t('cam')+'</span></button><button type="button" class="vc-btn vc-mute" data-vc="mute" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.900V22h2v-3.100A7 7 0 0 0 19 12z"/></svg><span>'+t('mute')+'</span></button><button type="button" class="vc-btn vc-no" data-vc="end" aria-label="'+esc(t('end'))+'"><svg viewBox="0 0 24 24"><path d="M3 15c5-5 13-5 18 0l-2 3-4-1v-3c-2-.7-4-.7-6 0v3l-4 1z"/></svg><span>'+t('end')+'</span></button>';
  function screen(name,incoming){
   const d=document.createElement('dialog');d.className='vc-screen';
-  d.innerHTML='<div class="vc-avatar" aria-hidden="true">'+esc(Array.from(name.trim())[0]||'?').toUpperCase()+'</div><h2>'+esc(name)+'</h2><p class="vc-status" role="status"></p><video class="vc-remote" autoplay playsinline muted hidden></video><video class="vc-local" autoplay playsinline muted hidden></video><audio class="vc-audio" autoplay playsinline></audio>'+
+  d.innerHTML='<div class="vc-avatar" aria-hidden="true">'+esc(Array.from(name.trim())[0]||'?').toUpperCase()+'</div><h2>'+esc(name)+'</h2><p class="vc-status" role="status"></p><p class="vc-recording" role="status">'+(my()?'ခေါ်ဆိုမှုကို အလိုအလျောက် မှတ်တမ်းဖမ်းပါမယ်':'This call will be recorded automatically')+'</p><video class="vc-remote" autoplay playsinline muted hidden></video><video class="vc-local" autoplay playsinline muted hidden></video><audio class="vc-audio" autoplay playsinline></audio>'+
    '<div class="vc-actions">'+(incoming?'<button type="button" class="vc-btn vc-no" data-vc="decline" aria-label="'+esc(t('decline'))+'"><svg viewBox="0 0 24 24"><path d="M3 15c5-5 13-5 18 0l-2 3-4-1v-3c-2-.7-4-.7-6 0v3l-4 1z"/></svg><span>'+t('decline')+'</span></button><button type="button" class="vc-btn vc-yes" data-vc="accept" aria-label="'+esc(t('accept'))+'"><svg viewBox="0 0 24 24"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.300.2 2.500.6 3.600.1.300 0 .700-.2 1z"/></svg><span>'+t('accept')+'</span></button>':
    inCall())+'</div>';
   document.body.append(d);d.showModal();d.addEventListener('cancel',e=>e.preventDefault());return d;
@@ -60,13 +61,14 @@
  const status=x=>{const e=cur?.dialog?.querySelector('.vc-status');if(e)e.textContent=x};
  function cleanup(){
   if(!cur)return;const c=cur;cur=null;pending=null;ringStop();clearInterval(c.poll);clearInterval(c.timer);
+  c.replay?.stop();if(!c.replayStarting)c.recordContext?.close().catch(()=>{});
   try{c.stream?.getTracks().forEach(x=>x.stop())}catch{}try{c.pc?.close()}catch{}
   setTimeout(()=>{c.dialog.close();c.dialog.remove()},c.keep||0);
  }
  function finish(text,keep=1400){status(text);ringStop();sound.end();if(cur)cur.keep=keep;cleanup()}
  const gathered=pc=>new Promise(done=>{let fin=false;const end=()=>{if(fin)return;fin=true;pc.removeEventListener('icegatheringstatechange',f);pc.removeEventListener('icecandidate',c);done()};const f=()=>{if(pc.iceGatheringState==='complete')end()};const c=e=>{if(e.candidate&&/ typ srflx /.test(e.candidate.candidate))setTimeout(end,250)};if(pc.iceGatheringState==='complete')return end();pc.addEventListener('icegatheringstatechange',f);pc.addEventListener('icecandidate',c);setTimeout(end,1800)});
  function open(name,incoming,video){
-  const dialog=screen(name,incoming);cur={dialog,name,t0:0,video:Boolean(video)};dialog.classList.toggle('vc-video',Boolean(video));
+  const dialog=screen(name,incoming);cur={dialog,name,t0:0,video:Boolean(video),recordContext:window.GearHubCallReplay?.prepare()};dialog.classList.toggle('vc-video',Boolean(video));
   dialog.addEventListener('click',e=>{const b=e.target.closest('[data-vc]');if(!b)return;const k=b.dataset.vc;
    if(k==='end'||k==='decline')hang();
    if(k==='accept')accept();
@@ -86,6 +88,7 @@ async function speaker(on){
 }
 // Microphone + connection: when calling, and when the person called taps Accept (a tap is needed for the microphone).
  async function media(){
+  cur?.recordContext?.resume().catch(()=>{});
   if(!navigator.mediaDevices?.getUserMedia||typeof RTCPeerConnection==='undefined')throw Error(t('nomic'));
   const wantVideo=Boolean(cur&&cur.video);
   const cfgP=api('/api/platform/call/config');
@@ -98,9 +101,19 @@ async function speaker(on){
    if(e.track.kind==='video'){const v=c.dialog.querySelector('.vc-remote');v.srcObject=e.streams[0];v.hidden=false;v.play?.().catch(()=>{});c.dialog.classList.add('vc-has-video')}};
   if(wantVideo){const l=c.dialog.querySelector('.vc-local');l.srcObject=stream;l.hidden=false;l.play?.().catch(()=>{});c.dialog.querySelector('.vc-cam').hidden=false;c.dialog.classList.add('vc-video')}
   pc.onconnectionstatechange=()=>{if(cur!==c)return;
-   if(pc.connectionState==='connected'){ringStop();c.t0=c.t0||Date.now();clearInterval(c.timer);c.timer=setInterval(()=>status(t('connected')+' · '+mmss(Math.round((Date.now()-c.t0)/1000))),500);status(t('connected')+' · 0:00')}
+   if(pc.connectionState==='connected'){beginRecording(c);ringStop();c.t0=c.t0||Date.now();clearInterval(c.timer);c.timer=setInterval(()=>status(t('connected')+' · '+mmss(Math.round((Date.now()-c.t0)/1000))),500);status(t('connected')+' · 0:00')}
    if(pc.connectionState==='failed')hang(t('failed'))};
   return pc;
+ }
+ function recordingState(c,key){
+  const el=c.dialog.querySelector('.vc-recording');if(!el)return;
+  const labels=my()?{recording:'● အသံ/ရုပ်သံ မှတ်တမ်းဖမ်းနေပါတယ်',saved:'မှတ်တမ်း သိမ်းပြီးပါပြီ',partial:'မှတ်တမ်း တစ်စိတ်တစ်ပိုင်း သိမ်းထားပါတယ်',failed:'မှတ်တမ်း မဖမ်းနိုင်ပါ — ဖုန်း ဆက်ပြောနိုင်ပါတယ်'}:{recording:'● Recording this call',saved:'Recording saved',partial:'Recording partially saved',failed:'Recording unavailable — the call can continue'};
+  el.textContent=labels[key]||labels.failed;el.dataset.state=key;
+ }
+ function beginRecording(c){
+  if(c.replayStarting||!window.GearHubCallReplay)return;c.replayStarting=true;
+  window.GearHubCallReplay.start({id:c.id,context:c.recordContext,local:c.stream,remote:c.dialog.querySelector('.vc-audio').srcObject,video:c.video,localVideo:c.dialog.querySelector('.vc-local'),remoteVideo:c.dialog.querySelector('.vc-remote'),api,state:key=>recordingState(c,key)})
+   .then(r=>{c.replay=r;if(cur!==c)r.stop()}).catch(()=>{c.recordContext?.close().catch(()=>{});recordingState(c,'failed')});
  }
  async function hang(message){
   const c=cur;if(!c)return;const id=c.id;finish(message||t('ended'));
@@ -113,6 +126,7 @@ async function speaker(on){
    try{
     const d=await api('/api/platform/call/'+c.id);
     if(cur!==c)return;
+    if(d.recording&&!c.replay?.owns)recordingState(c,d.recording.state==='recording'?'recording':d.recording.state==='ready'?'saved':'partial');
     if(d.state==='active'&&d.answer&&c.role==='caller'&&!c.answered){c.answered=true;ringStop();status(t('connecting'));await c.pc.setRemoteDescription({type:'answer',sdp:d.answer})}
     if(d.state==='ended'){const why={declined:'declined',missed:'missed'}[d.reason];finish(t(why||'ended'))}
     else if(c.role==='caller'&&d.state==='ringing'&&Date.now()-c.created>46000)hang(t('missed'));
@@ -125,19 +139,19 @@ async function speaker(on){
   try{
    const pc=await media();
    await pc.setLocalDescription(await pc.createOffer({offerToReceiveAudio:true,offerToReceiveVideo:Boolean(video)}));await gathered(pc);
-   const d=await api('/api/platform/call/start','POST',{slug,chat:chat||undefined,offer:pc.localDescription.sdp,video:Boolean(video)});
+   const d=await api('/api/platform/call/start','POST',{slug,chat:chat||undefined,offer:pc.localDescription.sdp,video:Boolean(video),recording:Boolean(window.GearHubCallReplay)});
    if(!cur||cur.pc!==pc){api('/api/platform/call/'+d.id+'/end','POST',{}).catch(()=>{});return}
    cur.id=d.id;cur.created=Date.now();status(t('ringing'));ringStart('back');watch();
   }catch(e){const m=e.message;cur&&cleanup();throw Error(m)}
  }
 
  async function accept(){
-  const inc=pending;pending=null;if(!inc||!cur)return;const c=cur;ringStop();status(t('connecting'));c.dialog.querySelector('.vc-actions').innerHTML=inCall();
+  const inc=pending;pending=null;if(!inc||!cur)return;const c=cur;c.id=inc.id;c.role='callee';ringStop();status(t('connecting'));c.dialog.querySelector('.vc-actions').innerHTML=inCall();
   try{
    await media();
    await c.pc.setRemoteDescription({type:'offer',sdp:inc.offer});
    await c.pc.setLocalDescription(await c.pc.createAnswer());await gathered(c.pc);
-   await api('/api/platform/call/'+inc.id+'/answer','POST',{answer:c.pc.localDescription.sdp});
+   await api('/api/platform/call/'+inc.id+'/answer','POST',{answer:c.pc.localDescription.sdp,recording:Boolean(window.GearHubCallReplay)});
    c.id=inc.id;c.role='callee';watch();
   }catch(e){hang(e.status===409?t('ended'):e.message||t('failed'))}
  }

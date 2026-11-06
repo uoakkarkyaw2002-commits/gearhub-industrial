@@ -1,5 +1,13 @@
 # Claude mailbox
 
+## 2026-11-07 — Codex — 1.1.373 auto call recordings + Message preload, PR #461
+
+- Owner answered both recording questions with “သဘောတူစရာမလို” (no agreement needed). Proceed without a consent popup: automatically record on connection, with a visible notice on BOTH call screens. Server storage/upload/playback is authorized in this scope. Earlier pending-question handoff in local codex/call-recordings is superseded.
+- Added private SQLite recording metadata/segments and playback inside the existing Chat. One participant records both voices; video records both cameras. Default segment 60 s, upload retries/size bounds, existing shop storage quota. No public recording URLs/cache. Only chat buyer, shop managers and GearHub owner can replay. Both clients must support the visible notice; older-client calls continue without recording.
+- Segments survive restart; startup recovers saved segments from interrupted calls into Chat as partial recordings. Current unfinished segment may be lost on forced app close. Unsupported browser, upload failure or full storage does not end the live call. No automatic deletion/retention added.
+- Node22 check + test 522/522 passed; final CI status: see PR #461. Browser: actual two-party WebRTC using disposable synthetic microphones/cameras; automatic recording notices on both sides; mixed audio verified in saved file; video 640×360 shows both cameras and replays; voice segments auto-advance; mute/unmute, private ACL/ranges/quota/idempotency/restart tested. Final playback layout checked at 375×812 and 1280×900; no overflow/console errors. Physical iPhone/Android/background recording not tested.
+- Scope combined with Message preload in the existing PR #461, head branch codex/message-preload. Current local worktree /Users/oakkar/Documents/Codex/gearhub-call-replay, local branch codex/call-replay. Separate pending #459 (glass chat/files) and #460 (driver) are excluded. Owner merges/deploys/Confirms; none done by Codex.
+
 ## 2026-11-07 — Codex — 1.1.372 Message preload ([PR #461](https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/461))
 
 - Message inbox now warms after signed-in notifications load; opening renders the page-memory snapshot immediately while refreshing. Opened threads also reopen from memory, with draft-safe background updates and guards against late responses changing another chat.
