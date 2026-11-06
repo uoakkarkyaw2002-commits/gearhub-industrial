@@ -19,20 +19,39 @@
  share.after(row);
  const input=row.querySelector("input"),help=row.querySelector("#settings-alerts-help");
  const say=(en,mm)=>{help.textContent=my()?mm:en};
+ // 1.1.349 owner (Android): the switch kept turning itself off and the cause cannot be seen from outside. A small status line
+ // under the switch shows what this phone and the server each know, and "Send test" sends one alert to this phone.
+ const diag=document.createElement("small");diag.className="alerts-diag";diag.style.cssText="display:block;margin-top:6px;font-size:11px;line-height:1.5;opacity:.8;white-space:normal;overflow-wrap:anywhere";row.querySelector(".settings-copy").append(diag);
+ let note="";
+ diag.addEventListener("click",e=>e.stopPropagation());
+ async function report(){
+  try{
+   const perm=window.Notification?Notification.permission:"n/a";let sub=null,s=null,err="";
+   try{sub=await current()}catch(x){err=x.message}
+   try{s=await api(sub?"?endpoint="+encodeURIComponent(sub.endpoint):"")}catch(x){err=x.message}
+   const last=s&&s.last;
+   diag.textContent=["permission: "+perm,"phone address: "+(sub?"yes":"no"),"server knows it: "+(s?(s.subscribed?"yes":"no"):"?"),"phones on server: "+(s?s.count:"?"),last?"last alert: "+last.sent+" sent, "+last.failed+" failed"+(last.error?" ("+last.error+")":""):"no alert sent yet",note||err].filter(Boolean).join(" · ")+" ";
+   const b=document.createElement("button");b.type="button";b.textContent="Send test";b.style.cssText="margin:0;padding:2px 10px;border:1px solid currentColor;border-radius:999px;background:none;font:inherit;color:inherit";
+   b.addEventListener("click",async e=>{e.stopPropagation();b.disabled=true;try{await api("/test",{});note="test sent "+new Date().toLocaleTimeString()}catch(x){note="test failed: "+x.message}setTimeout(report,1200)});
+   diag.append(b);
+  }catch{}
+ }
  function show(on,en,mm){input.checked=on;say(en||(on?"New orders alert this phone, even when locked":"Order alerts on this phone are off"),mm||(on?"ဖုန်း lock ထားလည်း အော်ဒါအသစ် သတိပေးပါမယ်":"အော်ဒါ သတိပေးချက် ပိတ်ထားပါတယ်"))}
  async function refresh(){
-  if(!("serviceWorker" in navigator)||!("PushManager" in window)||!window.Notification||!window.isSecureContext||(isIOS&&!standalone())){input.disabled=true;return show(false,isIOS?"Open the app from your Home Screen to turn on":"This browser cannot show order alerts",isIOS?"Home Screen က app ကနေ ဖွင့်ပြီးမှ ဖွင့်လို့ရပါမယ်":"ဒီ browser မှာ သတိပေးချက် မရပါ")}
-  if(Notification.permission==="denied"){input.disabled=true;return show(false,"Notifications are blocked in the phone settings","ဖုန်း Settings မှာ Notifications ပိတ်ထားပါတယ်")}
+  if(!("serviceWorker" in navigator)||!("PushManager" in window)||!window.Notification||!window.isSecureContext||(isIOS&&!standalone())){input.disabled=true;note="serviceWorker:"+("serviceWorker" in navigator)+" push:"+("PushManager" in window)+" notification:"+Boolean(window.Notification)+" secure:"+window.isSecureContext;report();return show(false,isIOS?"Open the app from your Home Screen to turn on":"This browser cannot show order alerts",isIOS?"Home Screen က app ကနေ ဖွင့်ပြီးမှ ဖွင့်လို့ရပါမယ်":"ဒီ browser မှာ သတိပေးချက် မရပါ")}
+  if(Notification.permission==="denied"){input.disabled=true;report();return show(false,"Notifications are blocked in the phone settings","ဖုန်း Settings မှာ Notifications ပိတ်ထားပါတယ်")}
   try{
    const sub=await current(),s=await api(sub?"?endpoint="+encodeURIComponent(sub.endpoint):"");
-   if(sub&&s.subscribed)return show(true);
+   if(sub&&s.subscribed){show(true);return report()}
    // 1.1.348 owner (Android): the switch was on, but after closing and reopening the app it showed off — the phone's
    // alert address was gone or no longer on the server list. If this phone turned alerts on and never off, quietly
    // make a fresh one (permission is already granted, so no question is asked) instead of showing off.
    let wanted=false;try{wanted=localStorage.getItem(onKey)==="1"&&!localStorage.getItem(offKey)}catch{}
-   if(wanted&&Notification.permission==="granted"){await turnOn(true);return}
+   if(wanted&&Notification.permission==="granted"){try{await turnOn(true);note="reconnected this phone"}catch(x){note="reconnect failed: "+(x.message||x);show(false)}return report()}
+   note=wanted?"permission is "+Notification.permission:"this phone did not remember alerts were on";
    show(false);
-  }catch(e){show(false,"Order alerts are off ("+(e.message||"failed")+")","အော်ဒါ သတိပေးချက် ပိတ်နေပါတယ် ("+(e.message||"failed")+")")}
+  }catch(e){note="check failed: "+(e.message||"failed");show(false,"Order alerts are off ("+(e.message||"failed")+")","အော်ဒါ သတိပေးချက် ပိတ်နေပါတယ် ("+(e.message||"failed")+")")}
+  report()
  }
  async function turnOn(fresh){
   const p=fresh?Notification.permission:await Notification.requestPermission();if(p!=="granted"){input.disabled=p==="denied";return show(false)}
@@ -40,7 +59,7 @@
   if(sub&&(fresh||!sub.options?.applicationServerKey)){await sub.unsubscribe().catch(()=>{});sub=null}
   if(sub&&sub.options?.applicationServerKey){const old=new Uint8Array(sub.options.applicationServerKey);if(old.length!==key.length||old.some((v,i)=>v!==key[i])){await sub.unsubscribe();sub=null}}
   sub=sub||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:key});
-  await api("/subscribe",{subscription:sub.toJSON()});try{localStorage.removeItem(offKey);localStorage.setItem(onKey,"1")}catch{}show(true);
+  await api("/subscribe",{subscription:sub.toJSON()});try{localStorage.removeItem(offKey);localStorage.setItem(onKey,"1")}catch{}note="";show(true);
  }
  async function turnOff(){const sub=await current();try{localStorage.setItem(offKey,"1");localStorage.removeItem(onKey)}catch{}if(sub){await api("/unsubscribe",{endpoint:sub.endpoint}).catch(()=>{});await sub.unsubscribe().catch(()=>{})}show(false)}
  let mode="";
@@ -77,7 +96,7 @@
  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&!row.hidden&&(!slug||shopId))loadCount()});
  input.addEventListener("change",async()=>{
   if(mode==="signin"){input.checked=false;input.disabled=true;say("Opening Google sign-in…","Google နဲ့ ဝင်ဖို့ ဖွင့်နေပါတယ်…");try{window.GearHubAppLogin?await GearHubAppLogin.start():location.assign("/platform.html")}catch(e){say(e.message,e.message);input.disabled=false}return}
-  input.disabled=true;try{input.checked?await turnOn():await turnOff()}catch(e){show(false,"Could not change: "+(e.message||"failed"),"မပြောင်းနိုင်ပါ / "+(e.message||"failed"))}finally{input.disabled=false}});
+  input.disabled=true;try{input.checked?await turnOn():await turnOff()}catch(e){show(false,"Could not change: "+(e.message||"failed"),"မပြောင်းနိုင်ပါ / "+(e.message||"failed"))}finally{input.disabled=false;report()}});
  (async()=>{try{
   if(!slug){const me=await fetch("/api/platform/me",{cache:"no-store",credentials:"same-origin"}).then(r=>r.json());if(!me?.user||!me.isOwner)return;csrf=me.csrfToken||"";row.hidden=false;refresh();return loadCount()}
   const [me,store]=await Promise.all([fetch("/api/platform/me",{cache:"no-store",credentials:"same-origin"}).then(r=>r.json()),fetch("/api/platform/store/"+slug,{cache:"no-store"}).then(r=>r.json())]);

@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (noon) — from Claude (account 1) — open
+
+- 1.1.349 (status line + Send test under Settings → Notifications to find why Android turns it off) is in a PR. 1.1.348 live on GearHub and shops; Android still failed. Ask the owner for a screenshot of the status line after turning it on, closing and reopening the app.
 ## 2026-11-06 (11 am) — from Claude (account 1) — open
 
 - 1.1.348 (alerts switch self-heals: Android showed off after reopening) is in a PR. 1.1.347 privacy pages are live; TECH4MM was sent the link to resubmit to Google Play. If Android still gets no alerts, ask for the owner console's last push result (phones/sent/failed).
