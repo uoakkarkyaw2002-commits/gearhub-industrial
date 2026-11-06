@@ -1775,3 +1775,9 @@ _None._
 - Firebase project `skyshopmm-aa911` created by the owner (Analytics could not be switched off, harmless); `android/app/google-services.json` is kept out of git; the service account key is in Render env `FCM_SERVICE_ACCOUNT` (set by the owner, not seen by Claude). 1.1.359 (PR #445) is merged and live on GearHub.
 - Next: owner installs the debug APK on the Android phone and tests: notification permission question, order/chat alerts, full-screen call.
 - Tests: Node22 check + test 506/506.
+
+## 2026-11-06 — Claude (account 1) — 1.1.361 Native app after the first phone test
+- Owner's first test (Android Vivo, debug APK): the full-screen "Incoming video call" screen and the SkyShopMM alerts WORK. Two problems: (1) every chat alert came twice — once from the native app (SkyShopMM) and once from the old Chrome web alert of the same phone (POLESTAR shop scope); (2) after tapping Answer the call took long to connect.
+- Fix 1: inside the app the page (`public/user-data.js`) now removes this phone's web alert after saving the Firebase address: `POST /api/platform/push/forget` (signed in, deletes the endpoint from `push_subscriptions`, any scope, `lib/order-push.js forget`) + `sub.unsubscribe()` + clears `gh-alerts-on:*` so the Chrome tab does not silently re-subscribe. iPhone web alerts are untouched.
+- Fix 2: native Answer opens `?call=accept`; `voice-call.js` polls every 0.7 s, accepts the call by itself (no second tap), strips the param; `MainActivity` no longer waits for Firebase when the phone's address is already known; ICE gathering wait 4 s → 2 s.
+- Tests: Node22 check + test 507/507; debug APK rebuilt. Not verified: real phone after this change.

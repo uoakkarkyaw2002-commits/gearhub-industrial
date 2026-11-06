@@ -64,7 +64,7 @@
   setTimeout(()=>{c.dialog.close();c.dialog.remove()},c.keep||0);
  }
  function finish(text,keep=1400){status(text);ringStop();sound.end();if(cur)cur.keep=keep;cleanup()}
- const gathered=pc=>new Promise(done=>{if(pc.iceGatheringState==='complete')return done();const f=()=>{if(pc.iceGatheringState==='complete'){pc.removeEventListener('icegatheringstatechange',f);done()}};pc.addEventListener('icegatheringstatechange',f);setTimeout(done,4000)});
+ const gathered=pc=>new Promise(done=>{if(pc.iceGatheringState==='complete')return done();const f=()=>{if(pc.iceGatheringState==='complete'){pc.removeEventListener('icegatheringstatechange',f);done()}};pc.addEventListener('icegatheringstatechange',f);setTimeout(done,2000)});
  function open(name,incoming,video){
   const dialog=screen(name,incoming);cur={dialog,name,t0:0,video:Boolean(video)};dialog.classList.toggle('vc-video',Boolean(video));
   dialog.addEventListener('click',e=>{const b=e.target.closest('[data-vc]');if(!b)return;const k=b.dataset.vc;
@@ -143,7 +143,7 @@ async function speaker(on){
  let shownId='';
  async function incoming(inc){
   shownId=inc.id;
-  open(inc.name,true,inc.video);pending=inc;cur.id=inc.id;cur.role='callee';status(t(inc.video?'video':'incoming'));ringStart('ring');
+  open(inc.name,true,inc.video);pending=inc;if(autoAccept&&!autoDone){autoDone=true;setTimeout(()=>accept(),0)}cur.id=inc.id;cur.role='callee';status(t(inc.video?'video':'incoming'));ringStart('ring');
   // Keep watching so the screen closes if the caller gives up.
   cur.poll=setInterval(async()=>{const c=cur;if(!c||c.id!==inc.id)return;try{const d=await api('/api/platform/call/'+inc.id);if(d.state==='ended'&&cur===c){pending=null;finish(t(d.reason==='missed'?'missed':'ended'))}}catch(e){if(e.status===404&&cur===c)finish(t('ended'))}},1500);
  }
@@ -159,7 +159,11 @@ async function speaker(on){
    unread=d.unread;
   }catch(e){if(e.status===401)signedOut=true}
  }
- addEventListener('load',()=>{tick();setInterval(tick,4000);if(/[?&]call=1/.test(location.search))for(const ms of [1200,3000,6000])setTimeout(tick,ms)},{once:true});
+ // 1.1.361: "Answer" on the native call screen opens the app at ?call=accept — find the call at once and accept it without a second tap.
+ let autoAccept=/[?&]call=accept/.test(location.search),autoDone=false;
+ if(/[?&]call=/.test(location.search)){try{const q=new URLSearchParams(location.search);q.delete('call');history.replaceState(history.state,'',location.pathname+(q.toString()?'?'+q:'')+location.hash)}catch{}}
+ addEventListener('load',()=>{tick();setInterval(tick,4000)},{once:true});
+ if(autoAccept||/[?&]call=1/.test(location.search)){let n=0;const fast=setInterval(()=>{tick();if(++n>14||autoDone)clearInterval(fast)},700);setTimeout(tick,250)}
  document.addEventListener('visibilitychange',()=>{if(!document.hidden){signedOut=false;tick()}});
  window.GearHubCall={start,sound,busy:()=>Boolean(cur)};
 })();

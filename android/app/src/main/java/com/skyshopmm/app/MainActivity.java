@@ -47,6 +47,19 @@ public class MainActivity extends LauncherActivity {
     }
 
     private void fetchTokenThenLaunch() {
+        // Already know this phone's Firebase address: open at once (an answered call must not wait), refresh it in the background.
+        final boolean known = getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_TOKEN, null) != null;
+        if (known) {
+            try {
+                if (!FirebaseApp.getApps(this).isEmpty()) FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override public void onComplete(Task<String> task) {
+                        if (task.isSuccessful() && task.getResult() != null) getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(KEY_TOKEN, task.getResult()).apply();
+                    }
+                });
+            } catch (Throwable ignored) { }
+            launchOnce();
+            return;
+        }
         final Handler h = new Handler(Looper.getMainLooper());
         final Runnable go = new Runnable() { @Override public void run() { launchOnce(); } };
         h.postDelayed(go, 3500);   // never keep the person waiting for Firebase

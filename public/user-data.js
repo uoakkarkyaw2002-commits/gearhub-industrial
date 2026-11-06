@@ -40,8 +40,21 @@
    return r.ok;
   }catch{return false}
  }
+// The app runs inside Chrome, so this phone may still have the older web alert saved: take it away, or every message would ring twice.
+ async function forgetWebPush(){
+  try{
+   const regs=await navigator.serviceWorker.getRegistrations();
+   for(const reg of regs){
+    const sub=await reg.pushManager?.getSubscription?.();if(!sub)continue;
+    const send=async()=>fetch('/api/platform/push/forget',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json','X-CSRF-Token':await token()},body:JSON.stringify({endpoint:sub.endpoint})});
+    let r=await send();if(r.status===403){csrf='';r=await send()}
+    if(r.ok)await sub.unsubscribe().catch(()=>{});
+   }
+   for(const k of Object.keys(localStorage))if(k.startsWith('gh-alerts-on:'))localStorage.removeItem(k);
+  }catch{}
+ }
  async function enablePush(){
-  if(nativeApp())return saveNativeToken();
+  if(nativeApp()){const ok=await saveNativeToken();if(ok)forgetWebPush();return ok}
   if(pushBusy||off||!('serviceWorker' in navigator)||!('PushManager' in window)||!window.Notification||Notification.permission!=='granted')return false;
   pushBusy=true;
   try{
