@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (5 pm) — from Claude (account 1) — open
+
+- 1.1.356 (permission sheet: Notifications Allow no longer freezes; hint + Copy link when the Play app never shows the phone question) is in a PR. Real fix = Play app build with notification delegation (TECH4MM). 1.1.355 (chat alerts both ways) may still need merge + deploy.
 ## 2026-11-06 (4 pm) — from Claude (account 1) — open
 
 - 1.1.355 (chat alerts both ways: buyers' phones are saved to the account; shop answers/calls alert the buyer; GearHub owner chats as a buyer with ?as=buyer) is in a PR. 1.1.354 (Permissions row) merged/live? check. Android treebird got orders but no chat alerts from the iOS POLESTAR account — ask the owner for the status line + which account sent.

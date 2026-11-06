@@ -37,10 +37,22 @@
     '<button type="button" data-done style="width:100%;margin:14px 0 0;padding:12px;border:0;border-radius:14px;background:#eef2ef;color:#1f2b24;font:inherit;font-weight:700">'+(st.includes('prompt')?t('later'):t('done'))+'</button>';
   }
   d.addEventListener('click',async e=>{
+   if(e.target.closest('[data-copy]')){const u=location.origin+location.pathname.replace(/\/(admin)?\/?$/,'/');try{await navigator.clipboard.writeText(u)}catch{}const m=d.querySelector('[data-hint]');if(m)m.textContent=(my()?'Link ကူးပြီးပါပြီ — Chrome app ကိုဖွင့်ပြီး paste လုပ်ပါ။ ':'Link copied — open the Chrome app and paste it. ')+u;return}
    if(e.target.closest('[data-done]')){mark();d.close();return}
    const b=e.target.closest('[data-k]');if(!b)return;b.disabled=true;
-   try{await ask[b.dataset.k]()}catch{}
+   // Some Android app shells never show the Notifications question: the request just hangs. Wait 8 s, then explain instead of freezing.
+   let note='';
+   try{
+    const r=await Promise.race([ask[b.dataset.k](),new Promise(res=>setTimeout(()=>res('timeout'),8000))]);
+    if(r==='timeout')note='nothing';
+   }catch(err){note=String(err&&err.name||'error')}
    await paint();
+   if(note&&(await state[b.dataset.k]())==='prompt'){
+    const h=document.createElement('p');h.dataset.hint='1';h.style.cssText='margin:10px 0 0;padding:10px 12px;border-radius:12px;background:#fff4e5;color:#6b4300;font-size:14px';
+    h.textContent=my()?'ဒီ app ထဲမှာ ဖုန်းက ခွင့်ပြုချက် မမေးပါ။ Chrome browser ထဲမှာ ဖွင့်ပြီး ခွင့်ပြုပေးပါ။':'This app did not show the phone question. Allow it in the Chrome browser instead.';
+    const c=document.createElement('button');c.type='button';c.dataset.copy='1';c.textContent=my()?'Link ကူးမယ်':'Copy link';c.style.cssText='display:block;margin:8px 0 0;padding:8px 14px;border:0;border-radius:999px;background:#2e8b2e;color:#fff;font:inherit;font-weight:700';
+    h.append(c);d.querySelector('[data-done]').before(h);
+   }
   });
   d.addEventListener('close',()=>{mark();d.remove()});
   document.body.append(d);await paint();d.showModal();
