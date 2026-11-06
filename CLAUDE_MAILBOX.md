@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (4 pm) — from Claude (account 1) — open
+
+- 1.1.355 (chat alerts both ways: buyers' phones are saved to the account; shop answers/calls alert the buyer; GearHub owner chats as a buyer with ?as=buyer) is in a PR. 1.1.354 (Permissions row) merged/live? check. Android treebird got orders but no chat alerts from the iOS POLESTAR account — ask the owner for the status line + which account sent.
 ## 2026-11-06 (3 pm) — from Claude (account 1) — open
 
 - 1.1.354 (Settings → Permissions row opens the Notifications/Camera/Microphone sheet on demand; Play app did not show the automatic one) is in a PR. 1.1.353 is live for shops. Next: owner taps Permissions in the Play app; if the phone asks nothing, ask for the Notifications status line.

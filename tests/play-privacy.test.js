@@ -21,3 +21,11 @@ test('the installed app asks for notifications, camera and microphone once, from
  assert.ok(js.includes("android-app://")&&js.includes('Notification.requestPermission')&&js.includes('getUserMedia')&&js.includes("gh-perm-ask-v1"),'asks once inside the app');
  const tag=html.match(/\/permission-ask\.js\?v=[^"]+/)?.[0];assert.ok(tag&&sw.includes('"'+tag+'"'),'tag in index and SHELL');
 });
+
+// 1.1.355 owner: a message must make the other phone ring, whichever way it goes (buyer -> shop, shop -> buyer).
+test('chat alerts go to the buyer too, and the GearHub owner can chat as a buyer',()=>{
+ const chat=fs.readFileSync(path.join(__dirname,'..','lib','shop-chat.js'),'utf8'),ud=fs.readFileSync(path.join(__dirname,'..','public','user-data.js'),'utf8');
+ assert.ok(chat.includes("notifyBuyer(chat.user_id, shop, '💬 ' + shopName(shop), c.body)")&&chat.includes("'/user-push/subscribe'"),'shop answer alerts the buyer');
+ assert.ok(chat.includes("req.query.as !== 'buyer'"),'buyer view for a person who also manages the shop');
+ assert.ok(ud.includes('/api/platform/user-push/subscribe')&&ud.includes('enablePush'),'the phone is saved to the account');
+});
