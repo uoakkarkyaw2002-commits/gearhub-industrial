@@ -14,3 +14,10 @@ test('the alerts switch makes a fresh phone subscription when the old one was lo
  assert.ok(js.includes('gh-alerts-on:')&&js.includes('await turnOn(true)'),'self-heal when the phone had turned alerts on');
  assert.ok(js.includes('localStorage.removeItem(onKey)'),'turning off really stays off');
 });
+
+// 1.1.353 owner: other apps ask for Notifications/Camera when opened; SkyShopMM asked nothing.
+test('the installed app asks for notifications, camera and microphone once, from a tap',()=>{
+ const js=fs.readFileSync(path.join(__dirname,'..','public','permission-ask.js'),'utf8'),html=fs.readFileSync(path.join(__dirname,'..','public','index.html'),'utf8'),sw=fs.readFileSync(path.join(__dirname,'..','public','sw.js'),'utf8');
+ assert.ok(js.includes("android-app://")&&js.includes('Notification.requestPermission')&&js.includes('getUserMedia')&&js.includes("gh-perm-ask-v1"),'asks once inside the app');
+ const tag=html.match(/\/permission-ask\.js\?v=[^"]+/)?.[0];assert.ok(tag&&sw.includes('"'+tag+'"'),'tag in index and SHELL');
+});

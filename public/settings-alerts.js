@@ -19,6 +19,8 @@
  share.after(row);
  const input=row.querySelector("input"),help=row.querySelector("#settings-alerts-help");
  const say=(en,mm)=>{help.textContent=my()?mm:en};
+ // 1.1.353: the first-open permission sheet (permission-ask.js) just got Notifications allowed — connect this phone right away.
+ addEventListener("gearhub:alerts-allowed",()=>{try{if(!localStorage.getItem(offKey))localStorage.setItem(onKey,"1")}catch{}refresh()});
  // 1.1.349 owner (Android): the switch kept turning itself off and the cause cannot be seen from outside. A small status line
  // under the switch shows what this phone and the server each know, and "Send test" sends one alert to this phone.
  const diag=document.createElement("small");diag.className="alerts-diag";diag.style.cssText="display:block;margin-top:6px;font-size:11px;line-height:1.5;opacity:.8;white-space:normal;overflow-wrap:anywhere";row.querySelector(".settings-copy").append(diag);

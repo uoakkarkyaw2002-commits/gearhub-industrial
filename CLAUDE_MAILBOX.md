@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (2 pm) — from Claude (account 1) — open
+
+- 1.1.353 (first-open permission sheet: Notifications / Camera / Microphone in the Play app) is in a PR. Owner will test alerts in the Play app after Confirm update. If Android still shows `permission: default` after tapping Allow, check Android Settings → Apps → SkyShopMM → Notifications and ask for the status line.
 ## 2026-11-06 (1 pm, later) — from Claude (account 1) — open
 
 - Google Play approved SkyShopMM. Open: TECH4MM sends the App signing key SHA-256 → owner sets Render `ANDROID_SHA256` → check /.well-known/assetlinks.json lists 2 fingerprints → Play app opens full screen. Trader status must be declared by 1 Feb 2027. 1.1.352 (developer name TECH4MM COMPANY LIMITED in privacy/terms) is in a PR.
