@@ -57,7 +57,15 @@
   report()
  }
  async function turnOn(fresh){
-  const p=fresh?Notification.permission:await Notification.requestPermission();if(p!=="granted"){input.disabled=p==="denied";return show(false)}
+  // 1.1.351 owner (Android home-screen shortcut): the phone never showed the "Allow notifications?" popup, so the switch stayed on
+  // and waiting for ever while the permission was still "default". Wait at most 10 s, then switch off and say how to allow it.
+  const p=fresh?Notification.permission:await Promise.race([Notification.requestPermission(),new Promise(r=>setTimeout(()=>r("timeout"),10000))]);
+  if(p!=="granted"){
+   input.disabled=p==="denied";
+   if(p==="denied")return show(false);
+   note="the phone did not show the Allow popup (permission stayed "+(p==="timeout"?"default":p)+")";
+   return show(false,"No Allow popup came up. Open this shop in the Chrome browser (Chrome menu ⋮ → Open in Chrome), tap this switch and choose Allow. Or: Chrome ⋮ → Settings → Site settings → Notifications → allow skyshopmm.com.","Allow popup မပေါ်ပါ။ ဒီဆိုင်ကို Chrome browser ထဲမှာ ဖွင့်ပါ (Chrome ⋮ → Open in Chrome)၊ ခလုတ်ကို နှိပ်ပြီး Allow ပေးပါ။ ဒါမှမဟုတ် Chrome ⋮ → Settings → Site settings → Notifications ထဲမှာ skyshopmm.com ကို Allow လုပ်ပါ။")
+  }
   const {publicKey}=await api(""),reg=await registration(),key=keyBytes(publicKey);let sub=await reg.pushManager.getSubscription();
   if(sub&&(fresh||!sub.options?.applicationServerKey)){await sub.unsubscribe().catch(()=>{});sub=null}
   if(sub&&sub.options?.applicationServerKey){const old=new Uint8Array(sub.options.applicationServerKey);if(old.length!==key.length||old.some((v,i)=>v!==key[i])){await sub.unsubscribe();sub=null}}

@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (1 pm) — from Claude (account 1) — open
+
+- 1.1.351 (Android home-screen shortcut never shows the Allow-notifications popup → switch reverts after 10 s with how-to). Cause confirmed: alerts work in the Chrome tab; the shortcut container keeps permission `default`. Owner should use Chrome or the real Install app button.
 ## 2026-11-06 (12:30) — from Claude (account 1) — open
 
 - 1.1.350 (Show here = local notification test + worker scope in the alerts status line) is in a PR. Android: push accepted (sent) but nothing shows; iPhone fine. Next step depends on whether the owner's Android shows the local test notification.
