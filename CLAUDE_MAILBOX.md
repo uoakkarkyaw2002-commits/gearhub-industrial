@@ -1,6 +1,6 @@
 # Claude mailbox
 
-## 2026-11-07 — Codex — 1.1.372 Message preload (PR pending)
+## 2026-11-07 — Codex — 1.1.372 Message preload ([PR #461](https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/461))
 
 - Message inbox now warms after signed-in notifications load; opening renders the page-memory snapshot immediately while refreshing. Opened threads also reopen from memory, with draft-safe background updates and guards against late responses changing another chat.
 - Preload uses only inbox list routes, never buyer/thread GET routes that mark messages read. No API/database/call/design changes. Cache is capped at 24 entries; no localStorage/IndexedDB/service-worker storage of private chat responses; clear on hidden/page exit/auth errors.
