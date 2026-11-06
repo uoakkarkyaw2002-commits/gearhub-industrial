@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="393" height="812" viewBox="0 0 393 812" preserveAspectRatio="none">
+ <defs>
+  <linearGradient id="base" x2="1" y2=".7"><stop stop-color="#d4c6fa"/><stop offset=".48" stop-color="#b4b3f8"/><stop offset="1" stop-color="#7daafa"/></linearGradient>
+  <linearGradient id="pink" x1="0" y1="0" x2="1" y2=".45"><stop stop-color="#eacaff"/><stop offset=".45" stop-color="#d9c5fc" stop-opacity=".6"/><stop offset="1" stop-color="#a3b5fa" stop-opacity="0"/></linearGradient>
+  <linearGradient id="cyan" x1="1" y1="0" x2="0" y2="1"><stop stop-color="#b9edff"/><stop offset=".35" stop-color="#9cc8fb"/><stop offset="1" stop-color="#ada9f0"/></linearGradient>
+  <radialGradient id="light" cx=".15" cy="0" r="1"><stop stop-color="#f1deff" stop-opacity=".6"/><stop offset=".7" stop-color="#b8b2f6" stop-opacity="0"/></radialGradient>
+ </defs>
+ <path fill="url(#base)" d="M0 0h393v812H0z"/>
+ <path fill="url(#light)" d="M0 0h393v812H0z"/>
+ <path fill="url(#pink)" d="M0 180C93 150 166 172 245 99C296 51 350 60 393 78V242C266 245 217 316 139 366C86 400 45 414 0 432Z"/>
+ <path fill="url(#cyan)" d="M393 264C294 297 235 379 153 438C96 480 51 527 0 548V812H393Z"/>
+ <path d="M393 264C294 297 235 379 153 438C96 480 51 527 0 548" fill="none" stroke="#e0faff" stroke-width=".8" stroke-opacity=".8"/>
+ <path d="M0 432C55 413 97 389 139 366" fill="none" stroke="#f2dbff" stroke-width=".7" stroke-opacity=".65"/>
+</svg>

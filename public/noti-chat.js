@@ -12,6 +12,8 @@
   my:{noti:'အသိပေးချက်များ',chat:'Chat',none:'အသစ် မရှိသေးပါ။',signIn:'အသိပေးချက်ကြည့်ဖို့နဲ့ ဆိုင်ကို စာပို့ဖို့ Google နဲ့ ဝင်ပါ။',google:'Google နဲ့ ဝင်မယ်',write:'စာရေးပါ…',send:'ပို့မယ်',noChats:'Chat မရှိသေးပါ။',back:'Chats',error:'မအောင်မြင်ပါ။ ပြန်စမ်းကြည့်ပါ။',close:'ပိတ်ရန်',hello:'ဈေးနှုန်း၊ လက်ကျန်၊ ပို့ဆောင်ရေး — ဆိုင်ကို မေးလို့ရပါတယ်။'}};
  Object.assign(T.en,{sticker:'Sticker',voice:'Voice message',record:'Record a voice message',cancel:'Cancel',micDenied:'The microphone is not allowed. Allow it in your browser settings.',micNone:'Voice messages are not supported on this phone.',recording:'Recording…',allShops:'All shops',message:'Message',search:'Search',chats:'Chats',active:'Active Now',followers:'Followers',all:'All chats',unread:'Unread',noResults:'No conversations found.',activeInfo:'Active status is not shared yet.',followerInfo:'View this shop’s followers count on its profile.',profile:'View profile',loading:'Loading conversations…'});
  Object.assign(T.my,{sticker:'Sticker',voice:'အသံ စာ',record:'အသံ ဖမ်းမယ်',cancel:'မလုပ်တော့ဘူး',micDenied:'မိုက်ခရိုဖုန် ခွင့်မပြုထားပါ။ Browser setting မှာ ခွင့်ပြုပေးပါ။',micNone:'ဒီဖုန်းမှာ အသံစာ မသုံးနိုင်ပါ။',recording:'ဖမ်းနေပါတယ်…',allShops:'ဆိုင်အားလုံး',message:'Message',search:'ရှာရန်',chats:'Chats',active:'Active Now',followers:'Followers',all:'Chat အားလုံး',unread:'မဖတ်ရသေးသောစာများ',noResults:'စကားဝိုင်း မတွေ့ပါ။',activeInfo:'Online အခြေအနေကို မဖော်ပြနိုင်သေးပါ။',followerInfo:'ဒီဆိုင်ရဲ့ Profile မှာ Follower အရေအတွက် ကြည့်နိုင်ပါတယ်။',profile:'Profile ကြည့်ရန်',loading:'စကားဝိုင်းများ ဖွင့်နေပါသည်…'});
+ Object.assign(T.en,{attach:'Attach file',fileLimit:'Choose a file between 1 byte and 5 MB.',uploading:'Sending file…'});
+ Object.assign(T.my,{attach:'ဖိုင်တွဲပို့ရန်',fileLimit:'အလွတ်မဟုတ်သော ဖိုင်၊ 5 MB အထိ ရွေးပါ။',uploading:'ဖိုင် ပို့နေပါတယ်…'});
  const t=k=>T[my()?'my':'en'][k];
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const bell='<svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="nc-b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#c9dcf5"/></linearGradient></defs><path d="M13 10.5a12 12 0 0 0-3 6.5M8 8a16 16 0 0 0-3.5 9M35 10.5a12 12 0 0 1 3 6.5M40 8a16 16 0 0 1 3.5 9" stroke="#e6f0ff" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M24 8c-7 0-11 5.4-11 12v7.5L9.5 33h29L35 27.5V20c0-6.6-4-12-11-12z" fill="url(#nc-b)"/><rect x="22" y="5" width="4" height="4.5" rx="2" fill="#fff"/><ellipse cx="24" cy="34" rx="15" ry="2.6" fill="#1d58b8" opacity=".6"/><circle cx="24" cy="37.5" r="4" fill="#f5a623"/></svg>';
@@ -23,7 +25,7 @@
  if(ownerMode)box.hidden=true;
  const [notiButton,chatButton]=box.querySelectorAll('button');
  const SEEN='gh-noti-seen:'+(slug||'gearhub');
- let cs=slug,csrf='',data=null,role='',openChat=null,timer=0,inbox=[],inboxTab='chats',unreadOnly=false;
+ let cs=slug,csrf='',data=null,role='',openChat=null,timer=0,inbox=[],inboxTab='chats',unreadOnly=false,uiOwnLogo='',uiPeerName='',uiIdentity=null;
  async function token(){if(!csrf)csrf=(await (await fetch('/api/platform/me',{cache:'no-store',credentials:'same-origin'})).json()).csrfToken||'';return csrf}
  async function call(url,method='GET',body){
   const send=async()=>fetch(url,{method,credentials:'same-origin',cache:'no-store',headers:method==='GET'?{}:{'Content-Type':'application/json','X-CSRF-Token':await token()},body:body?JSON.stringify(body):undefined});
@@ -42,7 +44,7 @@
  sheet.addEventListener('click',e=>{if(e.target===sheet)sheet.close()});
  sheet.addEventListener('close',()=>{if(rec)stopRec(false);sheet.classList.remove('open');openChat=null;clearInterval(timer);window.GearHubBackNav?.record();refresh()});
  function open(title,html,mode=''){
-  sheet.classList.toggle('nc-chat-view',Boolean(mode));sheet.classList.toggle('nc-inbox',mode==='inbox');
+  sheet.classList.toggle('nc-chat-view',Boolean(mode));sheet.classList.toggle('nc-inbox',mode==='inbox');sheet.classList.toggle('nc-thread',mode==='thread');
   sheet.setAttribute('aria-label',mode?t('message'):t('noti'));
   sheet.innerHTML='<div class="nc-grip" aria-hidden="true"></div><header><h2>'+title+'</h2><button type="button" id="nc-close" aria-label="'+t('close')+'">✕</button></header><div class="nc-body">'+html+'</div><p class="nc-note" role="status"></p>';
   sheet.querySelector('#nc-close').onclick=()=>sheet.close();
@@ -57,17 +59,28 @@
   open(bell+'<span>'+t('noti')+'</span>',data.items.length?'<ul class="nc-list">'+data.items.map((i,k)=>'<li><button type="button" class="nc-item'+(i.at>before?' is-new':'')+'" data-nc="item" data-k="'+k+'"><span>'+esc(i.text)+'</span><small>'+esc(ago(i.at))+'</small></button></li>').join('')+'</ul>':'<p class="nc-empty">'+t('none')+'</p>');
   {const v=data.items[0]?.at||new Date().toISOString();try{localStorage.setItem(SEEN,v)}catch{}window.GearHubUserData?.put('noti-seen-'+(slug||'gearhub'),v)}dots();
  }
- const callBtn='<button type="button" class="nc-call" data-nc="call" aria-label="'+(my()?'အသံ ခေါ်မယ်':'Voice call')+'">📞</button><button type="button" class="nc-call nc-vcall" data-nc="vcall" aria-label="'+(my()?'ဗီဒီယို ခေါ်မယ်':'Video call')+'">📹</button>';
+ // Presentation only: keep every existing call, recording and message action below unchanged.
+ const threadIcon=kind=>'<svg viewBox="0 0 24 24" aria-hidden="true">'+({attach:'<path d="m8 13 7-7a3 3 0 0 1 4 4l-9 9a5 5 0 0 1-7-7l9-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="m7 14 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',phone:'<path d="M5 3h4l2 5-3 2a16 16 0 0 0 6 6l2-3 5 2v4a2 2 0 0 1-2 2C10 21 3 14 3 5a2 2 0 0 1 2-2z"/>',video:'<rect x="2" y="5" width="13" height="14" rx="3"/><path d="m16 9 6-4v14l-6-4z"/>',mic:'<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8" fill="none" stroke="currentColor" stroke-width="2"/>',send:'<path d="m3 11 18-8-6 18-4-7z"/><path d="m11 14 10-11" fill="none" stroke="#0869dc" stroke-width="1.3"/>'})[kind]+'</svg>';
+ const face=(logo,label)=>'<i class="nc-thread-face" aria-hidden="true">'+(logo?'<img src="'+esc(logo)+'" alt="">':esc(Array.from(String(label||'?').trim())[0]||'?'))+'</i>';
+ const shopFace=()=>inbox.find(c=>c.slug===cs&&c.kind==='shop')?.logo||(cs===slug?document.querySelector('#home-profile-avatar:not([hidden])')?.getAttribute('src'):'')||'';
+ const ownFace=()=>role==='shop'?shopFace():uiOwnLogo;
+ const peerFace=()=>role==='buyer'?shopFace():'';
+ function threadHeading(peer){
+  uiPeerName=peer;
+  return '<button type="button" class="nc-back" data-nc="chats">‹ '+t('back')+'</button>'+face(peerFace(),peer)+'<span class="nc-peer-name">'+esc(peer)+'</span><i class="nc-peer-link" aria-hidden="true">↔</i>'+face(ownFace(),my()?'ကိုယ်':'You')+callBtn;
+ }
+ const callBtn='<button type="button" class="nc-call" data-nc="call" aria-label="'+(my()?'အသံ ခေါ်မယ်':'Voice call')+'">'+threadIcon('phone')+'</button><button type="button" class="nc-call nc-vcall" data-nc="vcall" aria-label="'+(my()?'ဗီဒီယို ခေါ်မယ်':'Video call')+'">'+threadIcon('video')+'</button>';
  const STICKERS=['👍','❤️','😂','😮','😢','🙏','👏','🔥','🎉','😍','😎','🤝','✅','🛒','📦','🚚'];
  const mmss=n=>Math.floor(n/60)+':'+String(n%60).padStart(2,'0');
  const oneMessage=m=>{
   const mine=(role==='shop')===m.fromShop?' mine':'';
-  if(m.kind==='call')return '<p class="nc-msg nc-callmsg"><span>'+esc(m.body)+'</span><small>'+esc(ago(m.at))+'</small></p>';
+  if(m.kind==='call')return '<p class="nc-msg nc-callmsg"><i class="nc-log-icon'+(/voice/i.test(m.body)?' is-voice':'')+'" aria-hidden="true">'+threadIcon(/voice/i.test(m.body)?'phone':'video')+'</i><span>'+esc(m.body.replace(/^(?:📹|📞|☎️|🎥)\s*/u,''))+'</span><small>'+esc(ago(m.at))+'</small></p>';
   if(m.kind==='sticker')return '<p class="nc-msg nc-sticker'+mine+'"><span>'+esc(m.body)+'</span><small>'+esc(ago(m.at))+'</small></p>';
+  if(m.kind==='file'&&m.file&&/^\/api\/platform\/chat\/[a-z0-9-]+\/files\/[a-f0-9-]+$/.test(m.file.url))return '<p class="nc-msg nc-filemsg'+mine+'"><a href="'+esc(m.file.url)+'" download><i aria-hidden="true">📎</i><b>'+esc(m.file.name)+'</b><small>'+esc(m.file.bytes>=1048576?(m.file.bytes/1048576).toFixed(1)+' MB':Math.max(1,Math.ceil(m.file.bytes/1024))+' KB')+'</small></a><small>'+esc(ago(m.at))+'</small></p>';
   if(m.kind==='voice')return '<p class="nc-msg nc-voice'+mine+'"><audio controls preload="none" src="/api/platform/chat/'+encodeURIComponent(cs)+'/voice/'+m.voice+'"></audio><small>🎤 '+mmss(m.secs||0)+' · '+esc(ago(m.at))+'</small></p>';
-  return '<p class="nc-msg'+mine+'"><span>'+esc(m.body)+'</span><small>'+esc(ago(m.at))+'</small></p>';
+  return '<p class="nc-msg nc-textmsg'+mine+'">'+face(mine?ownFace():peerFace(),mine?(my()?'ကိုယ်':'You'):uiPeerName)+'<span>'+esc(m.body)+'</span><small>'+esc(ago(m.at))+'</small></p>';
  };
- const messagesHtml=list=>'<div class="nc-messages">'+(list.length?list.map(oneMessage).join(''):'<p class="nc-empty">'+t('hello')+'</p>')+'</div><div class="nc-stickers" hidden>'+STICKERS.map(x=>'<button type="button" data-nc="sticker" data-s="'+x+'" aria-label="'+t('sticker')+' '+x+'">'+x+'</button>').join('')+'</div><form class="nc-form" data-nc-form="send"><button type="button" class="nc-tool" data-nc="stickers" aria-label="'+esc(t('sticker'))+'">😊</button><button type="button" class="nc-tool" data-nc="mic" aria-label="'+esc(t('record'))+'">🎤</button><textarea name="body" rows="1" maxlength="2000" placeholder="'+esc(t('write'))+'" aria-label="'+esc(t('write'))+'"></textarea><button type="submit" class="nc-primary">'+t('send')+'</button><div class="nc-rec" hidden><button type="button" data-nc="rec-cancel" aria-label="'+esc(t('cancel'))+'">✕</button><i class="nc-rec-dot"></i><b class="nc-rec-time">0:00</b><span>'+t('recording')+'</span><button type="button" class="nc-primary" data-nc="rec-send">'+t('send')+'</button></div></form>';
+ const messagesHtml=list=>'<div class="nc-messages">'+(list.length?list.map(oneMessage).join(''):'<p class="nc-empty">'+t('hello')+'</p>')+'</div><div class="nc-stickers" hidden>'+STICKERS.map(x=>'<button type="button" data-nc="sticker" data-s="'+x+'" aria-label="'+t('sticker')+' '+x+'">'+x+'</button>').join('')+'</div><form class="nc-form" data-nc-form="send"><button type="button" class="nc-tool" data-nc="stickers" aria-label="'+esc(t('sticker'))+'">😊</button><button type="button" class="nc-tool nc-attach" data-nc="attach" aria-label="'+esc(t('attach'))+'">'+threadIcon('attach')+'</button><input class="nc-file-input" type="file" hidden aria-label="'+esc(t('attach'))+'"><button type="button" class="nc-tool" data-nc="mic" aria-label="'+esc(t('record'))+'">'+threadIcon('mic')+'</button><textarea name="body" rows="1" maxlength="2000" placeholder="'+esc(t('write'))+'" aria-label="'+esc(t('write'))+'"></textarea><button type="submit" class="nc-primary" aria-label="'+esc(t('send'))+'">'+threadIcon('send')+'<span class="nc-send-label">'+t('send')+'</span></button><div class="nc-rec" hidden><button type="button" data-nc="rec-cancel" aria-label="'+esc(t('cancel'))+'">✕</button><i class="nc-rec-dot"></i><b class="nc-rec-time">0:00</b><span>'+t('recording')+'</span><button type="button" class="nc-primary" data-nc="rec-send">'+t('send')+'</button></div></form>';
  // Voice message: tap 🎤 to record (up to 60 s), then ➤ to send or ✕ to throw away.
  let rec=null;
  const chatPath=()=>'/api/platform/chat/'+cs+(openChat==='buyer'?'':'/'+openChat);
@@ -138,9 +151,9 @@
  async function showChat(){
   openChat=null;clearInterval(timer);inboxTab='chats';inboxShell('<p class="nc-empty">'+t('loading')+'</p>');
   try{
-   const [d,all]=await Promise.all([call(ownerMode?'/api/platform/owner/chats':'/api/platform/chat/'+slug),call('/api/platform/chat-shops').catch(()=>({shops:[]}))]);if(!sheet.open||!sheet.classList.contains('nc-inbox'))return;
+   const [d,all,me]=await Promise.all([call(ownerMode?'/api/platform/owner/chats':'/api/platform/chat/'+slug),call('/api/platform/chat-shops').catch(()=>({shops:[]})),uiIdentity||(uiIdentity=call('/api/platform/me').catch(()=>({})))]);if(!sheet.open||!sheet.classList.contains('nc-inbox'))return;
    if(ownerMode)d.chats=d.chats.map(c=>({...c,name:c.name+' · '+c.shop}));
-   role=d.role;
+   role=d.role;uiOwnLogo=me.shop?.settings?.logoId?'/api/platform/images/'+encodeURIComponent(me.shop.settings.logoId):me.shop?.settings?.appearance?.logoUrl||'';
    // 1.1.341 owner: every shop is in the list (talk to any of them), plus this shop's own buyer chats.
    inbox=[...(role==='shop'?d.chats.map(c=>({...c,kind:'thread'})):[]),...(all.shops||[]).map(x=>({id:'buyer',name:x.name,last:x.last,at:x.at,unread:x.unread,slug:x.slug,logo:x.logo,kind:'shop'}))].sort((a,b)=>(b.at||'').localeCompare(a.at||''));
    renderInbox();
@@ -150,10 +163,10 @@
   }
  }
  async function showBuyer(){
-  try{const d=await call('/api/platform/chat/'+cs+'?as=buyer');if(!sheet.open)return;role=d.role;openChat='buyer';open('<button type="button" class="nc-back" data-nc="chats">‹ '+t('back')+'</button><span>'+esc(d.shop)+'</span>'+callBtn,messagesHtml(d.messages),'thread');scrollEnd();live()}catch(e){note(e.message)}
+  try{const d=await call('/api/platform/chat/'+cs+'?as=buyer');if(!sheet.open)return;role=d.role;openChat='buyer';open(threadHeading(d.shop),messagesHtml(d.messages),'thread');scrollEnd();live()}catch(e){note(e.message)}
  }
  async function showThread(id){
-  try{const d=await call('/api/platform/chat/'+cs+'/'+id);role='shop';openChat=id;open('<button type="button" class="nc-back" data-nc="chats">‹ '+t('back')+'</button><span>'+esc(d.name)+'</span>'+callBtn,messagesHtml(d.messages),'thread');scrollEnd();live()}catch(e){note(e.message)}
+  try{const d=await call('/api/platform/chat/'+cs+'/'+id);role='shop';openChat=id;open(threadHeading(d.name),messagesHtml(d.messages),'thread');scrollEnd();live()}catch(e){note(e.message)}
  }
  // While a chat is open, new messages come in every few seconds.
  function live(){clearInterval(timer);timer=setInterval(async()=>{if(!sheet.open||document.hidden||!openChat)return;try{const d=await call(readPath());const box=sheet.querySelector('.nc-messages'),typing=sheet.querySelector('.nc-form textarea')?.value;if(!box)return;const html=messagesHtml(d.messages);const tmp=document.createElement('div');tmp.innerHTML=html;if(tmp.querySelector('.nc-messages').innerHTML!==box.innerHTML){box.innerHTML=tmp.querySelector('.nc-messages').innerHTML;scrollEnd()}if(typing)sheet.querySelector('.nc-form textarea').value=typing}catch{}},5000)}
@@ -164,6 +177,22 @@
   catch(err){b.disabled=false;note(err.message)}
  });
  sheet.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&e.target.matches('.nc-form textarea')&&matchMedia('(pointer:fine)').matches){e.preventDefault();e.target.form.requestSubmit()}});
+ let filePending=false;
+ sheet.addEventListener('change',async e=>{
+  if(!e.target.matches('.nc-file-input'))return;
+  const file=e.target.files[0];e.target.value='';if(!file)return;
+  if(filePending)return note(t('uploading'));
+  if(!file.size||file.size>5*1024*1024)return note(t('fileLimit'));
+  const path=chatPath(),url=path+(openChat==='buyer'?'/files/upload':'/files'),button=sheet.querySelector('[data-nc="attach"]');filePending=true;button.disabled=true;note(t('uploading'));
+  try{
+   const form=new FormData();form.append('file',file);
+   const send=async()=>fetch(url,{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'X-CSRF-Token':await token()},body:form});
+   let response=await send();if(response.status===403){csrf='';response=await send()}
+   const d=await response.json();if(!response.ok)throw Error(d.error||t('error'));
+   if(sheet.open&&chatPath()===path){const draft=sheet.querySelector('.nc-form textarea')?.value||'';sheet.querySelector('.nc-body').innerHTML=messagesHtml(d.messages);sheet.querySelector('.nc-form textarea').value=draft;note('');scrollEnd();window.GearHubCall?.sound.sent()}
+  }catch(error){if(sheet.open&&chatPath()===path)note(error.message||t('error'))}
+  finally{filePending=false;if(button.isConnected)button.disabled=false}
+ });
  sheet.addEventListener('input',e=>{if(e.target.matches('.nc-search input'))renderInbox()});
  sheet.addEventListener('click',e=>{
   const tab=e.target.closest('[data-nc-tab]');if(tab){inboxTab=tab.dataset.ncTab;renderInbox();return}
@@ -173,6 +202,7 @@
   if(k==='buyer'){cs=b.dataset.slug||slug;return showBuyer()}
   if(k==='stickers'){const p=sheet.querySelector('.nc-stickers');p.hidden=!p.hidden;return}
   if(k==='sticker'){sheet.querySelector('.nc-stickers').hidden=true;return call(chatPath(),'POST',{sticker:b.dataset.s}).then(d=>{sheet.querySelector('.nc-body').innerHTML=messagesHtml(d.messages);scrollEnd()},err=>note(err.message))}
+  if(k==='attach')return sheet.querySelector('.nc-file-input')?.click();
   if(k==='mic')return startRec();
   if(k==='vcall'){const who=sheet.querySelector('h2 span')?.textContent||'';return window.GearHubCall?.start(cs,openChat==='buyer'?null:openChat,who,true).catch(err=>note(err.message))}
   if(k==='call'){const who=sheet.querySelector('h2 span')?.textContent||'';return window.GearHubCall?.start(cs,openChat==='buyer'?null:openChat,who).catch(err=>note(err.message))}
