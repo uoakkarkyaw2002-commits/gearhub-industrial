@@ -5,6 +5,8 @@
  const slug=(location.pathname.match(/^\/shops\/([a-z0-9-]+)\//)||[])[1],share=document.getElementById("share-store-action");
  // 1.1.247: GearHub's own store (no /shops/<slug>/) shows the switch to the GearHub owner (scope "main").
  if(!share||(!slug&&location.pathname.startsWith("/shops/")))return;
+ // 1.1.359: in the native Android app alerts come from the app itself (Firebase) — no web switch here.
+ try{if(sessionStorage.getItem('gh-native')==='1')return}catch{}
  const SW_URL=slug?"/shops/"+slug+"/sw.js":"/sw.js",offKey="gh-alerts-off:"+(slug?"true":"main"),onKey="gh-alerts-on:"+(slug||"main");
  const my=()=>document.documentElement.lang==="my";
  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent||"")||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);

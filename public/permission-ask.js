@@ -21,7 +21,8 @@
   cam:async()=>{const s=await navigator.mediaDevices.getUserMedia({video:true});s.getTracks().forEach(x=>x.stop())},
   mic:async()=>{const s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(x=>x.stop())}
  };
- const ids=['notif','cam','mic'];
+ const native=(()=>{try{return sessionStorage.getItem('gh-native')==='1'}catch{return false}})();
+ const ids=native?['cam','mic']:['notif','cam','mic'];
  const mark=()=>{try{localStorage.setItem(KEY,'1')}catch{}};
  async function open(force){
   if(document.querySelector('.perm-ask'))return;
@@ -58,7 +59,7 @@
   document.body.append(d);await paint();d.showModal();
  }
  const go=()=>setTimeout(()=>open().catch(()=>{}),2500);
- if(inApp&&!asked){addEventListener('gearhub:data-ready',go,{once:true});if(document.readyState==='complete')setTimeout(go,6000)}
+ if(inApp&&!asked&&!native){addEventListener('gearhub:data-ready',go,{once:true});if(document.readyState==='complete')setTimeout(go,6000)}
  // 1.1.354 owner (Android Play app): the sheet did not appear on its own — Settings → Permissions opens it any time, in every browser and app.
  const share=document.getElementById('share-store-action');
  if(share){
