@@ -66,7 +66,11 @@ public class PushService extends FirebaseMessagingService {
                 .setOngoing(true).setAutoCancel(false).setTimeoutAfter(45000)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setFullScreenIntent(fullPi, true).setContentIntent(open(url, CALL_ID));
-        try { NotificationManagerCompat.from(this).notify(CALL_ID, b.build()); } catch (SecurityException ignored) { }
+        // The ring is the notification's own sound, repeated until the call is answered/ended (FLAG_INSISTENT); the full-screen
+        // call screen itself stays silent, so there is exactly one ringtone.
+        android.app.Notification n = b.build();
+        n.flags |= android.app.Notification.FLAG_INSISTENT;
+        try { NotificationManagerCompat.from(this).notify(CALL_ID, n); } catch (SecurityException ignored) { }
         // When the phone is awake and unlocked the system shows the heads-up above; also start the screen ourselves if allowed.
         try { startActivity(full); } catch (Throwable ignored) { }
     }

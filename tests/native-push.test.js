@@ -38,3 +38,12 @@ test('answering a call is quick and the old web alert of the phone is removed',(
  assert.ok(r('android/app/src/main/java/com/skyshopmm/app/MainActivity.java').includes('known'),'no waiting for Firebase when the address is known');
  assert.ok(r('public/user-data.js').includes('/api/platform/push/forget')&&r('lib/platform.js').includes('/push/forget')&&r('lib/order-push.js').includes('forget(endpoint)'),'the web alert of an app phone is forgotten');
 });
+
+// 1.1.362: second phone test — the ring doubled (notification sound + call screen + page), and the app asked to sign in again after closing.
+test('one ringtone, the page stays quiet in the app, the app returns to the last shop',()=>{
+ const fs=require('fs'),path=require('path'),r=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
+ assert.ok(r('android/app/src/main/java/com/skyshopmm/app/PushService.java').includes('FLAG_INSISTENT'),'the notification sound repeats until answered');
+ assert.ok(!/\n\s*ring\(\);/.test(r('android/app/src/main/java/com/skyshopmm/app/CallActivity.java')),'the call screen is silent');
+ assert.ok(r('public/voice-call.js').includes('inNativeApp&&!explicitCall'),'no second incoming screen in the app');
+ assert.ok(r('public/user-data.js').includes('gh-last-shop')&&r('public/user-data.js').includes('location.replace(last)'),'back to the last shop when signed in');
+});

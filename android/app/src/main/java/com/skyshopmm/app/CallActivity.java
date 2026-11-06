@@ -54,7 +54,6 @@ public class CallActivity extends Activity {
         });
         IntentFilter f = new IntentFilter(PushService.ACTION_CALL_END);
         if (Build.VERSION.SDK_INT >= 33) registerReceiver(ended, f, Context.RECEIVER_NOT_EXPORTED); else registerReceiver(ended, f);
-        ring();
         handler.postDelayed(new Runnable() { @Override public void run() { finishCall(); } }, 45000);
     }
 

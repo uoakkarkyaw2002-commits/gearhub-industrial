@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (midnight) — from Claude (account 1) — open
+
+- Native app second test: alerts single OK. 1.1.362 (one ringtone, page quiet in the app, back to the last shop after reopening) is in a PR; new debug APK built. Owner re-installs and tests a call again.
 ## 2026-11-06 (11 pm) — from Claude (account 1) — open
 
 - Native app first phone test: native alerts + full-screen call work. 1.1.361 (no duplicate alerts: web alert of an app phone removed; Answer accepts at once; faster connect) is in a PR; a new debug APK was built. Owner re-installs the APK and re-tests.
