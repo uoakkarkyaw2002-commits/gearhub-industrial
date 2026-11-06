@@ -57,10 +57,12 @@
   open(bell+'<span>'+t('noti')+'</span>',data.items.length?'<ul class="nc-list">'+data.items.map((i,k)=>'<li><button type="button" class="nc-item'+(i.at>before?' is-new':'')+'" data-nc="item" data-k="'+k+'"><span>'+esc(i.text)+'</span><small>'+esc(ago(i.at))+'</small></button></li>').join('')+'</ul>':'<p class="nc-empty">'+t('none')+'</p>');
   try{localStorage.setItem(SEEN,data.items[0]?.at||new Date().toISOString())}catch{}dots();
  }
+ const callBtn='<button type="button" class="nc-call" data-nc="call" aria-label="'+(my()?'အသံ ခေါ်မယ်':'Voice call')+'">📞</button>';
  const STICKERS=['👍','❤️','😂','😮','😢','🙏','👏','🔥','🎉','😍','😎','🤝','✅','🛒','📦','🚚'];
  const mmss=n=>Math.floor(n/60)+':'+String(n%60).padStart(2,'0');
  const oneMessage=m=>{
   const mine=(role==='shop')===m.fromShop?' mine':'';
+  if(m.kind==='call')return '<p class="nc-msg nc-callmsg"><span>'+esc(m.body)+'</span><small>'+esc(ago(m.at))+'</small></p>';
   if(m.kind==='sticker')return '<p class="nc-msg nc-sticker'+mine+'"><span>'+esc(m.body)+'</span><small>'+esc(ago(m.at))+'</small></p>';
   if(m.kind==='voice')return '<p class="nc-msg nc-voice'+mine+'"><audio controls preload="none" src="/api/platform/chat/'+encodeURIComponent(cs)+'/voice/'+m.voice+'"></audio><small>🎤 '+mmss(m.secs||0)+' · '+esc(ago(m.at))+'</small></p>';
   return '<p class="nc-msg'+mine+'"><span>'+esc(m.body)+'</span><small>'+esc(ago(m.at))+'</small></p>';
@@ -147,17 +149,17 @@
   }
  }
  async function showBuyer(){
-  try{const d=await call('/api/platform/chat/'+cs);if(!sheet.open)return;role=d.role;openChat='buyer';open('<button type="button" class="nc-back" data-nc="chats">‹ '+t('back')+'</button><span>'+esc(d.shop)+'</span>',messagesHtml(d.messages),'thread');scrollEnd();live()}catch(e){note(e.message)}
+  try{const d=await call('/api/platform/chat/'+cs);if(!sheet.open)return;role=d.role;openChat='buyer';open('<button type="button" class="nc-back" data-nc="chats">‹ '+t('back')+'</button><span>'+esc(d.shop)+'</span>'+callBtn,messagesHtml(d.messages),'thread');scrollEnd();live()}catch(e){note(e.message)}
  }
  async function showThread(id){
-  try{const d=await call('/api/platform/chat/'+cs+'/'+id);role='shop';openChat=id;open('<button type="button" class="nc-back" data-nc="chats">‹ '+t('back')+'</button><span>'+esc(d.name)+'</span>',messagesHtml(d.messages),'thread');scrollEnd();live()}catch(e){note(e.message)}
+  try{const d=await call('/api/platform/chat/'+cs+'/'+id);role='shop';openChat=id;open('<button type="button" class="nc-back" data-nc="chats">‹ '+t('back')+'</button><span>'+esc(d.name)+'</span>'+callBtn,messagesHtml(d.messages),'thread');scrollEnd();live()}catch(e){note(e.message)}
  }
  // While a chat is open, new messages come in every few seconds.
  function live(){clearInterval(timer);timer=setInterval(async()=>{if(!sheet.open||document.hidden||!openChat)return;try{const d=await call('/api/platform/chat/'+cs+(openChat==='buyer'?'':'/'+openChat));const box=sheet.querySelector('.nc-messages'),typing=sheet.querySelector('.nc-form textarea')?.value;if(!box)return;const html=messagesHtml(d.messages);const tmp=document.createElement('div');tmp.innerHTML=html;if(tmp.querySelector('.nc-messages').innerHTML!==box.innerHTML){box.innerHTML=tmp.querySelector('.nc-messages').innerHTML;scrollEnd()}if(typing)sheet.querySelector('.nc-form textarea').value=typing}catch{}},5000)}
  sheet.addEventListener('submit',async e=>{
   const f=e.target.closest('[data-nc-form="send"]');if(!f)return;e.preventDefault();
   const body=f.elements.body.value.trim();if(!body)return;const b=f.querySelector('button');b.disabled=true;note('');
-  try{const d=await call(chatPath(),'POST',{body});sheet.querySelector('.nc-body').innerHTML=messagesHtml(d.messages);scrollEnd()}
+  try{const d=await call(chatPath(),'POST',{body});sheet.querySelector('.nc-body').innerHTML=messagesHtml(d.messages);scrollEnd();window.GearHubCall?.sound.sent()}
   catch(err){b.disabled=false;note(err.message)}
  });
  sheet.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&e.target.matches('.nc-form textarea')&&matchMedia('(pointer:fine)').matches){e.preventDefault();e.target.form.requestSubmit()}});
@@ -171,6 +173,7 @@
   if(k==='stickers'){const p=sheet.querySelector('.nc-stickers');p.hidden=!p.hidden;return}
   if(k==='sticker'){sheet.querySelector('.nc-stickers').hidden=true;return call(chatPath(),'POST',{sticker:b.dataset.s}).then(d=>{sheet.querySelector('.nc-body').innerHTML=messagesHtml(d.messages);scrollEnd()},err=>note(err.message))}
   if(k==='mic')return startRec();
+  if(k==='call'){const who=sheet.querySelector('h2 span')?.textContent||'';return window.GearHubCall?.start(cs,openChat==='buyer'?null:openChat,who).catch(err=>note(err.message))}
   if(k==='rec-cancel')return stopRec(false);
   if(k==='rec-send')return stopRec(true);
   if(k==='noti')return showNoti();
@@ -179,6 +182,7 @@
   if(k==='chats')return showChat();
   if(k==='item'){const i=data.items[Number(b.dataset.k)];if(i.chat){showChat();return}sheet.close();if(i.url){location.href=i.url;return}if(i.view)window.showStoreView?.(i.view)}
  });
+ addEventListener('gearhub:chat-unread',()=>refresh());
  notiButton.addEventListener('click',showNoti);chatButton.addEventListener('click',showChat);
  window.GearHubNoti={open:showNoti,chat:showChat};
  // From a chat alert on the phone (?chat=1) the chat opens.

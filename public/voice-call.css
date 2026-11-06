@@ -1,0 +1,22 @@
+/* 1.1.343 owner: voice call screen (dark, like a phone call). */
+.vc-screen{position:fixed;inset:0;width:100%;max-width:none;height:100%;max-height:none;margin:0;padding:calc(env(safe-area-inset-top) + 64px) 24px calc(env(safe-area-inset-bottom) + 48px);border:0;background:linear-gradient(180deg,#16335f,#0b1730 70%);color:#fff;display:none;flex-direction:column;align-items:center;text-align:center;z-index:9999}
+.vc-screen[open]{display:flex}
+.vc-screen::backdrop{background:#000}
+.vc-avatar{display:grid;place-items:center;width:128px;height:128px;border-radius:50%;background:linear-gradient(145deg,#4f8cff,#1d64d6);font-size:52px;font-weight:800;box-shadow:0 0 0 14px #ffffff12}
+.vc-screen h2{margin:28px 0 8px;font-size:28px;font-weight:800;overflow-wrap:anywhere}
+.vc-status{margin:0;font-size:17px;opacity:.8;font-variant-numeric:tabular-nums}
+.vc-actions{display:flex;justify-content:center;gap:44px;margin-top:auto}
+.vc-btn{display:grid;justify-items:center;gap:8px;width:auto;min-width:76px;margin:0;padding:0;border:0;background:none;color:#fff;font:inherit;font-size:14px}
+.vc-btn svg{box-sizing:content-box;width:30px;height:30px;padding:21px;border-radius:50%;background:#ffffff26;fill:#fff}
+.vc-btn.vc-no svg{background:#e53935}
+.vc-btn.vc-yes svg{background:#2eb853}
+.vc-btn.vc-mute[aria-pressed="true"] svg{background:#fff;fill:#16335f}
+.vc-btn:active svg{filter:brightness(.85)}
+.vc-audio{display:none}
+.nc-call{margin:0 4px 0 auto;width:38px;height:38px;padding:0;border:0;border-radius:50%;background:#e8f0fe;font-size:19px;line-height:1}
+.nc-call:active{background:#cfe0fc}
+.nc-msg.nc-callmsg{display:flex;align-items:baseline;gap:6px;align-self:center;max-width:none;padding:6px 14px;border-radius:999px;background:#e8eef9;color:#3b4d6b;box-shadow:none}
+.nc-chat-view .nc-msg.nc-callmsg{background:#e8eef9}
+.nc-msg.nc-callmsg small{display:inline;margin-left:6px}
+.vc-screen:focus,.vc-btn:focus{outline:none}
+.vc-btn:focus-visible svg{box-shadow:0 0 0 3px #fff}

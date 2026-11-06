@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (night) — from Claude (account 1) — open
+
+- 1.1.343 (voice calls + ring/ding sounds; in-memory signalling, no new table; optional TURN env vars) is in a PR. 1.1.341/1.1.342 merged; owner still has to deploy. Next: video call, TURN provider choice.
 ## 2026-11-06 (later) — from Claude (account 1) — open
 
 - 1.1.342 (AI Assistant: Myanmar by default, English only when the question is typed in English) is in a PR. 1.1.341 (PR #425, chat phase 1) merged; owner deploys and tests 🎤 on iPhone.
