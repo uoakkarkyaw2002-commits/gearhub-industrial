@@ -4,8 +4,8 @@
 (()=>{
  if(window.GearHubCall)return;
  const my=()=>document.documentElement.lang==='my';
- const T={en:{calling:'Calling…',ringing:'Ringing…',incoming:'Incoming call',connecting:'Connecting…',connected:'Connected',ended:'Call ended',video:'Video call',cam:'Camera',camOff:'Camera off',flip:'Flip',camDenied:'The camera is not allowed. Allow it in your browser settings.',declined:'Call declined',missed:'No answer',mic:'The microphone is not allowed. Allow it in your browser settings.',nomic:'Calls are not supported on this phone or browser.',failed:'The call could not connect. Try again.',accept:'Accept',decline:'Decline',end:'End call',mute:'Mute',unmute:'Unmute',busy:'You are already in a call.'},
-  my:{calling:'ခေါ်နေပါတယ်…',ringing:'မြည်နေပါတယ်…',incoming:'အသံ ခေါ်ဆိုမှု',connecting:'ချိတ်ဆက်နေပါတယ်…',connected:'ချိတ်ဆက်ပြီး',ended:'ခေါ်ဆိုမှု ပြီးပါပြီ',video:'ဗီဒီယို ခေါ်ဆိုမှု',cam:'ကင်မရာ',camOff:'ကင်မရာ ပိတ်',flip:'လှည့်',camDenied:'ကင်မရာ ခွင့်မပြုထားပါ။ Browser setting မှာ ခွင့်ပြုပေးပါ။',declined:'မကိုင်ပါ',missed:'ဖုန်းမကိုင်ပါ',mic:'မိုက်ခရိုဖုန်း ခွင့်မပြုထားပါ။ Browser setting မှာ ခွင့်ပြုပေးပါ။',nomic:'ဒီဖုန်း/browser မှာ ခေါ်ဆိုမှု မသုံးနိုင်ပါ။',failed:'ချိတ်ဆက်မရပါ။ ပြန်ခေါ်ကြည့်ပါ။',accept:'ကိုင်မယ်',decline:'မကိုင်ဘူး',end:'ချမယ်',mute:'အသံပိတ်',unmute:'အသံဖွင့်',busy:'ခေါ်ဆိုမှု လုပ်နေဆဲပါ။'}};
+ const T={en:{calling:'Calling…',ringing:'Ringing…',incoming:'Incoming call',connecting:'Connecting…',connected:'Connected',ended:'Call ended',speaker:'Speaker',speakerOff:'Earpiece',speakerNo:'Use your phone volume or speaker button',video:'Video call',cam:'Camera',camOff:'Camera off',flip:'Flip',camDenied:'The camera is not allowed. Allow it in your browser settings.',declined:'Call declined',missed:'No answer',mic:'The microphone is not allowed. Allow it in your browser settings.',nomic:'Calls are not supported on this phone or browser.',failed:'The call could not connect. Try again.',accept:'Accept',decline:'Decline',end:'End call',mute:'Mute',unmute:'Unmute',busy:'You are already in a call.'},
+  my:{calling:'ခေါ်နေပါတယ်…',ringing:'မြည်နေပါတယ်…',incoming:'အသံ ခေါ်ဆိုမှု',connecting:'ချိတ်ဆက်နေပါတယ်…',connected:'ချိတ်ဆက်ပြီး',ended:'ခေါ်ဆိုမှု ပြီးပါပြီ',speaker:'စပီကာ',speakerOff:'နားကြပ်',speakerNo:'ဖုန်းရဲ့ အသံခလုတ်ကို သုံးပါ',video:'ဗီဒီယို ခေါ်ဆိုမှု',cam:'ကင်မရာ',camOff:'ကင်မရာ ပိတ်',flip:'လှည့်',camDenied:'ကင်မရာ ခွင့်မပြုထားပါ။ Browser setting မှာ ခွင့်ပြုပေးပါ။',declined:'မကိုင်ပါ',missed:'ဖုန်းမကိုင်ပါ',mic:'မိုက်ခရိုဖုန်း ခွင့်မပြုထားပါ။ Browser setting မှာ ခွင့်ပြုပေးပါ။',nomic:'ဒီဖုန်း/browser မှာ ခေါ်ဆိုမှု မသုံးနိုင်ပါ။',failed:'ချိတ်ဆက်မရပါ။ ပြန်ခေါ်ကြည့်ပါ။',accept:'ကိုင်မယ်',decline:'မကိုင်ဘူး',end:'ချမယ်',mute:'အသံပိတ်',unmute:'အသံဖွင့်',busy:'ခေါ်ဆိုမှု လုပ်နေဆဲပါ။'}};
  const t=k=>T[my()?'my':'en'][k];
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  // ---- sounds ----
@@ -49,10 +49,10 @@
   const d=await r.json().catch(()=>({}));if(!r.ok){const e=Error(d.error||t('failed'));e.status=r.status;throw e}return d;
  }
  const mmss=n=>Math.floor(n/60)+':'+String(n%60).padStart(2,'0');
- const inCall=()=>'<button type="button" class="vc-btn vc-cam" data-vc="cam" aria-pressed="false" hidden><svg viewBox="0 0 24 24"><path d="M15 8v8H5V8h10m1-2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.500l4 4v-11l-4 4V7a1 1 0 0 0-1-1z"/></svg><span>'+t('cam')+'</span></button><button type="button" class="vc-btn vc-mute" data-vc="mute" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.900V22h2v-3.100A7 7 0 0 0 19 12z"/></svg><span>'+t('mute')+'</span></button><button type="button" class="vc-btn vc-no" data-vc="end" aria-label="'+esc(t('end'))+'"><svg viewBox="0 0 24 24"><path d="M3 15c5-5 13-5 18 0l-2 3-4-1v-3c-2-.7-4-.7-6 0v3l-4 1z"/></svg><span>'+t('end')+'</span></button>';
+ const inCall=()=>'<button type="button" class="vc-btn vc-spk" data-vc="spk" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.500 3A4.500 4.500 0 0 0 14 8v8a4.500 4.500 0 0 0 2.500-4zM14 3.230v2.060a7 7 0 0 1 0 13.420v2.060a9 9 0 0 0 0-17.540z"/></svg><span>'+t('speaker')+'</span></button><button type="button" class="vc-btn vc-cam" data-vc="cam" aria-pressed="false" hidden><svg viewBox="0 0 24 24"><path d="M15 8v8H5V8h10m1-2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.500l4 4v-11l-4 4V7a1 1 0 0 0-1-1z"/></svg><span>'+t('cam')+'</span></button><button type="button" class="vc-btn vc-mute" data-vc="mute" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.900V22h2v-3.100A7 7 0 0 0 19 12z"/></svg><span>'+t('mute')+'</span></button><button type="button" class="vc-btn vc-no" data-vc="end" aria-label="'+esc(t('end'))+'"><svg viewBox="0 0 24 24"><path d="M3 15c5-5 13-5 18 0l-2 3-4-1v-3c-2-.7-4-.7-6 0v3l-4 1z"/></svg><span>'+t('end')+'</span></button>';
  function screen(name,incoming){
   const d=document.createElement('dialog');d.className='vc-screen';
-  d.innerHTML='<div class="vc-avatar" aria-hidden="true">'+esc(Array.from(name.trim())[0]||'?').toUpperCase()+'</div><h2>'+esc(name)+'</h2><p class="vc-status" role="status"></p><video class="vc-remote" autoplay playsinline hidden></video><video class="vc-local" autoplay playsinline muted hidden></video><audio class="vc-audio" autoplay playsinline></audio>'+
+  d.innerHTML='<div class="vc-avatar" aria-hidden="true">'+esc(Array.from(name.trim())[0]||'?').toUpperCase()+'</div><h2>'+esc(name)+'</h2><p class="vc-status" role="status"></p><video class="vc-remote" autoplay playsinline muted hidden></video><video class="vc-local" autoplay playsinline muted hidden></video><audio class="vc-audio" autoplay playsinline></audio>'+
    '<div class="vc-actions">'+(incoming?'<button type="button" class="vc-btn vc-no" data-vc="decline" aria-label="'+esc(t('decline'))+'"><svg viewBox="0 0 24 24"><path d="M3 15c5-5 13-5 18 0l-2 3-4-1v-3c-2-.7-4-.7-6 0v3l-4 1z"/></svg><span>'+t('decline')+'</span></button><button type="button" class="vc-btn vc-yes" data-vc="accept" aria-label="'+esc(t('accept'))+'"><svg viewBox="0 0 24 24"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.300.2 2.500.6 3.600.1.300 0 .700-.2 1z"/></svg><span>'+t('accept')+'</span></button>':
    inCall())+'</div>';
   document.body.append(d);d.showModal();d.addEventListener('cancel',e=>e.preventDefault());return d;
@@ -70,10 +70,21 @@
   dialog.addEventListener('click',e=>{const b=e.target.closest('[data-vc]');if(!b)return;const k=b.dataset.vc;
    if(k==='end'||k==='decline')hang();
    if(k==='accept')accept();
+   if(k==='spk'&&cur){const on=b.getAttribute('aria-pressed')!=='true';speaker(on).then(ok=>{b.setAttribute('aria-pressed',String(on&&ok));b.querySelector('span').textContent=t(on&&ok?'speakerOff':'speaker');if(!ok)status(t('speakerNo'))})}
    if(k==='cam'&&cur?.stream){const on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',String(on));cur.stream.getVideoTracks().forEach(x=>x.enabled=!on);b.querySelector('span').textContent=t(on?'camOff':'cam');dialog.querySelector('.vc-local').style.visibility=on?'hidden':'visible'}
    if(k==='mute'&&cur?.stream){const on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',String(on));cur.stream.getAudioTracks().forEach(x=>x.enabled=!on);b.querySelector('span').textContent=t(on?'unmute':'mute')}});
  }
- // Microphone + connection: when calling, and when the person called taps Accept (a tap is needed for the microphone).
+ // Loudspeaker: Chrome (desktop and some Android) can pick the output; iPhone Safari cannot be told — then the volume buttons are used.
+async function speaker(on){
+  const a=cur?.dialog.querySelector('.vc-audio');if(!a||typeof a.setSinkId!=='function')return false;
+  try{
+   const outs=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='audiooutput');
+   const sp=outs.find(d=>/speaker|loud/i.test(d.label)),def=outs.find(d=>d.deviceId==='default')||outs[0];
+   if(on&&!sp)return false;
+   await a.setSinkId(on?sp.deviceId:(def?def.deviceId:''));return true;
+  }catch{return false}
+}
+// Microphone + connection: when calling, and when the person called taps Accept (a tap is needed for the microphone).
  async function media(){
   if(!navigator.mediaDevices?.getUserMedia||typeof RTCPeerConnection==='undefined')throw Error(t('nomic'));
   const cfg=await api('/api/platform/call/config');
@@ -148,7 +159,7 @@
    unread=d.unread;
   }catch(e){if(e.status===401)signedOut=true}
  }
- addEventListener('load',()=>{tick();setInterval(tick,4000)},{once:true});
+ addEventListener('load',()=>{tick();setInterval(tick,4000);if(/[?&]call=1/.test(location.search))for(const ms of [1200,3000,6000])setTimeout(tick,ms)},{once:true});
  document.addEventListener('visibilitychange',()=>{if(!document.hidden){signedOut=false;tick()}});
  window.GearHubCall={start,sound,busy:()=>Boolean(cur)};
 })();
