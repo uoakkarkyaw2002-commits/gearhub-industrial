@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SkyShopMM</string>
+    <string name="asset_statements" translatable="false">[{\"relation\": [\"delegate_permission/common.handle_all_urls\"], \"target\": {\"namespace\": \"web\", \"site\": \"https://skyshopmm.com\"}}]</string>
+    <string name="channel_messages">Messages and orders</string>
+    <string name="channel_calls">Calls</string>
+    <string name="incoming_call">Incoming call</string>
+    <string name="incoming_video_call">Incoming video call</string>
+    <string name="answer">Answer</string>
+    <string name="decline">Decline</string>
+</resources>

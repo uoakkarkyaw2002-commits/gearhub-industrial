@@ -1,0 +1,52 @@
+plugins {
+    id 'com.android.application'
+}
+// Firebase (push) is switched on only when the owner has put google-services.json next to this file.
+if (file('google-services.json').exists()) {
+    apply plugin: 'com.google.gms.google-services'
+}
+
+def keystorePropsFile = rootProject.file('keystore.properties')
+def keystoreProps = new Properties()
+if (keystorePropsFile.exists()) keystoreProps.load(new FileInputStream(keystorePropsFile))
+
+android {
+    namespace 'com.skyshopmm.app'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.skyshopmm.app'   // same package as the Play app that is live now, so this is an update of it
+        minSdk 24
+        targetSdk 35
+        versionCode Integer.parseInt((project.findProperty('versionCode') ?: '3').toString())
+        versionName (project.findProperty('versionName') ?: '2.0.0').toString()
+    }
+
+    signingConfigs {
+        release {
+            if (keystorePropsFile.exists()) {
+                storeFile rootProject.file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (keystorePropsFile.exists()) signingConfig signingConfigs.release
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
+    implementation platform('com.google.firebase:firebase-bom:33.1.2')
+    implementation 'com.google.firebase:firebase-messaging'
+    implementation 'androidx.core:core:1.13.1'
+}

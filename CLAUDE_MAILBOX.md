@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (9 pm) — from Claude (account 1) — open
+
+- Native Android app stage 1 (`android/`, Gradle project) + `lib/native-push.js` (FCM) are in a PR (1.1.359). Android tools live in `~/android-dev` (JDK17, Gradle 8.9, SDK 35; emulator image downloading). Needs from the owner: Firebase `google-services.json` + Render `FCM_SERVICE_ACCOUNT`, Play developer account or TECH4MM, keystore for release. Debug APK builds (`gradle assembleDebug`).
 ## 2026-11-06 (7 pm) — from Claude (account 1) — open
 
 - 1.1.358 (call alerts stay and vibrate until answered, removed when the call ends; ?call=1 opens the call screen; Speaker button) is in a PR. 1.1.357 (video call) live for shops. A true Viber-style full-screen call over the lock screen needs a native app — told the owner.
