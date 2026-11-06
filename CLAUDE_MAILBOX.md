@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-07 (1 am) — from Claude (account 1) — open
+
+- Native app: one ringtone ✓, straight into the shop ✓. 1.1.363 (tiny `/app-start.html` start page so the sign-in scene no longer flashes before the shop) is in a PR; no new APK needed. Open question to the owner: should the shop's opening picture/sound be shorter or silent inside the app?
 ## 2026-11-06 (midnight) — from Claude (account 1) — open
 
 - Native app second test: alerts single OK. 1.1.362 (one ringtone, page quiet in the app, back to the last shop after reopening) is in a PR; new debug APK built. Owner re-installs and tests a call again.
