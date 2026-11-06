@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-07 (10 am) — from Claude (account 1) — open
+
+- Native app: call after the app was cleared from recents showed only a silent entry → 1.1.369 (loud-alert fallback in the Android app + the page tells the server when it leaves) is in a PR; new APK `SkyShopMM-app-debug-1.1.369-recents.apk` in the owner's Google Drive; needs deploy + Confirm update. Owner re-tests: clear the app from recents, call.
 ## 2026-11-07 (9 am) — from Claude (account 1) — open
 
 - Native app: the call alert now disappears at once on Answer (Android-only change; APK `SkyShopMM-app-debug-1.1.369.apk` in the owner's Google Drive; PR open, no deploy needed). Owner re-installs and tests.

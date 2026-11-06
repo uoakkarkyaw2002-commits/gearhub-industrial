@@ -95,3 +95,10 @@ test('Answer clears the call alert at once',()=>{
  const js=require('fs').readFileSync(require('path').join(__dirname,'..','android/app/src/main/java/com/skyshopmm/app/MainActivity.java'),'utf8');
  assert.ok(js.includes('clearCallAlertIfAnswering')&&js.includes('call=accept')&&js.includes('PushService.CALL_ID'),'cancel on answer');
 });
+
+// 1.1.369: with the app cleared from recents the call showed only a quiet entry (the server still thought the page was open).
+test('call after the app was cleared: loud alert if the call screen did not appear',()=>{
+ const fs=require('fs'),path=require('path'),r=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
+ assert.ok(r('android/app/src/main/java/com/skyshopmm/app/PushService.java').includes('callActive && !CallActivity.showing')&&r('android/app/src/main/java/com/skyshopmm/app/CallActivity.java').includes('static volatile boolean showing'),'fallback to the loud alert');
+ assert.ok(r('lib/shop-chat.js').includes("req.query.fg === '0'")&&r('public/voice-call.js').includes('incoming?fg=0'),'the page says when it leaves');
+});

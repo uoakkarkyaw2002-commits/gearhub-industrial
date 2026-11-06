@@ -19,6 +19,7 @@ import java.util.Map;
 public class PushService extends FirebaseMessagingService {
     static final int CALL_ID = 1001;
     static final String ACTION_CALL_END = "com.skyshopmm.app.CALL_END";
+    static volatile boolean callActive = false;
 
     @Override public void onNewToken(String token) {
         getSharedPreferences(MainActivity.PREFS, Context.MODE_PRIVATE).edit().putString(MainActivity.KEY_TOKEN, token).apply();
@@ -29,6 +30,7 @@ public class PushService extends FirebaseMessagingService {
         String kind = d.get("kind") == null ? "chat" : d.get("kind");
         App.createChannels(this);
         if ("call-end".equals(kind)) {
+            callActive = false;
             NotificationManagerCompat.from(this).cancel(CALL_ID);
             sendBroadcast(new Intent(ACTION_CALL_END).setPackage(getPackageName()));
             return;
@@ -36,7 +38,7 @@ public class PushService extends FirebaseMessagingService {
         String title = d.get("title") == null ? "SkyShopMM" : d.get("title");
         String body = d.get("body") == null ? "" : d.get("body");
         String url = d.get("url") == null ? "/" : d.get("url");
-        if ("call".equals(kind)) { showCall(title, body, url, "1".equals(d.get("video")), d.get("callId"), d.get("key"), "1".equals(d.get("fg"))); return; }
+        if ("call".equals(kind)) { callActive = true; showCall(title, body, url, "1".equals(d.get("video")), d.get("callId"), d.get("key"), "1".equals(d.get("fg"))); return; }
         showMessage(title, body, url, kind);
     }
 
@@ -78,5 +80,16 @@ public class PushService extends FirebaseMessagingService {
         try { NotificationManagerCompat.from(this).notify(CALL_ID, n); } catch (SecurityException ignored) { }
         // When the phone is awake and unlocked the system shows the heads-up above; also start the screen ourselves if allowed.
         try { startActivity(full); } catch (Throwable ignored) { }
+        // 1.1.369 owner: after clearing the app from recents the server still believed the page was on screen, so only the quiet entry was posted and Android
+        // refused to start the screen from the background — no ring at all. If the call screen did not appear, post the loud call alert after all.
+        if (appOpen) {
+            final String fTitle = title, fBody = body, fUrl = url, fCallId = callId, fKey = key;
+            final boolean fVideo = video;
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override public void run() {
+                    if (callActive && !CallActivity.showing) showCall(fTitle, fBody, fUrl, fVideo, fCallId, fKey, false);
+                }
+            }, 1500);
+        }
     }
 }
