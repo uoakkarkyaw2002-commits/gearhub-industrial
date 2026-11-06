@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (morning) — from Claude (account 1) — open
+
+- 1.1.345 (chat/call sounds via <audio> so iPhone plays them) is in a PR. 1.1.344 is live on GearHub and the shops (auto-confirmed 10:00).
 ## 2026-11-06 (late night) — from Claude (account 1) — open
 
 - 1.1.344 (AI chat history, to-do notes and alert-seen mark saved on the server: table platform_user_data + /userdata/:key) is in a PR. 1.1.343 (voice calls, PR #427) merged; owner still has to deploy 1.1.341–1.1.343.
