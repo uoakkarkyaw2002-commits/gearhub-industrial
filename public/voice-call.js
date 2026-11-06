@@ -8,25 +8,37 @@
   my:{calling:'ခေါ်နေပါတယ်…',ringing:'မြည်နေပါတယ်…',incoming:'အသံ ခေါ်ဆိုမှု',connecting:'ချိတ်ဆက်နေပါတယ်…',connected:'ချိတ်ဆက်ပြီး',ended:'ခေါ်ဆိုမှု ပြီးပါပြီ',declined:'မကိုင်ပါ',missed:'ဖုန်းမကိုင်ပါ',mic:'မိုက်ခရိုဖုန်း ခွင့်မပြုထားပါ။ Browser setting မှာ ခွင့်ပြုပေးပါ။',nomic:'ဒီဖုန်း/browser မှာ ခေါ်ဆိုမှု မသုံးနိုင်ပါ။',failed:'ချိတ်ဆက်မရပါ။ ပြန်ခေါ်ကြည့်ပါ။',accept:'ကိုင်မယ်',decline:'မကိုင်ဘူး',end:'ချမယ်',mute:'အသံပိတ်',unmute:'အသံဖွင့်',busy:'ခေါ်ဆိုမှု လုပ်နေဆဲပါ။'}};
  const t=k=>T[my()?'my':'en'][k];
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- // ---- sounds (made with the phone's own audio, no files) ----
- let actx=null;
- const unlock=()=>{try{actx=actx||new(window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume()}catch{}};
- ['pointerdown','touchend','keydown'].forEach(e=>addEventListener(e,unlock,{passive:true}));
- function tone(freq,at,dur,vol=.2,type='sine'){
-  if(!actx||actx.state!=='running')return;const o=actx.createOscillator(),g=actx.createGain(),t0=actx.currentTime+at;
-  o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+.02);g.gain.setValueAtTime(vol,t0+dur-.04);g.gain.linearRampToValueAtTime(0,t0+dur);
-  o.connect(g).connect(actx.destination);o.start(t0);o.stop(t0+dur+.02);
+ // ---- sounds ----
+ // Made in the page as small WAV files and played through <audio> elements: on iPhone, audio made with Web Audio is silent
+ // when the side switch is on silent or the page was never unlocked, while <audio> played after a tap is not.
+ const SR=22050,DEFS={
+  ding:[{f:880,at:0,dur:.16,v:.55},{f:1318,at:.14,dur:.34,v:.55}],
+  sent:[{f:660,at:0,dur:.1,v:.4}],
+  end:[{f:520,at:0,dur:.18,v:.5},{f:390,at:.2,dur:.34,v:.5}],
+  ring:[{f:440,at:0,dur:.42,v:.3},{f:480,at:0,dur:.42,v:.3},{f:440,at:.55,dur:.42,v:.3},{f:480,at:.55,dur:.42,v:.3}],
+  back:[{f:425,at:0,dur:1,v:.4}]
+ },urls={};
+ function wav(tones){
+  const n=Math.ceil((Math.max(...tones.map(x=>x.at+x.dur))+.05)*SR),d=new Float32Array(n);
+  for(const x of tones){const s=Math.floor(x.at*SR),len=Math.floor(x.dur*SR);for(let i=0;i<len&&s+i<n;i++){const t=i/SR,env=Math.max(0,Math.min(1,t/.02,(x.dur-t)/.04));d[s+i]+=Math.sin(2*Math.PI*x.f*t)*x.v*env}}
+  const b=new ArrayBuffer(44+n*2),v=new DataView(b),w=(o,str)=>[...str].forEach((c,i)=>v.setUint8(o+i,c.charCodeAt(0)));
+  w(0,'RIFF');v.setUint32(4,36+n*2,true);w(8,'WAVEfmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,SR,true);v.setUint32(28,SR*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,n*2,true);
+  for(let i=0;i<n;i++)v.setInt16(44+i*2,Math.max(-1,Math.min(1,d[i]))*32767,true);
+  return URL.createObjectURL(new Blob([b],{type:'audio/wav'}));
  }
- const sound={
-  ding:()=>{tone(880,0,.14,.22);tone(1318,.13,.3,.22)},
-  sent:()=>tone(660,0,.09,.12),
-  end:()=>{tone(520,0,.16,.2);tone(390,.18,.3,.2)},
-  ring:()=>{for(const a of [0,.55]){tone(440,a,.4,.25);tone(480,a,.4,.25)}},
-  back:()=>{tone(425,0,1,.14)}
+ const fx=new Audio(),rg=new Audio();let unlocked=false;
+ const unlock=()=>{
+  if(unlocked)return;unlocked=true;urls.silent=urls.silent||wav([{f:200,at:0,dur:.05,v:0}]);
+  for(const a of [fx,rg]){a.src=urls.silent;a.play().then(()=>a.pause()).catch(()=>{unlocked=false})}
  };
+ ['touchend','click','pointerup','keydown'].forEach(e=>addEventListener(e,unlock,{passive:true,capture:true}));
+ function play(name,loopKind){
+  const a=loopKind?rg:fx;try{urls[name]=urls[name]||wav(DEFS[name]);a.src=urls[name];a.currentTime=0;a.volume=1;const r=a.play();r&&r.catch&&r.catch(()=>{})}catch{}
+ }
+ const sound={ding:()=>play('ding'),sent:()=>play('sent'),end:()=>play('end'),ring:()=>play('ring',true),back:()=>play('back',true)};
  let loop=0;
- const ringStart=kind=>{ringStop();unlock();sound[kind]();loop=setInterval(sound[kind],kind==='ring'?3200:3500);if(kind==='ring')try{navigator.vibrate?.([400,200,400])}catch{}};
- const ringStop=()=>{clearInterval(loop);loop=0};
+ const ringStart=kind=>{ringStop();sound[kind]();loop=setInterval(sound[kind],kind==='ring'?3200:3500);if(kind==='ring')try{navigator.vibrate?.([400,200,400])}catch{}};
+ const ringStop=()=>{clearInterval(loop);loop=0;try{rg.pause()}catch{}};
  // ---- call state ----
  let pending=null,cur=null; // {id,pc,stream,poll,dialog,timer,since,name,role}
  let csrf='';
@@ -92,7 +104,7 @@
   },1000);
  }
  async function start(slug,chat,name){
-  unlock();if(cur)throw Error(t('busy'));
+  if(cur)throw Error(t('busy'));
   open(name||slug,false);cur.role='caller';cur.created=Date.now();status(t('calling'));
   try{
    const pc=await media();
