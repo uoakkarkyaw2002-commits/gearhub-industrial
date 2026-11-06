@@ -1820,3 +1820,8 @@ _None._
 - Fix (Android only, `android/…`): the call screen's Answer and every notification tap start the app with `FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK` (a fresh launch with `?call=accept`), and `MainActivity.onNewIntent` relaunches as a safety net. Cost: answering restarts the app page (acceptable for a call).
 - Not verified on the phone. APK copied to Google Drive as SkyShopMM-app-debug-1.1.367b.apk. Locked-phone Answer (unlock first) is still to be tested by the owner. No web files changed, so no version bump.
 - Tests: Node22 test 513/513.
+
+## 2026-11-06 — Claude (account 1) — 1.1.368 No opening cover after Answer
+- Owner: with the app open, after Answer the shop's opening picture shows for a moment, then "connecting", then the call works. Since 1.1.367b Answer restarts the app task, so the page loads from scratch and the shop's opening cover (the quiet one) shows until the page is ready. For `?call=accept` entries `public/skyshop-splash.js` now removes the cover and shows a plain dark "ချိတ်ဆက်နေပါတယ်… / Connecting…" page (`#sky-call-wait`, call colour) that is removed as soon as the call screen (`.vc-screen`) appears (or after 15 s). Normal opens keep the cover. `SPLASH_V` → 1.1.368.
+- The remaining wait is the page start + WebRTC connect (no TURN yet). Not verified on the phone; the APK needs no change (Chrome gets the new page after Confirm update).
+- Tests: Node22 check + test 514/514; Chrome check: call-accept entry has no `#sky-splash` and shows `#sky-call-wait`; normal open still has the cover.
