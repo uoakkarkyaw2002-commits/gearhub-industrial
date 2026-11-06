@@ -66,7 +66,7 @@
    {icon:'add',my:'<b>Install</b> ကို နှိပ်ပါ။',en:'Click <b>Install</b>.'},
    {icon:'phone',my:'Desktop နဲ့ Start menu မှာ <b>'+esc(appName)+'</b> app ပေါ်လာပါပြီ။',en:'<b>'+esc(appName)+'</b> is now on your desktop and Start menu.'}];
  }
- const robot='<img class="ig-avatar" src="/images/product-ai-robot.png?v=1.1.193" alt="" width="34" height="27">';
+ const robot='<img class="ig-avatar" src="/images/assistant-face.png?v=3" alt="" width="34" height="34">';
  function bubble(s,n,total,live){
   const media=s.scene?'<div class="ig-video ig-'+s.scene+(live?' ig-play':'')+'" role="img" aria-label="Video">'+scenes[s.scene]+'</div>':'<span class="install-guide-art">'+icon[s.icon]+'</span>';
   const action=live&&s.action==='copy'?'<button type="button" class="install-guide-action" data-guide="copy">🔗 Link ကို copy ကူးမယ် / Copy link</button>':live&&s.action==='install'&&prompt?'<button type="button" class="install-guide-action" data-guide="install">⬇ App တင်မယ် / Install app</button>':'';
@@ -76,7 +76,7 @@
  let sheet=null,at=0,typing=0;
  function build(){
   sheet=document.createElement('div');sheet.className='install-guide';sheet.hidden=true;sheet.setAttribute('role','dialog');sheet.setAttribute('aria-modal','true');sheet.setAttribute('aria-labelledby','install-guide-title');
-  sheet.innerHTML='<div class="install-guide-card"><div class="install-guide-top"><img src="/images/product-ai-robot.png?v=1.1.193" alt="" width="54" height="43"><div><h2 id="install-guide-title">App တင်ပေးမယ့် အကူ</h2><p>Home Screen install helper</p></div><button type="button" class="install-guide-close" data-guide="later" aria-label="Close">×</button></div><div class="install-guide-body" aria-live="polite"></div><div class="install-guide-dots"></div><div class="install-guide-foot"><button type="button" class="install-guide-back" data-guide="back">‹ နောက်သို့</button><button type="button" class="install-guide-next" data-guide="next">ပြီးပြီ ✓ / Done</button></div></div>';
+  sheet.innerHTML='<div class="install-guide-card"><div class="install-guide-top"><img src="/images/assistant-face.png?v=3" alt="" width="54" height="54"><div><h2 id="install-guide-title">App တင်ပေးမယ့် အကူ</h2><p>Home Screen install helper</p></div><button type="button" class="install-guide-close" data-guide="later" aria-label="Close">×</button></div><div class="install-guide-body" aria-live="polite"></div><div class="install-guide-dots"></div><div class="install-guide-foot"><button type="button" class="install-guide-back" data-guide="back">‹ နောက်သို့</button><button type="button" class="install-guide-next" data-guide="next">ပြီးပြီ ✓ / Done</button></div></div>';
   sheet.addEventListener('click',async e=>{
    const b=e.target.closest('[data-guide]');if(!b){if(e.target===sheet)later();return}
    const list=steps(),k=b.dataset.guide;

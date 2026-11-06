@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (10 am) — from Claude (account 1) — open
+
+- 1.1.346 (old robot → AI girl in the add-app popups) is in a PR. 1.1.345 (sounds via <audio>, PR #429) may still need merge + deploy. Open: Android gets no alert while iPhone does — check the Android phone's Settings → Notifications switch, Chrome site notification permission and the owner console's last-alert result before changing code.
 ## 2026-11-06 (morning) — from Claude (account 1) — open
 
 - 1.1.345 (chat/call sounds via <audio> so iPhone plays them) is in a PR. 1.1.344 is live on GearHub and the shops (auto-confirmed 10:00).
