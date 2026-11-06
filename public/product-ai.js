@@ -21,7 +21,7 @@
    if(q.dark)parts.push('<p class="product-ai-warn">⚠ ပုံ မှောင်နေပါတယ်။ အလင်းကောင်းကောင်းနဲ့ ပြန်ရိုက်ပါ။ / The photo is dark — retake it in better light.</p>');
    if(q.blurry)parts.push('<p class="product-ai-warn">⚠ ပုံ ဝါးနေပါတယ်။ ကင်မရာ ငြိမ်ငြိမ်ကိုင်ပြီး ပြန်ရိုက်ပါ။ / The photo is blurred — hold still and retake it.</p>');
    for(const p of d.duplicates||[]){
-    if(phone.matches)parts.push('<section class="product-ai-duplicate"><img src="/images/product-ai-robot.png?v=1.1.193" alt="" width="120" height="140"><div><h4>'+alertIcon+'<span>သတိပေးချက်:</span></h4><p>ဒီပစ္စည်း ရှိပြီးသားဖြစ်နိုင်ပါတယ်</p><strong>'+esc(p.name)+(p.sku?' ('+esc(p.sku)+')':'')+' — '+pct(p.score)+' တူညီ!</strong><p class="product-ai-translation">This part may already be in the shop.</p></div></section>');
+    if(phone.matches)parts.push('<section class="product-ai-duplicate"><img src="/images/assistant-face.png?v=3" alt="" width="120" height="120" style="border-radius:50%;object-fit:cover"><div><h4>'+alertIcon+'<span>သတိပေးချက်:</span></h4><p>ဒီပစ္စည်း ရှိပြီးသားဖြစ်နိုင်ပါတယ်</p><strong>'+esc(p.name)+(p.sku?' ('+esc(p.sku)+')':'')+' — '+pct(p.score)+' တူညီ!</strong><p class="product-ai-translation">This part may already be in the shop.</p></div></section>');
     else parts.push('<p class="product-ai-warn">⚠ ဒီပစ္စည်း ရှိပြီးသား ဖြစ်နိုင်တယ်: <b>'+esc(p.name)+'</b>'+(p.sku?' ('+esc(p.sku)+')':'')+' — '+pct(p.score)+' တူ / This part may already be in the shop.</p>');
    }
    suggestions=d.categories||[];
