@@ -4,8 +4,8 @@
 (()=>{
  if(window.GearHubCall)return;
  const my=()=>document.documentElement.lang==='my';
- const T={en:{calling:'Calling…',ringing:'Ringing…',incoming:'Voice call',connecting:'Connecting…',connected:'Connected',ended:'Call ended',declined:'Call declined',missed:'No answer',mic:'The microphone is not allowed. Allow it in your browser settings.',nomic:'Calls are not supported on this phone or browser.',failed:'The call could not connect. Try again.',accept:'Accept',decline:'Decline',end:'End call',mute:'Mute',unmute:'Unmute',busy:'You are already in a call.'},
-  my:{calling:'ခေါ်နေပါတယ်…',ringing:'မြည်နေပါတယ်…',incoming:'အသံ ခေါ်ဆိုမှု',connecting:'ချိတ်ဆက်နေပါတယ်…',connected:'ချိတ်ဆက်ပြီး',ended:'ခေါ်ဆိုမှု ပြီးပါပြီ',declined:'မကိုင်ပါ',missed:'ဖုန်းမကိုင်ပါ',mic:'မိုက်ခရိုဖုန်း ခွင့်မပြုထားပါ။ Browser setting မှာ ခွင့်ပြုပေးပါ။',nomic:'ဒီဖုန်း/browser မှာ ခေါ်ဆိုမှု မသုံးနိုင်ပါ။',failed:'ချိတ်ဆက်မရပါ။ ပြန်ခေါ်ကြည့်ပါ။',accept:'ကိုင်မယ်',decline:'မကိုင်ဘူး',end:'ချမယ်',mute:'အသံပိတ်',unmute:'အသံဖွင့်',busy:'ခေါ်ဆိုမှု လုပ်နေဆဲပါ။'}};
+ const T={en:{calling:'Calling…',ringing:'Ringing…',incoming:'Incoming call',connecting:'Connecting…',connected:'Connected',ended:'Call ended',video:'Video call',cam:'Camera',camOff:'Camera off',flip:'Flip',camDenied:'The camera is not allowed. Allow it in your browser settings.',declined:'Call declined',missed:'No answer',mic:'The microphone is not allowed. Allow it in your browser settings.',nomic:'Calls are not supported on this phone or browser.',failed:'The call could not connect. Try again.',accept:'Accept',decline:'Decline',end:'End call',mute:'Mute',unmute:'Unmute',busy:'You are already in a call.'},
+  my:{calling:'ခေါ်နေပါတယ်…',ringing:'မြည်နေပါတယ်…',incoming:'အသံ ခေါ်ဆိုမှု',connecting:'ချိတ်ဆက်နေပါတယ်…',connected:'ချိတ်ဆက်ပြီး',ended:'ခေါ်ဆိုမှု ပြီးပါပြီ',video:'ဗီဒီယို ခေါ်ဆိုမှု',cam:'ကင်မရာ',camOff:'ကင်မရာ ပိတ်',flip:'လှည့်',camDenied:'ကင်မရာ ခွင့်မပြုထားပါ။ Browser setting မှာ ခွင့်ပြုပေးပါ။',declined:'မကိုင်ပါ',missed:'ဖုန်းမကိုင်ပါ',mic:'မိုက်ခရိုဖုန်း ခွင့်မပြုထားပါ။ Browser setting မှာ ခွင့်ပြုပေးပါ။',nomic:'ဒီဖုန်း/browser မှာ ခေါ်ဆိုမှု မသုံးနိုင်ပါ။',failed:'ချိတ်ဆက်မရပါ။ ပြန်ခေါ်ကြည့်ပါ။',accept:'ကိုင်မယ်',decline:'မကိုင်ဘူး',end:'ချမယ်',mute:'အသံပိတ်',unmute:'အသံဖွင့်',busy:'ခေါ်ဆိုမှု လုပ်နေဆဲပါ။'}};
  const t=k=>T[my()?'my':'en'][k];
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  // ---- sounds ----
@@ -49,10 +49,10 @@
   const d=await r.json().catch(()=>({}));if(!r.ok){const e=Error(d.error||t('failed'));e.status=r.status;throw e}return d;
  }
  const mmss=n=>Math.floor(n/60)+':'+String(n%60).padStart(2,'0');
- const inCall=()=>'<button type="button" class="vc-btn vc-mute" data-vc="mute" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.900V22h2v-3.100A7 7 0 0 0 19 12z"/></svg><span>'+t('mute')+'</span></button><button type="button" class="vc-btn vc-no" data-vc="end" aria-label="'+esc(t('end'))+'"><svg viewBox="0 0 24 24"><path d="M3 15c5-5 13-5 18 0l-2 3-4-1v-3c-2-.7-4-.7-6 0v3l-4 1z"/></svg><span>'+t('end')+'</span></button>';
+ const inCall=()=>'<button type="button" class="vc-btn vc-cam" data-vc="cam" aria-pressed="false" hidden><svg viewBox="0 0 24 24"><path d="M15 8v8H5V8h10m1-2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.500l4 4v-11l-4 4V7a1 1 0 0 0-1-1z"/></svg><span>'+t('cam')+'</span></button><button type="button" class="vc-btn vc-mute" data-vc="mute" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.900V22h2v-3.100A7 7 0 0 0 19 12z"/></svg><span>'+t('mute')+'</span></button><button type="button" class="vc-btn vc-no" data-vc="end" aria-label="'+esc(t('end'))+'"><svg viewBox="0 0 24 24"><path d="M3 15c5-5 13-5 18 0l-2 3-4-1v-3c-2-.7-4-.7-6 0v3l-4 1z"/></svg><span>'+t('end')+'</span></button>';
  function screen(name,incoming){
   const d=document.createElement('dialog');d.className='vc-screen';
-  d.innerHTML='<div class="vc-avatar" aria-hidden="true">'+esc(Array.from(name.trim())[0]||'?').toUpperCase()+'</div><h2>'+esc(name)+'</h2><p class="vc-status" role="status"></p><audio class="vc-audio" autoplay playsinline></audio>'+
+  d.innerHTML='<div class="vc-avatar" aria-hidden="true">'+esc(Array.from(name.trim())[0]||'?').toUpperCase()+'</div><h2>'+esc(name)+'</h2><p class="vc-status" role="status"></p><video class="vc-remote" autoplay playsinline hidden></video><video class="vc-local" autoplay playsinline muted hidden></video><audio class="vc-audio" autoplay playsinline></audio>'+
    '<div class="vc-actions">'+(incoming?'<button type="button" class="vc-btn vc-no" data-vc="decline" aria-label="'+esc(t('decline'))+'"><svg viewBox="0 0 24 24"><path d="M3 15c5-5 13-5 18 0l-2 3-4-1v-3c-2-.7-4-.7-6 0v3l-4 1z"/></svg><span>'+t('decline')+'</span></button><button type="button" class="vc-btn vc-yes" data-vc="accept" aria-label="'+esc(t('accept'))+'"><svg viewBox="0 0 24 24"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.300.2 2.500.6 3.600.1.300 0 .700-.2 1z"/></svg><span>'+t('accept')+'</span></button>':
    inCall())+'</div>';
   document.body.append(d);d.showModal();d.addEventListener('cancel',e=>e.preventDefault());return d;
@@ -65,22 +65,26 @@
  }
  function finish(text,keep=1400){status(text);ringStop();sound.end();if(cur)cur.keep=keep;cleanup()}
  const gathered=pc=>new Promise(done=>{if(pc.iceGatheringState==='complete')return done();const f=()=>{if(pc.iceGatheringState==='complete'){pc.removeEventListener('icegatheringstatechange',f);done()}};pc.addEventListener('icegatheringstatechange',f);setTimeout(done,4000)});
- function open(name,incoming){
-  const dialog=screen(name,incoming);cur={dialog,name,t0:0};
+ function open(name,incoming,video){
+  const dialog=screen(name,incoming);cur={dialog,name,t0:0,video:Boolean(video)};dialog.classList.toggle('vc-video',Boolean(video));
   dialog.addEventListener('click',e=>{const b=e.target.closest('[data-vc]');if(!b)return;const k=b.dataset.vc;
    if(k==='end'||k==='decline')hang();
    if(k==='accept')accept();
+   if(k==='cam'&&cur?.stream){const on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',String(on));cur.stream.getVideoTracks().forEach(x=>x.enabled=!on);b.querySelector('span').textContent=t(on?'camOff':'cam');dialog.querySelector('.vc-local').style.visibility=on?'hidden':'visible'}
    if(k==='mute'&&cur?.stream){const on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',String(on));cur.stream.getAudioTracks().forEach(x=>x.enabled=!on);b.querySelector('span').textContent=t(on?'unmute':'mute')}});
  }
  // Microphone + connection: when calling, and when the person called taps Accept (a tap is needed for the microphone).
  async function media(){
   if(!navigator.mediaDevices?.getUserMedia||typeof RTCPeerConnection==='undefined')throw Error(t('nomic'));
   const cfg=await api('/api/platform/call/config');
-  let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})}catch{throw Error(t('mic'))}
+  const wantVideo=Boolean(cur&&cur.video);
+  let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:wantVideo?{facingMode:'user',width:{ideal:640},height:{ideal:480}}:false})}catch{throw Error(t(wantVideo?'camDenied':'mic'))}
   const c=cur;if(!c){stream.getTracks().forEach(x=>x.stop());throw Error(t('ended'))}
   const pc=new RTCPeerConnection({iceServers:cfg.iceServers});
   stream.getTracks().forEach(x=>pc.addTrack(x,stream));c.pc=pc;c.stream=stream;
-  pc.ontrack=e=>{const a=c.dialog.querySelector('.vc-audio');a.srcObject=e.streams[0];a.play?.().catch(()=>{})};
+  pc.ontrack=e=>{const a=c.dialog.querySelector('.vc-audio');a.srcObject=e.streams[0];a.play?.().catch(()=>{});
+   if(e.track.kind==='video'){const v=c.dialog.querySelector('.vc-remote');v.srcObject=e.streams[0];v.hidden=false;v.play?.().catch(()=>{});c.dialog.classList.add('vc-has-video')}};
+  if(wantVideo){const l=c.dialog.querySelector('.vc-local');l.srcObject=stream;l.hidden=false;l.play?.().catch(()=>{});c.dialog.querySelector('.vc-cam').hidden=false;c.dialog.classList.add('vc-video')}
   pc.onconnectionstatechange=()=>{if(cur!==c)return;
    if(pc.connectionState==='connected'){ringStop();c.t0=c.t0||Date.now();clearInterval(c.timer);c.timer=setInterval(()=>status(t('connected')+' · '+mmss(Math.round((Date.now()-c.t0)/1000))),500);status(t('connected')+' · 0:00')}
    if(pc.connectionState==='failed')hang(t('failed'))};
@@ -103,13 +107,13 @@
    }catch(e){if(e.status===404&&cur===c)finish(t('ended'))}
   },1000);
  }
- async function start(slug,chat,name){
+ async function start(slug,chat,name,video){
   if(cur)throw Error(t('busy'));
-  open(name||slug,false);cur.role='caller';cur.created=Date.now();status(t('calling'));
+  open(name||slug,false,video);cur.role='caller';cur.created=Date.now();status(t('calling'));
   try{
    const pc=await media();
-   await pc.setLocalDescription(await pc.createOffer({offerToReceiveAudio:true}));await gathered(pc);
-   const d=await api('/api/platform/call/start','POST',{slug,chat:chat||undefined,offer:pc.localDescription.sdp});
+   await pc.setLocalDescription(await pc.createOffer({offerToReceiveAudio:true,offerToReceiveVideo:Boolean(video)}));await gathered(pc);
+   const d=await api('/api/platform/call/start','POST',{slug,chat:chat||undefined,offer:pc.localDescription.sdp,video:Boolean(video)});
    if(!cur||cur.pc!==pc){api('/api/platform/call/'+d.id+'/end','POST',{}).catch(()=>{});return}
    cur.id=d.id;cur.created=Date.now();status(t('ringing'));ringStart('back');watch();
   }catch(e){const m=e.message;cur&&cleanup();throw Error(m)}
@@ -128,7 +132,7 @@
  let shownId='';
  async function incoming(inc){
   shownId=inc.id;
-  open(inc.name,true);pending=inc;cur.id=inc.id;cur.role='callee';status(t('incoming'));ringStart('ring');
+  open(inc.name,true,inc.video);pending=inc;cur.id=inc.id;cur.role='callee';status(t(inc.video?'video':'incoming'));ringStart('ring');
   // Keep watching so the screen closes if the caller gives up.
   cur.poll=setInterval(async()=>{const c=cur;if(!c||c.id!==inc.id)return;try{const d=await api('/api/platform/call/'+inc.id);if(d.state==='ended'&&cur===c){pending=null;finish(t(d.reason==='missed'?'missed':'ended'))}}catch(e){if(e.status===404&&cur===c)finish(t('ended'))}},1500);
  }

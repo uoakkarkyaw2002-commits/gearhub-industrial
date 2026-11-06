@@ -20,3 +20,17 @@
 .nc-msg.nc-callmsg small{display:inline;margin-left:6px}
 .vc-screen:focus,.vc-btn:focus{outline:none}
 .vc-btn:focus-visible svg{box-shadow:0 0 0 3px #fff}
+
+/* 1.1.357 owner: video call — the other person fills the screen, my own picture is a small corner. */
+.vc-remote{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:0}
+.vc-remote[hidden],.vc-local[hidden]{display:none}
+.vc-local{position:absolute;top:calc(env(safe-area-inset-top) + 14px);right:14px;width:96px;height:132px;object-fit:cover;border-radius:16px;border:2px solid #ffffffb3;background:#111;z-index:2;transform:scaleX(-1)}
+.vc-screen.vc-has-video .vc-avatar{display:none}
+.vc-screen.vc-has-video h2,.vc-screen.vc-has-video .vc-status{position:relative;z-index:1;text-shadow:0 1px 6px #0009}
+.vc-screen.vc-has-video h2{margin-top:0;font-size:22px}
+.vc-screen.vc-has-video{padding-top:calc(env(safe-area-inset-top) + 18px)}
+.vc-screen .vc-actions{position:relative;z-index:2}
+.vc-screen.vc-has-video .vc-actions{background:#0008;padding:12px 18px;border-radius:999px;backdrop-filter:blur(6px)}
+.vc-btn.vc-cam[hidden]{display:none}
+.vc-btn.vc-cam[aria-pressed="true"] svg{background:#fff;fill:#16335f}
+.nc-call.nc-vcall{margin-left:0}
