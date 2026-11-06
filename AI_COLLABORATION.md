@@ -1841,7 +1841,7 @@ _None._
 - Not verified on the phone. APK: Google Drive `SkyShopMM-app-debug-1.1.369-recents.apk`; web needs deploy + Confirm update.
 - Tests: Node22 check + test 516/516.
 
-## 2026-11-06 — Codex — 1.1.371 restore the shopping driver (PR pending)
+## 2026-11-06 — Codex — 1.1.371 restore the shopping driver ([PR #460](https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/460))
 - Task: hide the AI girl while visiting another shop and restore the original boy driving the Cart. `public/visit-shop.js` already creates this button with `/images/cart-scooter.png?v=1.1.327`; the higher-z-index assistant covered it.
 - Change: `public/visit-shop.css` hides only `body.visiting-shop .ai-help-button`; existing phone Cart styling stays, with matching desktop positioning. No JS, API, database, voice/video call, image or release-approval behavior changes. Version/cache metadata in package.json/package-lock.json/public/index.html/public/sw.js/tests/tenant-install.test.js → 1.1.371; visit CSS tags and existing test pin updated.
 - Validation: Node22 `npm run check` passed; `npm test` 516/516. Actual local browser at 375×812 and 1280×900 using a disposable standalone-mode shim: own-shop assistant visible; Discover → other shop hides assistant/shows original driver; add one product updates badge; driver opens Cart at both sizes; desktop return restores own-shop assistant; no overflow/console errors. Screenshots: `/Users/oakkar/Documents/Codex/outputs/qa-shopping-driver-1.1.371/{phone,desktop}.jpg`. Physical installed app/iPhone/live site not tested.
