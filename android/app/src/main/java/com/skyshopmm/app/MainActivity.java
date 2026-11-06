@@ -32,6 +32,14 @@ public class MainActivity extends LauncherActivity {
 
     @Override protected boolean shouldLaunchImmediately() { return false; }
 
+    // 1.1.368: a safety net — if Android still delivers a new request to an existing instance (it would otherwise just finish and show the Home Screen), start again.
+    @Override protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        launched = false;
+        fetchTokenThenLaunch();
+    }
+
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {

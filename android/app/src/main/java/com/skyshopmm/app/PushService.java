@@ -41,7 +41,7 @@ public class PushService extends FirebaseMessagingService {
     }
 
     private PendingIntent open(String url, int req) {
-        Intent i = new Intent(this, MainActivity.class).putExtra(MainActivity.EXTRA_URL, url).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Intent i = new Intent(this, MainActivity.class).putExtra(MainActivity.EXTRA_URL, url).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         return PendingIntent.getActivity(this, req, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 

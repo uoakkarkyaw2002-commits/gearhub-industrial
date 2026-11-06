@@ -1814,3 +1814,9 @@ _None._
 - Fix 2: `CallActivity` Answer on a locked phone calls `KeyguardManager.requestDismissKeyguard` (fingerprint/PIN), then opens the app with `?call=accept`.
 - Not verified on the phone. If the app is open but the poll window has just expired (page in background >7 s) the normal banner path is used; if Android refuses to start `CallActivity` from the background the quiet shade entry has no ring (fallback).
 - Tests: Node22 check + test 512/512; APK rebuilt and copied to Google Drive (SkyShopMM-app-debug-1.1.367.apk).
+
+## 2026-11-06 — Claude (account 1) — Native app fix (no web release): Answer with the app open went to the Home Screen
+- Owner's test of 1.1.367: with the app open only ONE call screen shows ✓. Answer then ended on the Home Screen (photo: native call screen, then home). Cause (likely): `MainActivity` is a `singleTop` launcher; the web app runs in Chrome's activity above it in the same task. Answer started `MainActivity` with `CLEAR_TOP`, which cleared the TWA and delivered a new intent to the old launcher instance (`onNewIntent` was not handled); `LauncherActivity` finishes itself after it has launched the site → empty task → Home.
+- Fix (Android only, `android/…`): the call screen's Answer and every notification tap start the app with `FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK` (a fresh launch with `?call=accept`), and `MainActivity.onNewIntent` relaunches as a safety net. Cost: answering restarts the app page (acceptable for a call).
+- Not verified on the phone. APK copied to Google Drive as SkyShopMM-app-debug-1.1.367b.apk. Locked-phone Answer (unlock first) is still to be tested by the owner. No web files changed, so no version bump.
+- Tests: Node22 test 513/513.
