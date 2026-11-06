@@ -7,3 +7,4 @@ local.properties
 keystore.properties
 *.apk
 *.aab
+app/google-services.json

@@ -57,7 +57,10 @@
    return r.ok;
   }catch{return false}finally{pushBusy=false}
  }
- addEventListener('gearhub:data-ready',()=>setTimeout(enablePush,6000),{once:true});
+ // The app opens the account page (platform.html) first, then the shop's pages: save the address on whichever page loads, once.
+ let started=false;const startPush=()=>{if(started)return;started=true;setTimeout(enablePush,5000)};
+ addEventListener('gearhub:data-ready',startPush,{once:true});
+ if(document.readyState==='complete')startPush();else addEventListener('load',startPush,{once:true});
  addEventListener('gearhub:alerts-allowed',()=>setTimeout(enablePush,800));
  window.GearHubUserData={get,put,enablePush,nativeApp};
 })();
