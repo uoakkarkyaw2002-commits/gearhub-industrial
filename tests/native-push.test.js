@@ -47,3 +47,10 @@ test('one ringtone, the page stays quiet in the app, the app returns to the last
  assert.ok(r('public/voice-call.js').includes('inNativeApp&&!explicitCall'),'no second incoming screen in the app');
  assert.ok(r('public/user-data.js').includes('gh-last-shop')&&r('public/user-data.js').includes('location.replace(last)'),'back to the last shop when signed in');
 });
+
+// 1.1.364 owner: the opening picture/sound only for a plain start of the app; entering from a call or an alert goes straight in.
+test('native: opening screen only after a plain app start',()=>{
+ const fs=require('fs'),path=require('path'),r=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
+ assert.ok(r('android/app/src/main/java/com/skyshopmm/app/MainActivity.java').includes('App.cold && !fromCallOrAlert')&&r('android/app/src/main/java/com/skyshopmm/app/App.java').includes('static boolean cold = true'),'the app asks for it only on a cold plain start');
+ assert.ok(r('public/skyshop-splash.js').includes('nativeQuiet')&&r('public/user-data.js').includes('gh-open-splash'),'the page shows it only when asked');
+});

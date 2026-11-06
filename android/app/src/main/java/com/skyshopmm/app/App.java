@@ -12,6 +12,8 @@ import android.os.Build;
 public class App extends Application {
     static final String CHANNEL_MESSAGES = "messages";
     static final String CHANNEL_CALLS = "calls";
+    // True from process start until the first MainActivity launch: the app was just opened (not resumed, not answered from a call or a notification).
+    static boolean cold = true;
 
     @Override public void onCreate() {
         super.onCreate();

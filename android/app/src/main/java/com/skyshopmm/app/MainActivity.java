@@ -85,18 +85,23 @@ public class MainActivity extends LauncherActivity {
 
     @Override protected Uri getLaunchingUrl() {
         Uri base = null;
+        boolean fromCallOrAlert = false;
         Intent i = getIntent();
         if (i != null) {
             Uri data = i.getData();
             if (data != null && "https".equals(data.getScheme()) && HOST.equals(data.getHost())) base = data;
             String extra = i.getStringExtra(EXTRA_URL);
-            if (base == null && extra != null && extra.startsWith("/") && !extra.startsWith("//")) base = Uri.parse("https://" + HOST + extra);
+            if (base == null && extra != null && extra.startsWith("/") && !extra.startsWith("//")) { base = Uri.parse("https://" + HOST + extra); fromCallOrAlert = true; }
+            if (data != null) fromCallOrAlert = true;
         }
         if (base == null) base = super.getLaunchingUrl();
         SharedPreferences p = getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         String token = p.getString(KEY_TOKEN, null);
         Uri.Builder b = base.buildUpon().appendQueryParameter("app", "android");
         if (token != null) b.appendQueryParameter("fcm", token);
+        // The opening picture and sound only for a plain start of the app (icon tap), never when entering from a call or an alert.
+        if (App.cold && !fromCallOrAlert) b.appendQueryParameter("splash", "1");
+        App.cold = false;
         return b.build();
     }
 }

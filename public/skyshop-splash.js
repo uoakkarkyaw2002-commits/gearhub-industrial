@@ -71,7 +71,14 @@
  // 1.1.299 owner: the opening picture shows only when the app (or tab) is opened. Going to another shop or
  // back to your own shop later in the same session gets the plain cover only, never the picture again.
  let seen=false;try{seen=sessionStorage.getItem("sky-opened")==="1";sessionStorage.setItem("sky-opened","1")}catch{}
- const quiet=!updating&&(seen||(nav&&nav.type!=="navigate")||Date.now()-left<8000);
+ // 1.1.364 owner: in the native app the opening picture + sound play only when the app is opened plainly (the app asks with ?splash=1);
+ // entering from a call or an alert, or coming back while the app was not cleared, goes straight in.
+ let nativeQuiet=false;
+ try{
+  const inApp=/[?&]app=android/.test(location.search)||sessionStorage.getItem('gh-native')==='1';
+  if(inApp){const asked=/[?&]splash=1/.test(location.search)||sessionStorage.getItem('gh-open-splash')==='1';nativeQuiet=!asked;if(asked)sessionStorage.removeItem('gh-open-splash')}
+ }catch{}
+ const quiet=!updating&&(nativeQuiet||seen||(nav&&nav.type!=="navigate")||Date.now()-left<8000);
  const seconds=updating?1.2:quiet?0:Math.min(10,Math.max(0.5,Number(el.dataset.seconds)||3));
  let audio=null;
  if(updating)prepareUpdate(el);
