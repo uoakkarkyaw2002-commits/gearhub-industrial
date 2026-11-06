@@ -8,6 +8,13 @@
   if(q.get('app')==='android'){sessionStorage.setItem('gh-native','1');if(q.get('fcm'))sessionStorage.setItem('gh-native-fcm',q.get('fcm'));q.delete('app');q.delete('fcm');history.replaceState(history.state,'',location.pathname+(q.toString()?'?'+q:'')+location.hash)}
  }catch{}
  const nativeApp=()=>{try{return sessionStorage.getItem('gh-native')==='1'}catch{return false}};
+ // 1.1.362 owner: inside the app, after signing in and closing it, the app asked to sign in again. The app opens the account page (which shows the
+ // sign-in card by design); now it remembers the last shop and, when the person is still signed in, goes straight there.
+ try{const m=location.pathname.match(/^\/shops\/([a-z0-9-]{1,80})\//);if(m)localStorage.setItem('gh-last-shop','/shops/'+m[1]+'/')}catch{}
+ if(nativeApp()&&/^\/(platform\.html)?$/.test(location.pathname)&&!/[?&](visitor|view=)/.test(location.search)){
+  let last='';try{last=localStorage.getItem('gh-last-shop')||''}catch{}
+  if(/^\/shops\/[a-z0-9-]{1,80}\/$/.test(last))fetch('/api/platform/me',{cache:'no-store',credentials:'same-origin'}).then(r=>r.json()).then(me=>{if(me&&me.user)location.replace(last)}).catch(()=>{});
+ }
  let csrf='',off=false;
  const url=k=>'/api/platform/userdata/'+encodeURIComponent(k);
  async function token(){if(!csrf)csrf=(await (await fetch('/api/platform/me',{cache:'no-store',credentials:'same-origin'})).json()).csrfToken||'';return csrf}

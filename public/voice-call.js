@@ -142,6 +142,8 @@ async function speaker(on){
  }
  let shownId='';
  async function incoming(inc){
+  // 1.1.362: inside the native app the call rings on the native full-screen call screen; the page shows its own only when opened from it.
+  if(inNativeApp&&!explicitCall)return;
   shownId=inc.id;
   open(inc.name,true,inc.video);pending=inc;if(autoAccept&&!autoDone){autoDone=true;setTimeout(()=>accept(),0)}cur.id=inc.id;cur.role='callee';status(t(inc.video?'video':'incoming'));ringStart('ring');
   // Keep watching so the screen closes if the caller gives up.
@@ -161,6 +163,7 @@ async function speaker(on){
  }
  // 1.1.361: "Answer" on the native call screen opens the app at ?call=accept — find the call at once and accept it without a second tap.
  let autoAccept=/[?&]call=accept/.test(location.search),autoDone=false;
+ const explicitCall=/[?&]call=/.test(location.search),inNativeApp=(()=>{try{return sessionStorage.getItem('gh-native')==='1'}catch{return false}})();
  if(/[?&]call=/.test(location.search)){try{const q=new URLSearchParams(location.search);q.delete('call');history.replaceState(history.state,'',location.pathname+(q.toString()?'?'+q:'')+location.hash)}catch{}}
  addEventListener('load',()=>{tick();setInterval(tick,4000)},{once:true});
  if(autoAccept||/[?&]call=1/.test(location.search)){let n=0;const fast=setInterval(()=>{tick();if(++n>14||autoDone)clearInterval(fast)},700);setTimeout(tick,250)}
