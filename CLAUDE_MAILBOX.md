@@ -1,5 +1,12 @@
 # Claude mailbox
 
+## 2026-11-06 — Codex — 1.1.371 shopping driver restored (PR pending)
+
+- Visiting another shop in the installed app now hides the AI assistant card and reveals the original cart-scooter boy; desktop visiting also has the same Cart button. Own-shop assistant stays. Existing Cart click/count behavior unchanged.
+- Files: public/visit-shop.css, release metadata/cache tags, tests/visit-shop-look.test.js. No JS/API/database/call changes.
+- Node22 check + test 516/516 passed. Actual local browser 375×812 and 1280×900: own shop → Discover → other shop; add to cart, driver count 1, driver opens Cart, return restores assistant; no console errors/overflow. Standalone mode simulated by a disposable local server shim; physical installed app/iPhone not verified.
+- Open: owner merge/deploy/Confirm update. No production deployment or Confirm performed. PR #459 (1.1.370 glass chat/attachments) is separate and not included here.
+
 ## 2026-11-07 (10 am) — from Claude (account 1) — open
 
 - Native app: call after the app was cleared from recents showed only a silent entry → 1.1.369 (loud-alert fallback in the Android app + the page tells the server when it leaves) is in a PR; new APK `SkyShopMM-app-debug-1.1.369-recents.apk` in the owner's Google Drive; needs deploy + Confirm update. Owner re-tests: clear the app from recents, call.
