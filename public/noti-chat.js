@@ -57,7 +57,7 @@
   open(bell+'<span>'+t('noti')+'</span>',data.items.length?'<ul class="nc-list">'+data.items.map((i,k)=>'<li><button type="button" class="nc-item'+(i.at>before?' is-new':'')+'" data-nc="item" data-k="'+k+'"><span>'+esc(i.text)+'</span><small>'+esc(ago(i.at))+'</small></button></li>').join('')+'</ul>':'<p class="nc-empty">'+t('none')+'</p>');
   {const v=data.items[0]?.at||new Date().toISOString();try{localStorage.setItem(SEEN,v)}catch{}window.GearHubUserData?.put('noti-seen-'+(slug||'gearhub'),v)}dots();
  }
- const callBtn='<button type="button" class="nc-call" data-nc="call" aria-label="'+(my()?'အသံ ခေါ်မယ်':'Voice call')+'">📞</button>';
+ const callBtn='<button type="button" class="nc-call" data-nc="call" aria-label="'+(my()?'အသံ ခေါ်မယ်':'Voice call')+'">📞</button><button type="button" class="nc-call nc-vcall" data-nc="vcall" aria-label="'+(my()?'ဗီဒီယို ခေါ်မယ်':'Video call')+'">📹</button>';
  const STICKERS=['👍','❤️','😂','😮','😢','🙏','👏','🔥','🎉','😍','😎','🤝','✅','🛒','📦','🚚'];
  const mmss=n=>Math.floor(n/60)+':'+String(n%60).padStart(2,'0');
  const oneMessage=m=>{
@@ -174,6 +174,7 @@
   if(k==='stickers'){const p=sheet.querySelector('.nc-stickers');p.hidden=!p.hidden;return}
   if(k==='sticker'){sheet.querySelector('.nc-stickers').hidden=true;return call(chatPath(),'POST',{sticker:b.dataset.s}).then(d=>{sheet.querySelector('.nc-body').innerHTML=messagesHtml(d.messages);scrollEnd()},err=>note(err.message))}
   if(k==='mic')return startRec();
+  if(k==='vcall'){const who=sheet.querySelector('h2 span')?.textContent||'';return window.GearHubCall?.start(cs,openChat==='buyer'?null:openChat,who,true).catch(err=>note(err.message))}
   if(k==='call'){const who=sheet.querySelector('h2 span')?.textContent||'';return window.GearHubCall?.start(cs,openChat==='buyer'?null:openChat,who).catch(err=>note(err.message))}
   if(k==='rec-cancel')return stopRec(false);
   if(k==='rec-send')return stopRec(true);

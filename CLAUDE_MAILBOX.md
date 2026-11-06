@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (6 pm) — from Claude (account 1) — open
+
+- 1.1.357 (video call: 📹 in the chat header; video screen; log line) is in a PR. 1.1.356 live. Owner paused the TECH4MM hosting package. Still open: Play app notification delegation (TECH4MM), TURN server if calls fail on phone networks, flip-camera button.
 ## 2026-11-06 (5 pm) — from Claude (account 1) — open
 
 - 1.1.356 (permission sheet: Notifications Allow no longer freezes; hint + Copy link when the Play app never shows the phone question) is in a PR. Real fix = Play app build with notification delegation (TECH4MM). 1.1.355 (chat alerts both ways) may still need merge + deploy.

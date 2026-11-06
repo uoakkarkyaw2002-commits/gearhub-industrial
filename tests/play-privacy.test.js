@@ -29,3 +29,11 @@ test('chat alerts go to the buyer too, and the GearHub owner can chat as a buyer
  assert.ok(chat.includes("req.query.as !== 'buyer'"),'buyer view for a person who also manages the shop');
  assert.ok(ud.includes('/api/platform/user-push/subscribe')&&ud.includes('enablePush'),'the phone is saved to the account');
 });
+
+// 1.1.357 owner: video call on top of the voice call.
+test('video call: the chat has a video button, the server remembers the kind and logs it',()=>{
+ const chat=fs.readFileSync(path.join(__dirname,'..','lib','shop-chat.js'),'utf8'),vc=fs.readFileSync(path.join(__dirname,'..','public','voice-call.js'),'utf8'),nc=fs.readFileSync(path.join(__dirname,'..','public','noti-chat.js'),'utf8');
+ assert.ok(chat.includes('video:req.body?.video === true')&&chat.includes("'Video call'")&&chat.includes('video:c.video'),'server keeps the kind');
+ assert.ok(vc.includes('offerToReceiveVideo')&&vc.includes('vc-remote')&&vc.includes("facingMode:'user'"),'client sends and shows video');
+ assert.ok(nc.includes('data-nc="vcall"')&&nc.includes('start(cs,openChat===\'buyer\'?null:openChat,who,true)'),'video button in the chat');
+});
