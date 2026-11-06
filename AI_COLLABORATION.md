@@ -1769,3 +1769,9 @@ _None._
 - Owner steps still needed: Firebase project (free) → `google-services.json` into `android/app/` + service account JSON into Render `FCM_SERVICE_ACCOUNT`; own Google Play developer account ($25) or TECH4MM (monthly, earliest 16 Nov); the keystore for the release AAB.
 - Not done / not verified: no Firebase config yet, so push has not been received on a device; emulator/real Android run pending; Android 14+ requires the user to allow "full-screen notifications" for non-call apps; iPhone stays a web app (web push works there).
 - Tests: Node22 check + test 506/506 (+ `tests/native-push.test.js`).
+
+## 2026-11-06 — Claude (account 1) — 1.1.360 Native app: the account page also saves the phone's Firebase address
+- Found while preparing the first phone test: the app opens `https://skyshopmm.com/?app=android&fcm=…`, the server redirects `/` to `/platform.html?app=android&fcm=…` (query kept), but `user-data.js` (which reads the address and saves it on the signed-in person) was loaded only by `index.html`. Now `platform.html` and `admin.html` load it too, and it starts on `load` as well as `gearhub:data-ready`, once per page; the address is kept for the session (sessionStorage) so later shop pages can save it after sign-in.
+- Firebase project `skyshopmm-aa911` created by the owner (Analytics could not be switched off, harmless); `android/app/google-services.json` is kept out of git; the service account key is in Render env `FCM_SERVICE_ACCOUNT` (set by the owner, not seen by Claude). 1.1.359 (PR #445) is merged and live on GearHub.
+- Next: owner installs the debug APK on the Android phone and tests: notification permission question, order/chat alerts, full-screen call.
+- Tests: Node22 check + test 506/506.

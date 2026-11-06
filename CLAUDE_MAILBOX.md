@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (10 pm) — from Claude (account 1) — open
+
+- Native app: Firebase project made, FCM_SERVICE_ACCOUNT set on Render, PR #445 (1.1.359) merged. 1.1.360 (account/admin pages also save the app's Firebase address) is in a PR. Debug APK `android/app/build/outputs/apk/debug/app-debug.apk` built with Firebase; owner to install on the Android phone. Release AAB needs the upload keystore + a Play developer account.
 ## 2026-11-06 (9 pm) — from Claude (account 1) — open
 
 - Native Android app stage 1 (`android/`, Gradle project) + `lib/native-push.js` (FCM) are in a PR (1.1.359). Android tools live in `~/android-dev` (JDK17, Gradle 8.9, SDK 35; emulator image downloading). Needs from the owner: Firebase `google-services.json` + Render `FCM_SERVICE_ACCOUNT`, Play developer account or TECH4MM, keystore for release. Debug APK builds (`gradle assembleDebug`).
