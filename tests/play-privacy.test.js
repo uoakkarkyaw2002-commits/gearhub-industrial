@@ -37,3 +37,11 @@ test('video call: the chat has a video button, the server remembers the kind and
  assert.ok(vc.includes('offerToReceiveVideo')&&vc.includes('vc-remote')&&vc.includes("facingMode:'user'"),'client sends and shows video');
  assert.ok(nc.includes('data-nc="vcall"')&&nc.includes('start(cs,openChat===\'buyer\'?null:openChat,who,true)'),'video button in the chat');
 });
+
+// 1.1.358 owner: a call must ring (not drop in as a chat message) and have a speaker button.
+test('call alerts ring and are removed again; speaker button exists',()=>{
+ const chat=fs.readFileSync(path.join(__dirname,'..','lib','shop-chat.js'),'utf8'),sw=fs.readFileSync(path.join(__dirname,'..','public','sw.js'),'utf8'),vc=fs.readFileSync(path.join(__dirname,'..','public','voice-call.js'),'utf8');
+ assert.ok(chat.includes("kind:'call', tag:'gearhub-call'")&&chat.includes("kind:'call-end'")&&chat.includes('stopRing(c)'),'server sends ring and stop');
+ assert.ok(sw.includes('requireInteraction: isCall')&&sw.includes('data.kind === \"call-end\"'),'service worker keeps the call alert until answered and closes it');
+ assert.ok(vc.includes('data-vc=\"spk\"')&&vc.includes('setSinkId'),'speaker button');
+});

@@ -34,3 +34,7 @@
 .vc-btn.vc-cam[hidden]{display:none}
 .vc-btn.vc-cam[aria-pressed="true"] svg{background:#fff;fill:#16335f}
 .nc-call.nc-vcall{margin-left:0}
+
+/* 1.1.358 */
+.vc-btn.vc-spk[aria-pressed="true"] svg{background:#fff;fill:#16335f}
+.vc-screen .vc-actions{gap:26px;flex-wrap:wrap;justify-content:center}

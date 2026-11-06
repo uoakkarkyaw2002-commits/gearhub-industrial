@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (7 pm) — from Claude (account 1) — open
+
+- 1.1.358 (call alerts stay and vibrate until answered, removed when the call ends; ?call=1 opens the call screen; Speaker button) is in a PR. 1.1.357 (video call) live for shops. A true Viber-style full-screen call over the lock screen needs a native app — told the owner.
 ## 2026-11-06 (6 pm) — from Claude (account 1) — open
 
 - 1.1.357 (video call: 📹 in the chat header; video screen; log line) is in a PR. 1.1.356 live. Owner paused the TECH4MM hosting package. Still open: Play app notification delegation (TECH4MM), TURN server if calls fail on phone networks, flip-camera button.
