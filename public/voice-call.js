@@ -166,6 +166,8 @@ async function speaker(on){
  let autoAccept=/[?&]call=accept/.test(location.search),autoDone=false;
  const explicitCall=/[?&]call=/.test(location.search),inNativeApp=(()=>{try{return sessionStorage.getItem('gh-native')==='1'}catch{return false}})();
  if(/[?&]call=/.test(location.search)){try{const q=new URLSearchParams(location.search);q.delete('call');history.replaceState(history.state,'',location.pathname+(q.toString()?'?'+q:'')+location.hash)}catch{}}
+ // Inside the app, tell the server at once when the page leaves the screen, so a call is not treated as "app open" (quiet) while it is not.
+ if(inNativeApp){const away=()=>{try{fetch('/api/platform/call/incoming?fg=0',{keepalive:true,credentials:'same-origin',cache:'no-store'}).catch(()=>{})}catch{}};document.addEventListener('visibilitychange',()=>{if(document.hidden)away()});addEventListener('pagehide',away)}
  addEventListener('load',()=>{tick();setInterval(tick,4000)},{once:true});
  if(autoAccept||/[?&]call=1/.test(location.search)){let n=0;const fast=setInterval(()=>{tick();if(++n>14||autoDone)clearInterval(fast)},700);setTimeout(tick,250)}
  document.addEventListener('visibilitychange',()=>{if(!document.hidden){signedOut=false;tick()}});

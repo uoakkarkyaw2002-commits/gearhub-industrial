@@ -22,6 +22,7 @@ import androidx.core.app.NotificationManagerCompat;
 
 /** Full-screen incoming call, over the lock screen: ringtone + vibration, Answer opens the call in the app. */
 public class CallActivity extends Activity {
+    static volatile boolean showing = false;
     private Ringtone ringtone;
     private Vibrator vibrator;
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -31,6 +32,7 @@ public class CallActivity extends Activity {
 
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
+        showing = true;
         if (Build.VERSION.SDK_INT >= 27) { setShowWhenLocked(true); setTurnScreenOn(true); }
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         setContentView(R.layout.activity_call);
@@ -90,6 +92,7 @@ public class CallActivity extends Activity {
     }
 
     @Override protected void onDestroy() {
+        showing = false;
         handler.removeCallbacksAndMessages(null);
         try { unregisterReceiver(ended); } catch (Throwable ignored) { }
         try { if (ringtone != null) ringtone.stop(); } catch (Throwable ignored) { }
