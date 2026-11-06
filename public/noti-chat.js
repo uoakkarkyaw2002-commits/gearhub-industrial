@@ -23,12 +23,14 @@
  if(ownerMode)box.hidden=true;
  const [notiButton,chatButton]=box.querySelectorAll('button');
  const SEEN='gh-noti-seen:'+(slug||'gearhub');
- let cs=slug,csrf='',data=null,role='',openChat=null,timer=0,inbox=[],inboxTab='chats',unreadOnly=false;
+ let cs=slug,csrf='',data=null,role='',openChat=null,timer=0,inbox=[],inboxTab='chats',unreadOnly=false,viewId=0,refreshing=null,warmedAt=0;
+ // Private, page-lifetime snapshots only: never put conversations in shared/offline storage.
+ const chatCache=window.GearHubMessageCache(key=>key==='inbox'?loadInbox():call(key),24);
  async function token(){if(!csrf)csrf=(await (await fetch('/api/platform/me',{cache:'no-store',credentials:'same-origin'})).json()).csrfToken||'';return csrf}
  async function call(url,method='GET',body){
   const send=async()=>fetch(url,{method,credentials:'same-origin',cache:'no-store',headers:method==='GET'?{}:{'Content-Type':'application/json','X-CSRF-Token':await token()},body:body?JSON.stringify(body):undefined});
   let r=await send();if(r.status===403&&method!=='GET'){csrf='';r=await send()}
-  const d=await r.json().catch(()=>({}));if(!r.ok){const e=Error(d.error||t('error'));e.status=r.status;throw e}return d;
+  const d=await r.json().catch(()=>({}));if(!r.ok){if(r.status===401||r.status===403)chatCache.clear();const e=Error(d.error||t('error'));e.status=r.status;throw e}if(method!=='GET'&&d.messages){const path=url.replace(/\/voice(?:\?.*)?$/,'');chatCache.put(path+(d.role==='buyer'?'?as=buyer':''),d);warmedAt=0}return d;
  }
  const seen=()=>{try{return localStorage.getItem(SEEN)||''}catch{return ''}};
  function dots(){
@@ -36,11 +38,15 @@
   notiButton.querySelector('.nc-bell').src=fresh?'/images/noti-bell.png?v=1':'/images/noti-bell-quiet.png?v=1';chatButton.querySelector('.nc-dot').hidden=!data?.unreadChats;
   notiButton.setAttribute('aria-label',t('noti')+(fresh?' · '+fresh:''));chatButton.setAttribute('aria-label',t('chat')+(data?.unreadChats?' · '+data.unreadChats:''));
  }
- async function refresh(){if(document.hidden)return;try{data=await call(ownerMode?'/api/platform/owner/notifications':'/api/platform/notifications/'+slug)}catch{data=null}if(ownerMode)box.hidden=!data?.signedIn;dots()}
+ async function refresh(warm=true){
+  if(document.hidden)return;if(refreshing)return refreshing;
+  refreshing=(async()=>{try{data=await call(ownerMode?'/api/platform/owner/notifications':'/api/platform/notifications/'+slug)}catch{data=null}if(ownerMode)box.hidden=!data?.signedIn;dots();if(!data?.signedIn)chatCache.clear();else if(warm)warmInbox().catch(()=>{});return data})();
+  try{return await refreshing}finally{refreshing=null}
+ }
  // One sheet for both.
  const sheet=document.createElement('dialog');sheet.className='nc-sheet';sheet.id='nc-sheet';document.body.append(sheet);
  sheet.addEventListener('click',e=>{if(e.target===sheet)sheet.close()});
- sheet.addEventListener('close',()=>{if(rec)stopRec(false);sheet.classList.remove('open');openChat=null;clearInterval(timer);window.GearHubBackNav?.record();refresh()});
+ sheet.addEventListener('close',()=>{viewId++;if(rec)stopRec(false);sheet.classList.remove('open');openChat=null;clearInterval(timer);window.GearHubBackNav?.record();refresh()});
  function open(title,html,mode=''){
   sheet.classList.toggle('nc-chat-view',Boolean(mode));sheet.classList.toggle('nc-inbox',mode==='inbox');
   sheet.setAttribute('aria-label',mode?t('message'):t('noti'));
@@ -52,7 +58,7 @@
  const signIn=()=>open(t('noti'),'<p class="nc-empty">'+t('signIn')+'</p><button type="button" class="nc-primary" data-nc="signin">'+t('google')+'</button>');
  const ago=iso=>{const s=(Date.parse(iso)-Date.now())/1000,f=new Intl.RelativeTimeFormat(my()?'my':'en',{numeric:'auto'});for(const [u,n] of [['year',31536e3],['month',2592e3],['day',86400],['hour',3600],['minute',60]])if(Math.abs(s)>=n)return f.format(Math.round(s/n),u);return my()?'ခုနကပဲ':'Just now'};
  async function showNoti(){
-  await refresh();if(!data||!data.signedIn)return signIn();
+  viewId++;openChat=null;clearInterval(timer);await refresh();if(!data||!data.signedIn)return signIn();
   const before=seen();
   open(bell+'<span>'+t('noti')+'</span>',data.items.length?'<ul class="nc-list">'+data.items.map((i,k)=>'<li><button type="button" class="nc-item'+(i.at>before?' is-new':'')+'" data-nc="item" data-k="'+k+'"><span>'+esc(i.text)+'</span><small>'+esc(ago(i.at))+'</small></button></li>').join('')+'</ul>':'<p class="nc-empty">'+t('none')+'</p>');
   {const v=data.items[0]?.at||new Date().toISOString();try{localStorage.setItem(SEEN,v)}catch{}window.GearHubUserData?.put('noti-seen-'+(slug||'gearhub'),v)}dots();
@@ -78,11 +84,11 @@
    r.stream.getTracks().forEach(x=>x.stop());
    const form=sheet.querySelector('.nc-form');form?.classList.remove('recording');form?.querySelector('.nc-rec')&&(form.querySelector('.nc-rec').hidden=true);
    const secs=Math.max(1,Math.round((Date.now()-r.t0)/1000)),blob=new Blob(r.chunks,{type:r.mr.mimeType||'audio/mp4'});
-   if(!send||blob.size<200)return;
+   if(!send||blob.size<200)return;const view=viewId,path=chatPath(),read=readPath();
    try{
-    const go=async()=>fetch(chatPath()+'/voice?secs='+secs,{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':blob.type||'audio/mp4','X-CSRF-Token':await token()},body:blob});
+    const go=async()=>fetch(path+'/voice?secs='+secs,{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':blob.type||'audio/mp4','X-CSRF-Token':await token()},body:blob});
     let res=await go();if(res.status===403){csrf='';res=await go()}
-    const d=await res.json().catch(()=>({}));if(!res.ok)throw Error(d.error||t('error'));
+    const d=await res.json().catch(()=>({}));if(!res.ok)throw Error(d.error||t('error'));chatCache.put(read,d);warmedAt=0;if(view!==viewId||!sheet.open)return;
     const body=sheet.querySelector('.nc-body');if(body){body.innerHTML=messagesHtml(d.messages);scrollEnd()}
    }catch(err){note(err.message)}
   };
@@ -135,32 +141,58 @@
   open(inboxHeader(),'<label class="nc-search">'+svg('search')+'<input type="search" autocomplete="off" placeholder="'+t('search')+'" aria-label="'+t('search')+'"><button type="button" data-nc="filter" aria-label="'+t('unread')+'" aria-pressed="'+unreadOnly+'">'+svg('filter')+'</button></label><div class="nc-conversations">'+content+'</div><nav class="nc-message-tabs" role="tablist" aria-label="'+t('message')+'">'+['chats','active','followers'].map(k=>'<button type="button" role="tab" data-nc-tab="'+k+'" aria-selected="'+(k===inboxTab)+'">'+(k==='chats'?'<span class="nc-tab-bubble" aria-hidden="true">'+messageMark('nc-message-tab')+'</span>':svg(k))+'<span>'+t(k)+'</span></button>').join('')+'</nav>','inbox');
   const alerts=document.createElement('button');alerts.type='button';alerts.className='nc-inbox-bell';alerts.dataset.nc='noti';alerts.setAttribute('aria-label',t('noti'));alerts.innerHTML=svg('bell')+'<i class="nc-unread-dot"'+((data?.items||[]).some(i=>!i.chat&&i.at>seen())?'':' hidden')+'></i>';sheet.querySelector('header').insertBefore(alerts,sheet.querySelector('#nc-close'));
  }
+ // These list routes do not mark messages read. A buyer's /chat/:slug GET does, so never prefetch it.
+ async function loadInbox(){
+  if(!data)await refresh(false);
+  if(!data?.signedIn){const e=Error(t('signIn'));e.status=401;throw e}
+  const [d,all]=await Promise.all([ownerMode?call('/api/platform/owner/chats'):data.manager?call('/api/platform/chat/'+slug):Promise.resolve({role:'buyer'}),call('/api/platform/chat-shops')]);
+  const threads=(d.chats||[]).map(c=>({...c,...(ownerMode?{name:c.name+' · '+c.shop}:{}),kind:'thread'}));
+  const shops=(all.shops||[]).map(x=>({id:'buyer',name:x.name,last:x.last,at:x.at,unread:x.unread,slug:x.slug,logo:x.logo,kind:'shop'}));
+  return {role:d.role,rows:[...threads,...shops].sort((a,b)=>(b.at||'').localeCompare(a.at||''))};
+ }
+ function warmInbox(force=false){
+  if(document.hidden)return Promise.resolve(null);
+  const saved=chatCache.peek('inbox');if(!force&&saved&&Date.now()-warmedAt<30000)return Promise.resolve(saved);
+  return chatCache.load('inbox').then(d=>{warmedAt=Date.now();return d});
+ }
  async function showChat(){
-  openChat=null;clearInterval(timer);inboxTab='chats';inboxShell('<p class="nc-empty">'+t('loading')+'</p>');
+  const view=++viewId;openChat=null;clearInterval(timer);inboxTab='chats';
+  const saved=chatCache.peek('inbox');inboxShell(saved?'':'<p class="nc-empty">'+t('loading')+'</p>');
+  if(saved){role=saved.role;inbox=saved.rows;renderInbox()}
   try{
-   const [d,all]=await Promise.all([call(ownerMode?'/api/platform/owner/chats':'/api/platform/chat/'+slug),call('/api/platform/chat-shops').catch(()=>({shops:[]}))]);if(!sheet.open||!sheet.classList.contains('nc-inbox'))return;
-   if(ownerMode)d.chats=d.chats.map(c=>({...c,name:c.name+' · '+c.shop}));
-   role=d.role;
-   // 1.1.341 owner: every shop is in the list (talk to any of them), plus this shop's own buyer chats.
-   inbox=[...(role==='shop'?d.chats.map(c=>({...c,kind:'thread'})):[]),...(all.shops||[]).map(x=>({id:'buyer',name:x.name,last:x.last,at:x.at,unread:x.unread,slug:x.slug,logo:x.logo,kind:'shop'}))].sort((a,b)=>(b.at||'').localeCompare(a.at||''));
-   renderInbox();
+   const d=await warmInbox(true);if(!d||view!==viewId||!sheet.open||!sheet.classList.contains('nc-inbox'))return;
+   role=d.role;inbox=d.rows;renderInbox();
   }catch(e){
-   if(!sheet.open||!sheet.classList.contains('nc-inbox'))return;
+   if(view!==viewId||!sheet.open||!sheet.classList.contains('nc-inbox'))return;
+   if(saved&&e.status!==401&&e.status!==403){note(e.message);return}
    sheet.querySelector('.nc-conversations').innerHTML='<p class="nc-empty">'+esc(e.status===401?t('signIn'):e.message)+'</p>'+(e.status===401?'<button type="button" class="nc-primary" data-nc="signin">'+t('google')+'</button>':'');
   }
  }
- async function showBuyer(){
-  try{const d=await call('/api/platform/chat/'+cs+'?as=buyer');if(!sheet.open)return;role=d.role;openChat='buyer';open('<button type="button" class="nc-back" data-nc="chats">‹ '+t('back')+'</button><span>'+esc(d.shop)+'</span>'+callBtn,messagesHtml(d.messages),'thread');scrollEnd();live()}catch(e){note(e.message)}
+ function updateMessages(d){
+  const box=sheet.querySelector('.nc-messages');if(!box)return;
+  const tmp=document.createElement('div');tmp.innerHTML=messagesHtml(d.messages);
+  const html=tmp.querySelector('.nc-messages').innerHTML;
+  if(box.innerHTML!==html){box.innerHTML=html;scrollEnd()}
  }
- async function showThread(id){
-  try{const d=await call('/api/platform/chat/'+cs+'/'+id);role='shop';openChat=id;open('<button type="button" class="nc-back" data-nc="chats">‹ '+t('back')+'</button><span>'+esc(d.name)+'</span>'+callBtn,messagesHtml(d.messages),'thread');scrollEnd();live()}catch(e){note(e.message)}
+ async function showConversation(id){
+  const view=++viewId,shop=cs,path='/api/platform/chat/'+shop+(id==='buyer'?'?as=buyer':'/'+id);
+  clearInterval(timer);openChat=null;const saved=chatCache.peek(path);
+  const display=d=>{role=id==='buyer'?d.role:'shop';openChat=id;open('<button type="button" class="nc-back" data-nc="chats">‹ '+t('back')+'</button><span>'+esc(id==='buyer'?d.shop:d.name)+'</span>'+callBtn,messagesHtml(d.messages),'thread');scrollEnd();live()};
+  if(saved)display(saved);
+  try{const d=await chatCache.load(path);if(!d||view!==viewId||!sheet.open||cs!==shop)return;if(saved)updateMessages(d);else display(d)}
+  catch(e){if(view!==viewId||!sheet.open)return;if(e.status===401||e.status===403){openChat=null;clearInterval(timer);signIn()}else note(e.message)}
  }
- // While a chat is open, new messages come in every few seconds.
- function live(){clearInterval(timer);timer=setInterval(async()=>{if(!sheet.open||document.hidden||!openChat)return;try{const d=await call(readPath());const box=sheet.querySelector('.nc-messages'),typing=sheet.querySelector('.nc-form textarea')?.value;if(!box)return;const html=messagesHtml(d.messages);const tmp=document.createElement('div');tmp.innerHTML=html;if(tmp.querySelector('.nc-messages').innerHTML!==box.innerHTML){box.innerHTML=tmp.querySelector('.nc-messages').innerHTML;scrollEnd()}if(typing)sheet.querySelector('.nc-form textarea').value=typing}catch{}},5000)}
+ const showBuyer=()=>showConversation('buyer');
+ const showThread=id=>showConversation(id);
+ // Keep the open conversation fresh without replacing the composer or letting an old request change another chat.
+ function live(){clearInterval(timer);timer=setInterval(async()=>{
+  if(!sheet.open||document.hidden||!openChat)return;const view=viewId,path=readPath();
+  try{const d=await chatCache.load(path);if(view===viewId&&sheet.open&&path===readPath())updateMessages(d)}catch{}
+ },5000)}
  sheet.addEventListener('submit',async e=>{
   const f=e.target.closest('[data-nc-form="send"]');if(!f)return;e.preventDefault();
-  const body=f.elements.body.value.trim();if(!body)return;const b=f.querySelector('button');b.disabled=true;note('');
-  try{const d=await call(chatPath(),'POST',{body});sheet.querySelector('.nc-body').innerHTML=messagesHtml(d.messages);scrollEnd();window.GearHubCall?.sound.sent()}
+  const body=f.elements.body.value.trim();if(!body)return;const view=viewId,path=chatPath();const b=f.querySelector('button');b.disabled=true;note('');
+  try{const d=await call(path,'POST',{body});if(view!==viewId||!sheet.open)return;sheet.querySelector('.nc-body').innerHTML=messagesHtml(d.messages);scrollEnd();window.GearHubCall?.sound.sent()}
   catch(err){b.disabled=false;note(err.message)}
  });
  sheet.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&e.target.matches('.nc-form textarea')&&matchMedia('(pointer:fine)').matches){e.preventDefault();e.target.form.requestSubmit()}});
@@ -172,7 +204,7 @@
   if(k==='thread'){cs=b.dataset.slug||slug;return showThread(Number(b.dataset.id))}
   if(k==='buyer'){cs=b.dataset.slug||slug;return showBuyer()}
   if(k==='stickers'){const p=sheet.querySelector('.nc-stickers');p.hidden=!p.hidden;return}
-  if(k==='sticker'){sheet.querySelector('.nc-stickers').hidden=true;return call(chatPath(),'POST',{sticker:b.dataset.s}).then(d=>{sheet.querySelector('.nc-body').innerHTML=messagesHtml(d.messages);scrollEnd()},err=>note(err.message))}
+  if(k==='sticker'){const view=viewId,path=chatPath();sheet.querySelector('.nc-stickers').hidden=true;return call(path,'POST',{sticker:b.dataset.s}).then(d=>{if(view!==viewId||!sheet.open)return;sheet.querySelector('.nc-body').innerHTML=messagesHtml(d.messages);scrollEnd()},err=>note(err.message))}
   if(k==='mic')return startRec();
   if(k==='vcall'){const who=sheet.querySelector('h2 span')?.textContent||'';return window.GearHubCall?.start(cs,openChat==='buyer'?null:openChat,who,true).catch(err=>note(err.message))}
   if(k==='call'){const who=sheet.querySelector('h2 span')?.textContent||'';return window.GearHubCall?.start(cs,openChat==='buyer'?null:openChat,who).catch(err=>note(err.message))}
@@ -184,12 +216,14 @@
   if(k==='chats')return showChat();
   if(k==='item'){const i=data.items[Number(b.dataset.k)];if(i.chat){showChat();return}sheet.close();if(i.url){location.href=i.url;return}if(i.view)window.showStoreView?.(i.view)}
  });
- addEventListener('gearhub:chat-unread',()=>refresh());
+ addEventListener('gearhub:chat-unread',()=>refresh(false).then(()=>warmInbox(true)).catch(()=>{}));
+ for(const event of ['pointerenter','focusin'])chatButton.addEventListener(event,()=>warmInbox().catch(()=>{}));
+ addEventListener('pagehide',()=>chatCache.clear());
  notiButton.addEventListener('click',showNoti);chatButton.addEventListener('click',showChat);
  window.GearHubNoti={open:showNoti,chat:showChat};
  // From a chat alert on the phone (?chat=1) the chat opens.
  if(new URLSearchParams(location.search).get('chat')==='1')addEventListener('gearhub:data-ready',()=>{showChat();history.replaceState(history.state,'',location.pathname)},{once:true});
  // The "seen up to" mark also lives on the server, so a new phone does not show old alerts as new.
  addEventListener('gearhub:data-ready',()=>setTimeout(async()=>{const key='noti-seen-'+(slug||'gearhub'),srv=await window.GearHubUserData?.get(key);if(typeof srv==='string'&&srv>seen()){try{localStorage.setItem(SEEN,srv)}catch{}dots()}},4000),{once:true});
- refresh();setInterval(refresh,60000);document.addEventListener('visibilitychange',refresh);
+ refresh();setInterval(refresh,60000);document.addEventListener('visibilitychange',()=>{if(document.hidden){chatCache.clear();warmedAt=0}else refresh()});
 })();

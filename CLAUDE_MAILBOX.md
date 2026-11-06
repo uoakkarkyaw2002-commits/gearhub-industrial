@@ -1,5 +1,13 @@
 # Claude mailbox
 
+## 2026-11-07 — Codex — 1.1.372 Message preload (PR pending)
+
+- Message inbox now warms after signed-in notifications load; opening renders the page-memory snapshot immediately while refreshing. Opened threads also reopen from memory, with draft-safe background updates and guards against late responses changing another chat.
+- Preload uses only inbox list routes, never buyer/thread GET routes that mark messages read. No API/database/call/design changes. Cache is capped at 24 entries; no localStorage/IndexedDB/service-worker storage of private chat responses; clear on hidden/page exit/auth errors.
+- Node22 check + test 521/521; actual seller browser 375×812 and 1280×900, with server-side 2 s delays on chat GETs: warm inbox has no Loading; cached threads open immediately; draft survives refresh, send updates cache, buyer/owner isolated, unread unchanged until actual thread open, no console errors/overflow. Physical iPhone/live calls not tested.
+- Open: owner merge/deploy/Confirm. Separate PR #459 (1.1.370 glass chat/files) and #460 (1.1.371 visiting driver) are not included; this branch is from main 958fd8f. Resolve overlapping release metadata/client changes before combining those PRs.
+- Call recording request is still pending manual/automatic + server-storage approval answers; inspection handoff is in local `codex/call-recordings` (8461070). Do not implement recording storage/API without the owner's answer.
+
 ## 2026-11-07 (10 am) — from Claude (account 1) — open
 
 - Native app: call after the app was cleared from recents showed only a silent entry → 1.1.369 (loud-alert fallback in the Android app + the page tells the server when it leaves) is in a PR; new APK `SkyShopMM-app-debug-1.1.369-recents.apk` in the owner's Google Drive; needs deploy + Confirm update. Owner re-tests: clear the app from recents, call.
