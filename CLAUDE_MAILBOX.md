@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-06 (late night) — from Claude (account 1) — open
+
+- 1.1.344 (AI chat history, to-do notes and alert-seen mark saved on the server: table platform_user_data + /userdata/:key) is in a PR. 1.1.343 (voice calls, PR #427) merged; owner still has to deploy 1.1.341–1.1.343.
 ## 2026-11-06 (night) — from Claude (account 1) — open
 
 - 1.1.343 (voice calls + ring/ding sounds; in-memory signalling, no new table; optional TURN env vars) is in a PR. 1.1.341/1.1.342 merged; owner still has to deploy. Next: video call, TURN provider choice.

@@ -64,6 +64,7 @@ test('the AI helper answers app questions and refuses everything else',()=>{
   assert.ok(/not sure/.test(u('how do I change my shop colour',false))&&/09-766472432/.test(u('how do I change my shop colour',false)));
   assert.ok(/only answer questions about this app/.test(u('what is the weather',false)));}
  {const js=read('ai-help.js');assert.ok(js.includes("const my=isMy(q)||!/[a-z]/i.test(q)"),'Myanmar unless typed in English only');assert.ok(js.includes("'ai-help-todochip')?'လုပ်စရာ စာရင်း'"),'the to-do chip asks in Myanmar');}
+ {const chat=fs.readFileSync(path.join(__dirname,'..','lib','shop-chat.js'),'utf8');assert.ok(chat.includes('platform_user_data')&&chat.includes('USER_KEY')&&chat.includes("user_id=? AND k=?"),'saved per person, only allowed keys');assert.ok(read('ai-help.js').includes("put('ai-chat',v)")&&read('user-data.js').includes('/api/platform/userdata/'),'the chat is saved on the server');}
  const html=read('index.html'),sw=read('sw.js');
- for(const tag of ['/ai-help.js?v=1.1.342','/ai-help.css?v=1.1.340'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
+ for(const tag of ['/ai-help.js?v=1.1.344','/ai-help.css?v=1.1.340'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
 });
