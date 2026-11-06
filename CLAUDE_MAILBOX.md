@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-07 (8 am) — from Claude (account 1) — done
+
+- Native Android app works on the owner's phone (alerts, full-screen call over the lock screen, Answer connects, Switch account, last shop on start). Open: own Play developer account + release AAB (same upload keystore), TURN server. See AI_COLLABORATION 2026-11-07.
 ## 2026-11-07 (7 am) — from Claude (account 1) — open
 
 - Native app: after Answer (app open) the shop's opening cover flashed before connecting → 1.1.368 (no cover, plain Connecting page) is in a PR. Needs deploy + Confirm update; no new APK.
