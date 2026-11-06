@@ -276,7 +276,7 @@ if (process.env.PLATFORM_ENABLED === 'true') {
  const storeHtml=fs.readFileSync(path.join(__dirname,"public","index.html"),"utf8"),{withSplash}=require("./lib/tenant-install"),splashSettings=require("./lib/splash");
  // skyshopmm.com opens the "My shop" page (owner's request); GearHub's own store stays at /index.html.
  // 302, not 301, so browsers do not remember it if this changes again.
- app.get("/",(req,res,next)=>{if(process.env.PLATFORM_ENABLED!=="true")return next();const query=req.originalUrl.indexOf("?");res.set("Cache-Control","no-cache").redirect(302,"/platform.html"+(query>=0?req.originalUrl.slice(query):""))});
+ app.get("/",(req,res,next)=>{if(process.env.PLATFORM_ENABLED!=="true")return next();const query=req.originalUrl.indexOf("?");const qs=query>=0?req.originalUrl.slice(query):"";/* 1.1.363: the native Android app opens a tiny start page that goes straight to the last shop, not the heavy sign-in scene */res.set("Cache-Control","no-cache").redirect(302,(req.query.app==="android"?"/app-start.html":"/platform.html")+qs)});
  app.get(["/","/index.html"],(req,res)=>res.set("Cache-Control","no-cache").type("html").send(withSplash(storeHtml,splashSettings.load(db))));
 }
 app.use(express.static(path.join(__dirname, "public"), { setHeaders(res, filePath) {

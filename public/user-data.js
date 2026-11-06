@@ -11,9 +11,13 @@
  // 1.1.362 owner: inside the app, after signing in and closing it, the app asked to sign in again. The app opens the account page (which shows the
  // sign-in card by design); now it remembers the last shop and, when the person is still signed in, goes straight there.
  try{const m=location.pathname.match(/^\/shops\/([a-z0-9-]{1,80})\//);if(m)localStorage.setItem('gh-last-shop','/shops/'+m[1]+'/')}catch{}
- if(nativeApp()&&/^\/(platform\.html)?$/.test(location.pathname)&&!/[?&](visitor|view=)/.test(location.search)){
+ // 1.1.363: the app's start page (/app-start.html, tiny) decides where to go: the last shop when signed in, else the sign-in page.
+ const startPage=location.pathname==='/app-start.html',toSignIn=()=>{if(startPage)location.replace('/platform.html')};
+ if(startPage&&!nativeApp())toSignIn();
+ else if(nativeApp()&&(startPage||/^\/(platform\.html)?$/.test(location.pathname))&&!/[?&](visitor|view=)/.test(location.search)){
   let last='';try{last=localStorage.getItem('gh-last-shop')||''}catch{}
-  if(/^\/shops\/[a-z0-9-]{1,80}\/$/.test(last))fetch('/api/platform/me',{cache:'no-store',credentials:'same-origin'}).then(r=>r.json()).then(me=>{if(me&&me.user)location.replace(last)}).catch(()=>{});
+  if(/^\/shops\/[a-z0-9-]{1,80}\/$/.test(last))fetch('/api/platform/me',{cache:'no-store',credentials:'same-origin'}).then(r=>r.json()).then(me=>{if(me&&me.user)location.replace(last);else toSignIn()}).catch(toSignIn);
+  else toSignIn();
  }
  let csrf='',off=false;
  const url=k=>'/api/platform/userdata/'+encodeURIComponent(k);
