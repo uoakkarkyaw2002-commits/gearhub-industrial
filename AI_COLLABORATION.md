@@ -1918,3 +1918,6 @@ _None._
 
 ## 2026-11-07 (night 12) — 1.1.394 chat corners like the picture
 - Rounded rectangles with small corners instead of pills (header card 24px, bubbles/stickers/voice/files 17px, call cards 20–22px, search 16px) — chat-thread.css only. Same PR #476. Tests 524/524.
+
+## 2026-11-07 (night 13) — 1.1.395 call recording cards like the picture
+- Recording cards: glass card, title + ⬇ download + share (Web Share of the file, link fallback), rounded video, and a dark voice player (blue play/pause, 00:00 time, waveform that fills while playing, tap bars to seek, total time). Waveform bars are a decorative pattern derived from the recording id (the real audio is not analysed). Part select + auto-next kept; download/share follow the chosen part. noti-chat.js + chat-thread.css only. Same PR #476. Tests 524/524; WebKit with injected fake recordings (real recordings/iPhone share sheet not testable here). 
