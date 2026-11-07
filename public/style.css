@@ -1412,3 +1412,9 @@ body.visiting-shop.no-promotions .mobile-bottom-nav{grid-template-columns:repeat
 .mobile-bottom-nav .visit-exit.has-logo>small,.desktop-top-nav .visit-exit.has-logo,.desktop-top-nav .visit-exit.has-logo span{color:#243b2b!important}
 .mobile-bottom-nav .visit-exit.has-logo>small{max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .desktop-top-nav .visit-exit-logo{width:24px;height:24px;border-width:1px}
+
+/* 1.1.406 owner: STM — a download button in front of an invoice number saves that invoice's INV page as a picture. */
+.excel-dl{display:inline-grid;place-items:center;width:22px;height:22px;margin:0 5px 0 0;padding:0;border:0;border-radius:6px;background:#1f9a3e;color:#fff;vertical-align:middle;cursor:pointer}
+.excel-dl svg{display:block;width:14px;height:14px}
+.excel-dl.busy{opacity:.45;pointer-events:none}
+.excel-dl-host{white-space:nowrap!important}
