@@ -16,3 +16,11 @@
 .category-picker-choice.has-children{padding-right:13px}
 .category-picker-branch-arrow{margin-left:auto;color:#243b2c;font-size:1.2rem;font-weight:800;line-height:1}
 .category-picker-choice.has-children .category-picker-radio{margin-left:4px}
+
+/* 1.1.403: the picker as a top-layer popover (opened from the Add Product dialog). */
+.category-picker-backdrop[popover]{width:100%;height:100%;max-width:none;max-height:none;margin:0;border:0;overflow:visible;color:inherit;inset:0}
+/* 1.1.403 owner: from Add Product the picker is full screen (PC and phone). */
+.category-picker-backdrop[popover]{padding:0;place-items:stretch;background:#fff;backdrop-filter:none}
+.category-picker-backdrop[popover] .category-picker-modal{width:100%;max-width:none;height:100%;max-height:none;border:0;border-radius:0;box-shadow:none}
+.category-picker-backdrop[popover] .category-picker-body{flex:1;min-height:0}
+@media(max-width:680px){.category-picker-backdrop[popover] .category-picker-modal{max-height:none;border-radius:0}}

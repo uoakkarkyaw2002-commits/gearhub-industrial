@@ -42,7 +42,8 @@ function openPicker({host,rows,value,selectedId,onPick,allowed=()=>true,allowNon
  const search=document.createElement("input");search.className="category-picker-search";search.type="search";search.placeholder="Search category or subcategory…";search.setAttribute("aria-label","Search category or subcategory");
  const body=document.createElement("div");body.className="category-picker-body";const mainPane=document.createElement("div");mainPane.className="category-picker-main";const subPane=document.createElement("div");subPane.className="category-picker-sub";body.append(mainPane,subPane);
  const footer=document.createElement("div");footer.className="category-picker-footer";const cancel=button("Cancel","category-picker-cancel",dismiss);const confirm=button("Confirm Category","category-picker-confirm",()=>{if(!selected)return;onPick(selected===NONE?null:selected);dismiss();});footer.append(cancel,confirm);
- modal.append(head,search,body,footer);backdrop.append(modal);(host||document.body).append(backdrop);
+ modal.append(head,search,body,footer);backdrop.append(modal);/* 1.1.403: inside a modal dialog (Add Product) the picker goes to the browser top layer, so it is centred on the whole screen on PC, not clipped by the sheet. */
+ if(host&&typeof backdrop.showPopover==="function"){backdrop.setAttribute("popover","manual");document.body.append(backdrop);try{backdrop.showPopover();}catch(error){host.append(backdrop);}}else(host||document.body).append(backdrop);
  function dismiss(){document.removeEventListener("keydown",onKey);backdrop.remove();}
  function onKey(event){if(event.key==="Escape")dismiss();}
  document.addEventListener("keydown",onKey);backdrop.addEventListener("click",event=>{if(event.target===backdrop)dismiss();});
