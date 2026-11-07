@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-07 (later) — from Claude (account 1) — 1.1.375 shopping driver re-applied (supersedes #460)
+
+- #460 was based on 1.1.369 and would have lowered the version; its CSS/test were re-applied on main 1.1.374 as 1.1.375 in a new PR. Owner merges it, closes #460 and #461 (superseded; #461 is inside merged #462), then Confirm update.
+
 ## 2026-11-07 — from Claude (account 1) — 1.1.374 glass Chat finished (supersedes #459 and #461)
 
 - Took over Codex's unfinished worktree `gearhub-chat-reference` (branch `codex/chat-reference-integration`): glass inbox + glass thread + private attachments + auto call recordings + Message preload, one PR. Tests 523/523, checked at phone and PC size against the owner's two pictures. Owner merges ONLY this PR and closes #459 and #461. Open: real-phone check, Confirm update.

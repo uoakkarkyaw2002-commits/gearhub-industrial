@@ -58,3 +58,11 @@
  body.visiting-shop #profile-menu-open{display:none!important}
  body.visiting-shop .excel-results{display:none!important}
 }
+/* Visiting another shop uses the original delivery driver Cart instead of the assistant card. */
+body.visiting-shop .ai-help-button{display:none!important}
+@media(min-width:1024px){
+ body.visiting-shop .visit-cart{position:fixed;z-index:8;right:28px;bottom:28px;display:grid;place-items:center;width:56px;height:56px;padding:0;border:2.5px solid #1f9a3e;border-radius:50%;background:#fff;box-shadow:0 6px 16px #14532d33;cursor:pointer}
+ body.visiting-shop .visit-cart img{width:44px;height:44px;object-fit:contain}
+ body.visiting-shop .visit-cart-count{position:absolute;top:-7px;right:-6px;display:grid;min-width:22px;height:22px;place-items:center;padding:0 5px;border:2px solid #fff;border-radius:999px;background:#ef4444;color:#fff;font:800 12px/1 system-ui,sans-serif}
+ body.visiting-shop .visit-cart-count[hidden]{display:none}
+}
