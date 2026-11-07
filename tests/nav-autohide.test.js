@@ -5,10 +5,10 @@ test('scroll down hides the bar, scroll up / stop / top shows it, phones only',(
  const classes=new Set(),listeners={},timers=[];
  const nav={classList:{toggle:(c,on)=>on?classes.add(c):classes.delete(c),contains:c=>classes.has(c)}};
  const win={scrollY:0,innerHeight:800,matchMedia:()=>({matches:true}),addEventListener:(t,f)=>listeners[t]=f,setTimeout:f=>{timers.push(f);return timers.length},clearTimeout:()=>{timers.length=0},
-  document:{querySelector:s=>s==='.mobile-bottom-nav'?nav:null,body:{classList:{contains:()=>false}}}};
+  document:{querySelector:s=>s==='.mobile-bottom-nav'?nav:null,body:{classList:{contains:()=>false,toggle:(c,on)=>on?classes.add(c):classes.delete(c)}}}};
  vm.runInNewContext(read('public/nav-autohide.js'),Object.assign(win,{window:win}));
  const to=y=>{win.scrollY=y;listeners.scroll();};
- to(200);to(400);assert.equal(classes.has('nav-away'),true,'scrolling down hides it');
+ to(200);to(400);assert.equal(classes.has('nav-away'),true,'scrolling down hides it');assert.equal(classes.has('nav-gone'),true,'the AI Assistant leaves with the bar (1.1.404)');
  to(360);assert.equal(classes.has('nav-away'),false,'scrolling up shows it');
  to(600);assert.equal(classes.has('nav-away'),true);
  timers.at(-1)();assert.equal(classes.has('nav-away'),false,'stopping shows it again');

@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-07 (night 22) — from Claude (account 1) — 1.1.404 AI Assistant hides with the bottom bar
+- nav-autohide.js also sets body.nav-gone; on phones the AI Assistant slides down/fades out with the bar when scrolling down and comes back with it (scroll up, stop, top, tap bottom). ai-help.css + nav-autohide.js; test extended. New branch claude/ai-hides-with-nav. Tests 524/524; WebKit: down → nav-away + AI opacity 0 off-screen; up → both back.
+
 ## 2026-11-07 (night 20) — from Claude (account 1) — 1.1.402 Scan moved into the filter list
 - Scan (search by photo) is now the FIRST item of the green filter button's list; the phone Home search bar has no scan button or magnifier. Tapping the item clicks the existing photo-scan button (verified: click count 1, menu closes). Visiting-shop keeps the in-bar scan button and Category/Trash list. search-filter.js + noti-chat.css. In PR #478. Tests 524/524.
 
