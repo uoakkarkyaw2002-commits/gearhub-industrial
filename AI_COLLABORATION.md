@@ -1873,3 +1873,6 @@ _None._
 ## 2026-11-07 — Claude (account 1) — 1.1.377 Chat composer like the Messenger reference
 - Owner's Messenger screenshot: 📎 on the left; 😊 sticker and the mic/send on the right; small icons; long messages show about 5 lines. Done in `public/chat-thread.css` (order + small sizes; the glass look kept) and `public/noti-chat.js` (the textarea grows to 118 px = 5 lines on input, back to one line after sending). Mic/Send swap unchanged.
 - Checked in a real browser at phone size: empty → 📎 · text · 😊 · 🎤; long text → box stops at 5 lines with the rest scrollable; after sending → one line again. Node22 test 524/524.
+
+## 2026-11-07 (evening) — Claude (account 1) — 1.1.378 neat composer pill
+- Owner's reference: round 📎 left, ONE glass pill with 😊 inside at its right, round blue mic/Send at the far right; no blue line around the typing box (owner asked). CSS only in public/chat-thread.css (+version/tags). Mic stays (turns into Send when typing); the reference's gallery icon was not added. Tests 524/524; checked 375 and 1280 in WebKit. Owner merges, deploys, Confirm update.
