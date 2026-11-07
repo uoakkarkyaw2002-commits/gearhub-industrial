@@ -1909,3 +1909,6 @@ _None._
 
 ## 2026-11-07 (night 9) — 1.1.391 real SkyShopMM logo picture
 - Owner sent the real logo (transparent PNG with a glow fringe). Cleaned (alpha cut, 900 px wide) → public/images/skyshopmm-logo.png; the phone top bar uses it instead of my drawn SVG (noti-chat.js/css). Same PR #476 (claude/top-clear): merge once, deploy once. Tests 524/524.
+
+## 2026-11-07 (night 10) — 1.1.392 Message header = the real logo, tap = Home, no ✕
+- Message inbox header now uses the SkyShopMM logo picture; tapping it closes Message and goes to the Home page; the inbox ✕ is hidden. Same PR #476 (claude/top-clear). Tests 524/524; WebKit phone checked (tap → sheet closes, Home view). Merge once, deploy once, Confirm update.

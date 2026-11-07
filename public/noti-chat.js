@@ -55,6 +55,8 @@
  }
  // One sheet for both.
  const sheet=document.createElement('dialog');sheet.className='nc-sheet';sheet.id='nc-sheet';document.body.append(sheet);
+ /* 1.1.392 owner: tapping the SkyShopMM logo/name on Message goes back to the Home page. */
+ sheet.addEventListener('click',e=>{if(!sheet.classList.contains('nc-inbox')||!e.target.closest('#nc-sheet>header h2'))return;sheet.close();document.querySelector('.mobile-bottom-nav [data-store-view="home"]:not([hidden]),.desktop-top-nav [data-store-view="home"]')?.click();window.scrollTo({top:0})});
  /* 1.1.379: iPhone keyboard pans the page; keep the phone sheet exactly as tall as the visible area, pinned to its top, so the header stays on screen. */
  const fit=()=>{const v=window.visualViewport;if(!v||!matchMedia('(max-width:640px)').matches||!sheet.open){sheet.style.removeProperty('height');sheet.style.removeProperty('max-height');sheet.style.removeProperty('top');return}sheet.style.height=v.height+'px';sheet.style.maxHeight=v.height+'px';sheet.style.top=v.offsetTop+'px'};
  /* 1.1.383 owner: with the keyboard open the page behind must not move; only the message list scrolls. */
@@ -151,7 +153,7 @@
   return new Intl.DateTimeFormat('en-US',{...zone,...(day(date)===day(new Date())?{hour:'numeric',minute:'2-digit',hour12:true}:{month:'short',day:'numeric'})}).format(date);
  }
  const messageMark=id=>'<svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="'+id+'" x2=".9" y2="1"><stop stop-color="#00d9f0"/><stop offset=".6" stop-color="#058bfa"/><stop offset="1" stop-color="#1256e4"/></linearGradient></defs><path d="M29 17h8a8 8 0 0 1 8 8v8a8 8 0 0 1-8 8h-1l-6 4 1-5a9 9 0 0 1-8-8V25z" fill="#33bdff"/><path d="M12 5h18a10 10 0 0 1 10 10v10a10 10 0 0 1-10 10H17L6 42l2-10a10 10 0 0 1-5-9v-8A10 10 0 0 1 12 5z" fill="url(#'+id+')" stroke="#70d9ff" stroke-width=".7"/><g fill="#fff"><circle cx="13" cy="20" r="2.2"/><circle cx="21" cy="20" r="2.2"/><circle cx="29" cy="20" r="2.2"/></g></svg>';
- function inboxHeader(){return '<span class="nc-message-mark nc-cloud-cart" aria-hidden="true"><svg viewBox="0 0 72 56"><path d="M18 45H12a10 10 0 0 1-2-20 18 18 0 0 1 34-10 13 13 0 0 1 17 19 9 9 0 0 1-5 16H20" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M16 25h7l5 18h23l5-13H25m7 1h20m-17 6h15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="32" cy="49" r="3" fill="currentColor"/><circle cx="48" cy="49" r="3" fill="currentColor"/></svg></span><span class="nc-wordmark">SkyShopMM</span>'}
+ function inboxHeader(){return '<img class="nc-brand-img" src="/images/skyshopmm-logo.png?v=1" alt="SkyShopMM" width="204" height="68">'}
  function renderInbox(){
   const query=sheet.querySelector('.nc-search input')?.value.trim().toLocaleLowerCase()||'';
   const list=sheet.querySelector('.nc-conversations');if(!list)return;

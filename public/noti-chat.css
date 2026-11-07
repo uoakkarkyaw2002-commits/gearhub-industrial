@@ -304,3 +304,8 @@ body:has(#nc-sheet[open]){overflow:hidden}
  html body:not(.visiting-shop):not(.non-home-view) .home-profile-banner .top-brand img{height:74px;max-width:calc(100vw - 176px);margin-left:-8px}
  html body:not(.visiting-shop):not(.non-home-view) .home-profile-banner:has(.top-brand){min-height:92px}
 }
+
+/* 1.1.392 owner: Message header = the SkyShopMM logo picture (tap = Home); no ✕ on the inbox. */
+#nc-sheet.nc-inbox>header h2{cursor:pointer;-webkit-tap-highlight-color:transparent}
+#nc-sheet.nc-inbox .nc-brand-img{display:block;width:auto;height:68px;max-width:calc(100vw - 80px);margin-left:-8px;object-fit:contain}
+#nc-sheet.nc-inbox #nc-close{display:none!important}
