@@ -21,7 +21,7 @@
  const bubble='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M30 18h8a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-1l1.5 6-8-6h-3a6 6 0 0 1-6-6" fill="#2f7cf0"/><path d="M9 7h20a7 7 0 0 1 7 7v9a7 7 0 0 1-7 7H17l-8 6 1.5-6H9a7 7 0 0 1-7-7v-9a7 7 0 0 1 7-7z" fill="#fff"/><circle cx="12" cy="18.5" r="2.4" fill="#1d58b8"/><circle cx="19" cy="18.5" r="2.4" fill="#1d58b8"/><circle cx="26" cy="18.5" r="2.4" fill="#1d58b8"/></svg>';
  const box=document.createElement('div');box.className='nc-buttons';
  // The owner's own icon pictures (the bell's red dot is drawn in the picture, so it shows only when something is new).
- box.innerHTML='<button type="button" class="nc-button" data-nc="noti"><img src="/images/noti-bell-quiet.png?v=1" alt="" class="nc-bell"></button><button type="button" class="nc-button" data-nc="chat"><img src="/images/noti-chat.png?v=1" alt=""><i class="nc-dot" hidden></i></button>';
+ box.innerHTML='<button type="button" class="nc-button" data-nc="noti"><img src="/images/noti-bell-quiet.png?v=1" alt="" class="nc-bell"><svg class="nc-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17h12l-1.5-2V10a4.5 4.5 0 0 0-9 0v5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 20a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><i class="nc-count" hidden></i></button><button type="button" class="nc-button" data-nc="chat"><img src="/images/noti-chat.png?v=1" alt=""><svg class="nc-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4C7.6 4 4 7.1 4 11c0 2 .9 3.700 2.400 5L5.500 20l4-1.900c.8.2 1.600.3 2.500.3 4.400 0 8-3.100 8-7S16.400 4 12 4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="8.500" cy="11.300" r="1.100" fill="currentColor"/><circle cx="12" cy="11.300" r="1.100" fill="currentColor"/><circle cx="15.500" cy="11.300" r="1.100" fill="currentColor"/></svg><i class="nc-dot" hidden></i></button>';
  banner.append(box);
  if(ownerMode)box.hidden=true;
  const [notiButton,chatButton]=box.querySelectorAll('button');
@@ -43,7 +43,7 @@
  const seen=()=>{try{return localStorage.getItem(SEEN)||''}catch{return ''}};
  function dots(){
   const fresh=(data?.items||[]).filter(i=>i.at>seen()&&!i.chat).length;
-  notiButton.querySelector('.nc-bell').src=fresh?'/images/noti-bell.png?v=1':'/images/noti-bell-quiet.png?v=1';chatButton.querySelector('.nc-dot').hidden=!data?.unreadChats;
+  notiButton.querySelector('.nc-bell').src=fresh?'/images/noti-bell.png?v=1':'/images/noti-bell-quiet.png?v=1';chatButton.querySelector('.nc-dot').hidden=!data?.unreadChats;{const c=notiButton.querySelector('.nc-count');c.textContent=fresh>99?'99+':String(fresh||'');c.hidden=!fresh;const d=chatButton.querySelector('.nc-dot');d.textContent=Number(data?.unreadChats)>0?(data.unreadChats>99?'99+':String(data.unreadChats)):''}
   notiButton.setAttribute('aria-label',t('noti')+(fresh?' · '+fresh:''));chatButton.setAttribute('aria-label',t('chat')+(data?.unreadChats?' · '+data.unreadChats:''));
  }
  async function refresh(warm=true){

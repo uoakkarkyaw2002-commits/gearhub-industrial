@@ -168,3 +168,44 @@ body:has(#nc-sheet[open]){overflow:hidden}
  .home-profile-banner .settings-profile-copy>.net-speed[data-level="low"]{color:#e0301e}
  .home-profile-banner .settings-profile-copy>.net-speed[data-level="offline"],.home-profile-banner .settings-profile-copy>.net-speed[data-level="checking"]{color:#8a948e}
 }
+
+/* 1.1.386 owner's picture ("make it exactly like this, beautiful and simple"): phone Home — white round-square 🔔 💬 with
+   green outline icons and count badges, the search bar with the green scan square inside and the filter at the right,
+   a brighter Promotion banner, soft filter boxes and a green outline bottom bar. */
+.nc-ico,.nc-count{display:none}
+@media(max-width:850px){
+ html:has(body:not(.visiting-shop):not(.non-home-view)),html body:not(.visiting-shop):not(.non-home-view),html body.scope-product:not(.visiting-shop):not(.non-home-view),html body.scope-excel:not(.visiting-shop):not(.non-home-view),html body:not(.visiting-shop):not(.non-home-view) main{background:#fff!important}
+ html body:not(.visiting-shop):not(.non-home-view)>.home-navigation{box-shadow:none;border-bottom:0}
+ /* top buttons */
+ html body:not(.visiting-shop) .nc-button{display:grid;place-items:center;width:54px;height:54px;border-radius:18px;background:#fff;color:#1b8a38;box-shadow:0 6px 18px #1b3b2a1f,0 0 0 1px #edf2ee}
+ html body:not(.visiting-shop) .nc-button img{display:none}
+ html body:not(.visiting-shop) .nc-button .nc-ico{display:block;width:34px;height:34px}
+ html body:not(.visiting-shop) .nc-count,html body:not(.visiting-shop) .nc-dot{position:absolute;top:-6px;right:-5px;display:grid;place-items:center;min-width:22px;height:22px;padding:0 5px;border:2px solid #fff;border-radius:999px;background:#ef2b2b;box-shadow:none;color:#fff;font:800 12px/1 system-ui,sans-serif}
+ html body:not(.visiting-shop) .nc-count[hidden],html body:not(.visiting-shop) .nc-dot[hidden]{display:none}
+ html body:not(.visiting-shop) .nc-dot:empty{min-width:14px;width:14px;height:14px;padding:0;top:-3px;right:-3px}
+ /* search bar: [scan | text … 🔍]  [filter] */
+ html body:not(.visiting-shop):not(.non-home-view) .mobile-search{gap:12px;padding-top:6px}
+ html body:not(.visiting-shop):not(.non-home-view) .mobile-search .search-pill{height:58px;padding:0 16px 0 7px;border:1.5px solid #2f9246;border-radius:29px;background:#fff;box-shadow:0 8px 22px #1f8a3a26;gap:10px}
+ html body:not(.visiting-shop):not(.non-home-view) .mobile-search .search-pill .photo-scan-button{order:0;display:grid!important;place-items:center;flex:0 0 46px;width:46px;height:46px;margin:0 6px 0 0;border-radius:15px;background:linear-gradient(160deg,#2fa94a,#137a2c);color:#fff;box-shadow:0 5px 12px #137a2c40;position:relative}
+ html body:not(.visiting-shop):not(.non-home-view) .mobile-search .search-pill .photo-scan-button::after{content:"";position:absolute;right:-9px;top:10px;bottom:10px;width:1px;background:#cfd8d2}
+ html body:not(.visiting-shop):not(.non-home-view) .mobile-search .search-pill .photo-scan-button svg{width:26px;height:26px;stroke:#fff}
+ html body:not(.visiting-shop):not(.non-home-view) .mobile-search .search-pill input{order:1;font-size:16px;padding-left:4px}
+ html body:not(.visiting-shop):not(.non-home-view) .mobile-search .search-pill .search-pill-icon{display:block;order:2;width:26px;height:26px;color:#1d2420}
+ html body:not(.visiting-shop):not(.non-home-view) .mobile-search .search-pill .search-tools{order:3}
+ html body:not(.visiting-shop):not(.non-home-view) .mobile-search>.search-filter{order:3}
+ html body:not(.visiting-shop):not(.non-home-view) .mobile-search .search-filter-button{width:54px!important;height:54px!important;border:0!important;border-radius:17px!important;background:linear-gradient(160deg,#2fa94a,#137a2c)!important;box-shadow:0 8px 18px #137a2c40!important}
+ html body:not(.visiting-shop):not(.non-home-view) .mobile-search .search-filter-button svg{stroke:#fff;width:28px;height:28px}
+ /* banners and filters */
+ html body:not(.visiting-shop) .home-promo{background:linear-gradient(105deg,#0b6a2a 0%,#169a3a 58%,#3db84c 100%);border-radius:24px;box-shadow:0 10px 24px #137a2c33}
+ html body:not(.visiting-shop) .home-promo-tag{background:#fff;color:#16933a;border-radius:15px;box-shadow:0 4px 10px #00000026}
+ html body:not(.visiting-shop) .home-promo-copy{padding-right:14px;border-right:1.5px solid #ffffff59}
+ html body:not(.visiting-shop) .home-promo-go{border:2px solid #7fd88a;color:#0f6d2a}
+ html body:not(.visiting-shop) #catalog .filters select{-webkit-appearance:none;appearance:none;height:52px;padding:0 40px 0 20px;border:0;border-radius:16px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6' fill='none' stroke='%231b2a22' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 14px center/20px 20px;box-shadow:0 6px 18px #1b3b2a17,0 0 0 1px #eef2ee}
+ /* bottom bar: green outline icons, active = pale green square */
+ html body:not(.visiting-shop) .mobile-bottom-nav .bottom-nav-item{color:#1f8a3b}
+ html body:not(.visiting-shop) .mobile-bottom-nav .bottom-nav-item .nav-ico{display:block;width:32px;height:32px;margin:auto}
+ html body:not(.visiting-shop) .mobile-bottom-nav .bottom-nav-item.active{background:none}
+ html body:not(.visiting-shop) .mobile-bottom-nav .bottom-nav-item>span{display:grid;place-items:center;width:70px;height:58px;margin:0 auto;border-radius:20px}
+ html body:not(.visiting-shop) .mobile-bottom-nav .bottom-nav-item.active>span{background:#e2f5e2}
+ html body:not(.visiting-shop) .mobile-bottom-nav .bottom-nav-item.active .nav-ico{fill:currentColor;fill-opacity:.18}
+}
