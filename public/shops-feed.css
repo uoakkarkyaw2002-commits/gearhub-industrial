@@ -273,3 +273,10 @@ body:has(#shops-photo-dialog[open]){overflow:hidden}
 .shops-c-menu-card button{display:flex;align-items:center;gap:18px;width:100%;min-height:58px;padding:0 20px;border:0;background:transparent;color:#111;font:inherit;font-size:18px;text-align:left;cursor:pointer}
 .shops-c-menu-card button svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
 .shops-c-menu-card button:active{background:#f1f1f2}
+
+/* 1.1.381 owner: the phone bottom bar shows Cart only while something is in the cart. */
+body:not(.has-cart) .mobile-bottom-nav .bottom-nav-cart{display:none!important}
+@media(max-width:850px){
+ body:not(.has-cart) .mobile-bottom-nav:not(.liquid){grid-template-columns:repeat(5,minmax(0,1fr))!important}
+ body:not(.has-cart).no-promotions .mobile-bottom-nav:not(.liquid){grid-template-columns:repeat(4,minmax(0,1fr))!important}
+}
