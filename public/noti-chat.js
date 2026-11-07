@@ -47,6 +47,9 @@
  }
  // One sheet for both.
  const sheet=document.createElement('dialog');sheet.className='nc-sheet';sheet.id='nc-sheet';document.body.append(sheet);
+ /* 1.1.379: iPhone keyboard pans the page; keep the phone sheet exactly as tall as the visible area, pinned to its top, so the header stays on screen. */
+ const fit=()=>{const v=window.visualViewport;if(!v||!matchMedia('(max-width:640px)').matches||!sheet.open){sheet.style.removeProperty('height');sheet.style.removeProperty('max-height');sheet.style.removeProperty('top');return}sheet.style.height=v.height+'px';sheet.style.maxHeight=v.height+'px';sheet.style.top=v.offsetTop+'px'};
+ window.visualViewport?.addEventListener('resize',fit);window.visualViewport?.addEventListener('scroll',fit);sheet.addEventListener('close',fit);
  sheet.addEventListener('click',e=>{if(e.target===sheet)sheet.close()});
  sheet.addEventListener('close',()=>{viewId++;if(rec)stopRec(false);sheet.classList.remove('open');openChat=null;clearInterval(timer);window.GearHubBackNav?.record();refresh()});
  function open(title,html,mode=''){
@@ -54,7 +57,7 @@
   sheet.setAttribute('aria-label',mode?t('message'):t('noti'));
   sheet.innerHTML='<div class="nc-grip" aria-hidden="true"></div><header><h2>'+title+'</h2><button type="button" id="nc-close" aria-label="'+t('close')+'">✕</button></header><div class="nc-body">'+html+'</div><p class="nc-note" role="status"></p>';
   sheet.querySelector('#nc-close').onclick=()=>sheet.close();
-  if(!sheet.open){sheet.classList.add('open');sheet.showModal();document.activeElement?.blur?.();window.GearHubBackNav?.record()}
+  if(!sheet.open){sheet.classList.add('open');sheet.showModal();fit();document.activeElement?.blur?.();window.GearHubBackNav?.record()}
  }
  const note=x=>{const n=sheet.querySelector('.nc-note');if(n)n.textContent=x||''};
  const signIn=()=>open(t('noti'),'<p class="nc-empty">'+t('signIn')+'</p><button type="button" class="nc-primary" data-nc="signin">'+t('google')+'</button>');

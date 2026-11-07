@@ -1876,3 +1876,6 @@ _None._
 
 ## 2026-11-07 (evening) — Claude (account 1) — 1.1.378 neat composer pill
 - Owner's reference: round 📎 left, ONE glass pill with 😊 inside at its right, round blue mic/Send at the far right; no blue line around the typing box (owner asked). CSS only in public/chat-thread.css (+version/tags). Mic stays (turns into Send when typing); the reference's gallery icon was not added. Tests 524/524; checked 375 and 1280 in WebKit. Owner merges, deploys, Confirm update.
+
+## 2026-11-07 (night) — 1.1.379 chat header stays when the keyboard opens
+- iPhone: keyboard open pushed the chat header/messages off the top. Phone sheet now follows visualViewport (height + top) in public/noti-chat.js. Checked with a simulated shrunken viewport (header on screen, composer above the keyboard line); real iPhone keyboard not testable here. Tests 524/524. Owner merges, deploys, Confirm update, tests with the keyboard open.
