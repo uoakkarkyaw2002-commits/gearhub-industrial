@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-07 — from Claude (account 1) — 1.1.374 glass Chat finished (supersedes #459 and #461)
+
+- Took over Codex's unfinished worktree `gearhub-chat-reference` (branch `codex/chat-reference-integration`): glass inbox + glass thread + private attachments + auto call recordings + Message preload, one PR. Tests 523/523, checked at phone and PC size against the owner's two pictures. Owner merges ONLY this PR and closes #459 and #461. Open: real-phone check, Confirm update.
+
 ## 2026-11-07 — Codex — 1.1.373 auto call recordings + Message preload, PR #461
 
 - Owner answered both recording questions with “သဘောတူစရာမလို” (no agreement needed). Proceed without a consent popup: automatically record on connection, with a visible notice on BOTH call screens. Server storage/upload/playback is authorized in this scope. Earlier pending-question handoff in local codex/call-recordings is superseded.

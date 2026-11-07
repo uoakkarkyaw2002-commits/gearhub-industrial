@@ -1,0 +1,74 @@
+/* Only the conversation surface changes. Call screens, inbox and all action hooks remain as before. */
+#nc-sheet.nc-thread{isolation:isolate;overflow:hidden;padding:24px 12px max(16px,env(safe-area-inset-bottom));color:#10162a;background:radial-gradient(ellipse at 4% 8%,#e4ceff 0,transparent 41%),radial-gradient(ellipse at 100% 23%,#7eafff 0,transparent 60%),radial-gradient(ellipse at 3% 95%,#b8aff4 0,transparent 58%),linear-gradient(145deg,#c5c2fa,#a5bbfa 58%,#aabafa);box-shadow:0 18px 60px #142e8266}
+#nc-sheet.nc-thread>header{position:relative;flex:0 0 auto;gap:5px;padding:0 0 18px;border:0;background:transparent}
+#nc-sheet.nc-thread h2{display:flex;align-items:center;gap:5px;min-width:0;margin:0;color:#111627;font-size:15px;font-weight:800;letter-spacing:-.3px;line-height:1.3}
+.nc-thread h2>.nc-thread-face{flex:0 0 33px;width:33px;height:38px}
+#nc-sheet.nc-thread .nc-peer-name{flex:1;min-width:25px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#111627;font:inherit}
+.nc-thread .nc-peer-link{flex:0 0 auto;color:#1953be;font-size:18px;font-weight:800;font-style:normal;line-height:1}
+.nc-thread-face{position:relative;display:inline-grid;place-items:center;width:36px;height:40px;margin:0;border:1px solid #ffffffdc;border-radius:50%;background:linear-gradient(140deg,#fff,#ddeaff 62%,#d6d7fb);box-shadow:inset 0 2px 4px #fff,0 3px 5px #343b9140;color:#2065bb;font-size:17px;font-weight:800;font-style:normal;overflow:hidden}
+.nc-thread-face img{display:block;width:100%;height:100%;padding:3px;object-fit:contain;border-radius:50%}
+#nc-sheet.nc-thread .nc-back,#nc-sheet.nc-thread .nc-call,#nc-sheet.nc-thread #nc-close,#nc-sheet.nc-thread .nc-tool{flex:0 0 auto;display:inline-grid;place-items:center;min-width:0;margin:0;padding:0;border:1px solid #ffffffb8;border-radius:50%;background:linear-gradient(145deg,#ffffffb8,#e6e7ff5e 56%,#d4dffc9e);box-shadow:inset 0 1px 3px #fff,0 3px 5px #3b419547;color:#004fc8;cursor:pointer}
+#nc-sheet.nc-thread .nc-back{width:auto;min-height:29px;padding:4px 7px;border-radius:999px;white-space:nowrap;font-size:12px;font-weight:750;line-height:1.2}
+#nc-sheet.nc-thread .nc-call,#nc-sheet.nc-thread #nc-close{width:29px;height:29px;min-height:29px}
+#nc-sheet.nc-thread #nc-close{font-size:15px}
+#nc-sheet.nc-thread .nc-call svg{display:block;flex:none;width:17px;height:17px;padding:0;border-radius:0;background:none;fill:currentColor;filter:drop-shadow(0 1px 1px #fff9)}
+#nc-sheet.nc-thread .nc-body{position:relative;gap:7px;min-width:0;padding:0;overflow:hidden}
+#nc-sheet.nc-thread .nc-messages{gap:5px;min-width:0;padding:6px 2px 14px;scrollbar-width:thin;scrollbar-color:#798ce177 transparent;overscroll-behavior:contain}
+#nc-sheet.nc-thread .nc-msg.nc-callmsg{flex:0 0 auto;align-items:center;gap:7px;align-self:center;width:fit-content;max-width:98%;margin:0;padding:5px 12px;border:1px solid #ffffffb5;border-radius:999px;background:linear-gradient(155deg,#f8f3ffad,#e9edff7a 60%,#cfdbffbd);box-shadow:inset 0 1px 2px #fff,0 3px 5px #2e46a53d;color:#11192c;line-height:1.3}
+#nc-sheet.nc-thread .nc-callmsg>span{min-width:0;font-size:13px;font-weight:650;line-height:1.4;white-space:normal}
+#nc-sheet.nc-thread .nc-callmsg small{flex:0 0 auto;margin:0 0 0 8px;color:#35476e;font-size:10px;line-height:1.3;opacity:1;white-space:nowrap}
+.nc-log-icon{display:flex;flex:0 0 19px;align-items:center;margin:0;color:#0064e2;font-style:normal;filter:drop-shadow(0 1px 1px #ffffffc4)}
+.nc-log-icon svg{display:block;width:19px;height:19px;fill:currentColor}
+.nc-log-icon.is-voice{color:#14ae37}
+#nc-sheet.nc-thread .nc-textmsg{position:relative;flex:0 0 auto;gap:3px;max-width:calc(100% - 84px);min-width:82px;margin:4px 40px 5px;padding:9px 14px;border:1px solid #ffffffdc;border-radius:23px 23px 23px 7px;background:linear-gradient(145deg,#ffffffe3,#ece6ffab 75%,#ecebffde);box-shadow:inset 0 2px 3px #fff,0 4px 6px #3d439238;color:#0e162e;align-self:flex-start}
+#nc-sheet.nc-thread .nc-textmsg:after{content:'';position:absolute;bottom:-1px;left:-8px;width:14px;height:14px;clip-path:polygon(85% 0,100% 100%,0 100%,55% 65%);background:#edebff;border-bottom:1px solid #fff;border-radius:0 0 0 3px}
+#nc-sheet.nc-thread .nc-textmsg.mine{border-color:#b6faff;border-radius:23px 23px 7px 23px;background:linear-gradient(140deg,#15cbff,#0878ff 44%,#0050da 100%);box-shadow:inset 0 1px 3px #c3ffff,0 4px 7px #263d9b66;color:#fff;align-self:flex-end}
+#nc-sheet.nc-thread .nc-textmsg.mine:after{left:auto;right:-8px;transform:scaleX(-1);background:#075be5;border-color:#b6faff}
+#nc-sheet.nc-thread .nc-textmsg>span{font-size:15px;line-height:1.65;white-space:pre-line;overflow-wrap:anywhere}
+#nc-sheet.nc-thread .nc-textmsg small{font-size:10px;color:#3e4771;line-height:1.4;opacity:1}
+#nc-sheet.nc-thread .nc-textmsg.mine small{color:#e0ebff}
+.nc-textmsg>.nc-thread-face{position:absolute;bottom:3px;left:-42px;width:34px;height:39px}
+.nc-textmsg.mine>.nc-thread-face{left:auto;right:-42px}
+#nc-sheet.nc-thread .nc-voice{border:1px solid #ffffffbc;border-radius:20px;background:#ecebffb5;box-shadow:inset 0 1px 2px #fff,0 3px 5px #3b419530}
+#nc-sheet.nc-thread .nc-voice.mine{background:#2077df;color:#fff}
+#nc-sheet.nc-thread .nc-stickers{border:1px solid #ffffffb5;border-radius:16px;background:#f1edffcf;box-shadow:0 3px 8px #3b419530}
+#nc-sheet.nc-thread .nc-form{position:relative;flex:0 0 auto;gap:7px;align-items:center;margin:0;padding:10px 1px 0;border:0;background:transparent}
+#nc-sheet.nc-thread .nc-tool{width:34px;height:38px;min-height:38px;font-size:23px;border-radius:13px}
+#nc-sheet.nc-thread .nc-tool svg{display:block;width:21px;height:21px;fill:currentColor}
+#nc-sheet.nc-thread .nc-form textarea{flex:1;width:0;min-width:0;min-height:44px;max-height:105px;margin:0;padding:12px 14px;border:1px solid #ffffffe6;border-radius:999px;background:linear-gradient(155deg,#ffffffd9,#e6e3ffb8);box-shadow:inset 0 1px 4px #fff,0 2px 5px #3d439233;color:#1f2953;font:inherit;font-size:15px;line-height:1.3;resize:none}
+#nc-sheet.nc-thread .nc-form textarea::placeholder{color:#6d7398;opacity:1}
+#nc-sheet.nc-thread .nc-form>.nc-primary{display:grid;place-items:center;flex:0 0 49px;width:49px;min-width:49px;height:45px;min-height:45px;margin:0;padding:8px;border:1px solid #b4fbff;border-radius:18px;background:linear-gradient(140deg,#1bcbff,#0084f8 46%,#0050e5);box-shadow:inset 0 1px 3px #b2ffff,0 3px 6px #2543ae55;color:#fff}
+#nc-sheet.nc-thread .nc-form>.nc-primary svg{width:25px;height:25px;fill:currentColor;filter:drop-shadow(0 1px 1px #174fb9)}
+.nc-send-label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+#nc-sheet.nc-thread .nc-form.recording>:not(.nc-rec){display:none}
+#nc-sheet.nc-thread .nc-rec{padding:8px;border:1px solid #ffffffb8;border-radius:20px;background:#efebffcc}
+#nc-sheet.nc-thread .nc-note{position:relative;flex:0 0 auto;margin:4px 0 0;padding:0 5px;color:#8f1742;font-size:12px}
+#nc-sheet.nc-thread .nc-note:empty{display:none}
+#nc-sheet.nc-thread :is(button,textarea):focus-visible{outline:2px solid #1748aa;outline-offset:3px}
+@media(max-width:640px){#nc-sheet.nc-thread{height:100dvh;max-height:100dvh;padding:calc(24px + env(safe-area-inset-top)) 10px max(20px,env(safe-area-inset-bottom));border-radius:0}#nc-sheet.nc-thread::backdrop{background:#a9b6f4}}
+@media(min-width:421px) and (max-width:640px){#nc-sheet.nc-thread{padding-top:calc(32px + env(safe-area-inset-top))}#nc-sheet.nc-thread h2{gap:7px;font-size:19px}.nc-thread h2>.nc-thread-face{flex-basis:42px;width:42px;height:48px}#nc-sheet.nc-thread .nc-back{min-height:34px;padding:5px 10px;font-size:15px}#nc-sheet.nc-thread .nc-call,#nc-sheet.nc-thread #nc-close{width:35px;height:35px}#nc-sheet.nc-thread .nc-call svg{width:21px;height:21px}#nc-sheet.nc-thread .nc-callmsg>span{font-size:15px}#nc-sheet.nc-thread .nc-callmsg small{font-size:12px}#nc-sheet.nc-thread .nc-textmsg>span{font-size:18px}#nc-sheet.nc-thread .nc-textmsg small{font-size:12px}#nc-sheet.nc-thread .nc-msg.nc-callmsg{padding:7px 15px}#nc-sheet.nc-thread .nc-form textarea{min-height:52px;font-size:18px}#nc-sheet.nc-thread .nc-tool{width:42px;height:48px}#nc-sheet.nc-thread .nc-form>.nc-primary{flex-basis:58px;width:58px;height:53px}.nc-textmsg>.nc-thread-face{width:40px;height:46px;left:-48px}.nc-textmsg.mine>.nc-thread-face{left:auto;right:-48px}#nc-sheet.nc-thread .nc-textmsg{margin-left:46px;margin-right:46px;max-width:calc(100% - 96px)}}
+@media(min-width:641px){#nc-sheet.nc-thread{padding:26px 18px 20px}#nc-sheet.nc-thread h2{gap:9px;font-size:19px}.nc-thread h2>.nc-thread-face{flex-basis:42px;width:42px;height:48px}#nc-sheet.nc-thread .nc-call,#nc-sheet.nc-thread #nc-close{width:36px;height:36px}#nc-sheet.nc-thread .nc-back{min-height:34px;padding:5px 11px;font-size:15px}}
+@media(max-width:360px){#nc-sheet.nc-thread h2{gap:3px;font-size:13px}.nc-thread h2>.nc-thread-face{flex-basis:28px;width:28px;height:33px}#nc-sheet.nc-thread .nc-back{padding-inline:5px;font-size:11px}}
+#nc-sheet.nc-thread #nc-close{font-size:0}
+#nc-sheet.nc-thread #nc-close:after{content:'•••';font-size:15px;font-weight:800;letter-spacing:1px}
+#nc-sheet.nc-thread .nc-file-input[hidden]{display:none}
+#nc-sheet.nc-thread .nc-attach:disabled{opacity:.55;cursor:wait}
+#nc-sheet.nc-thread .nc-filemsg{max-width:82%;padding:10px 13px;border:1px solid #ffffffc9;border-radius:19px;background:linear-gradient(145deg,#ffffffdf,#e4e3ffb0);box-shadow:inset 0 1px 3px #fff,0 3px 5px #3b419537}
+#nc-sheet.nc-thread .nc-filemsg.mine{background:linear-gradient(140deg,#139ef9,#0761de);color:#fff}
+.nc-filemsg a{display:grid;grid-template-columns:26px minmax(0,1fr);gap:3px 7px;min-width:0;max-width:100%;color:inherit;text-decoration:none}
+.nc-filemsg a i{grid-row:1/3;align-self:center;font-size:22px;font-style:normal}
+.nc-filemsg a b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+.nc-filemsg a small{grid-column:2;font-size:10px}
+.nc-filemsg a:hover b{text-decoration:underline}
+
+#nc-sheet.nc-thread{background:#b1b9f6 url("/images/chat-thread-bg.svg?v=1.1.370") center/100% 100% no-repeat}
+.nc-thread h2>.nc-thread-face{overflow:visible}
+.nc-thread h2>.nc-thread-face:has(img):after{content:'';position:absolute;right:-1px;bottom:1px;width:8px;height:8px;border:1.5px solid #fff;border-radius:50%;background:linear-gradient(135deg,#46ed71,#12b941);box-shadow:0 1px 2px #263b7855}
+/* Call recordings share the conversation's glass finish without stretching the history pills. */
+#nc-sheet.nc-thread .nc-msg.nc-callrecord{display:grid;grid-template-columns:20px minmax(0,1fr);gap:7px;width:min(100%,340px);max-width:98%;padding:11px;border-radius:20px;white-space:normal}
+#nc-sheet.nc-thread .nc-callrecord>.nc-log-icon{grid-column:1;grid-row:1}
+#nc-sheet.nc-thread .nc-callrecord>span:not(.nc-record-label){grid-column:2;grid-row:1;font-size:13px}
+#nc-sheet.nc-thread .nc-callrecord>small,#nc-sheet.nc-thread .nc-callrecord>.nc-record-label,#nc-sheet.nc-thread .nc-callrecord>audio,#nc-sheet.nc-thread .nc-callrecord>video,#nc-sheet.nc-thread .nc-callrecord>label{grid-column:1/-1;margin:0}
+#nc-sheet.nc-thread .nc-callrecord>.nc-record-label{font-size:11px;color:#35476e}
+#nc-sheet.nc-thread .nc-callrecord label{font-size:12px}
+#nc-sheet.nc-thread .nc-callrecord audio,#nc-sheet.nc-thread .nc-callrecord video{width:100%;min-width:0;max-width:100%;border-radius:12px}
