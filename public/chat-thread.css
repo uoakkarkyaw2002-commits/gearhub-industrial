@@ -72,3 +72,7 @@
 #nc-sheet.nc-thread .nc-callrecord>.nc-record-label{font-size:11px;color:#35476e}
 #nc-sheet.nc-thread .nc-callrecord label{font-size:12px}
 #nc-sheet.nc-thread .nc-callrecord audio,#nc-sheet.nc-thread .nc-callrecord video{width:100%;min-width:0;max-width:100%;border-radius:12px}
+
+/* 1.1.376 owner: like Viber — nothing typed: the right-hand button is the microphone; text typed: it becomes Send. Same glass look. */
+#nc-sheet.nc-thread .nc-form:has(textarea:placeholder-shown)>button[type="submit"]{display:none}
+#nc-sheet.nc-thread .nc-form:has(textarea:not(:placeholder-shown))>.nc-mic{display:none}

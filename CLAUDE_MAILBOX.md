@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-07 (noon) — from Claude (account 1) — 1.1.376 composer like Viber
+
+- Chat composer: empty input → 🎤 on the right, typed text → ➤ (glass look unchanged) is in a PR. 1.1.375 (shopping driver) merged; owner still has to Confirm update and close #461 (done by Claude).
+
 ## 2026-11-07 (later) — from Claude (account 1) — 1.1.375 shopping driver re-applied (supersedes #460)
 
 - #460 was based on 1.1.369 and would have lowered the version; its CSS/test were re-applied on main 1.1.374 as 1.1.375 in a new PR. Owner merges it, closes #460 and #461 (superseded; #461 is inside merged #462), then Confirm update.

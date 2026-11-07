@@ -102,3 +102,10 @@ test('call after the app was cleared: loud alert if the call screen did not appe
  assert.ok(r('android/app/src/main/java/com/skyshopmm/app/PushService.java').includes('callActive && !CallActivity.showing')&&r('android/app/src/main/java/com/skyshopmm/app/CallActivity.java').includes('static volatile boolean showing'),'fallback to the loud alert');
  assert.ok(r('lib/shop-chat.js').includes("req.query.fg === '0'")&&r('public/voice-call.js').includes('incoming?fg=0'),'the page says when it leaves');
 });
+
+// 1.1.376 owner: like Viber — empty input shows the microphone on the right, typed text turns it into Send (same glass look).
+test('composer: microphone when empty, Send when text is typed',()=>{
+ const fs=require('fs'),path=require('path'),r=f=>fs.readFileSync(path.join(__dirname,'..',f),'utf8');
+ assert.ok(r('public/noti-chat.js').includes('class="nc-primary nc-mic" data-nc="mic"')&&!r('public/noti-chat.js').includes('class="nc-tool" data-nc="mic"'),'mic is the right-hand button');
+ assert.ok(r('public/chat-thread.css').includes('textarea:placeholder-shown)>button[type="submit"]{display:none}')&&r('public/chat-thread.css').includes('.nc-mic{display:none}'),'swap by placeholder state');
+});
