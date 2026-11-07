@@ -5,7 +5,7 @@
  const phone=matchMedia('(max-width:850px)');
  let last=scrollY,hidden=false,idle=0;
  const busy=()=>document.body.classList.contains('searching')||document.querySelector('.drawer.open,.modal.open,dialog[open],.user-show:not([hidden])');
- function set(hide){if(hide===hidden)return;hidden=hide;nav.classList.toggle('nav-away',hide);}
+ function set(hide){if(hide===hidden)return;hidden=hide;nav.classList.toggle('nav-away',hide);document.body.classList.toggle('nav-gone',hide);}
  function check(){
   const y=Math.max(0,scrollY),d=y-last;
   if(!phone.matches||y<80||busy())set(false);

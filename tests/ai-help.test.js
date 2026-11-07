@@ -67,5 +67,5 @@ test('the AI helper answers app questions and refuses everything else',()=>{
  {const chat=fs.readFileSync(path.join(__dirname,'..','lib','shop-chat.js'),'utf8');assert.ok(chat.includes('platform_user_data')&&chat.includes('USER_KEY')&&chat.includes("user_id=? AND k=?"),'saved per person, only allowed keys');assert.ok(read('ai-help.js').includes("put('ai-chat',v)")&&read('user-data.js').includes('/api/platform/userdata/'),'the chat is saved on the server');}
  {const vc=read('voice-call.js');assert.ok(vc.includes('new Audio()')&&!vc.includes('createOscillator'),'sounds play through <audio> (works on iPhone with the side switch on silent)');}
  const html=read('index.html'),sw=read('sw.js');
- for(const tag of ['/ai-help.js?v=1.1.344','/ai-help.css?v=1.1.340'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
+ for(const tag of ['/ai-help.js?v=1.1.344','/ai-help.css?v=1.1.404'])assert.ok(html.includes(tag)&&sw.includes('"'+tag+'"'),tag);
 });
