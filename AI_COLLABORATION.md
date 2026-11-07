@@ -1936,3 +1936,6 @@ _None._
 
 ## 2026-11-07 (night 18) — 1.1.400 search typing: no scan, no magnifier
 - While typing in the phone search bar (focus or body.searching) the green scan button and the magnifier are hidden, leaving the text, the count and ˄ ˅. CSS only (noti-chat.css). Based on main with #476 + #477 merged/assetlinks. Tests 524/524; WebKit checked.
+
+## 2026-11-07 (night 19) — 1.1.401 magnifier hidden in the normal state too
+- Phone Home search bar: no magnifier at all (scan stays until you type; scan also hides while typing). CSS only. In PR #478 (branch claude/search-typing-clean). Tests 524/524.
