@@ -1924,3 +1924,6 @@ _None._
 
 ## 2026-11-07 (night 14) — 1.1.396 no ••• beside the search
 - Hid the ••• (sheet close) button in the chat thread header; the shop name gets the room. Back = ← (chats); Message logo = Home. Same PR #476. Tests 524/524.
+
+## 2026-11-07 (night 15) — 1.1.397 hold-to-record microphone
+- Voice messages like the owner's picture (Viber style): press and HOLD 🎤 → red dot + timer + "‹ Slide to cancel", the mic grows with a glow and a lock shows above it; slide UP = lock (then Cancel + Send), slide LEFT = cancel, let go = send; a quick tap only shows "Hold the microphone to record"; keyboard/click still starts a locked recording. noti-chat.js + chat-thread.css only (pointer events, setPointerCapture). Same PR #476. Tests 524/524; WebKit with a fake microphone: hold, cancel (no upload), lock, Send (1 upload), tap hint all verified. Real iPhone touch/mic not testable here.
