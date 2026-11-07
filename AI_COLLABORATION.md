@@ -1900,3 +1900,6 @@ _None._
 
 ## 2026-11-07 (night 6) — 1.1.388 SkyShopMM default mark + filter list fits
 - Every shop's phone top bar now shows the SkyShopMM logo + name by default (owner's request; the shop's own logo no longer shows there; speed numbers stay under it). The green filter button's list opens inside the screen (right-aligned). noti-chat.js/css only. Tests 524/524; WebKit 480px checked. Owner merges, deploys, Confirm update.
+
+## 2026-11-07 (night 7) — 1.1.389 clear top on the phone Home
+- Owner: the top looked hazy. Cause: the status-bar strip (body::before, safe-area) still painted the shop's picture and the header/bottom bar let the picture show through. On the phone Home they are now solid white; header border/shadow/filter removed; button shadows no longer clipped. noti-chat.css only. Tests 524/524; WebKit checked (real iPhone safe-area strip not testable here). Owner merges, deploys, Confirm update; PR #475 (1.1.388) should be merged first or this one includes it (it is built on main after #475).
