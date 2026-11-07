@@ -151,9 +151,29 @@
   const grid=view0?.getAttribute('showGridLines')!=='0';
   Object.assign(sheet,{cells,merges,covered,widths,heights,defW,defH,maxR,maxC,frozen,grid,tab:tab?color(tab,[]):''});
   try{applyConditionalFormats(sheet,doc)}catch{}
+  try{await applyTableHeaders(sheet,doc,from)}catch{}
   try{sheet.shapes=await readDrawing(sheet.path,doc)}catch{sheet.shapes=[]}
   for(const sh of sheet.shapes)sheet.maxC=Math.min(MAX_COLS-1,Math.max(sheet.maxC,sh.to.c??sh.from.c));
   return sheet;
+ }
+
+ // ---- Table styles (Insert > Table) ----
+ // The header row of a table such as "Table410" gets its colour from the table's style, not from the cell, and its text is
+ // white. Without the style colour, a white header over white shows an empty row (STM row 166, INV/ERCK row 1).
+ async function applyTableHeaders(sheet,doc,from){
+  const parts=all(doc,'tablePart');if(!parts.length)return;
+  const i=sheet.path.lastIndexOf('/'),rels={};all(xml(await from.read(sheet.path.slice(0,i)+'/_rels/'+sheet.path.slice(i+1)+'.rels')),'Relationship').forEach(r=>{rels[r.getAttribute('Id')]=relPath(sheet.path,r.getAttribute('Target')||'')});
+  const theme=from.themeHex;
+  for(const part of parts){
+   const target=rels[part.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','id')||part.getAttribute('r:id')];if(!target)continue;
+   const table=xml(await from.read(target)).documentElement,info=one(table,'tableStyleInfo'),name=info?.getAttribute('name')||'';
+   if(table.getAttribute('headerRowCount')==='0')continue;
+   const m=/^TableStyleMedium(\d+)$/.exec(name);if(!m)continue;
+   const n=+m[1],slot=n%7===1?1:3+((n-2)%7)+1,hex=theme[slot];if(!hex)continue;
+   const [a1,b1]=(table.getAttribute('ref')||'').split(':');if(!b1)continue;
+   const r=+a1.replace(/\D/g,'')-1,c1=colIndex(a1),c2=colIndex(b1);
+   for(let c=c1;c<=c2;c++){const cell=sheet.cells.get(r+','+c);if(!cell||cell.style.fill)continue;cell.style={...cell.style,fill:'#'+hex.replace(/^#/,'')}}
+  }
  }
 
  // ---- Shapes and pictures (Insert > Shapes / Pictures) ----

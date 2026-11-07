@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-07 (night 25) — from Claude (account 1) — 1.1.405 Excel table header colour
+- Owner: STM row 166 and INV/other rows-1 header text missing. Compared with the real workbook (downloaded from the shop): the text IS in the file; those header cells have WHITE text and no fill, because the colour comes from the table style (Table410 → TableStyleMedium2). The viewer ignored table styles → white on white. excel-map.js now paints table header rows for built-in Medium styles (accent colour from the workbook theme, e.g. #5B9BD5) when the cell has no own fill. Checked on the real file: A166/H166/H1 now have fill #5B9BD5, white text. Visual render of the viewer not verified here (my harness could not open it); tests 524/524. Only Medium1–15 styles; Light/Dark table styles are not handled.
+
 ## 2026-11-07 (night 24) — from Claude (account 1) — 1.1.404 re-based (AI hides with the bottom bar)
 - PR #480 had conflicts after #477–#479 merged. Re-applied cleanly on main 1.1.403 as 1.1.404 in a new PR (claude/ai-hides-with-nav-2); #480 is superseded — close it. Same change: AI Assistant slides away/back with the bottom bar (nav-autohide.js body.nav-gone + ai-help.css). Tests 524/524.
 
