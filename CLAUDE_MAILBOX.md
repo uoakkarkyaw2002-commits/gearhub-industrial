@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-07 (night 8) — from Claude (account 1) — 1.1.390 new SkyShopMM logo in the phone top bar
+- Owner's picture: new logo (green cart + gold spark, "SkyShop" navy / "MM" green, tagline "Online Shopping Myanmar" with a swoosh) and the speed with a small cloud-cart sign. Drawn as inline SVG in noti-chat.js (no image file was supplied — if the owner has the real logo file, swap the SVG for it). Same PR #476 (branch claude/top-clear) so everything can be merged and deployed once. Tests 524/524.
+
 ## 2026-11-07 (night 7) — from Claude (account 1) — 1.1.389 clear top on the phone Home
 - Owner: the top looked hazy. Cause: the status-bar strip (body::before, safe-area) still painted the shop's picture and the header/bottom bar let the picture show through. On the phone Home they are now solid white; header border/shadow/filter removed; button shadows no longer clipped. noti-chat.css only. Tests 524/524; WebKit checked (real iPhone safe-area strip not testable here). Owner merges, deploys, Confirm update; PR #475 (1.1.388) should be merged first or this one includes it (it is built on main after #475).
 
