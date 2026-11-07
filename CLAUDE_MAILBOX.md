@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-07 (night 17) — from Claude (account 1) — 1.1.399 hide the Chrome "skyshopmm.com" bar in the native app
+- The bar (× skyshopmm.com ⋮) means Android could not verify the app against /.well-known/assetlinks.json: the phone runs the debug-signed APK, whose key (SHA-256 17:1D:13:7D:…:AD:17) was not listed. Added it in server.js (backend change → needs a Render deploy, no Confirm update). After deploy: close the app, reopen; if the bar stays, clear the app's storage/Chrome cache once or reinstall the APK (Android caches the check). The Play-store build is already covered by the other two keys.
+
 ## 2026-11-07 (night 16) — from Claude (account 1) — 1.1.398 Add Product category = the two-column picker
 - Profile → Add → Work: Category is now a button that opens the same Main category / subcategory picker as the admin (category-picker.js got an optional `host`, so it opens inside the Add Product dialog); "+ New" still creates a new category. If a shop has no subcategories yet, main categories are selectable. work-product.js/css + category-picker.js. Same PR #476. Tests 524/524; WebKit: tap → picker (two columns), choose + Confirm → field shows the category and the hidden select gets its id. Real subcategories (e.g. Doosan) not in my test shop, the picker itself is the existing one.
 
