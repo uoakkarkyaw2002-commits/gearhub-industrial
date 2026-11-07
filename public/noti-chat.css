@@ -168,3 +168,12 @@ body:has(#nc-sheet[open]){overflow:hidden}
  .home-profile-banner .settings-profile-copy>.net-speed[data-level="low"]{color:#e0301e}
  .home-profile-banner .settings-profile-copy>.net-speed[data-level="offline"],.home-profile-banner .settings-profile-copy>.net-speed[data-level="checking"]{color:#8a948e}
 }
+
+/* 1.1.385 owner: Scan (search by photo) in the phone top bar, before the bell; the search bar no longer holds it there. */
+.nc-scan{display:none}
+@media(max-width:850px){
+ body:has(.photo-scan-button):not(.visiting-shop) .nc-scan{display:grid;place-items:center;background:linear-gradient(160deg,#37b6ff,#0a4fd4)}
+ .nc-scan svg{width:27px;height:27px}
+ body:not(.visiting-shop):not(.non-home-view) .mobile-search .photo-scan-button{display:none!important}
+ html body:not(.visiting-shop):not(.non-home-view) .home-profile-banner:has(.nc-scan) .settings-profile-copy{padding-right:176px}
+}

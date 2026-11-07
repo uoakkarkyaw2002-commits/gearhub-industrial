@@ -1894,3 +1894,6 @@ _None._
 
 ## 2026-11-07 (night 3) — 1.1.384 white phone top bar
 - Phone Home top bar like the owner's picture: plain white bar, shop logo + name only (no tagline/✓), the speed as coloured numbers under the name (no wifi icon; net-speed.js moves the badge into the name block on phones), the same glossy 🔔 💬 on the right. CSS in noti-chat.css; PC and visiting-shop untouched. Tests 524/524; WebKit phone + PC checked (test shop has no logo, so the logo spot is empty there). Owner merges, deploys, Confirm update.
+
+## 2026-11-07 (night 4) — 1.1.385 Scan in the phone top bar
+- Scan (search by photo) button added before 🔔 💬 in the phone top bar (noti-chat.js/.css); it clicks the existing photo-scan button, which is hidden in the search bar on the phone Home (kept in visiting mode and PC). Tests 524/524; WebKit: button visible, opens the scanner (no camera on the test machine). Owner merges, deploys, Confirm update.
