@@ -1897,3 +1897,6 @@ _None._
 
 ## 2026-11-07 (night 5) — 1.1.386 phone Home like the owner's picture
 - Phone Home matched to the owner's "make it exactly like this" picture (noti-chat.css/js, index.html nav icons): white page, round-square 🔔 💬 with green outline icons + red count badges, search bar with the green scan square inside + 🔍 at the right and the green filter button at the far right, brighter Promotion banner (white tag, green-outlined Shop Now), soft filter boxes with ⌄, green outline bottom bar with a pale-green active square. Replaces the glossy 🔔 💬 look on phones only (PC and visiting-shop untouched). Tests 524/524; WebKit 480px compared with the picture. PR #473 (Scan in the top bar) is superseded by this (scan lives in the search bar as in the picture) — close it. Owner merges, deploys, Confirm update.
+
+## 2026-11-07 (night 6) — 1.1.388 SkyShopMM default mark + filter list fits
+- Every shop's phone top bar now shows the SkyShopMM logo + name by default (owner's request; the shop's own logo no longer shows there; speed numbers stay under it). The green filter button's list opens inside the screen (right-aligned). noti-chat.js/css only. Tests 524/524; WebKit 480px checked. Owner merges, deploys, Confirm update.
