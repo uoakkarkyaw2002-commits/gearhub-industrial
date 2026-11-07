@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-07 (night 23) — from Claude (account 1) — 1.1.403 follow-up: picker clicks on PC
+- My first top-layer version appended the picker to <body>, which the modal Add Product dialog makes inert (clicks did nothing on PC). Now the popover is a child of the dialog (host), still top layer + full screen, and clickable. Verified with real clicks at 1280x900 and 390: pick → Confirm → field shows the category. PR #479.
+
 ## 2026-11-07 (night 21) — from Claude (account 1) — 1.1.403 category picker: top layer + full screen
 - PC: the picker opened from Add Product was clipped by the sheet. It now opens as a top-layer popover (category-picker.js, only when a host is given) and is FULL SCREEN on PC and phone (owner's request). The admin's own picker is unchanged. Measured: PC picker 1280x900 at 0,0; phone 390x664 at 0,0. Tests 524/524. New branch claude/picker-pc, new PR.
 
