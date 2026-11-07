@@ -14,8 +14,8 @@ test('the shop measures its real speed and shows a coloured wifi icon under the 
  const swFetch=sw.slice(sw.indexOf('addEventListener("fetch"'));assert.doesNotMatch(swFetch,/\.bin|speed-test/,'the app cache never keeps the speed file');
  assert.match(js,/if\(busy\|\|document\.hidden\|\|!ready\)return;/,'no measuring while the app is in the background');
  assert.match(css,/\.net-speed\[data-level="good"\]\{color:#34c759\}\.net-speed\[data-level="normal"\]\{color:#ffcc00\}\.net-speed\[data-level="low"\]\{color:#ff3b30\}/);
- assert.match(index,/<script src="\/net-speed\.js\?v=1\.1\.403"><\/script>/);
- assert.match(sw,/"\/net-speed\.js\?v=1\.1\.403"/);
+ assert.match(index,/<script src="\/net-speed\.js\?v=1\.1\.404"><\/script>/);
+ assert.match(sw,/"\/net-speed\.js\?v=1\.1\.404"/);
 });
 test('phones: logo and name sit higher and the speed is under the logo with a gap (owner mock-up)',()=>{
  const css=read('style.css');

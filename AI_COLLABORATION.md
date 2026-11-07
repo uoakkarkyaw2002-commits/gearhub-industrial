@@ -1948,3 +1948,6 @@ _None._
 
 ## 2026-11-07 (night 23) — 1.1.403 follow-up: picker clicks on PC
 - My first top-layer version appended the picker to <body>, which the modal Add Product dialog makes inert (clicks did nothing on PC). Now the popover is a child of the dialog (host), still top layer + full screen, and clickable. Verified with real clicks at 1280x900 and 390: pick → Confirm → field shows the category. PR #479.
+
+## 2026-11-07 (night 24) — 1.1.404 re-based (AI hides with the bottom bar)
+- PR #480 had conflicts after #477–#479 merged. Re-applied cleanly on main 1.1.403 as 1.1.404 in a new PR (claude/ai-hides-with-nav-2); #480 is superseded — close it. Same change: AI Assistant slides away/back with the bottom bar (nav-autohide.js body.nav-gone + ai-help.css). Tests 524/524.
