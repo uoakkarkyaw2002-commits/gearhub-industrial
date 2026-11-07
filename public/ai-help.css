@@ -71,3 +71,9 @@ body.ai-touring .ai-help-button{display:none}
 /* 1.1.340 owner: a red number on the assistant when the owner has things to do. */
 .ai-help-button[data-n]::after{content:attr(data-n);position:absolute;top:18px;left:-6px;box-sizing:border-box;min-width:22px;height:22px;padding:0 6px;border:2px solid #fff;border-radius:11px;background:#e5322d;color:#fff;font:800 12px/18px system-ui,-apple-system,sans-serif;text-align:center;box-shadow:0 2px 6px #0004}
 .ai-help-todochip{border-color:#e5322d!important;color:#c0261f!important}
+
+/* 1.1.404 owner: the AI Assistant slides away with the bottom bar while scrolling down and comes back with it. */
+@media(max-width:850px){
+ .ai-help-button{transition:transform .28s ease,opacity .2s ease}
+ body.nav-gone .ai-help-button{transform:translate3d(0,calc(100% + 130px),0);opacity:0;pointer-events:none}
+}
