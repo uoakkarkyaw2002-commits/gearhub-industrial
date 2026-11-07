@@ -170,3 +170,5 @@ html:has(dialog.nc-sheet[open]),html:has(dialog.nc-sheet[open]) body{overflow:hi
 .nc-wbars>i.on{background:#fff}
 #nc-sheet.nc-thread .nc-callrecord>span.nc-rec-actions{grid-column:3;grid-row:1;font-size:inherit;font-weight:400}
 #nc-sheet.nc-thread .nc-callrecord>span.nc-record-label{grid-column:1/-1;grid-row:3;font-size:15px}
+/* 1.1.396 owner: no ••• button beside the search in the chat header. */
+#nc-sheet.nc-thread #nc-close{display:none!important}
