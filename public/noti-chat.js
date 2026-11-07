@@ -10,6 +10,7 @@
  const my=()=>document.documentElement.lang==='my';
  const T={en:{noti:'Notifications',chat:'Chat',none:'Nothing new yet.',signIn:'Sign in with Google to see notifications and chat with the shop.',google:'Continue with Google',write:'Write a message…',send:'Send',noChats:'No chats yet.',back:'Chats',error:'Something went wrong. Please try again.',close:'Close',hello:'Ask the shop anything — price, stock, delivery.'},
   my:{noti:'အသိပေးချက်များ',chat:'Chat',none:'အသစ် မရှိသေးပါ။',signIn:'အသိပေးချက်ကြည့်ဖို့နဲ့ ဆိုင်ကို စာပို့ဖို့ Google နဲ့ ဝင်ပါ။',google:'Google နဲ့ ဝင်မယ်',write:'စာရေးပါ…',send:'ပို့မယ်',noChats:'Chat မရှိသေးပါ။',back:'Chats',error:'မအောင်မြင်ပါ။ ပြန်စမ်းကြည့်ပါ။',close:'ပိတ်ရန်',hello:'ဈေးနှုန်း၊ လက်ကျန်၊ ပို့ဆောင်ရေး — ဆိုင်ကို မေးလို့ရပါတယ်။'}};
+ Object.assign(T.en,{slide:'Slide to cancel',holdHint:'Hold the microphone to record'});Object.assign(T.my,{slide:'ဘယ်ဘက်ဆွဲရင် ပယ်ဖျက်',holdHint:'မိုက်ကို ဖိထားပြီး ပြောပါ'});
  Object.assign(T.en,{updating:'The server is being updated. Reconnecting automatically…'});Object.assign(T.my,{updating:'Server ပြင်နေပါတယ်။ ခဏနေ ကိုယ်တိုင် ပြန်ချိတ်ပါမယ်…'});
  Object.assign(T.en,{sticker:'Sticker',voice:'Voice message',record:'Record a voice message',cancel:'Cancel',micDenied:'The microphone is not allowed. Allow it in your browser settings.',micNone:'Voice messages are not supported on this phone.',recording:'Recording…',allShops:'All shops',message:'Message',search:'Search',chats:'Chats',active:'Active Now',followers:'Followers',all:'All chats',unread:'Unread',noResults:'No conversations found.',activeInfo:'Active status is not shared yet.',followerInfo:'View this shop’s followers count on its profile.',profile:'View profile',loading:'Loading conversations…'});
  Object.assign(T.my,{sticker:'Sticker',voice:'အသံ စာ',record:'အသံ ဖမ်းမယ်',cancel:'မလုပ်တော့ဘူး',micDenied:'မိုက်ခရိုဖုန် ခွင့်မပြုထားပါ။ Browser setting မှာ ခွင့်ပြုပေးပါ။',micNone:'ဒီဖုန်းမှာ အသံစာ မသုံးနိုင်ပါ။',recording:'ဖမ်းနေပါတယ်…',allShops:'ဆိုင်အားလုံး',message:'Message',search:'ရှာရန်',chats:'Chats',active:'Active Now',followers:'Followers',all:'Chat အားလုံး',unread:'မဖတ်ရသေးသောစာများ',noResults:'စကားဝိုင်း မတွေ့ပါ။',activeInfo:'Online အခြေအနေကို မဖော်ပြနိုင်သေးပါ။',followerInfo:'ဒီဆိုင်ရဲ့ Profile မှာ Follower အရေအတွက် ကြည့်နိုင်ပါတယ်။',profile:'Profile ကြည့်ရန်',loading:'စကားဝိုင်းများ ဖွင့်နေပါသည်…'});
@@ -115,16 +116,16 @@
   if(m.kind==='voice')return '<p class="nc-msg nc-voice'+mine+'"><audio controls preload="none" src="/api/platform/chat/'+encodeURIComponent(cs)+'/voice/'+m.voice+'"></audio><small>🎤 '+mmss(m.secs||0)+' · '+esc(clock(m.at))+(mine?' ✓':'')+'</small></p>';
   return '<p class="nc-msg nc-textmsg'+mine+'"><span>'+esc(m.body)+'</span><small>'+esc(clock(m.at))+(mine?' <b class="nc-tick" aria-label="Sent">✓</b>':'')+'</small></p>';
  };
- const messagesHtml=list=>'<div class="nc-messages">'+(list.length?list.map(m=>oneMessage(m).replace(/^(<\w+)/,'$1 data-nc-message="'+esc(m.id)+'"')).join(''):'<p class="nc-empty">'+t('hello')+'</p>')+'</div><div class="nc-stickers" hidden>'+STICKERS.map(x=>'<button type="button" data-nc="sticker" data-s="'+x+'" aria-label="'+t('sticker')+' '+x+'">'+x+'</button>').join('')+'</div><form class="nc-form" data-nc-form="send"><button type="button" class="nc-tool" data-nc="stickers" aria-label="'+esc(t('sticker'))+'"><svg class="nc-smile" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 14.200c1 1.500 2.300 2.200 4 2.200s3-.7 4-2.200" fill="none" stroke="currentColor" stroke-width="1.800" stroke-linecap="round"/><circle cx="9" cy="9.800" r="1.200" fill="currentColor"/><circle cx="15" cy="9.800" r="1.200" fill="currentColor"/></svg></button><button type="button" class="nc-tool nc-attach" data-nc="attach" aria-label="'+esc(t('attach'))+'">'+threadIcon('attach')+'</button><input class="nc-file-input" type="file" hidden aria-label="'+esc(t('attach'))+'"><textarea name="body" rows="1" maxlength="2000" placeholder="'+esc(t('write'))+'" aria-label="'+esc(t('write'))+'"></textarea><button type="button" class="nc-primary nc-mic" data-nc="mic" aria-label="'+esc(t('record'))+'">'+threadIcon('mic')+'</button><button type="submit" class="nc-primary" aria-label="'+esc(t('send'))+'">'+threadIcon('send')+'<span class="nc-send-label">'+t('send')+'</span></button><div class="nc-rec" hidden><button type="button" data-nc="rec-cancel" aria-label="'+esc(t('cancel'))+'">✕</button><i class="nc-rec-dot"></i><b class="nc-rec-time">0:00</b><span>'+t('recording')+'</span><button type="button" class="nc-primary" data-nc="rec-send">'+t('send')+'</button></div></form>';
+ const messagesHtml=list=>'<div class="nc-messages">'+(list.length?list.map(m=>oneMessage(m).replace(/^(<\w+)/,'$1 data-nc-message="'+esc(m.id)+'"')).join(''):'<p class="nc-empty">'+t('hello')+'</p>')+'</div><div class="nc-stickers" hidden>'+STICKERS.map(x=>'<button type="button" data-nc="sticker" data-s="'+x+'" aria-label="'+t('sticker')+' '+x+'">'+x+'</button>').join('')+'</div><form class="nc-form" data-nc-form="send"><button type="button" class="nc-tool" data-nc="stickers" aria-label="'+esc(t('sticker'))+'"><svg class="nc-smile" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 14.200c1 1.500 2.300 2.200 4 2.200s3-.7 4-2.200" fill="none" stroke="currentColor" stroke-width="1.800" stroke-linecap="round"/><circle cx="9" cy="9.800" r="1.200" fill="currentColor"/><circle cx="15" cy="9.800" r="1.200" fill="currentColor"/></svg></button><button type="button" class="nc-tool nc-attach" data-nc="attach" aria-label="'+esc(t('attach'))+'">'+threadIcon('attach')+'</button><input class="nc-file-input" type="file" hidden aria-label="'+esc(t('attach'))+'"><textarea name="body" rows="1" maxlength="2000" placeholder="'+esc(t('write'))+'" aria-label="'+esc(t('write'))+'"></textarea><button type="button" class="nc-primary nc-mic" data-nc="mic" aria-label="'+esc(t('record'))+'">'+threadIcon('mic')+'</button><button type="submit" class="nc-primary" aria-label="'+esc(t('send'))+'">'+threadIcon('send')+'<span class="nc-send-label">'+t('send')+'</span></button><div class="nc-rec" hidden><i class="nc-rec-dot"></i><b class="nc-rec-time">0:00</b><span class="nc-rec-hint">‹ '+t('slide')+'</span><button type="button" class="nc-rec-cancel" data-nc="rec-cancel">'+t('cancel')+'</button><button type="button" class="nc-primary nc-rec-send" data-nc="rec-send" aria-label="'+esc(t('send'))+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.500 11.500l16-7.500-5 16-3.500-6.500z" fill="currentColor"/></svg></button></div><div class="nc-lock" hidden aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5.500" y="11" width="13" height="9" rx="2.200" fill="currentColor"/><path d="M8.500 11V8.200a3.500 3.500 0 0 1 7 0V11" fill="none" stroke="currentColor" stroke-width="2"/></svg><svg viewBox="0 0 24 24"><path d="m7 14 5-5 5 5" fill="none" stroke="currentColor" stroke-width="2.400" stroke-linecap="round" stroke-linejoin="round"/></svg></div></form>';
  // Voice message: tap 🎤 to record (up to 60 s), then ➤ to send or ✕ to throw away.
- let rec=null;
+ let rec=null,hold=null;
  const chatPath=()=>'/api/platform/chat/'+cs+(openChat==='buyer'?'':'/'+openChat);
  const readPath=()=>chatPath()+(openChat==='buyer'?'?as=buyer':'');
  function stopRec(send){
   const r=rec;if(!r)return;rec=null;clearInterval(r.tick);
   r.mr.onstop=async()=>{
    r.stream.getTracks().forEach(x=>x.stop());
-   const form=sheet.querySelector('.nc-form');form?.classList.remove('recording');form?.querySelector('.nc-rec')&&(form.querySelector('.nc-rec').hidden=true);
+   const form=sheet.querySelector('.nc-form');form?.classList.remove('recording','locked');form?.style.removeProperty('--dx');form?.querySelector('.nc-rec')&&(form.querySelector('.nc-rec').hidden=true);if(form?.querySelector('.nc-lock'))form.querySelector('.nc-lock').hidden=true;
    const secs=Math.max(1,Math.round((Date.now()-r.t0)/1000)),blob=new Blob(r.chunks,{type:r.mr.mimeType||'audio/mp4'});
    if(!send||blob.size<200)return;const view=viewId,path=chatPath(),read=readPath();
    try{
@@ -136,7 +137,7 @@
   };
   try{r.mr.stop()}catch{}
  }
- async function startRec(){
+ async function startRec(locked){
   if(rec)return;
   if(!navigator.mediaDevices?.getUserMedia||typeof MediaRecorder==='undefined')return note(t('micNone'));
   let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}catch{return note(t('micDenied'))}
@@ -144,9 +145,10 @@
   const mr=type?new MediaRecorder(stream,{mimeType:type}):new MediaRecorder(stream),chunks=[];
   mr.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
   const form=sheet.querySelector('.nc-form');if(!form){stream.getTracks().forEach(x=>x.stop());return}
-  form.classList.add('recording');const bar=form.querySelector('.nc-rec');bar.hidden=false;const clock=bar.querySelector('.nc-rec-time');clock.textContent='0:00';
-  const t0=Date.now();rec={mr,stream,chunks,t0,tick:setInterval(()=>{const n=Math.round((Date.now()-t0)/1000);clock.textContent=mmss(n);if(n>=60)stopRec(true)},500)};
+  form.classList.add('recording');form.classList.toggle('locked',!!locked);const lockEl=form.querySelector('.nc-lock');if(lockEl)lockEl.hidden=!!locked;const bar=form.querySelector('.nc-rec');bar.hidden=false;const clock=bar.querySelector('.nc-rec-time');clock.textContent='0:00';
+  const t0=Date.now();rec={mr,stream,chunks,t0,locked:!!locked,tick:setInterval(()=>{const n=Math.round((Date.now()-t0)/1000);clock.textContent=mmss(n);if(n>=60)stopRec(true)},500)};
   mr.start();
+  if(hold&&hold.released&&!rec.locked){hold=null;stopRec(false)}
  }
  function scrollEnd(){const m=sheet.querySelector('.nc-messages');if(m)m.scrollTop=m.scrollHeight}
  const glyph={
@@ -242,7 +244,14 @@
   try{const d=await chatCache.load(path);if(view===viewId&&sheet.open&&path===readPath())updateMessages(d)}catch{}
  },5000)}
  sheet.addEventListener('change',e=>{if(!e.target.matches('.nc-record-part'))return;const card=e.target.closest('.nc-callrecord'),player=card.querySelector('audio,video');player.src=e.target.value;card.querySelector('[data-nc="rdl"]')?.setAttribute('href',e.target.value);card.querySelector('[data-nc="rshare"]')?.setAttribute('data-url',e.target.value);player.play().catch(()=>{})});
-  /* 1.1.395 owner: custom voice-recording player (play / time / waveform / seek) + download + share. */
+  /* 1.1.397 owner: hold the microphone to record; slide up = lock, slide left = cancel, let go = send. */
+ const lockRec=()=>{if(!rec||rec.locked)return;rec.locked=true;const f=sheet.querySelector('.nc-form');f?.classList.add('locked');const l=f?.querySelector('.nc-lock');if(l)l.hidden=true};
+ sheet.addEventListener('pointerdown',e=>{const m=e.target.closest?.('.nc-mic');if(!m||(e.button&&e.button>0)||rec)return;e.preventDefault();hold={x:e.clientX,y:e.clientY,id:e.pointerId,released:false};try{m.setPointerCapture(e.pointerId)}catch{}startRec(false)});
+ sheet.addEventListener('pointermove',e=>{if(!hold||e.pointerId!==hold.id||!rec||rec.locked)return;const dx=e.clientX-hold.x,dy=e.clientY-hold.y;sheet.querySelector('.nc-form')?.style.setProperty('--dx',Math.min(0,dx)/3+'px');if(dx<-90){hold=null;stopRec(false)}else if(dy<-70){hold=null;lockRec()}});
+ const endHold=e=>{if(!hold||e.pointerId!==hold.id)return;if(!rec){hold.released=true;return}if(rec.locked){hold=null;return}const quick=Date.now()-rec.t0<700;hold=null;stopRec(!quick&&e.type!=='pointercancel');if(quick)note(t('holdHint'))};
+ sheet.addEventListener('pointerup',endHold);sheet.addEventListener('pointercancel',endHold);
+ sheet.addEventListener('contextmenu',e=>{if(e.target.closest?.('.nc-mic'))e.preventDefault()});
+ /* 1.1.395 owner: custom voice-recording player (play / time / waveform / seek) + download + share. */
  const wvOf=el=>el.closest('.nc-callrecord')?.querySelector('.nc-wv'),audioOf=el=>el.closest('.nc-callrecord')?.querySelector('audio');
  const pad2=n=>String(Math.floor(n/60)).padStart(2,'0')+':'+String(Math.floor(n%60)).padStart(2,'0');
  sheet.addEventListener('click',e=>{
@@ -290,7 +299,7 @@
   if(k==='stickers'){const p=sheet.querySelector('.nc-stickers');p.hidden=!p.hidden;return}
   if(k==='sticker'){const view=viewId,path=chatPath();sheet.querySelector('.nc-stickers').hidden=true;return call(path,'POST',{sticker:b.dataset.s}).then(d=>{if(view!==viewId||!sheet.open)return;sheet.querySelector('.nc-body').innerHTML=messagesHtml(d.messages);scrollEnd()},err=>note(err.message))}
   if(k==='attach')return sheet.querySelector('.nc-file-input')?.click();
-  if(k==='mic')return startRec();
+  if(k==='mic'){if(e.detail===0)return startRec(true);return}
   if(k==='vcall'){const who=sheet.querySelector('h2 span')?.textContent||'';return window.GearHubCall?.start(cs,openChat==='buyer'?null:openChat,who,true).catch(err=>note(err.message))}
   if(k==='call'){const who=sheet.querySelector('h2 span')?.textContent||'';return window.GearHubCall?.start(cs,openChat==='buyer'?null:openChat,who).catch(err=>note(err.message))}
   if(k==='rec-cancel')return stopRec(false);
