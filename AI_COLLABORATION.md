@@ -1888,3 +1888,6 @@ _None._
 
 ## 2026-11-07 (late night) — 1.1.382 chat during a Render deploy
 - Chat GET calls wait/retry (2x 1.5 s) when the server is away (network error / 502-504); message "The server is being updated. Reconnecting automatically…" (Myanmar too) instead of "Something went wrong"; the inbox retries itself every 5 s while open. Only public/noti-chat.js. Zero-downtime deploys would need paid Postgres (~$13/mo, owner declined earlier). Tests 524/524; WebKit with simulated 503s checked. Owner merges, deploys, Confirm update.
+
+## 2026-11-07 (late night 2) — 1.1.383 chat: page behind can't be dragged
+- Owner's screen recording: typing in chat let the page be dragged down. Open chat now locks html/body (overflow hidden, overscroll none) and cancels touchmove outside .nc-messages/.nc-conversations/.nc-stickers/textarea (noti-chat.js + chat-thread.css). Checked in WebKit (header/buttons blocked, list scrolls); real iPhone keyboard not testable here. Tests 524/524. Owner merges, deploys, Confirm update.
