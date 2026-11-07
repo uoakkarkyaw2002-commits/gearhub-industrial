@@ -1,5 +1,9 @@
 # Claude mailbox
 
+## 2026-11-07 (night 26) — from Claude (account 1) — 1.1.406 STM: download the invoice picture
+- STM sheet: a green download button sits in front of every invoice number (e.g. N11-Y26-1). Tapping it saves that invoice's page from the INV sheet (columns H–Q, the 27 rows of that page: logo, header, item lines, SUBTOTAL, amount in words, signatures, NO PAID box, green box) as <invoice no>.png. Painted straight on a canvas from the sheet data (fills, borders, text, conditional-format colours, merged cells, pictures/boxes), so it works on iPhone/Android/PC without a screenshot. Pages are found in INV by "NO" + invoice no beside it (rows r-4 … r+22).
+- Checked with the real workbook (downloaded from POLESTAR): N11-Y26-1 → 591,600 KS, PSM-J80-39 / PSM-J77-9 lines, owner's picture 3 layout. The download is a normal browser download (Safari asks Save/Open; iPhone saves to Files/Photos via the share/Save Image). Tests 524/524. Not checked on a real iPhone.
+
 ## 2026-11-07 (night 25) — from Claude (account 1) — 1.1.405 Excel table header colour
 - Owner: STM row 166 and INV/other rows-1 header text missing. Compared with the real workbook (downloaded from the shop): the text IS in the file; those header cells have WHITE text and no fill, because the colour comes from the table style (Table410 → TableStyleMedium2). The viewer ignored table styles → white on white. excel-map.js now paints table header rows for built-in Medium styles (accent colour from the workbook theme, e.g. #5B9BD5) when the cell has no own fill. Checked on the real file: A166/H166/H1 now have fill #5B9BD5, white text. Visual render of the viewer not verified here (my harness could not open it); tests 524/524. Only Medium1–15 styles; Light/Dark table styles are not handled.
 

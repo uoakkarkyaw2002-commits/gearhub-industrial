@@ -444,7 +444,7 @@
   if(!start&&drawn[0])view.base=placeOf(drawn[0]);
   else if(drawn[0]){const gap=main.querySelector('tr.excel-spacer');gap.style.height=view.tops[start]+'px';const off=view.base+view.tops[start]-placeOf(drawn[0]);if(Math.abs(off)>0.01)gap.style.height=view.tops[start]+off+'px'}
   if(force||changed)grid.scrollTop=y>0&&n?view.base+view.tops[anchor]+offset:(target??grid.scrollTop);
-  freeze();
+  freeze();decorateInvoices();
  }
  // Scroll events already come once per frame; most return at once (rows still cover the screen).
  grid.addEventListener('scroll',()=>drawRows(false),{passive:true});
@@ -626,6 +626,97 @@
  search.addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{searchText=search.value;find(0)},150)});
  // 1.1.215 owner: a shop search also lists the matching Excel rows (public/excel-search.js); it reads a
  // sheet here and opens this viewer on that sheet with the same search.
+
+ // ---- Invoice picture (STM invoice number -> its INV page as a PNG) ----
+ // 1.1.406 owner: in the STM sheet a download button sits in front of an invoice number (N11-Y26-1). It saves that invoice's
+ // page from the INV sheet (columns H–Q, the rows of that page) as a picture. The INV sheet holds the month's invoice pages
+ // one below another; the page of an invoice is found by its number in column I beside the "NO" label.
+ let invPages=null;
+ async function invoicePages(){
+  if(invPages&&invPages.book===book)return invPages.map;
+  const map=new Map(),inv=book?.sheets.find(x=>x.name.trim().toUpperCase()==='INV');
+  if(inv){const sh=await readSheet(inv);for(const [key,cell] of sh.cells){const [r,c]=key.split(',').map(Number);
+   if(c!==8||!/^[A-Z0-9]+-Y\d+-\d+$/i.test((cell.text||'').trim()))continue;
+   if((sh.cells.get(r+',7')?.text||'').trim().toUpperCase()!=='NO')continue;
+   map.set(cell.text.trim(),{r0:Math.max(0,r-4),r1:r+22})}}
+  invPages={book,map};return map;
+ }
+ async function decorateInvoices(){
+  const sheet=renderedSheet;if(!sheet||!book||String(sheet.name||'').trim().toUpperCase()!=='STM')return;
+  let map;try{map=await invoicePages()}catch{return}
+  if(!map.size||renderedSheet!==sheet)return;
+  grid.querySelectorAll('tbody td[data-c="1"]:not(.excel-dl-host)').forEach(td=>{
+   const no=(sheet.cells.get(td.dataset.r+',1')?.text||'').trim();if(!map.has(no))return;
+   td.classList.add('excel-dl-host');
+   const b=document.createElement('button');b.type='button';b.className='excel-dl';b.dataset.invoice=no;b.setAttribute('aria-label','Download '+no);
+   b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v10M7.500 10 12 14.500 16.500 10M5 19h14" fill="none" stroke="currentColor" stroke-width="2.600" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+   td.insertBefore(b,td.firstChild);
+  });
+ }
+ // The page is painted straight onto a canvas from the sheet's cells (no screenshot of the screen): fills, borders, text,
+ // merged cells, and the pictures / boxes on it (the logo, NO PAID, the green total box).
+ const loadImage=src=>new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>no(Error('Could not read the logo'));i.src=src});
+ async function invoicePng(no){
+  const page=(await invoicePages()).get(no);if(!page)throw Error('No invoice page for '+no);
+  const sh=await readSheet(book.sheets.find(x=>x.name.trim().toUpperCase()==='INV'));
+  const c0=7,c1=16,colW=c=>sh.widths[c]===0?0:Math.round(((sh.widths[c]??sh.defW)*7+5)),rowH=r=>sh.heights[r]===0?0:Math.round((sh.heights[r]??sh.defH)*4/3);
+  const X=[0];for(let c=c0;c<=c1;c++)X.push(X[X.length-1]+colW(c));const Y=[0];for(let r=page.r0;r<=page.r1;r++)Y.push(Y[Y.length-1]+rowH(r));
+  const W=X[X.length-1],H=Y[Y.length-1],scale=Math.min(3,Math.max(2,Math.ceil(window.devicePixelRatio||2)));
+  const canvas=document.createElement('canvas');canvas.width=W*scale;canvas.height=H*scale;const ctx=canvas.getContext('2d');ctx.scale(scale,scale);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  const xAt=c=>X[Math.min(Math.max(c,c0),c1+1)-c0],yAt=r=>Y[Math.min(Math.max(r,page.r0),page.r1+1)-page.r0];
+  const blocked=(r,c)=>{const k=r+','+c;return sh.covered.has(k)||sh.merges.has(k)||(sh.cells.get(k)?.text??'')!==''};
+  const line=(x1,y1,x2,y2,b)=>{if(!b)return;const [w,st,col]=b.split(' ');const lw=Math.max(1,parseFloat(w)||1);ctx.strokeStyle=col||'#000';ctx.lineWidth=lw;ctx.setLineDash(st==='dashed'?[4,3]:[]);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()};
+  /* A cell's look = its own style with the conditional format on top (the item lines get their text colour and borders from it). */
+  const look=cell=>{if(!cell)return null;const st=cell.style||{},cf=cell.cf;return cf?{...st,fill:cf.fill||st.fill,font:{...(st.font||{}),...(cf.font||{})},border:{...(st.border||{}),...(cf.border||{})}}:st};
+  const cells=[];
+  for(let r=page.r0;r<=page.r1;r++){if(!rowH(r))continue;for(let c=c0;c<=c1;c++){if(!colW(c))continue;const k=r+','+c;if(sh.covered.has(k))continue;const m=sh.merges.get(k),cell=sh.cells.get(k);
+   const x=xAt(c),y=yAt(r),w=xAt(c+(m?m.cs:1))-x,h=yAt(r+(m?m.rs:1))-y;if(w<=0||h<=0)continue;cells.push({r,c,x,y,w,h,cell,m})}}
+  for(const o of cells){const f=look(o.cell)?.fill;if(f){ctx.fillStyle=f;ctx.fillRect(o.x,o.y,o.w,o.h)}}
+  // Borders: a cell's own sides; the right / lower cell is drawn later and wins on a shared edge, as in the sheet view.
+  const sideOf=(r,c,side)=>{const k=r+','+c,own=look(sh.cells.get(k))?.border?.[side];if(own)return own;return ''};
+  for(const o of cells){const b=look(o.cell)?.border||{},m=o.m;
+   const right=b.right||(()=>{const cc=o.c+(m?m.cs:1);return cc<=c1?sideOf(o.r,cc,'left'):''})(),bottom=b.bottom||(()=>{const rr=o.r+(m?m.rs:1);return rr<=page.r1?sideOf(rr,o.c,'top'):''})();
+   const left=b.left||'',top=b.top||'';
+   line(o.x,o.y,o.x,o.y+o.h,left);line(o.x,o.y,o.x+o.w,o.y,top);line(o.x+o.w,o.y,o.x+o.w,o.y+o.h,right);line(o.x,o.y+o.h,o.x+o.w,o.y+o.h,bottom)}
+  // Text.
+  const wrapLines=(text,maxW)=>{const out=[];for(const para of String(text).split('\n')){const words=para.split(/(\s+)/);let cur='';for(const w of words){const t=cur+w;if(cur&&ctx.measureText(t).width>maxW&&w.trim()){out.push(cur.trimEnd());cur=w.trimStart()}else cur=t}out.push(cur.trimEnd())}return out};
+  for(const o of cells){const cell=o.cell;if(!cell||cell.text==='')continue;const st=look(cell),f=st.font||{};
+   ctx.font=(f.i?'italic ':'')+(f.b?'bold ':'')+Math.round((f.sz||11)*4/3*10)/10+'px "'+(f.name||'Calibri').replace(/"/g,'')+'",system-ui,sans-serif';ctx.fillStyle=f.color||'#000';ctx.textBaseline='alphabetic';
+   const h=st.h&&st.h!=='general'?(st.h==='centerContinuous'?'center':st.h):cell.numeric?'right':'left',size=(f.sz||11)*4/3,lh=size*1.2;
+   let x0=o.x,x1=o.x+o.w;
+   if(!st.wrap&&!o.m){let cc=o.c;const grow=dir=>{let edge=dir>0?x1:x0,k=cc;for(let n=0;n<30;n++){k+=dir;if(k<c0||k>c1||blocked(o.r,k))break;edge+=dir*colW(k)}return edge};
+    if(h!=='right')x1=grow(1);if(h==='right'||h==='center')x0=grow(-1);if(h==='center'){const e=Math.min(o.x-x0,x1-(o.x+o.w));x0=o.x-e;x1=o.x+o.w+e}}
+   const pad=3,maxW=Math.max(1,x1-x0-pad*2),lines=st.wrap?wrapLines(cell.text,maxW):[String(cell.text)],total=lines.length*lh;
+   let y=st.v==='top'?o.y+2+size:st.v==='center'?o.y+(o.h-total)/2+size:o.y+o.h-2-total+size;
+   ctx.save();ctx.beginPath();ctx.rect(x0,o.y,x1-x0,o.h);ctx.clip();ctx.textAlign=h==='center'?'center':h==='right'?'right':'left';
+   const tx=h==='center'?(x0+x1)/2:h==='right'?x1-pad:x0+pad;
+   for(const t of lines){ctx.fillText(t,tx,y);if(f.u){const w=ctx.measureText(t).width,ux=h==='center'?tx-w/2:h==='right'?tx-w:tx;ctx.fillRect(ux,y+2,w,1)}y+=lh}ctx.restore()}
+  // Pictures and boxes anchored on this page.
+  for(const sp of sh.shapes||[]){if(sp.from.r<page.r0||sp.from.r>page.r1||sp.from.c<c0||sp.from.c>c1+1)continue;
+   const x=xAt(sp.from.c)+sp.from.cOff,y=yAt(sp.from.r)+sp.from.rOff;let w,h;
+   if(sp.to.w!=null){w=sp.to.w;h=sp.to.h}else{w=xAt(sp.to.c)+sp.to.cOff-x;h=yAt(sp.to.r)+sp.to.rOff-y}
+   if(w<=1||h<=1)continue;ctx.save();
+   if(sp.shadowCss){ctx.shadowColor=sp.shadowCss.color;ctx.shadowBlur=sp.shadowCss.blur;ctx.shadowOffsetX=sp.shadowCss.x;ctx.shadowOffsetY=sp.shadowCss.y}
+   if(sp.kind==='pic'){const img=await loadImage(sp.src);if(sp.frame){ctx.fillStyle=sp.frame.color;const g=sp.frame.w/2;ctx.fillRect(x-g,y-g,w+2*g,h+2*g);ctx.shadowColor='transparent'}ctx.drawImage(img,x,y,w,h)}
+   else{const rr=sp.round?Math.min(w,h)/6:0;ctx.beginPath();if(sp.ellipse)ctx.ellipse(x+w/2,y+h/2,w/2,h/2,0,0,Math.PI*2);else if(rr&&ctx.roundRect)ctx.roundRect(x,y,w,h,rr);else ctx.rect(x,y,w,h);
+    if(sp.fill){ctx.fillStyle=sp.fill;ctx.fill()}ctx.shadowColor='transparent';if(sp.line){ctx.strokeStyle=sp.line.color;ctx.lineWidth=sp.line.w;ctx.stroke()}
+    ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();
+    const paras=sp.paras.map(p=>({p,runs:p.runs,size:Math.max(8,...p.runs.map(r=>r.size*4/3),0)||14})),total=paras.reduce((a,q)=>a+q.size*1.2,0);
+    let ty=sp.vAlign==='ctr'?y+(h-total)/2:sp.vAlign==='b'?y+h-total-3:y+3;
+    for(const q of paras){const text=q.runs.map(r=>r.text).join(''),r0=q.runs[0]||{};ctx.font=(r0.i?'italic ':'')+(r0.b?'bold ':'')+q.size+'px "'+((r0.font&&!/^\+/.test(r0.font))?r0.font.replace(/"/g,''):'Calibri')+'",system-ui,sans-serif';ctx.fillStyle=r0.color||'#000';
+     ctx.textAlign=q.p.align==='ctr'?'center':q.p.align==='r'?'right':'left';ctx.fillText(text,q.p.align==='ctr'?x+w/2:q.p.align==='r'?x+w-4:x+4,ty+q.size);ty+=q.size*1.2}}
+   ctx.restore();
+  }
+  return await new Promise((ok,no)=>canvas.toBlob(b=>b?ok(b):no(Error('Could not save the invoice picture')),'image/png'));
+ }
+ for(const type of ['pointerdown','mousedown','touchstart','touchend','pointerup'])grid.addEventListener(type,e=>{if(e.target.closest?.('.excel-dl'))e.stopPropagation()},true);
+ grid.addEventListener('click',async e=>{
+  const b=e.target.closest?.('.excel-dl');if(!b)return;e.stopPropagation();e.preventDefault();if(b.classList.contains('busy'))return;
+  b.classList.add('busy');
+  try{const blob=await invoicePng(b.dataset.invoice),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=b.dataset.invoice+'.png';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);msg.textContent='Saved '+b.dataset.invoice+'.png'}
+  catch(error){msg.textContent=error.message||'Could not save the invoice'}
+  finally{b.classList.remove('busy')}
+ },true);
  window.GearHubExcelViewer={
   async idle(){await Promise.allSettled([...books.values()]);await Promise.allSettled([...sheetJobs])},
   async sheet(url,sheetName){const b=await loadBook(url),want=String(sheetName||'').trim().toLowerCase(),s=b.sheets.find(x=>x.name.trim().toLowerCase()===want)||b.sheets[0];return s?readSheet(s,b):null},
