@@ -1879,3 +1879,6 @@ _None._
 
 ## 2026-11-07 (night) — 1.1.379 chat header stays when the keyboard opens
 - iPhone: keyboard open pushed the chat header/messages off the top. Phone sheet now follows visualViewport (height + top) in public/noti-chat.js. Checked with a simulated shrunken viewport (header on screen, composer above the keyboard line); real iPhone keyboard not testable here. Tests 524/524. Owner merges, deploys, Confirm update, tests with the keyboard open.
+
+## 2026-11-07 (night) — 1.1.380 visiting-shop bar neat
+- Visiting another shop inside a shop app (phone): bottom bar = Profile (left) + Home only; no header above the Home search bar; Category is now the first item of the green filter button's list (search-filter.js). Files: visit-shop.js/css, search-filter.js, tags/version. Tests 524/524; checked in WebKit with a simulated standalone visit (Profile/Home bar, Category opens its view, no console errors). Real iPhone not tested. Owner merges, deploys, Confirm update.

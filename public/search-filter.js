@@ -18,16 +18,18 @@
   '<button type="button" role="menuitem" data-scope="files"><svg class="search-filter-folder" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 6.2c0-1.1.9-2 2-2h4.7l2 2.1h8.3c1.1 0 2 .9 2 2v.8H2.5z" fill="#1e8e3e" stroke="none"/><rect x="2.5" y="8.2" width="19" height="11.6" rx="2" fill="#5fb878" stroke="none"/></svg><span></span></button>'+
   '<button type="button" role="menuitemradio" data-scope="product"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 8 12 4l8.5 4v8L12 20l-8.5-4z"/><path d="M3.5 8 12 12l8.5-4M12 12v8M7.8 6l8.4 4"/></svg><span></span><i aria-hidden="true"></i></button>'+
   '<button type="button" role="menuitemradio" data-scope="excel"><svg class="search-filter-excel" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="4" width="11" height="16" rx="1.6" fill="#1e7a3c" stroke="none"/><path d="m5.3 9 3.6 6m0-6-3.6 6" stroke="#fff" stroke-width="1.8"/><path d="M13.5 6.5h6a1.5 1.5 0 0 1 1.5 1.5v8a1.5 1.5 0 0 1-1.5 1.5h-6M13.5 10h7.5M13.5 14h7.5M17 6.5v11" stroke="#1e7a3c"/></svg><span></span><i aria-hidden="true"></i></button>'+
+  /* 1.1.380 owner: while visiting another shop, Category lives in this list (the bottom bar has only Profile and Home). */
+  '<button type="button" role="menuitem" data-scope="category" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg><span></span></button>'+
   '<button type="button" role="menuitem" data-scope="trash"><svg class="search-filter-trash" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v5.5M14 11v5.5"/></svg><span></span></button></div>';
  bar.insertBefore(wrap,bar.firstChild);
  const button=wrap.querySelector('.search-filter-button'),menu=wrap.querySelector('.search-filter-menu');
  function paint(){
   if(scope==='excel'&&!hasExcel())scope='product';
   document.body.classList.toggle('scope-product',scope==='product');document.body.classList.toggle('scope-excel',scope==='excel');
-  const label={files:my()?'Excel ဖိုင်များ':'Excel files',product:my()?'ပစ္စည်း':'Product',excel:'Excel',trash:my()?'ရှာထားတာ ဖျက်မယ်':'Trash'};
+  const label={files:my()?'Excel ဖိုင်များ':'Excel files',product:my()?'ပစ္စည်း':'Product',excel:'Excel',trash:my()?'ရှာထားတာ ဖျက်မယ်':'Trash',category:my()?'Category':'Category'};
   menu.querySelectorAll('[data-scope]').forEach(b=>{b.querySelector('span').textContent=label[b.dataset.scope];if(b.getAttribute('role')==='menuitemradio'){const on=b.dataset.scope===scope;b.classList.toggle('on',on);b.setAttribute('aria-checked',String(on))}});
   if(visiting())scope='product';
-  menu.querySelector('[data-scope="excel"]').hidden=!hasExcel()||visiting();menu.querySelector('[data-scope="files"]').hidden=!hasExcel()||visiting();menu.querySelector('[data-scope="product"]').hidden=visiting();
+  menu.querySelector('[data-scope="excel"]').hidden=!hasExcel()||visiting();menu.querySelector('[data-scope="files"]').hidden=!hasExcel()||visiting();menu.querySelector('[data-scope="product"]').hidden=visiting();menu.querySelector('[data-scope="category"]').hidden=!visiting();
   button.setAttribute('aria-label',my()?'ရှာမယ့်နေရာ ရွေးရန်':'Search in');
  }
  const close=()=>{menu.hidden=true;button.setAttribute('aria-expanded','false')};
@@ -35,6 +37,7 @@
  document.addEventListener('click',e=>{if(!wrap.contains(e.target))close()});
  menu.addEventListener('click',e=>{
   const item=e.target.closest('[data-scope]');if(!item)return;close();
+  if(item.dataset.scope==='category'){document.querySelector('.mobile-bottom-nav [data-store-view="category"]')?.click();return}
   if(item.dataset.scope==='files'){document.getElementById('excel-library-open')?.click();return}
   // 1.1.305 owner: the bin is no longer in the bar (it showed twice); Trash here empties the search.
   if(item.dataset.scope==='trash'){

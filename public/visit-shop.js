@@ -23,10 +23,11 @@
  // takes you home (below). The PC bar keeps its exit link.
  const phoneNav=document.querySelector('.mobile-bottom-nav');
  if(phoneNav){
-  phoneNav.querySelectorAll('[data-store-view="shops"]').forEach(el=>{el.hidden=true;});
+  phoneNav.querySelectorAll('[data-store-view="shops"],[data-store-view="category"]').forEach(el=>{el.hidden=true;});
   const prof=phoneNav.querySelector('[data-store-view="profile"]'),avatar=document.querySelector('#home-profile-avatar');
   if(prof&&avatar&&prof.classList){
    prof.classList.add('visit-profile');
+   phoneNav.prepend(prof); // 1.1.380 owner: the visited shop's Profile is the first button on the left, then Home.
    const paint=()=>{const src=avatar.getAttribute('src');if(!src)return;const icon=prof.querySelector('span');if(!icon)return;let img=icon.querySelector('img');if(!img){icon.innerHTML='';img=document.createElement('img');img.alt='';img.className='visit-profile-logo';icon.append(img)}if(img.getAttribute('src')!==src)img.src=src};
    paint();new MutationObserver(paint).observe(avatar,{attributes:true,attributeFilter:['src']});
   }
