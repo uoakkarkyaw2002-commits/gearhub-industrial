@@ -322,3 +322,9 @@ body:has(#nc-sheet[open]){overflow:hidden}
 @media(max-width:850px){
  html body:not(.visiting-shop):not(.non-home-view) .mobile-search .search-pill .search-pill-icon{display:none!important}
 }
+
+/* 1.1.402 owner: Scan lives in the filter list, so the bar has no scan button on the phone Home. */
+@media(max-width:850px){
+ html body:not(.visiting-shop):not(.non-home-view) .mobile-search .search-pill .photo-scan-button{display:none!important}
+ html body:not(.visiting-shop):not(.non-home-view) .mobile-search .search-pill{padding-left:20px}
+}

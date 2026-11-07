@@ -1939,3 +1939,6 @@ _None._
 
 ## 2026-11-07 (night 19) — 1.1.401 magnifier hidden in the normal state too
 - Phone Home search bar: no magnifier at all (scan stays until you type; scan also hides while typing). CSS only. In PR #478 (branch claude/search-typing-clean). Tests 524/524.
+
+## 2026-11-07 (night 20) — 1.1.402 Scan moved into the filter list
+- Scan (search by photo) is now the FIRST item of the green filter button's list; the phone Home search bar has no scan button or magnifier. Tapping the item clicks the existing photo-scan button (verified: click count 1, menu closes). Visiting-shop keeps the in-bar scan button and Category/Trash list. search-filter.js + noti-chat.css. In PR #478. Tests 524/524.
