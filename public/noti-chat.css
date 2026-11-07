@@ -148,3 +148,23 @@ body:has(#nc-sheet[open]){overflow:hidden}
 .nc-callrecord audio,.nc-callrecord video{display:block;width:100%;max-width:100%;border-radius:10px}
 .nc-callrecord video{max-height:220px;background:#10223a}
 .nc-callrecord select{max-width:160px;padding:4px 8px;font:inherit;border-radius:8px}
+
+/* 1.1.384 owner (white top bar picture): on the phone Home the top bar is plain white — shop logo + name, the
+   speed in numbers under the name, and the same 🔔 💬 buttons on the right. */
+@media(max-width:850px){
+ html body:not(.visiting-shop):not(.non-home-view)>.home-navigation{padding:0;background:#fff;border-bottom:1px solid #eef1ef;box-shadow:0 2px 12px #1b2a2214}
+ html body:not(.visiting-shop):not(.non-home-view) .home-profile-banner{display:flex;align-items:center;gap:12px;width:100%;min-height:0;margin:0;padding:max(12px,env(safe-area-inset-top)) 14px 10px;background:#fff!important;background-image:none!important;border-radius:0;box-shadow:none}
+ html body:not(.visiting-shop):not(.non-home-view) .home-profile-banner .settings-profile-avatar{flex:0 0 54px;width:54px;height:54px;border:0;background:#fff;box-shadow:none;overflow:hidden}
+ html body:not(.visiting-shop):not(.non-home-view) .home-profile-banner .settings-profile-avatar>img{object-fit:contain}
+ html body:not(.visiting-shop):not(.non-home-view) .home-profile-banner .settings-profile-copy{display:grid;gap:1px;justify-items:start;min-width:0;transform:none!important}
+ html body:not(.visiting-shop):not(.non-home-view) .home-profile-banner .settings-profile-avatar{transform:none!important}
+ html body:not(.visiting-shop):not(.non-home-view) .home-profile-banner .settings-profile-copy>strong{color:#10201a!important;font-size:21px;line-height:1.15;text-shadow:none!important}
+ html body:not(.visiting-shop):not(.non-home-view) .home-profile-banner .settings-profile-copy>small,html body:not(.visiting-shop):not(.non-home-view) .home-profile-banner .settings-verified{display:none!important}
+ .home-profile-banner .settings-profile-copy>.net-speed{position:static;display:block;transform:none;padding:0;background:none;box-shadow:none;font-size:13px;line-height:1.2;font-weight:800;pointer-events:none}
+ .home-profile-banner .settings-profile-copy>.net-speed svg{display:none}
+ .home-profile-banner .settings-profile-copy>.net-speed small{margin:0;color:inherit;font-size:13px;text-shadow:none}
+ .home-profile-banner .settings-profile-copy>.net-speed[data-level="good"]{color:#1f9a3e}
+ .home-profile-banner .settings-profile-copy>.net-speed[data-level="normal"]{color:#d99a00}
+ .home-profile-banner .settings-profile-copy>.net-speed[data-level="low"]{color:#e0301e}
+ .home-profile-banner .settings-profile-copy>.net-speed[data-level="offline"],.home-profile-banner .settings-profile-copy>.net-speed[data-level="checking"]{color:#8a948e}
+}

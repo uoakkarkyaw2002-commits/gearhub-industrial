@@ -1891,3 +1891,6 @@ _None._
 
 ## 2026-11-07 (late night 2) — 1.1.383 chat: page behind can't be dragged
 - Owner's screen recording: typing in chat let the page be dragged down. Open chat now locks html/body (overflow hidden, overscroll none) and cancels touchmove outside .nc-messages/.nc-conversations/.nc-stickers/textarea (noti-chat.js + chat-thread.css). Checked in WebKit (header/buttons blocked, list scrolls); real iPhone keyboard not testable here. Tests 524/524. Owner merges, deploys, Confirm update.
+
+## 2026-11-07 (night 3) — 1.1.384 white phone top bar
+- Phone Home top bar like the owner's picture: plain white bar, shop logo + name only (no tagline/✓), the speed as coloured numbers under the name (no wifi icon; net-speed.js moves the badge into the name block on phones), the same glossy 🔔 💬 on the right. CSS in noti-chat.css; PC and visiting-shop untouched. Tests 524/524; WebKit phone + PC checked (test shop has no logo, so the logo spot is empty there). Owner merges, deploys, Confirm update.

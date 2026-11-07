@@ -13,6 +13,9 @@
  const badge=document.createElement('b');badge.className='net-speed';badge.dataset.level='checking';badge.setAttribute('role','status');
  badge.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 9.2a14 14 0 0 1 19 0" /><path d="M5.6 12.6a9.5 9.5 0 0 1 12.8 0" /><path d="M8.8 15.9a5 5 0 0 1 6.4 0" /><circle cx="12" cy="19.2" r="1.6" /></svg><small></small>';
  avatar.append(badge);
+ // 1.1.384 owner: on the phone the speed (numbers only) sits under the shop name in the white top bar.
+ const mq=typeof matchMedia==='function'?matchMedia('(max-width:850px)'):{matches:false},place=()=>{const copy=document.querySelector('.home-profile-banner .settings-profile-copy'),to=mq.matches&&copy?copy:avatar;if(badge.parentNode!==to)to.append(badge)};
+ place();mq.addEventListener?.('change',place);
  const text=badge.querySelector('small');
  const label=bps=>bps>=1000*1024?(bps/GOOD).toFixed(bps>=10*GOOD?0:2)+'MB':Math.max(1,Math.round(bps/1024))+'KB';
  function show(level,value,title){badge.dataset.level=level;text.textContent=value;badge.title=title;badge.setAttribute('aria-label',title)}
