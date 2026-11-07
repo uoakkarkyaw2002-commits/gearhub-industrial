@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-07 (night 18) — from Claude (account 1) — 1.1.400 search typing: no scan, no magnifier
+- While typing in the phone search bar (focus or body.searching) the green scan button and the magnifier are hidden, leaving the text, the count and ˄ ˅. CSS only (noti-chat.css). Based on main with #476 + #477 merged/assetlinks. Tests 524/524; WebKit checked.
+
 ## 2026-11-07 (night 17) — from Claude (account 1) — 1.1.399 hide the Chrome "skyshopmm.com" bar in the native app
 - The bar (× skyshopmm.com ⋮) means Android could not verify the app against /.well-known/assetlinks.json: the phone runs the debug-signed APK, whose key (SHA-256 17:1D:13:7D:…:AD:17) was not listed. Added it in server.js (backend change → needs a Render deploy, no Confirm update). After deploy: close the app, reopen; if the bar stays, clear the app's storage/Chrome cache once or reinstall the APK (Android caches the check). The Play-store build is already covered by the other two keys.
 

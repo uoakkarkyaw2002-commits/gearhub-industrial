@@ -309,3 +309,12 @@ body:has(#nc-sheet[open]){overflow:hidden}
 #nc-sheet.nc-inbox>header h2{cursor:pointer;-webkit-tap-highlight-color:transparent}
 #nc-sheet.nc-inbox .nc-brand-img{display:block;width:auto;height:68px;max-width:calc(100vw - 80px);margin-left:-8px;object-fit:contain}
 #nc-sheet.nc-inbox #nc-close{display:none!important}
+
+/* 1.1.400 owner: while typing in the search bar the scan button and the magnifier are hidden (more room for the text, count and ˄ ˅). */
+@media(max-width:850px){
+ html body:not(.visiting-shop) .mobile-search .search-pill:focus-within .photo-scan-button,
+ html body:not(.visiting-shop) .mobile-search .search-pill:focus-within .search-pill-icon,
+ html body.searching:not(.visiting-shop) .mobile-search .search-pill .photo-scan-button,
+ html body.searching:not(.visiting-shop) .mobile-search .search-pill .search-pill-icon{display:none!important}
+ html body:not(.visiting-shop) .mobile-search .search-pill:focus-within,html body.searching:not(.visiting-shop) .mobile-search .search-pill{padding-left:18px}
+}
