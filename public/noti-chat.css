@@ -318,3 +318,7 @@ body:has(#nc-sheet[open]){overflow:hidden}
  html body.searching:not(.visiting-shop) .mobile-search .search-pill .search-pill-icon{display:none!important}
  html body:not(.visiting-shop) .mobile-search .search-pill:focus-within,html body.searching:not(.visiting-shop) .mobile-search .search-pill{padding-left:18px}
 }
+/* 1.1.401 owner: the magnifier is hidden in the normal state too (the scan button stays until you type). */
+@media(max-width:850px){
+ html body:not(.visiting-shop):not(.non-home-view) .mobile-search .search-pill .search-pill-icon{display:none!important}
+}
