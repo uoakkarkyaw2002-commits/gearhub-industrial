@@ -136,3 +136,11 @@ html:has(dialog.nc-sheet[open]),html:has(dialog.nc-sheet[open]) body{overflow:hi
 #nc-sheet.nc-thread .nc-textmsg{width:fit-content;padding:8px 14px 6px;border-radius:20px}
 #nc-sheet.nc-thread .nc-textmsg>span{font-size:15.5px;line-height:1.5}
 #nc-sheet.nc-thread .nc-textmsg small{font-size:11.5px}
+/* 1.1.394 owner's picture: rounded rectangles with small corners (not pills) — header card, bubbles, call cards, search box. */
+#nc-sheet.nc-thread>header{border-radius:24px}
+#nc-sheet.nc-thread .nc-textmsg,#nc-sheet.nc-thread .nc-textmsg.mine{border-radius:17px}
+#nc-sheet.nc-thread .nc-sticker,#nc-sheet.nc-thread .nc-voice,#nc-sheet.nc-thread .nc-filemsg{border-radius:17px}
+#nc-sheet.nc-thread .nc-msg.nc-callmsg{border-radius:20px}
+#nc-sheet.nc-thread .nc-msg.nc-callmsg.nc-callrecord{border-radius:22px}
+#nc-sheet.nc-thread .nc-callrecord video,#nc-sheet.nc-thread .nc-callrecord audio{border-radius:14px}
+.nc-find input{border-radius:16px}
