@@ -96,3 +96,5 @@
 /* 1.1.379 owner: attach button snug against the typing pill (small gap). */
 #nc-sheet.nc-thread .nc-form{gap:3px}
 #nc-sheet.nc-thread .nc-form>[data-nc=stickers]{margin-left:-39px}
+/* 1.1.379 owner: a clear gap between the typing pill and the mic/Send button; the button sits at the far right. */
+#nc-sheet.nc-thread .nc-form>.nc-mic,#nc-sheet.nc-thread .nc-form>button[type=submit]{margin-left:13px;margin-right:0}
