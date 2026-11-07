@@ -144,3 +144,29 @@ html:has(dialog.nc-sheet[open]),html:has(dialog.nc-sheet[open]) body{overflow:hi
 #nc-sheet.nc-thread .nc-msg.nc-callmsg.nc-callrecord{border-radius:22px}
 #nc-sheet.nc-thread .nc-callrecord video,#nc-sheet.nc-thread .nc-callrecord audio{border-radius:14px}
 .nc-find input{border-radius:16px}
+
+/* 1.1.395 owner's picture: call recording cards — glass card with title + ⬇ + share, a rounded video, and a dark voice player with a waveform. */
+#nc-sheet.nc-thread .nc-msg.nc-callmsg.nc-callrecord{display:grid;grid-template-columns:28px minmax(0,1fr) auto;column-gap:9px;row-gap:6px;align-items:center;align-self:center;width:min(100%,360px);max-width:100%;padding:13px 13px 14px;border:1px solid #ffffffd9;border-radius:26px;background:linear-gradient(150deg,#ffffffad,#e2e7ff8c);box-shadow:0 10px 26px #4e55b02e,inset 0 1px 2px #fff;white-space:normal}
+#nc-sheet.nc-thread .nc-callrecord>.nc-log-icon{grid-column:1;grid-row:1;width:28px;height:28px}
+#nc-sheet.nc-thread .nc-callrecord>.nc-log-icon svg{width:28px;height:28px}
+#nc-sheet.nc-thread .nc-callrecord>span:not(.nc-record-label):not(.nc-rec-actions){grid-column:2;grid-row:1;font-size:19px;font-weight:800;color:#0f1730;letter-spacing:-.2px}
+#nc-sheet.nc-thread .nc-callrecord>.nc-rec-actions{grid-column:3;grid-row:1;display:flex;gap:8px;margin:0}
+#nc-sheet.nc-thread .nc-callrecord>small{grid-column:1/-1;grid-row:2;margin:-2px 0 0;font-size:15px;color:#4a5578}
+#nc-sheet.nc-thread .nc-callrecord>.nc-record-label{grid-column:1/-1;grid-row:3;margin:2px 0 0;font-size:15px;font-weight:600;color:#202b4f}
+#nc-sheet.nc-thread .nc-callrecord>video,#nc-sheet.nc-thread .nc-callrecord>.nc-wv,#nc-sheet.nc-thread .nc-callrecord>label{grid-column:1/-1;grid-row:4}
+#nc-sheet.nc-thread .nc-callrecord>label{grid-row:5}
+.nc-rbtn{display:grid;place-items:center;width:40px;height:40px;padding:0;border:1px solid #ffffffdc;border-radius:50%;background:linear-gradient(145deg,#fff,#dde6ff);box-shadow:0 3px 8px #3b459a38,inset 0 1px 2px #fff;color:#1b4fc4;cursor:pointer;text-decoration:none}
+.nc-rbtn svg{display:block;width:21px;height:21px}
+#nc-sheet.nc-thread .nc-callrecord>video{display:block;width:100%;max-height:270px;border-radius:20px;background:#101624;object-fit:contain}
+#nc-sheet.nc-thread .nc-callrecord>audio{display:none}
+.nc-wv{display:flex;align-items:center;gap:10px;height:56px;padding:0 16px 0 8px;border-radius:28px;background:#586079b3;color:#fff}
+.nc-wplay{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;padding:0;border:0;border-radius:50%;background:linear-gradient(160deg,#4aa6ff,#0b58df);box-shadow:0 3px 8px #0a3a9a66;color:#fff;cursor:pointer}
+.nc-wplay svg{display:block;width:22px;height:22px}
+.nc-wplay .q,.nc-wv.playing .nc-wplay .p{display:none}
+.nc-wv.playing .nc-wplay .q{display:block}
+.nc-wt,.nc-wd{flex:0 0 auto;font-size:15px;font-variant-numeric:tabular-nums;color:#fff}
+.nc-wbars{display:flex;flex:1;align-items:center;gap:2.5px;height:38px;min-width:0;cursor:pointer}
+.nc-wbars>i{flex:1;min-width:2px;border-radius:2px;background:#ffffff66}
+.nc-wbars>i.on{background:#fff}
+#nc-sheet.nc-thread .nc-callrecord>span.nc-rec-actions{grid-column:3;grid-row:1;font-size:inherit;font-weight:400}
+#nc-sheet.nc-thread .nc-callrecord>span.nc-record-label{grid-column:1/-1;grid-row:3;font-size:15px}
