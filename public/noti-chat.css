@@ -249,3 +249,16 @@ body:has(#nc-sheet[open]){overflow:hidden}
  html body:not(.visiting-shop):not(.non-home-view) .mobile-search{margin-bottom:20px}
  html body:not(.visiting-shop) .home-promo{margin-top:22px}
 }
+
+/* 1.1.387 owner: SkyShopMM logo + name is every shop's default phone top-bar mark; the filter list opens inside the screen. */
+.top-brand{display:none}
+@media(max-width:850px){
+ html body:not(.visiting-shop):not(.non-home-view) .home-profile-banner:has(.top-brand){flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;min-height:96px}
+ html body:not(.visiting-shop):not(.non-home-view) .home-profile-banner .top-brand{display:flex;align-items:center;gap:9px;color:#0068e6}
+ html body:not(.visiting-shop):not(.non-home-view) .home-profile-banner .top-brand svg{width:54px;height:44px;flex:0 0 54px}
+ html body:not(.visiting-shop):not(.non-home-view) .home-profile-banner .top-brand b{color:#0b2a8a;font-size:29px;font-weight:900;letter-spacing:-.02em;line-height:1}
+ html body:not(.visiting-shop):not(.non-home-view) .home-profile-banner:has(.top-brand) .settings-profile-avatar,html body:not(.visiting-shop):not(.non-home-view) .home-profile-banner:has(.top-brand) .settings-profile-copy>strong{display:none!important}
+ html body:not(.visiting-shop):not(.non-home-view) .home-profile-banner:has(.top-brand) .settings-profile-copy{padding:0 0 0 4px!important}
+ html body:not(.visiting-shop):not(.non-home-view) .mobile-search>.search-filter .search-filter-menu{left:auto;right:0;width:min(78vw,290px)}
+ html body:not(.visiting-shop):not(.non-home-view) .mobile-search>.search-filter .search-filter-menu::before{left:auto;right:18px}
+}
