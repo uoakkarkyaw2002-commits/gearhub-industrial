@@ -1882,3 +1882,6 @@ _None._
 
 ## 2026-11-07 (night) — 1.1.380 visiting-shop bar neat
 - Visiting another shop inside a shop app (phone): bottom bar = Profile (left) + Home only; no header above the Home search bar; Category is now the first item of the green filter button's list (search-filter.js). Files: visit-shop.js/css, search-filter.js, tags/version. Tests 524/524; checked in WebKit with a simulated standalone visit (Profile/Home bar, Category opens its view, no console errors). Real iPhone not tested. Owner merges, deploys, Confirm update.
+
+## 2026-11-07 (late night) — 1.1.381 Cart tab only when shopping
+- Phone bottom bar shows Cart only while the cart has items (body.has-cart set in store.js renderCart; rule in shops-feed.css). Empty → 4 tabs; add an item → Cart appears with its count. Desktop top bar untouched. Tests 524/524; WebKit 375 checked empty vs one item. Owner merges, deploys, Confirm update.
