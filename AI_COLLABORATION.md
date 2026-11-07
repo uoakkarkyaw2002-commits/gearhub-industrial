@@ -1869,3 +1869,7 @@ _None._
 ## 2026-11-07 — Claude (account 1) — 1.1.376 Chat composer like Viber: microphone when empty, Send when typing
 - Owner's Viber screenshots (empty input → big 🎤 on the right; text typed → the same slot becomes ➤): "change how it works like this, keep my look". `public/noti-chat.js`: the mic is now the right-hand glass button next to the input (class `nc-primary nc-mic`, same `data-nc="mic"` handler), no longer a small tool on the left; `public/chat-thread.css`: CSS-only swap with `:has(textarea:placeholder-shown)` (empty → mic, text → Send), no JS state to keep in sync (works after sending, clearing, drafts). Left tools 😊 📎 unchanged. Browsers without `:has` (very old) would show both buttons.
 - Tests: Node22 check + test 524/524 expected; real browser (iPhone 13 size): empty → mic only; typed → Send only; after sending → mic; cleared → mic; no console errors.
+
+## 2026-11-07 — Claude (account 1) — 1.1.377 Chat composer like the Messenger reference
+- Owner's Messenger screenshot: 📎 on the left; 😊 sticker and the mic/send on the right; small icons; long messages show about 5 lines. Done in `public/chat-thread.css` (order + small sizes; the glass look kept) and `public/noti-chat.js` (the textarea grows to 118 px = 5 lines on input, back to one line after sending). Mic/Send swap unchanged.
+- Checked in a real browser at phone size: empty → 📎 · text · 😊 · 🎤; long text → box stops at 5 lines with the rest scrollable; after sending → one line again. Node22 test 524/524.

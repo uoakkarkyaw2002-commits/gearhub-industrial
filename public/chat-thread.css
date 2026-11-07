@@ -76,3 +76,11 @@
 /* 1.1.376 owner: like Viber — nothing typed: the right-hand button is the microphone; text typed: it becomes Send. Same glass look. */
 #nc-sheet.nc-thread .nc-form:has(textarea:placeholder-shown)>button[type="submit"]{display:none}
 #nc-sheet.nc-thread .nc-form:has(textarea:not(:placeholder-shown))>.nc-mic{display:none}
+
+/* 1.1.377 owner (Messenger reference): attach on the left; sticker and mic/send on the right; small icons; the text box grows up to 5 lines. */
+#nc-sheet.nc-thread .nc-form{align-items:flex-end;gap:6px}
+#nc-sheet.nc-thread .nc-form>.nc-attach{order:0;width:30px;height:30px;min-height:30px;font-size:18px;border-radius:11px}
+#nc-sheet.nc-thread .nc-form>textarea{order:1;min-height:36px;max-height:118px;margin:0;padding:8px 14px;font-size:16px;line-height:20px;border-radius:18px}
+#nc-sheet.nc-thread .nc-form>[data-nc=stickers]{order:2;width:30px;height:30px;min-height:30px;font-size:18px;border-radius:11px}
+#nc-sheet.nc-thread .nc-form>.nc-mic,#nc-sheet.nc-thread .nc-form>button[type=submit]{order:3;flex:0 0 38px;width:38px;min-width:38px;height:38px;min-height:38px;border-radius:14px}
+#nc-sheet.nc-thread .nc-form>.nc-primary svg{width:19px;height:19px}

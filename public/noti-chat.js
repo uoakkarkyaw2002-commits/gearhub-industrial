@@ -240,7 +240,7 @@
   }catch(error){if(sheet.open&&chatPath()===path)note(error.message||t('error'))}
   finally{filePending=false;if(button.isConnected)button.disabled=false}
  });
- sheet.addEventListener('input',e=>{if(e.target.matches('.nc-search input'))renderInbox()});
+ sheet.addEventListener('input',e=>{if(e.target.matches('.nc-search input'))renderInbox();if(e.target.matches('.nc-form textarea')){e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,118)+'px'}});
  sheet.addEventListener('click',e=>{
   const tab=e.target.closest('[data-nc-tab]');if(tab){inboxTab=tab.dataset.ncTab;renderInbox();return}
   const b=e.target.closest('[data-nc]');if(!b)return;const k=b.dataset.nc;
