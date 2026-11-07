@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-07 (late night) — from Claude (account 1) — 1.1.382 chat during a Render deploy
+- Chat GET calls wait/retry (2x 1.5 s) when the server is away (network error / 502-504); message "The server is being updated. Reconnecting automatically…" (Myanmar too) instead of "Something went wrong"; the inbox retries itself every 5 s while open. Only public/noti-chat.js. Zero-downtime deploys would need paid Postgres (~$13/mo, owner declined earlier). Tests 524/524; WebKit with simulated 503s checked. Owner merges, deploys, Confirm update.
+
 ## 2026-11-07 (late night) — from Claude (account 1) — 1.1.381 Cart tab only when shopping
 - Phone bottom bar shows Cart only while the cart has items (body.has-cart set in store.js renderCart; rule in shops-feed.css). Empty → 4 tabs; add an item → Cart appears with its count. Desktop top bar untouched. Tests 524/524; WebKit 375 checked empty vs one item. Owner merges, deploys, Confirm update.
 

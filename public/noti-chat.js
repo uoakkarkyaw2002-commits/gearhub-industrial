@@ -10,6 +10,7 @@
  const my=()=>document.documentElement.lang==='my';
  const T={en:{noti:'Notifications',chat:'Chat',none:'Nothing new yet.',signIn:'Sign in with Google to see notifications and chat with the shop.',google:'Continue with Google',write:'Write a message…',send:'Send',noChats:'No chats yet.',back:'Chats',error:'Something went wrong. Please try again.',close:'Close',hello:'Ask the shop anything — price, stock, delivery.'},
   my:{noti:'အသိပေးချက်များ',chat:'Chat',none:'အသစ် မရှိသေးပါ။',signIn:'အသိပေးချက်ကြည့်ဖို့နဲ့ ဆိုင်ကို စာပို့ဖို့ Google နဲ့ ဝင်ပါ။',google:'Google နဲ့ ဝင်မယ်',write:'စာရေးပါ…',send:'ပို့မယ်',noChats:'Chat မရှိသေးပါ။',back:'Chats',error:'မအောင်မြင်ပါ။ ပြန်စမ်းကြည့်ပါ။',close:'ပိတ်ရန်',hello:'ဈေးနှုန်း၊ လက်ကျန်၊ ပို့ဆောင်ရေး — ဆိုင်ကို မေးလို့ရပါတယ်။'}};
+ Object.assign(T.en,{updating:'The server is being updated. Reconnecting automatically…'});Object.assign(T.my,{updating:'Server ပြင်နေပါတယ်။ ခဏနေ ကိုယ်တိုင် ပြန်ချိတ်ပါမယ်…'});
  Object.assign(T.en,{sticker:'Sticker',voice:'Voice message',record:'Record a voice message',cancel:'Cancel',micDenied:'The microphone is not allowed. Allow it in your browser settings.',micNone:'Voice messages are not supported on this phone.',recording:'Recording…',allShops:'All shops',message:'Message',search:'Search',chats:'Chats',active:'Active Now',followers:'Followers',all:'All chats',unread:'Unread',noResults:'No conversations found.',activeInfo:'Active status is not shared yet.',followerInfo:'View this shop’s followers count on its profile.',profile:'View profile',loading:'Loading conversations…'});
  Object.assign(T.my,{sticker:'Sticker',voice:'အသံ စာ',record:'အသံ ဖမ်းမယ်',cancel:'မလုပ်တော့ဘူး',micDenied:'မိုက်ခရိုဖုန် ခွင့်မပြုထားပါ။ Browser setting မှာ ခွင့်ပြုပေးပါ။',micNone:'ဒီဖုန်းမှာ အသံစာ မသုံးနိုင်ပါ။',recording:'ဖမ်းနေပါတယ်…',allShops:'ဆိုင်အားလုံး',message:'Message',search:'ရှာရန်',chats:'Chats',active:'Active Now',followers:'Followers',all:'Chat အားလုံး',unread:'မဖတ်ရသေးသောစာများ',noResults:'စကားဝိုင်း မတွေ့ပါ။',activeInfo:'Online အခြေအနေကို မဖော်ပြနိုင်သေးပါ။',followerInfo:'ဒီဆိုင်ရဲ့ Profile မှာ Follower အရေအတွက် ကြည့်နိုင်ပါတယ်။',profile:'Profile ကြည့်ရန်',loading:'စကားဝိုင်းများ ဖွင့်နေပါသည်…'});
  Object.assign(T.en,{attach:'Attach file',fileLimit:'Choose a file between 1 byte and 5 MB.',uploading:'Sending file…'});
@@ -31,7 +32,12 @@
  async function token(){if(!csrf)csrf=(await (await fetch('/api/platform/me',{cache:'no-store',credentials:'same-origin'})).json()).csrfToken||'';return csrf}
  async function call(url,method='GET',body){
   const send=async()=>fetch(url,{method,credentials:'same-origin',cache:'no-store',headers:method==='GET'?{}:{'Content-Type':'application/json','X-CSRF-Token':await token()},body:body?JSON.stringify(body):undefined});
-  let r=await send();if(r.status===403&&method!=='GET'){csrf='';r=await send()}
+  /* 1.1.382: while Render deploys the server is away for a minute or two; read requests wait and retry, and the message says so. */
+  const away=x=>!x||x.status===502||x.status===503||x.status===504,tryOnce=async()=>{try{return await send()}catch{return null}};
+  let r=await tryOnce();
+  if(method==='GET')for(let i=0;i<2&&away(r);i++){await new Promise(x=>setTimeout(x,1500));r=await tryOnce()}
+  if(away(r)){const e=Error(t('updating'));e.status=503;e.updating=true;throw e}
+  if(r.status===403&&method!=='GET'){csrf='';r=await send()}
   const d=await r.json().catch(()=>({}));if(!r.ok){if(r.status===401||r.status===403)chatCache.clear();const e=Error(d.error||t('error'));e.status=r.status;throw e}if(method!=='GET'&&d.messages){const path=url.replace(/\/voice(?:\?.*)?$/,'');chatCache.put(path+(d.role==='buyer'?'?as=buyer':''),d);warmedAt=0}return d;
  }
  const seen=()=>{try{return localStorage.getItem(SEEN)||''}catch{return ''}};
@@ -186,6 +192,7 @@
    role=d.role;uiOwnLogo=d.ownLogo||'';inbox=d.rows;renderInbox();
   }catch(e){
    if(view!==viewId||!sheet.open||!sheet.classList.contains('nc-inbox'))return;
+   if(e.updating)setTimeout(()=>{if(view===viewId&&sheet.open&&sheet.classList.contains('nc-inbox'))showChat()},5000);
    if(saved&&e.status!==401&&e.status!==403){note(e.message);return}
    sheet.querySelector('.nc-conversations').innerHTML='<p class="nc-empty">'+esc(e.status===401?t('signIn'):e.message)+'</p>'+(e.status===401?'<button type="button" class="nc-primary" data-nc="signin">'+t('google')+'</button>':'');
   }
