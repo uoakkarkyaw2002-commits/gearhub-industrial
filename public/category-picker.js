@@ -28,7 +28,7 @@ async function open(input){
 }
 // The same picker also chooses a category's parent in the category editor: main categories
 // can be picked there, "no parent" is offered, and only allowed rows are shown.
-function openPicker({rows,value,selectedId,onPick,allowed=()=>true,allowNone=false,noneText="Main category (no parent)",noneHint="This category will be a main category.",mainSelectable=false,titleText="Select Product Category",subtitleText="Choose a main category and subcategory for this product"}){
+function openPicker({host,rows,value,selectedId,onPick,allowed=()=>true,allowNone=false,noneText="Main category (no parent)",noneHint="This category will be a main category.",mainSelectable=false,titleText="Select Product Category",subtitleText="Choose a main category and subcategory for this product"}){
  const NONE={category_en:""};
  const mainRows=rows.filter(row=>!escText(row.parent_en)&&escText(row.category_en)&&(!mainSelectable||allowed(row)));
  if(!mainRows.length&&!allowNone){alert("Create a product category first.");return;}
@@ -42,7 +42,7 @@ function openPicker({rows,value,selectedId,onPick,allowed=()=>true,allowNone=fal
  const search=document.createElement("input");search.className="category-picker-search";search.type="search";search.placeholder="Search category or subcategory…";search.setAttribute("aria-label","Search category or subcategory");
  const body=document.createElement("div");body.className="category-picker-body";const mainPane=document.createElement("div");mainPane.className="category-picker-main";const subPane=document.createElement("div");subPane.className="category-picker-sub";body.append(mainPane,subPane);
  const footer=document.createElement("div");footer.className="category-picker-footer";const cancel=button("Cancel","category-picker-cancel",dismiss);const confirm=button("Confirm Category","category-picker-confirm",()=>{if(!selected)return;onPick(selected===NONE?null:selected);dismiss();});footer.append(cancel,confirm);
- modal.append(head,search,body,footer);backdrop.append(modal);document.body.append(backdrop);
+ modal.append(head,search,body,footer);backdrop.append(modal);(host||document.body).append(backdrop);
  function dismiss(){document.removeEventListener("keydown",onKey);backdrop.remove();}
  function onKey(event){if(event.key==="Escape")dismiss();}
  document.addEventListener("keydown",onKey);backdrop.addEventListener("click",event=>{if(event.target===backdrop)dismiss();});

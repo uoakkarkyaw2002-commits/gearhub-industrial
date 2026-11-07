@@ -42,3 +42,12 @@
 @media(min-width:851px){#profile-sheet.profile-work-sheet{inset:5vh 0 auto;border-radius:24px;max-height:90vh}.wp-card{padding:16px}.wp-head h2{font-size:24px}.wp-grid label{font-size:14px}}
 
 .wp-grid label:has(input[name=name])>span{font-size:12px;white-space:nowrap}
+
+/* 1.1.398 owner: Category in the Add Product sheet is a button that opens the main/sub category picker. */
+.wp-field{display:grid;gap:6px;min-width:0;position:relative;color:#19372e;font-size:12.5px;font-weight:750;line-height:1.5}
+.wp-field .wp-label em{color:#d23c3c;font-style:normal}
+.wp-cat-trigger{display:block;width:100%;min-height:42px;padding:0 34px 0 12px;border:1px solid #cfd9d3;border-radius:12px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m9 6 6 6-6 6' fill='none' stroke='%231b2a22' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 10px center/16px 16px;color:#8a948e;font:inherit;font-size:15px;font-weight:500;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.wp-cat-trigger.has-value{color:#10201a;font-weight:650}
+.wp-cat-new{justify-self:start;margin:0;padding:2px 2px;border:0;background:none;color:#1f7a35;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+.wp-cat-select{position:absolute;left:0;bottom:0;width:1px;height:1px;opacity:0;pointer-events:none}
+.wp-cat-new{position:absolute;right:0;top:0;padding:0}

@@ -1927,3 +1927,6 @@ _None._
 
 ## 2026-11-07 (night 15) — 1.1.397 hold-to-record microphone
 - Voice messages like the owner's picture (Viber style): press and HOLD 🎤 → red dot + timer + "‹ Slide to cancel", the mic grows with a glow and a lock shows above it; slide UP = lock (then Cancel + Send), slide LEFT = cancel, let go = send; a quick tap only shows "Hold the microphone to record"; keyboard/click still starts a locked recording. noti-chat.js + chat-thread.css only (pointer events, setPointerCapture). Same PR #476. Tests 524/524; WebKit with a fake microphone: hold, cancel (no upload), lock, Send (1 upload), tap hint all verified. Real iPhone touch/mic not testable here.
+
+## 2026-11-07 (night 16) — 1.1.398 Add Product category = the two-column picker
+- Profile → Add → Work: Category is now a button that opens the same Main category / subcategory picker as the admin (category-picker.js got an optional `host`, so it opens inside the Add Product dialog); "+ New" still creates a new category. If a shop has no subcategories yet, main categories are selectable. work-product.js/css + category-picker.js. Same PR #476. Tests 524/524; WebKit: tap → picker (two columns), choose + Confirm → field shows the category and the hidden select gets its id. Real subcategories (e.g. Doosan) not in my test shop, the picker itself is the existing one.
