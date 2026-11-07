@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-07 (night 9) — from Claude (account 1) — 1.1.391 real SkyShopMM logo picture
+- Owner sent the real logo (transparent PNG with a glow fringe). Cleaned (alpha cut, 900 px wide) → public/images/skyshopmm-logo.png; the phone top bar uses it instead of my drawn SVG (noti-chat.js/css). Same PR #476 (claude/top-clear): merge once, deploy once. Tests 524/524.
+
 ## 2026-11-07 (night 8) — from Claude (account 1) — 1.1.390 new SkyShopMM logo in the phone top bar
 - Owner's picture: new logo (green cart + gold spark, "SkyShop" navy / "MM" green, tagline "Online Shopping Myanmar" with a swoosh) and the speed with a small cloud-cart sign. Drawn as inline SVG in noti-chat.js (no image file was supplied — if the owner has the real logo file, swap the SVG for it). Same PR #476 (branch claude/top-clear) so everything can be merged and deployed once. Tests 524/524.
 
