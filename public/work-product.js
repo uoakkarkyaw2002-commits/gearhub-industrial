@@ -8,7 +8,7 @@
   const input=(name,label,attrs='')=>'<label><span>'+label+'</span><input name="'+name+'" '+attrs+'></label>';
   openSheet('<form id="product-form" class="wp-form"><header class="wp-head"><h2>📦 '+t('title')+'</h2><button type="submit" class="wp-save">'+t('save')+'</button></header><p class="wp-status" role="status" tabindex="-1"></p><fieldset class="wp-fields" disabled><section class="wp-card wp-grid">'+
    input('sku','SKU <em>*</em>','required maxlength="80" placeholder="SKU (e.g. IND-001)"')+input('partNo','Part No / ပစ္စည်းနံပါတ်','maxlength="60" placeholder="Part number (e.g. 39C)"')+
-   '<label><span>Category <em>*</em></span><select name="categoryId" required aria-label="Category"><option value="">'+t('category')+'</option></select></label>'+input('name','Product name (English) <em>*</em>','required maxlength="150" placeholder="Product name in English"')+
+   '<div class="wp-field wp-cat-field"><span class="wp-label">Category <em>*</em></span><button type="button" class="wp-cat-trigger" aria-haspopup="dialog">'+t('category')+'</button><button type="button" class="wp-cat-new" aria-label="'+t('newCategory')+'">＋ New</button><select name="categoryId" class="wp-cat-select" tabindex="-1" aria-hidden="true"><option value="">'+t('category')+'</option></select></div>'+input('name','Product name (English) <em>*</em>','required maxlength="150" placeholder="Product name in English"')+
    '<label class="wp-new-category" hidden><span>'+t('newName')+' <em>*</em></span><input name="newCategory" maxlength="100"></label><details class="wp-extra"><summary><b>＋</b> '+t('extra')+'</summary><div class="wp-grid">'+input('categoryMy','Category (မြန်မာ)','maxlength="150"')+input('imageEmoji','Icon','maxlength="20" placeholder="⚙"')+input('nameMy','Product name (မြန်မာ)','maxlength="150"')+input('promotionPrice','Promotion (MMK)','type="number" min="1" max="9007199254740991" step="1"')+'</div></details></section>'+
    '<section class="wp-card wp-grid">'+input('price','Price (MMK) <em>*</em>','required type="number" min="0" max="9007199254740991" step="1" value="0"')+input('stock','Stock <em>*</em>','required type="number" min="0" max="9007199254740991" step="1" value="0"')+'</section>'+
    '<section class="wp-card"><div class="wp-images-head"><div><h3>'+t('images')+'</h3><small>'+t('help')+'</small></div><label class="product-upload-zone wp-upload">'+t('photos')+'<input type="file" accept="image/jpeg,image/png,image/webp" multiple hidden></label></div><div class="wp-thumbs"></div></section>'+
@@ -30,6 +30,11 @@
     const byId=new Map(categories.map(c=>[Number(c.id),c]));
     const label=c=>{const names=[c.category_en],seen=new Set([c.id]);let parent=byId.get(Number(c.parent_id));while(parent&&!seen.has(parent.id)){seen.add(parent.id);names.unshift(parent.category_en);parent=byId.get(Number(parent.parent_id))}return names.join(' / ')};
     form.elements.categoryId.innerHTML='<option value="">'+t('category')+'</option>'+categories.map(c=>'<option value="'+Number(c.id)+'">'+esc(label(c))+'</option>').join('')+'<option value="new">'+t('newCategory')+'</option>';
+    /* 1.1.398 owner: tapping Category opens the two-column Main category / subcategory picker (the admin's own picker). */
+    const trigger=form.querySelector('.wp-cat-trigger'),sel=form.elements.categoryId,setLabel=txt=>{trigger.textContent=txt||t('category');trigger.classList.toggle('has-value',!!txt)};
+    trigger.onclick=()=>{if(!window.GearHubCategoryPicker||!categories.length)return;const rows=categories.map(c=>({...c,parent_en:byId.get(Number(c.parent_id))?.category_en||''})),cur=categories.find(c=>String(c.id)===sel.value);
+     window.GearHubCategoryPicker.open({host:sheet,rows,mainSelectable:!rows.some(r=>r.parent_en),value:cur?.category_en||'',selectedId:cur?.id,onPick:pick=>{if(!pick)return;sel.value=String(pick.id);sel.dispatchEvent(new Event('change',{bubbles:true}));const c=categories.find(x=>x.id===pick.id)||pick;setLabel(label(c))}})};
+    form.querySelector('.wp-cat-new').onclick=()=>{sel.value='new';sel.dispatchEvent(new Event('change',{bubbles:true}));setLabel(t('newCategory'))};
     fields.disabled=false;save.disabled=false;message('');
    }catch(e){if(!form.isConnected)return;message(e.message);const retry=document.createElement('button');retry.type='button';retry.className='wp-retry';retry.textContent=t('retry');retry.onclick=()=>{retry.remove();loadCategories()};status.append(' ',retry)}
   }
@@ -45,7 +50,7 @@
    if(lang){for(const key of ['description','descriptionMy'])form.elements[key].hidden=key!==lang.dataset.wpLang;form.querySelectorAll('[data-wp-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b===lang)))}
   });
   form.addEventListener('submit',async e=>{
-   e.preventDefault();if(busy||fields.disabled||!form.reportValidity())return;
+   e.preventDefault();if(busy||fields.disabled)return;if(!form.elements.categoryId.value){message(t('category'));form.querySelector('.wp-cat-trigger').focus();return}if(!form.reportValidity())return;
    const value=name=>form.elements[name].value.trim(),chosen=categories.find(c=>String(c.id)===value('categoryId'));
    const body={sku:value('sku'),partNo:value('partNo'),name:value('name'),category:chosen?.category_en||value('newCategory'),...(chosen?{categoryId:chosen.id}:{}),categoryMy:value('categoryMy'),nameMy:value('nameMy'),imageEmoji:value('imageEmoji'),price:Number(value('price')),stock:Number(value('stock')),promotionPrice:value('promotionPrice'),description:value('description'),descriptionMy:value('descriptionMy'),active:true};
    busy=true;fields.disabled=true;save.disabled=true;close.disabled=true;save.textContent=t('saving');message('');
