@@ -1894,3 +1894,6 @@ _None._
 
 ## 2026-11-07 (night 3) — 1.1.384 white phone top bar
 - Phone Home top bar like the owner's picture: plain white bar, shop logo + name only (no tagline/✓), the speed as coloured numbers under the name (no wifi icon; net-speed.js moves the badge into the name block on phones), the same glossy 🔔 💬 on the right. CSS in noti-chat.css; PC and visiting-shop untouched. Tests 524/524; WebKit phone + PC checked (test shop has no logo, so the logo spot is empty there). Owner merges, deploys, Confirm update.
+
+## 2026-11-07 (night 5) — 1.1.386 phone Home like the owner's picture
+- Phone Home matched to the owner's "make it exactly like this" picture (noti-chat.css/js, index.html nav icons): white page, round-square 🔔 💬 with green outline icons + red count badges, search bar with the green scan square inside + 🔍 at the right and the green filter button at the far right, brighter Promotion banner (white tag, green-outlined Shop Now), soft filter boxes with ⌄, green outline bottom bar with a pale-green active square. Replaces the glossy 🔔 💬 look on phones only (PC and visiting-shop untouched). Tests 524/524; WebKit 480px compared with the picture. PR #473 (Scan in the top bar) is superseded by this (scan lives in the search bar as in the picture) — close it. Owner merges, deploys, Confirm update.
