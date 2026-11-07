@@ -1,5 +1,25 @@
 # Claude mailbox
 
+## 2026-11-07 — from Claude (account 1) — 1.1.374 glass Chat finished (supersedes #459 and #461)
+
+- Took over Codex's unfinished worktree `gearhub-chat-reference` (branch `codex/chat-reference-integration`): glass inbox + glass thread + private attachments + auto call recordings + Message preload, one PR. Tests 523/523, checked at phone and PC size against the owner's two pictures. Owner merges ONLY this PR and closes #459 and #461. Open: real-phone check, Confirm update.
+
+## 2026-11-07 — Codex — 1.1.373 auto call recordings + Message preload, PR #461
+
+- Owner answered both recording questions with “သဘောတူစရာမလို” (no agreement needed). Proceed without a consent popup: automatically record on connection, with a visible notice on BOTH call screens. Server storage/upload/playback is authorized in this scope. Earlier pending-question handoff in local codex/call-recordings is superseded.
+- Added private SQLite recording metadata/segments and playback inside the existing Chat. One participant records both voices; video records both cameras. Default segment 60 s, upload retries/size bounds, existing shop storage quota. No public recording URLs/cache. Only chat buyer, shop managers and GearHub owner can replay. Both clients must support the visible notice; older-client calls continue without recording.
+- Segments survive restart; startup recovers saved segments from interrupted calls into Chat as partial recordings. Current unfinished segment may be lost on forced app close. Unsupported browser, upload failure or full storage does not end the live call. No automatic deletion/retention added.
+- Node22 check + test 522/522 passed; final CI status: see PR #461. Browser: actual two-party WebRTC using disposable synthetic microphones/cameras; automatic recording notices on both sides; mixed audio verified in saved file; video 640×360 shows both cameras and replays; voice segments auto-advance; mute/unmute, private ACL/ranges/quota/idempotency/restart tested. Final playback layout checked at 375×812 and 1280×900; no overflow/console errors. Physical iPhone/Android/background recording not tested.
+- Scope combined with Message preload in the existing PR #461, head branch codex/message-preload. Current local worktree /Users/oakkar/Documents/Codex/gearhub-call-replay, local branch codex/call-replay. Separate pending #459 (glass chat/files) and #460 (driver) are excluded. Owner merges/deploys/Confirms; none done by Codex.
+
+## 2026-11-07 — Codex — 1.1.372 Message preload ([PR #461](https://github.com/uoakkarkyaw2002-commits/gearhub-industrial/pull/461))
+
+- Message inbox now warms after signed-in notifications load; opening renders the page-memory snapshot immediately while refreshing. Opened threads also reopen from memory, with draft-safe background updates and guards against late responses changing another chat.
+- Preload uses only inbox list routes, never buyer/thread GET routes that mark messages read. No API/database/call/design changes. Cache is capped at 24 entries; no localStorage/IndexedDB/service-worker storage of private chat responses; clear on hidden/page exit/auth errors.
+- Node22 check + test 521/521; actual seller browser 375×812 and 1280×900, with server-side 2 s delays on chat GETs: warm inbox has no Loading; cached threads open immediately; draft survives refresh, send updates cache, buyer/owner isolated, unread unchanged until actual thread open, no console errors/overflow. Physical iPhone/live calls not tested.
+- Open: owner merge/deploy/Confirm. Separate PR #459 (1.1.370 glass chat/files) and #460 (1.1.371 visiting driver) are not included; this branch is from main 958fd8f. Resolve overlapping release metadata/client changes before combining those PRs.
+- Call recording request is still pending manual/automatic + server-storage approval answers; inspection handoff is in local `codex/call-recordings` (8461070). Do not implement recording storage/API without the owner's answer.
+
 ## 2026-11-07 (10 am) — from Claude (account 1) — open
 
 - Native app: call after the app was cleared from recents showed only a silent entry → 1.1.369 (loud-alert fallback in the Android app + the page tells the server when it leaves) is in a PR; new APK `SkyShopMM-app-debug-1.1.369-recents.apk` in the owner's Google Drive; needs deploy + Confirm update. Owner re-tests: clear the app from recents, call.

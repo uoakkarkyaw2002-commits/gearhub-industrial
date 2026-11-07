@@ -38,3 +38,6 @@
 /* 1.1.358 */
 .vc-btn.vc-spk[aria-pressed="true"] svg{background:#fff;fill:#16335f}
 .vc-screen .vc-actions{gap:26px;flex-wrap:wrap;justify-content:center}
+
+.vc-recording{position:relative;z-index:2;margin:12px 0;color:#fff;font-size:13px;line-height:1.5;text-shadow:0 1px 4px #000;max-width:100%}
+.vc-recording[data-state="recording"]{color:#ffb5b5}
