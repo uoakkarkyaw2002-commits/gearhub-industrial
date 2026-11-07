@@ -21,10 +21,10 @@
  const bubble='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M30 18h8a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6h-1l1.5 6-8-6h-3a6 6 0 0 1-6-6" fill="#2f7cf0"/><path d="M9 7h20a7 7 0 0 1 7 7v9a7 7 0 0 1-7 7H17l-8 6 1.5-6H9a7 7 0 0 1-7-7v-9a7 7 0 0 1 7-7z" fill="#fff"/><circle cx="12" cy="18.5" r="2.4" fill="#1d58b8"/><circle cx="19" cy="18.5" r="2.4" fill="#1d58b8"/><circle cx="26" cy="18.5" r="2.4" fill="#1d58b8"/></svg>';
  const box=document.createElement('div');box.className='nc-buttons';
  // The owner's own icon pictures (the bell's red dot is drawn in the picture, so it shows only when something is new).
- box.innerHTML='<button type="button" class="nc-button" data-nc="noti"><img src="/images/noti-bell-quiet.png?v=1" alt="" class="nc-bell"></button><button type="button" class="nc-button" data-nc="chat"><img src="/images/noti-chat.png?v=1" alt=""><i class="nc-dot" hidden></i></button>';
+ box.innerHTML='<button type="button" class="nc-button nc-scan" data-nc="scan" aria-label="Search by photo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="3.2" fill="none" stroke="#fff" stroke-width="2"/></svg></button><button type="button" class="nc-button" data-nc="noti"><img src="/images/noti-bell-quiet.png?v=1" alt="" class="nc-bell"></button><button type="button" class="nc-button" data-nc="chat"><img src="/images/noti-chat.png?v=1" alt=""><i class="nc-dot" hidden></i></button>';
  banner.append(box);
  if(ownerMode)box.hidden=true;
- const [notiButton,chatButton]=box.querySelectorAll('button');
+ const [,notiButton,chatButton]=box.querySelectorAll('button');box.querySelector('.nc-scan').addEventListener('click',e=>{e.stopPropagation();document.querySelector('.photo-scan-button')?.click()});
  const SEEN='gh-noti-seen:'+(slug||'gearhub');
  let cs=slug,csrf='',data=null,role='',openChat=null,timer=0,inbox=[],inboxTab='chats',unreadOnly=false,viewId=0,refreshing=null,warmedAt=0,uiOwnLogo='',uiPeerName='',uiIdentity=null,selectedConversation='';
  // Private, page-lifetime snapshots only: never put conversations in shared/offline storage.
