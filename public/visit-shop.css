@@ -66,3 +66,12 @@ body.visiting-shop .ai-help-button{display:none!important}
  body.visiting-shop .visit-cart-count{position:absolute;top:-7px;right:-6px;display:grid;min-width:22px;height:22px;place-items:center;padding:0 5px;border:2px solid #fff;border-radius:999px;background:#ef4444;color:#fff;font:800 12px/1 system-ui,sans-serif}
  body.visiting-shop .visit-cart-count[hidden]{display:none}
 }
+
+/* 1.1.380 owner: visiting another shop on the phone — Profile (left) and Home only; nothing above the search bar on Home;
+   Category is in the green filter button's list. */
+@media (max-width:1023px){
+ body.visiting-shop .mobile-bottom-nav,html body.visiting-shop .mobile-bottom-nav.liquid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ body.visiting-shop .mobile-bottom-nav [data-store-view="category"]{display:none!important}
+ body.visiting-shop:not(.non-home-view) .home-profile-banner{display:none!important}
+ body.visiting-shop:not(.non-home-view) .home-navigation{padding-top:max(14px,env(safe-area-inset-top))!important}
+}
