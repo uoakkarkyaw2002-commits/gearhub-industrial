@@ -1,5 +1,8 @@
 # Claude mailbox
 
+## 2026-11-07 (night 11) — from Claude (account 1) — 1.1.393 Chat thread like the owner's picture
+- Thread header = one glass card (← · shop face + name · call · video · search · •••); my bubbles mint with clock time + ✓ (single tick = sent; read receipts are NOT in the API, so no ✓✓), no side avatars/tails; outline smiley in the composer; new search-in-chat (filters the messages). No "Online" text: presence is not in the API (the existing green dot stays). Same PR #476 (claude/top-clear). Tests 524/524; WebKit 390 checked. Merge once, deploy once, Confirm update.
+
 ## 2026-11-07 (night 10) — from Claude (account 1) — 1.1.392 Message header = the real logo, tap = Home, no ✕
 - Message inbox header now uses the SkyShopMM logo picture; tapping it closes Message and goes to the Home page; the inbox ✕ is hidden. Same PR #476 (claude/top-clear). Tests 524/524; WebKit phone checked (tap → sheet closes, Home view). Merge once, deploy once, Confirm update.
 
